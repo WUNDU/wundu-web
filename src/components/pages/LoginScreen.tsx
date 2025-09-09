@@ -5,10 +5,14 @@ import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import FormSection from "../molecules/FormSection";
 import { errorIllustration, loginIllustration, logo } from "@/src/constants/images";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ROUTES } from "@/src/constants/routes";
 
 const LoginScreen: React.FC = () => {
 
   const [loginError, setLoginError] = useState(false)
+  const router = useRouter()
 
   const handleLogin = () => {
     setLoginError(true);
@@ -40,18 +44,18 @@ const LoginScreen: React.FC = () => {
         </div>
       </div>
       <div className="flex w-full flex-col items-center">
-        <a href="#" className="text-center text-sm text-gray-600">
+        <Link href={ROUTES.REGISTER} className="text-center text-sm text-gray-600">
           Não é registrado? Crie uma conta
-        </a>
+        </Link>
         <p className="mt-4 text-center text-xs text-gray-500">
           Ao entrar, você concorda com nossos{" "}
-          <a href="https://wundu.netlify.app/privacy-policy#terms-policy" className="underline">
+          <Link href="https://wundu.netlify.app/privacy-policy#terms-policy" className="underline">
             termos de uso
-          </a>{" "}
+          </Link>{" "}
           e nossa{" "}
-          <a href="https://wundu.netlify.app/privacy-policy" className="underline">
+          <Link href="https://wundu.netlify.app/privacy-policy" className="underline">
             política de privacidade
-          </a>
+          </Link>
           .
         </p>
       </div>
