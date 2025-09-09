@@ -3,7 +3,7 @@ import { ViewOffIcon, ViewOnIcon } from "@/src/constants/icons";
 import { InputProps } from "@/src/types/input";
 import { useState } from "react";
 
-const Input: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, isError = false, required = false }) => {
+const Input: React.FC<InputProps> = ({ label, type, placeholder, value, onChange, isError = false, required = false, maxLenght }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = type === 'password';
   const inputType = isPasswordField && showPassword ? 'text' : type;
@@ -32,6 +32,7 @@ const Input: React.FC<InputProps> = ({ label, type, placeholder, value, onChange
           onChange={onChange}
           className={`w-full rounded-xl border ${borderClass} px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 ${ringClass}`}
           required={required}
+          maxLength={maxLenght}
         />
         {isPasswordField && (
           <button

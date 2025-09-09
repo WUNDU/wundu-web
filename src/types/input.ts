@@ -8,6 +8,7 @@ export interface InputProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  maxLenght?: number
 }
 
 export interface CodeInputProps {

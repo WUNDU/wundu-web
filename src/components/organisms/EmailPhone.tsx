@@ -1,20 +1,30 @@
 'use client';
+
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
-
 import { useState } from "react";
 import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
+import { COUNTRIES } from "@/src/constants/countries";
+import { validatePhoneNumber } from "@/src/utils/validation";
 
-const Step1_EmailPhone = () => {
+const EmailPhone = () => {
   const { setResetData, nextStep } = usePasswordResetContext();
-  const [input, setInput] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState(COUNTRIES[0].code);
+  const [isError, setIsError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setResetData({ phoneOrEmail: input });
-    nextStep();
+    const isValid = validatePhoneNumber(phoneNumber);
+    if (isValid) {
+      setResetData({ phoneOrEmail: countryCode + phoneNumber });
+      nextStep();
+      setIsError(false);
+    } else {
+      setIsError(true);
+    }
   };
 
   return (
@@ -23,19 +33,40 @@ const Step1_EmailPhone = () => {
       <div className="w-full text-left">
         <CtaSectionLogin
           title="Perdeu a sua senha?"
-          subtitle="Digite seu número telefônico e enviaremos um código de verificação."
+          subtitle="Digite seu número telefónico e enviaremos um código de verificação."
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-18 py-10 px-4">
-        <Input
-          id="phone-or-email"
-          label="Nº Telefone"
-          type="tel" // Pode ser 'email' se preferir, mas 'tel' é para a imagem
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Digite seu nº de telefone"
-          required
-        />
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-8 px-4">
+        <div className="flex items-center gap-2">
+          <select
+            name="countryCode"
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value)}
+            className="w-auto rounded-xl border border-gray-300 px-4 py-3 m-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {COUNTRIES.map((country) => (
+              <option key={country.code} value={country.code}>
+                {country.flag} {country.code}
+              </option>
+            ))}
+          </select>
+          <Input
+            id="phone-number"
+            label=""
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Digite seu nº de telefone"
+            isError={isError}
+            maxLenght={9}
+            required
+          />
+        </div>
+        {isError && (
+          <p className="text-sm text-red-500 -mt-4">
+            Por favor, insira um número de telefone válido.
+          </p>
+        )}
         <Button onClick={() => { }} type="submit">Continuar</Button>
       </form>
       <div className="mt-auto h-1/4"></div>
@@ -43,4 +74,4 @@ const Step1_EmailPhone = () => {
   );
 };
 
-export default Step1_EmailPhone;
+export default EmailPhone;
