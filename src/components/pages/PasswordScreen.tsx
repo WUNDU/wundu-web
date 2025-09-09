@@ -1,10 +1,10 @@
 'use client';
 
-import { PasswordResetProvider, usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
-import Success from "../organisms/Success";
+import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import EmailPhone from "../organisms/EmailPhone";
 import Verification from "../organisms/Verification";
 import NewPassword from "../organisms/NewPassword";
+import SuccessPasswordReset from "../organisms/SucessPasswordReset";
 
 const PasswordResetScreen = () => {
   const { currentStep } = usePasswordResetContext();
@@ -18,7 +18,7 @@ const PasswordResetScreen = () => {
       case 3:
         return <NewPassword />;
       case 4:
-        return <Success />;
+        return <SuccessPasswordReset />;
       default:
         return <EmailPhone />;
     }
