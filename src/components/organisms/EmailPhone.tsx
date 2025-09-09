@@ -26,7 +26,7 @@ const Step1_EmailPhone = () => {
           subtitle="Digite seu número telefônico e enviaremos um código de verificação."
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-18 py-10 px-4">
         <Input
           id="phone-or-email"
           label="Nº Telefone"

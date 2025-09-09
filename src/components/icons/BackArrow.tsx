@@ -1,4 +1,4 @@
-const backArrow = (props: React.SVGProps<SVGSVGElement>) => {
+const BackArrow = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path d="M5.66655 17.0005L28.3332 17.0005" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -8,4 +8,4 @@ const backArrow = (props: React.SVGProps<SVGSVGElement>) => {
   )
 }
 
-export default backArrow
+export default BackArrow
