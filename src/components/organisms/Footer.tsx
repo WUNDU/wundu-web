@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <div className="flex w-full items-center gap-4 px-6">
+    <div className="mt-10 flex w-full items-center gap-3 px-2">
       <Button onClick={handleCadastreSe} variant="primary">
         Cadastre-se
       </Button>
