@@ -5,6 +5,7 @@ import Image from "next/image";
 import { logo } from "@/src/constants/images";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
+import CtaSectionLogin from "../molecules/CtaSectionLogin";
 
 const SecurityData = () => {
   const { data, setRegisterData, nextStep, prevStep } = useRegisterContext();
@@ -26,18 +27,18 @@ const SecurityData = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-between items-center p-8">
-      <div className="w-full flex justify-between items-center mb-8">
+    <div className="flex flex-col h-full justify-between p-4">
+      <div className="w-full flex items-center">
         <div onClick={prevStep} className="w-6 h-6 cursor-pointer" />
         <Image src={logo} alt="Logo" className="w-16 h-16" />
       </div>
       <div className="w-full text-left">
-        <h1 className="text-3xl font-bold text-gray-800">Segurança</h1>
-        <p className="mt-2 text-gray-600">
-          Crie uma senha e mantenha seus dados seguros.
-        </p>
+        <CtaSectionLogin
+          title={"Segurança"}
+          subtitle={"Crie uma senha e mantenha seus dados seguros."}
+        />
       </div>
-      <form onSubmit={handleSubmit} className="w-full my-8">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-8 py-10 px-6">
         <Input
           id="password"
           label="Crie uma senha"

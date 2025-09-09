@@ -7,6 +7,7 @@ import backArrow from "../icons/BackArrow";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import GoogleLoginButton from "../atoms/GoogleLoginButton";
+import CtaSectionLogin from "../molecules/CtaSectionLogin";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();
@@ -23,18 +24,18 @@ const PersonalData = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-between items-center p-8">
-      <div className="w-full flex justify-between items-center mb-8">
+    <div className="flex flex-col h-full justify-between p-4">
+      <div className="w-full flex items-center">
         <div className="w-6 h-6" />
         <Image src={logo} alt="Logo" className="w-16 h-16" />
       </div>
       <div className="w-full text-left">
-        <h1 className="text-3xl font-bold text-gray-800">Dados pessoais</h1>
-        <p className="mt-2 text-gray-600">
-          Forneça seus dados e seja cadastrado no nosso aplicativo.
-        </p>
+        <CtaSectionLogin
+          title={"Dados pessoais"}
+          subtitle={"Forneça seus dados e seja cadastrado no nosso aplicativo."}
+        />
       </div>
-      <form onSubmit={handleSubmit} className="w-full my-8">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
         <Input
           id="name"
           label="Nome"
