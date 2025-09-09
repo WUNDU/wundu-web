@@ -1,4 +1,4 @@
-import { useRegisterContext } from "@/src/hooks/context";
+import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Button from "../atoms/Button";
 import Image from "next/image";
 import { logo } from "@/src/constants/images";

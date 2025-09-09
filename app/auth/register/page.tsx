@@ -1,5 +1,5 @@
 import RegisterScreen from "@/src/components/pages/RegisterScreen";
-import { RegisterProvider } from "@/src/hooks/context";
+import { RegisterProvider } from "@/src/contexts/RegisterContext";
 
 export default function Register() {
   return (

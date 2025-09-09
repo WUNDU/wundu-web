@@ -1,5 +1,5 @@
 'use client'
-import { useRegisterContext } from "@/src/hooks/context";
+import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import { useState } from "react";
 import Image from "next/image";
 import { logo } from "@/src/constants/images";

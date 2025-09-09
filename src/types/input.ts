@@ -7,4 +7,13 @@ export interface InputProps {
   required?: boolean
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+}
+
+export interface CodeInputProps {
+  length: number;
+  value: string;
+  onChange: (value: string) => void;
+  isError?: boolean;
+  isSuccess?: boolean
 }

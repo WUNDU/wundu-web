@@ -1,5 +1,5 @@
 'use client'
-import { useRegisterContext } from "@/src/hooks/context";
+import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import PersonalData from "../organisms/PersonalData";
 import SecurityData from "../organisms/SecurityData";
 import Success from "../organisms/Success";

@@ -1,6 +1,6 @@
 'use client'
 import { logo } from "@/src/constants/images";
-import { useRegisterContext } from "@/src/hooks/context";
+import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Image from "next/image";
 import { useState } from "react";
 import backArrow from "../icons/BackArrow";
