@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "../src/styles/globals.css";
+import { UiProvider } from "@/src/providers/UiProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
         className={`${inter.variable} ${openSans.variable} antialiased`}
       >
         {children}
+        <UiProvider />
       </body>
     </html>
   );

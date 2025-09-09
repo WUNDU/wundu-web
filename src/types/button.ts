@@ -1,5 +1,10 @@
 import { ButtonHTMLAttributes } from "react";
 
+export type CloseButtonProps = {
+  onClick: () => void;
+};
+
+
 export interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
