@@ -5,17 +5,16 @@ import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import FormSection from "../molecules/FormSection";
 import { errorIllustration, loginIllustration, logo } from "@/src/constants/images";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
+import { useUiStore } from "@/src/store/uiStore";
 
 const LoginScreen: React.FC = () => {
 
-  const [loginError, setLoginError] = useState(false)
-  const router = useRouter()
+  const { openModal } = useUiStore();
 
   const handleLogin = () => {
-    setLoginError(true);
+    openModal('error', 'Erro de Login', 'A senha inserida está incorreta!');
   }
   return (
     <div className="flex min-h-screen flex-col items-center justify-between p-8">
@@ -27,9 +26,9 @@ const LoginScreen: React.FC = () => {
       </div> */}
       <div className="mt-4 w-screen px-2">
         <CtaSectionLogin
-          title={loginError ? "A senha inserida está incorreta!" : "FAÇA SEU LOGIN"}
-          subtitle={loginError ? "" : "Faça login e melhore a tua vida financeira"}
-          isError={loginError}
+          title="FAÇA SEU LOGIN"
+          subtitle="Faça login e melhore a tua vida financeira"
+          isError={false} // O estado de erro agora é gerido pelo modal
         />
         <div className="mt-5 flex w-full flex-col gap-2">
           <FormSection onLogin={handleLogin} />

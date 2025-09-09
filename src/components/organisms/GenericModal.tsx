@@ -5,49 +5,67 @@ import { createPortal } from 'react-dom';
 import { useUiStore } from '../../store/uiStore';
 import { CloseButton } from '../atoms/CloseButton';
 import { ModalContent } from '../molecules/ModalConten';
+
 export function GenericModal() {
   const { isOpen, type, title, message, closeModal, onClose } = useUiStore();
   const [isMounted, setIsMounted] = useState(false);
-  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
+  // Efeito para montar o portal quando o componente é carregado
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
 
+  // Efeito para gerenciar a animação de entrada e saída
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     if (isOpen) {
-      setIsOverlayOpen(true);
+      setIsAnimating(true);
+      // Fecha o modal automaticamente após 3 segundos
+      timeout = setTimeout(() => {
+        closeModal();
+      }, 3000);
     } else {
-      const timeout = setTimeout(() => setIsOverlayOpen(false), 300); // tempo da animação
-      return () => clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsAnimating(false);
+      }, 500); // Duração da animação de saída
     }
-  }, [isOpen]);
+    return () => clearTimeout(timeout);
+  }, [isOpen, closeModal]);
 
-  if (!isMounted || !isOverlayOpen) {
+  if (!isMounted || (!isAnimating && !isOpen)) {
     return null;
   }
 
+  // O fechamento manual é removido, pois o modal fecha sozinho
   const handleClose = () => {
     closeModal();
-    onClose();
+    if (onClose) {
+      onClose();
+    }
   };
+
+  const modalBgClass = type === 'error'
+    ? 'bg-red-600'
+    : 'bg-green-600';
 
   return createPortal(
     <div
       className={`
-        fixed inset-0 z-50 transition-all duration-300
-        ${isOpen ? 'bg-black bg-opacity-50' : 'bg-transparent'}
-        flex items-center justify-center
+        fixed inset-0 z-50 flex items-end justify-center
+        transition-colors duration-500 ease-in-out
+        ${isOpen ? 'bg-black/50 bg-opacity-50' : 'bg-transparent'}
+        ${!isOpen && 'pointer-events-none'}
       `}
       onClick={handleClose}
     >
       <div
         className={`
-          relative flex flex-col bg-white shadow-lg rounded-xl dark:bg-neutral-900
+          relative flex flex-col ${modalBgClass} shadow-lg rounded-xl
           transition-all duration-500 ease-out transform
-          m-3 sm:max-w-lg sm:w-full sm:mx-auto
-          ${isOpen ? 'mt-7 opacity-100' : 'mt-0 opacity-0'}
+          m-4 w-full sm:max-w-sm
+          ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
         `}
         onClick={(e) => e.stopPropagation()}
       >
