@@ -34,7 +34,7 @@ const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError 
   const shadowClass = 'shadow-sm';
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-row gap-2.5 justify-center">
       {[...Array(length)].map((_, index) => (
         <Input
           label=''

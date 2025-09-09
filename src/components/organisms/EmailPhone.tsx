@@ -18,7 +18,7 @@ const Step1_EmailPhone = () => {
   };
 
   return (
-    <div className="flex h-full flex-col justify-between p-4">
+    <div className="flex h-full flex-col gap-y-8 justify-between p-4">
       <Header title="Perdeu a sua senha?" />
       <div className="w-full text-left">
         <CtaSectionLogin

@@ -45,15 +45,15 @@ const Verification = () => {
   };
 
   return (
-    <div className="flex h-full flex-col justify-between p-4">
+    <div className="flex h-full flex-col gap-y-8 justify-between p-6">
       <Header title="Verificação do Código" onBack={prevStep} />
-      <div className="w-full text-left">
+      <div className="w-full mt-10">
         <CtaSectionLogin
           title="Verificação do Código"
           subtitle="Insira o código que foi enviado para o seu nº telefônico nos campos abaixo."
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-8 px-4">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
         <CodeInput length={6} value={code} onChange={setCode} isError={isCodeIncorrect} isSuccess={isCodeCorrect} />
         {isCodeIncorrect && (
           <p className="text-sm text-red-500 text-center">Código incorreto. Tente novamente.</p>

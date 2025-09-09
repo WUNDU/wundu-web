@@ -8,7 +8,7 @@ import { useState } from "react";
 import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
 
-const Step3_NewPassword = () => {
+const NewPassword = () => {
   const { nextStep, prevStep, setResetData } = usePasswordResetContext();
   const [form, setForm] = useState({
     password: "",
@@ -28,7 +28,7 @@ const Step3_NewPassword = () => {
   };
 
   return (
-    <div className="flex h-full flex-col justify-between p-4">
+    <div className="flex h-full flex-col gap-2.5 justify-between p-4">
       <Header title="Criar uma nova senha" onBack={prevStep} />
       <div className="w-full text-left">
         <CtaSectionLogin
@@ -36,7 +36,7 @@ const Step3_NewPassword = () => {
           subtitle="Crie uma senha e mantenha seus dados seguros."
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-8 px-4">
         <Input
           id="password"
           label="Crie uma senha"
@@ -67,4 +67,4 @@ const Step3_NewPassword = () => {
   );
 };
 
-export default Step3_NewPassword;
+export default NewPassword;

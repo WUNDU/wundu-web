@@ -23,14 +23,14 @@ const Header: React.FC<HeaderProps> = ({ title, onBack }) => {
   };
 
   return (
-    <div className="flex w-full items-center justify-between p-4">
+    <div className="flex flex-col gap-4 w-full justify-between">
       {onBack && (
-        <IconButton onClick={handleBack} aria-label="Voltar" className="w-6 h-6 flex items-center justify-center">
+        <IconButton onClick={handleBack} aria-label="Voltar" className="w-7 h-7 flex items-center justify-center">
           <BackArrow />
         </IconButton>
       )}
-      <div className="flex-1 flex justify-center">
-        <Image src={logo} alt="Logo" className="w-16 h-16" />
+      <div className="flex-1 flex ">
+        <Image src={logo} alt="Logo" className="w-12 h-12" />
       </div>
     </div>
   );

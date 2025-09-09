@@ -17,6 +17,12 @@ const Input: React.FC<InputProps> = ({ label, type, placeholder, value, onChange
 
   return (
     <div className="flex w-full flex-col gap-2">
+      <style>{`
+        /* Remove o ícone de 'revelar senha' nativo em navegadores Microsoft Edge */
+        input[type="password"]::-ms-reveal {
+          display: none;
+        }
+      `}</style>
       <label className="text-gray-600">{label}</label>
       <div className="relative">
         <input
