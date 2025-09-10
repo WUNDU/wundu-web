@@ -19,8 +19,12 @@ const GreetingHeader = () => {
         </div>
       </div>
       <div className="flex items-center space-x-3">
-        <IA />
-        <Notification />
+        <div className='border-2 rounded-full border-purple-200 bg-white'>
+          <IA />
+        </div>
+        <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
+          <Notification />
+        </div>
       </div>
     </header>
   );
