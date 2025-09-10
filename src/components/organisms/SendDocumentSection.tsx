@@ -7,8 +7,8 @@ import UploadOptions from '../molecules/UploadOption';
 import { SentDocumentsSectionProps } from '@/src/types/button';
 
 
-const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, showOptions }) => {
-  if (documents.length === 0 && showOptions) {
+const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, showOptions, onFileSelect }) => {
+  if (showOptions) {
     return (
       <section className="flex flex-col flex-1 mb-2">
         <div className="flex justify-between items-center mb-8">
@@ -18,7 +18,7 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
           </div>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1">
-          <UploadOptions />
+          <UploadOptions onFileSelect={onFileSelect} />
         </div>
       </section>
     );

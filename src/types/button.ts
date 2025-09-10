@@ -36,4 +36,9 @@ export interface Document {
 export interface SentDocumentsSectionProps {
   documents: Document[];
   showOptions: boolean;
+  onFileSelect: (file: File, type: 'image' | 'document') => void;
+}
+
+export interface UploadOptionsProps {
+  onFileSelect: (file: File, type: 'image' | 'document') => void
 }
