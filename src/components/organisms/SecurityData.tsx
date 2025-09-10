@@ -30,7 +30,7 @@ const SecurityData = () => {
     <div className="flex flex-col h-full justify-between p-4">
       <div className="w-full flex items-center">
         <div onClick={prevStep} className="w-6 h-6 cursor-pointer" />
-        <Image src={logo} alt="Logo" className="w-16 h-16" />
+        <Image src={logo} alt="Logo" className="w-12 h-12" />
       </div>
       <div className="w-full text-left">
         <CtaSectionLogin

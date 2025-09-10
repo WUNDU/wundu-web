@@ -8,6 +8,8 @@ import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import GoogleLoginButton from "../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
+import Link from "next/link";
+import { ROUTES } from "@/src/constants/routes";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();
@@ -27,7 +29,7 @@ const PersonalData = () => {
     <div className="flex flex-col h-full justify-between p-4">
       <div className="w-full flex items-center">
         <div className="w-6 h-6" />
-        <Image src={logo} alt="Logo" className="w-16 h-16" />
+        <Image src={logo} alt="Logo" className="w-12 h-12" />
       </div>
       <div className="w-full text-left">
         <CtaSectionLogin
@@ -78,6 +80,9 @@ const PersonalData = () => {
         </div>
       </div>
       <div className="flex flex-col items-center mt-auto w-full">
+        <Link href={ROUTES.LOGIN} className="text-center text-sm text-gray-600">
+          Já tem conta? <strong>Entrar</strong>
+        </Link>
         <p className="mt-4 text-center text-xs text-gray-500">
           Ao entrar, você concorda com nossos{" "}
           <a href="#" className="underline">
