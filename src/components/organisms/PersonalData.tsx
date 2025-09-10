@@ -73,7 +73,9 @@ const PersonalData = () => {
           <span className="mx-4 shrink text-gray-500">Ou</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
-        <GoogleLoginButton />
+        <div className="m-3.5">
+          <GoogleLoginButton />
+        </div>
       </div>
       <div className="flex flex-col items-center mt-auto w-full">
         <p className="mt-4 text-center text-xs text-gray-500">

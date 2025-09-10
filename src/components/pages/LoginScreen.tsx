@@ -36,7 +36,7 @@ const LoginScreen: React.FC = () => {
             <span className="mx-1 shrink text-gray-500">Ou</span>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
-          <div className="mb-2">
+          <div className="m-3.5">
             <GoogleLoginButton />
           </div>
         </div>

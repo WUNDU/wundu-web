@@ -17,14 +17,13 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
             <Settings className="text-gray-600" />
           </div>
         </div>
-        <div className="bg-white rounded-xl p-8 shadow-sm flex flex-col justify-center flex-1">
+        <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1">
           <UploadOptions />
         </div>
       </section>
     );
   }
 
-  // Exibe a mensagem "Nenhum movimento" se não houver documentos e showOptions for false
   if (documents.length === 0) {
     return (
       <section className="flex flex-col flex-1 mb-2">
