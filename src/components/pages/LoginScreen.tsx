@@ -28,7 +28,6 @@ const LoginScreen: React.FC = () => {
         <CtaSectionLogin
           title="FAÇA SEU LOGIN"
           subtitle="Faça login e melhore a tua vida financeira"
-          isError={false} // O estado de erro agora é gerido pelo modal
         />
         <div className="mt-5 flex w-full flex-col gap-2">
           <FormSection onLogin={handleLogin} />

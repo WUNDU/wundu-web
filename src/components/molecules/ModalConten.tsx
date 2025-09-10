@@ -11,7 +11,7 @@ export function ModalContent({ type, title, message }: ModalContentProps) {
   return (
     <div className="p-4 sm:p-6 text-center overflow-y-auto flex flex-row items-center space-x-4">
       {/* Icon */}
-      <div className="flex-shrink-0 flex justify-center">
+      <div className="flex-shrink-0 flex justify-center mt-5">
         <ModalIcon type={type} />
       </div>
 

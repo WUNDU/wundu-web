@@ -17,7 +17,7 @@ const FormSection: React.FC<FormSectionProps> = ({ onLogin }) => {
 
   return (
     <form onSubmit={handleLogin} className="flex w-full flex-col gap-4 px-4">
-      <Input label="Email" type="email" placeholder="Digite seu email" />
+      <Input label="Email" type="email" placeholder="Digite seu email" isError={passwordError} />
       <Input label="Senha" type="password" placeholder="Digite sua senha" isError={passwordError} required={true} />
       <Link href={ROUTES.RESET_PASSWORD} className="self-end text-sm text-gray-600">
         Esqueci minha senha

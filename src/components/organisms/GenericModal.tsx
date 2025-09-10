@@ -47,7 +47,7 @@ export function GenericModal() {
   };
 
   const modalBgClass = type === 'error'
-    ? 'bg-red-600'
+    ? 'bg-red-700'
     : 'bg-green-600';
 
   return createPortal(
@@ -55,7 +55,7 @@ export function GenericModal() {
       className={`
         fixed inset-0 z-50 flex items-end justify-center
         transition-colors duration-500 ease-in-out
-        ${isOpen ? 'bg-black/50 bg-opacity-50' : 'bg-transparent'}
+        ${isOpen ? 'bg-black/0 bg-opacity-50' : 'bg-transparent'}
         ${!isOpen && 'pointer-events-none'}
       `}
       onClick={handleClose}
