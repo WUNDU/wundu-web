@@ -8,7 +8,10 @@ const SentDocumentsSection = () => {
     <section className="flex flex-col flex-1 mb-2">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-sm font-bold uppercase text-gray-900">Documentos Enviados</h2>
-        <Settings />
+        <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
+          <Settings />
+        </div>
+
       </div>
       <div className="bg-white rounded-xl p-8 text-center shadow-sm flex flex-col justify-center items-center flex-1">
         <NoMovement className="mx-auto mb-2 text-gray-600" />
