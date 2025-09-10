@@ -2,7 +2,7 @@ import { ButtonProps } from "@/src/types/button";
 
 const Button: React.FC<ButtonProps> = ({ children, onClick, variant = 'primary' }) => {
   let baseClasses =
-    'w-full rounded rounded-lg px-6 py-3 font-semibold shadow-lg transition-colors hover:scale-105';
+    'w-full rounded rounded-lg px-6 py-3 font-semibold shadow-lg transition-colors hover:scale-101';
 
   if (variant === 'primary') {
     baseClasses += ' bg-gray-800 text-white hover:bg-gray-700';

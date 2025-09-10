@@ -1,19 +1,20 @@
 'use client'
+import { useRouter } from "next/navigation";
 import Button from "../atoms/Button";
+import { ROUTES } from "@/src/constants/routes";
 
 const Footer: React.FC = () => {
+  const router = useRouter();
   const handleCadastreSe = () => {
-    // Ação para o botão Cadastre-se
-    console.log('Botão Cadastre-se clicado!');
+    router.push(ROUTES.REGISTER)
   };
 
   const handleFacaLogin = () => {
-    // Ação para o botão Faça login
-    console.log('Botão Faça login clicado!');
+    router.push(ROUTES.LOGIN)
   };
 
   return (
-    <div className="flex w-full items-center gap-4 px-6">
+    <div className="mt-10 flex w-full items-center gap-3 px-2">
       <Button onClick={handleCadastreSe} variant="primary">
         Cadastre-se
       </Button>

@@ -7,7 +7,7 @@ const OnboardingScreen: React.FC = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col justify-between p-8">
-      <div className="mb-auto">
+      <div className="mb-20">
         <Logo src={logoUrl} />
       </div>
       <div className="mx-auto">

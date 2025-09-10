@@ -3,6 +3,8 @@ import { useState } from "react";
 import Input from "../atoms/Input";
 import LoginButton from "../atoms/LoginButton";
 import { FormSectionProps } from "@/src/types/form";
+import Link from "next/link";
+import { ROUTES } from "@/src/constants/routes";
 
 const FormSection: React.FC<FormSectionProps> = ({ onLogin }) => {
   const [passwordError, setPasswordError] = useState(false)
@@ -14,12 +16,12 @@ const FormSection: React.FC<FormSectionProps> = ({ onLogin }) => {
   };
 
   return (
-    <form onSubmit={handleLogin} className="flex w-full flex-col gap-6 px-6">
-      <Input label="Email" type="email" placeholder="Digite seu email" />
+    <form onSubmit={handleLogin} className="flex w-full flex-col gap-4 px-4">
+      <Input label="Email" type="email" placeholder="Digite seu email" isError={passwordError} />
       <Input label="Senha" type="password" placeholder="Digite sua senha" isError={passwordError} required={true} />
-      <a href="#" className="self-end text-sm text-gray-600">
+      <Link href={ROUTES.RESET_PASSWORD} className="self-end text-sm text-gray-600">
         Esqueci minha senha
-      </a>
+      </Link>
       <LoginButton onClick={() => { }} type="submit">Entrar</LoginButton>
     </form>
   );
