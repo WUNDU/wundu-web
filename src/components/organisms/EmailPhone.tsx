@@ -8,6 +8,7 @@ import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
 import { COUNTRIES } from "@/src/constants/countries";
 import { validatePhoneNumber } from "@/src/utils/validation";
+import BackArrow from "../icons/BackArrow";
 
 const EmailPhone = () => {
   const { setResetData, nextStep } = usePasswordResetContext();
@@ -26,9 +27,19 @@ const EmailPhone = () => {
       setIsError(true);
     }
   };
+  const handBackClick = () => {
+    history.back()
+  }
 
   return (
     <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
+      <button
+        onClick={handBackClick}
+        className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
+      >
+        <BackArrow />
+        <span className="text-sm">Voltar</span>
+      </button>
       {/* Header - apenas mobile */}
       <div className="block md:hidden">
         <Header title="Perdeu a sua senha?" />

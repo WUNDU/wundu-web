@@ -41,7 +41,7 @@ const PasswordResetScreen = () => {
           <span className="text-2xl font-bold text-gray-800">WUNDU</span>
         </div>
 
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 relative">
+        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
           {renderStep()}
         </div>
       </div>

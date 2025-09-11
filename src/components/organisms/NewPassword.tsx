@@ -7,6 +7,7 @@ import Button from "../atoms/Button";
 import { useState } from "react";
 import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
+import BackArrow from "../icons/BackArrow";
 
 const NewPassword = () => {
   const { nextStep, prevStep, setResetData } = usePasswordResetContext();
@@ -28,7 +29,14 @@ const NewPassword = () => {
   };
 
   return (
-    <div className="flex h-full flex-col gap-2.5 justify-between p-4 md:gap-6 md:justify-start md:p-0">
+    <div className="flex h-full md:max-w-xl  flex-col gap-2.5 justify-between md:gap-6 md:justify-start md:p-0">
+      <button
+        onClick={prevStep}
+        className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
+      >
+        <BackArrow />
+        <span className="text-sm">Voltar</span>
+      </button>
       {/* Header - apenas mobile */}
       <div className="block md:hidden">
         <Header title="Criar uma nova senha" onBack={prevStep} />
