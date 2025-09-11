@@ -24,6 +24,11 @@ export interface OptionButtonProps {
   onClick: () => void;
 }
 
+export interface CategoryButtonProps {
+  label: string;
+}
+
+
 export interface UploadProps {
   onUploadClick: () => void;
 }

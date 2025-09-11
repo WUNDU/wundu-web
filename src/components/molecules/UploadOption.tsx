@@ -25,7 +25,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
     <div className="flex flex-col space-y-4">
       <OptionButton icon={Receipt} text="Comprovativo" onClick={handleButtonClick} />
       <OptionButton icon={Image} text="Imagem" onClick={handleButtonClick} />
-      <OptionButton icon={Receipt} text="Documento" onClick={handleButtonClick} />
+      <OptionButton icon={Receipt} text="Extrato Bancário" onClick={handleButtonClick} />
 
       <input
         type="file"

@@ -20,3 +20,12 @@ export interface ModalState {
   openModal: (type: ModalType, title: string, message: string, onClose?: () => void) => void;
   closeModal: () => void;
 }
+
+export interface ModalHeaderProps {
+  title: string;
+  onClose: () => void;
+}
+
+export interface DetailsModalProps {
+  onClose: () => void;
+}

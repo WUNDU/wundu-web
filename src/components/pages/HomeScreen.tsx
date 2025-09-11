@@ -6,11 +6,13 @@ import BottomNavigation from '../organisms/BottomNavigation';
 import SentDocumentsSection from '../organisms/SendDocumentSection';
 import { Document } from '@/src/types/button';
 import LoadingSpinner from '../atoms/LoadingSpinner';
+import DetailsModal from '../organisms/DetailsModal';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [showModal, setShowModal] = useState<boolean>(false)
 
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
@@ -29,8 +31,13 @@ const HomeScreen = () => {
     } finally {
       setIsLoading(false); // Finaliza o loading
       setShowUploadOptions(false);
+      setShowModal(true)
     }
   };
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 relative h-full font-sans">
@@ -48,6 +55,8 @@ const HomeScreen = () => {
         )}
       </main>
       <BottomNavigation />
+
+      {showModal && <DetailsModal onClose={handleCloseModal} />}
     </div>
   );
 };
