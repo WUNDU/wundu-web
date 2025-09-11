@@ -7,6 +7,9 @@ import SentDocumentsSection from '../organisms/SendDocumentSection';
 import { Document } from '@/src/types/button';
 import LoadingSpinner from '../atoms/LoadingSpinner';
 import DetailsModal from '../organisms/DetailsModal';
+import Sidebar from '../molecules/Sidebar';
+import StatsSection from '../molecules/StatsSection';
+import UploadOptions from '../molecules/UploadOption';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -40,23 +43,38 @@ const HomeScreen = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 relative h-full font-sans">
-      <GreetingHeader />
-      <main className="p-4 pb-20 flex flex-col space-y-4 flex-1">
-        {isLoading ? (
-          <div className="flex flex-1 items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <>
-            <UploadSection onUploadClick={toggleUploadOptions} />
-            <SentDocumentsSection documents={documents} showOptions={showUploadOptions} onFileSelect={handleFileSelect} />
-          </>
-        )}
-      </main>
-      <BottomNavigation />
+    <div className="flex min-h-screen bg-gray-100 relative h-full font-sans">
+      <Sidebar />
+      <div className='flex-1 flex flex-col'>
+        <GreetingHeader />
+        <main className="p-4 pb-20 flex flex-col space-y-4 flex-1">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              <div className='md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between'>
+                <div><UploadSection onUploadClick={toggleUploadOptions} /></div>
+                <div className='hidden md:flex md:col-span-2'><StatsSection totalFiles={0} totalProofs={0} totalImages={0} /></div>
+              </div>
+              <div className='md:grid md:grid-cols-3 md:gap-2 md:items-center md:justify-between'>
+                <div>
+                  <div className="hidden bg-white rounded-xl p-5 shadow-sm md:flex flex-col justify-center flex-1">
+                    <UploadOptions onFileSelect={() => { }} />
+                  </div>
+                </div>
+                <div className='md:flex md:col-span-2'>
+                  <SentDocumentsSection documents={documents} showOptions={showUploadOptions} onFileSelect={handleFileSelect} />
+                </div>
+              </div>
+            </>
+          )}
+        </main>
+        <BottomNavigation />
 
-      {showModal && <DetailsModal onClose={handleCloseModal} />}
+        {showModal && <DetailsModal onClose={handleCloseModal} />}
+      </div>
     </div>
   );
 };
