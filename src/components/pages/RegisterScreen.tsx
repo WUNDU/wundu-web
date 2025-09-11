@@ -3,6 +3,8 @@ import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import PersonalData from "../organisms/PersonalData";
 import SecurityData from "../organisms/SecurityData";
 import Success from "../organisms/Success";
+import Image from "next/image";
+import { logo } from "@/src/constants/images";
 
 const RegisterScreen = () => {
   const { currentStep } = useRegisterContext();
@@ -23,6 +25,10 @@ const RegisterScreen = () => {
   return (
     <div className="h-screen w-screen bg-white flex justify-center items-center">
       <div className="w-full h-full md:w-2/3 md:h-auto md:max-w-2xl md:shadow-lg md:rounded-lg md:bg-white">
+        <div className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 hidden">
+          <Image src={logo} alt="Login Illustration" className="w-full" />
+          <span className="text-2xl font-bold text-gray-800">WUNDU</span>
+        </div>
         {renderStep()}
       </div>
     </div>
