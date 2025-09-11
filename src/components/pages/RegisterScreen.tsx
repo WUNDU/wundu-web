@@ -21,10 +21,12 @@ const RegisterScreen = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-white">
-      {renderStep()}
+    <div className="h-screen w-screen bg-white flex justify-center items-center">
+      <div className="w-full h-full md:w-2/3 md:h-auto md:max-w-2xl md:shadow-lg md:rounded-lg md:bg-white">
+        {renderStep()}
+      </div>
     </div>
   );
 };
 
-export default RegisterScreen
+export default RegisterScreen;

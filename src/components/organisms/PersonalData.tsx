@@ -3,7 +3,7 @@ import { logo } from "@/src/constants/images";
 import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Image from "next/image";
 import { useState } from "react";
-import backArrow from "../icons/BackArrow";
+import BackArrow from "../icons/BackArrow";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import GoogleLoginButton from "../atoms/GoogleLoginButton";
@@ -25,19 +25,26 @@ const PersonalData = () => {
     nextStep();
   };
 
+  const handBackClick = () => {
+    history.back()
+  }
+
   return (
-    <div className="flex flex-col h-full justify-between p-4">
-      <div className="w-full flex items-center">
-        <div className="w-6 h-6" />
-        <Image src={logo} alt="Logo" className="w-12 h-12" />
+    <div className="flex flex-col h-full justify-between items-center p-4 md:p-8">
+      <div className="w-full flex-col flex md:flex-row md:items-center md:justify-between">
+        <div onClick={handBackClick}>
+          <BackArrow />
+        </div>
+        <div className="w-6 h-6 md:hidden" />
+        <Image src={logo} alt="Logo" className="w-12 h-12 md:hidden" />
       </div>
-      <div className="w-full text-left">
+      <div className="w-full md:w-2/3">
         <CtaSectionLogin
           title={"Dados pessoais"}
           subtitle={"Forneça seus dados e seja cadastrado no nosso aplicativo."}
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4 md:px-0 md:w-2/3">
         <Input
           id="name"
           label="Nome"
@@ -69,8 +76,8 @@ const PersonalData = () => {
           Próximo
         </Button>
       </form>
-      <div className="w-full">
-        <div className="relative my-4 flex items-center px-6">
+      <div className="w-full md:w-2/3">
+        <div className="relative my-4 flex items-center px-6 md:px-0">
           <div className="flex-grow border-t border-gray-300"></div>
           <span className="mx-4 shrink text-gray-500">Ou</span>
           <div className="flex-grow border-t border-gray-300"></div>
@@ -79,7 +86,7 @@ const PersonalData = () => {
           <GoogleLoginButton />
         </div>
       </div>
-      <div className="flex flex-col items-center mt-auto w-full">
+      <div className="flex flex-col items-center mt-auto w-full md:w-2/3">
         <Link href={ROUTES.LOGIN} className="text-center text-sm text-gray-600">
           Já tem conta? <strong>Entrar</strong>
         </Link>
@@ -99,4 +106,4 @@ const PersonalData = () => {
   );
 };
 
-export default PersonalData
+export default PersonalData;

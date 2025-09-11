@@ -20,10 +20,12 @@ const LoginScreen: React.FC = () => {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4 font-sans">
       {/* Logo Wundu - visível para todas as telas, mas posicionado de forma diferente */}
       <div className="absolute top-2 left-2 hidden md:block">
-        <Image src={logo} alt="Login Illustration" className="w-full" />
+        <div className="flex flex-row">
+          <Image src={logo} alt="Login Illustration" className="w-full" />  <span className="flex items-center ml-2 mb-2 font-bold text-gray-800 text-xl md:text-2xl">WUNDU</span>
+        </div>
       </div>
-
       <div className="flex w-full max-w-5xl flex-col items-center rounded-3xl bg-white shadow-2xl md:flex-row md:overflow-hidden md:p-0">
+
         {/* Seção da ilustração - oculta em telas pequenas */}
         <div className="hidden h-full flex-1 items-center justify-center p-8 md:flex md:w-1/2 lg:p-16">
           <Image src={loginIllustration} alt="Login Illustration" className="w-full" />
@@ -40,7 +42,6 @@ const LoginScreen: React.FC = () => {
             title="FAÇA SEU LOGIN"
             subtitle="Faça login e melhore a tua vida financeira"
           />
-
           <div className="mt-8 flex w-full flex-col">
             <FormSection onLogin={handleLogin} />
 

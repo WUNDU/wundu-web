@@ -45,15 +45,20 @@ const Verification = () => {
   };
 
   return (
-    <div className="flex h-full flex-col gap-y-8 justify-between p-6">
-      <Header title="Verificação do Código" onBack={prevStep} />
-      <div className="w-full mt-10">
+    <div className="flex h-full flex-col gap-y-8 justify-between p-6 md:gap-y-6 md:justify-start md:p-0">
+      {/* Header - apenas mobile */}
+      <div className="block md:hidden">
+        <Header title="Verificação do Código" onBack={prevStep} />
+      </div>
+
+      <div className="w-full mt-10 md:mt-0 md:text-center">
         <CtaSectionLogin
           title="Verificação do Código"
           subtitle="Insira o código que foi enviado para o seu nº telefônico nos campos abaixo."
         />
       </div>
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4">
+
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6">
         <CodeInput length={6} value={code} onChange={setCode} isError={isCodeIncorrect} isSuccess={isCodeCorrect} />
         {isCodeIncorrect && (
           <p className="text-sm text-red-500 text-center">Código incorreto. Tente novamente.</p>
@@ -68,8 +73,12 @@ const Verification = () => {
           </div>
         </div>
         <Button onClick={() => { }} type="submit">Confirmar</Button>
+
+        {/* Botão Voltar apenas para desktop */}
       </form>
-      <div className="mt-auto h-1/4"></div>
+
+      {/* Spacer apenas para mobile */}
+      <div className="mt-auto h-1/4 md:hidden"></div>
     </div>
   );
 };
