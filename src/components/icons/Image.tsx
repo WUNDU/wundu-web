@@ -1,4 +1,4 @@
-const Image = (props: React.SVGProps<SVGSVGElement>) => {
+const ImageIcon = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg width="25" height="26" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path d="M18.927 7.99C12.317 7.082 6.617 11.99 7 18.5M4.5 6C4.5 6.53043 4.71071 7.03914 5.08579 7.41421C5.46086 7.78929 5.96957 8 6.5 8C7.03043 8 7.53914 7.78929 7.91421 7.41421C8.28929 7.03914 8.5 6.53043 8.5 6C8.5 5.46957 8.28929 4.96086 7.91421 4.58579C7.53914 4.21071 7.03043 4 6.5 4C5.96957 4 5.46086 4.21071 5.08579 4.58579C4.71071 4.96086 4.5 5.46957 4.5 6Z" stroke="#141B34" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -7,4 +7,4 @@ const Image = (props: React.SVGProps<SVGSVGElement>) => {
     </svg>
   )
 }
-export default Image
+export default ImageIcon

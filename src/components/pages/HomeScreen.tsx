@@ -10,6 +10,8 @@ import DetailsModal from '../organisms/DetailsModal';
 import Sidebar from '../molecules/Sidebar';
 import StatsSection from '../molecules/StatsSection';
 import UploadOptions from '../molecules/UploadOption';
+import { ArrowLeft } from 'lucide-react';
+import ArrowsLeft from '../icons/ArrowsLeft';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -47,6 +49,9 @@ const HomeScreen = () => {
       <Sidebar />
       <div className='flex-1 flex flex-col'>
         <GreetingHeader />
+        <div className="hidden md:absolute md:flex my-12 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          <ArrowsLeft className="w-8 h-8 bg-blue-900 ml-2 p-2 rounded-full border border-blue-950" />
+        </div>
         <main className="p-4 pb-20 flex flex-col space-y-4 flex-1">
           {isLoading ? (
             <div className="flex flex-1 items-center justify-center">
