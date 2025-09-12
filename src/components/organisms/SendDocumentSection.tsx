@@ -33,7 +33,7 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
             <Settings className="text-gray-600" />
           </div>
         </div>
-        <div className="bg-white rounded-xl  md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
+        <div className="bg-white rounded-xl my-4 mb-20  md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
           <NoMovement className="mx-auto mb-2 text-gray-600" />
           <p className="text-lg font-semibold text-gray-900">Nenhum movimento registrado.</p>
           <p className="text-sm text-gray-500">Toque no botão acima para começar.</p>
