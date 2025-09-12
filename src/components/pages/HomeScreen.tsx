@@ -52,26 +52,48 @@ const HomeScreen = () => {
         <div className="hidden md:absolute md:flex my-12 transform -translate-x-1/2 -translate-y-1/2 z-10">
           <ArrowsLeft className="w-8 h-8 bg-blue-900 ml-2 p-2 rounded-full border border-blue-950" />
         </div>
-        <main className="p-4 pb-20 flex flex-col space-y-4 flex-1">
+        {/* <main className="p-4 pb-20 flex flex-col flex-1">
           {isLoading ? (
             <div className="flex flex-1 items-center justify-center">
               <LoadingSpinner />
             </div>
           ) : (
             <>
-              <div className='md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between'>
+              <div className='md:grid md:grid-cols-3 md: md:gap-2 flex items-center justify-between'>
+                <div><UploadSection onUploadClick={toggleUploadOptions} /></div>
+                <div className='hidden md:flex md:col-span-2'><StatsSection totalFiles={0} totalProofs={0} totalImages={0} /></div>
+              </div> */}
+        {/* <div className='md:grid md:grid-cols-3 md:grid-rows-1 md:gap-2 md:items-center md:justify-between'> */}
+        {/* <div> */}
+        {/* <div className="hidden bg-white rounded-xl p-5 shadow-sm md:flex flex-col justify-center flex-1">
+                  <UploadOptions onFileSelect={() => { }} />
+                </div> */}
+        {/* </div> */}
+        {/* <div className='md:flex md:col-span-2'> */}
+
+        {/* </div> */}
+        {/* </div> */}
+        {/* <div className='flex flex-col flex-1'>
+                <SentDocumentsSection documents={documents} showOptions={showUploadOptions} onFileSelect={handleFileSelect} />
+              </div>
+            </>
+
+
+          )}
+        </main> */}
+        <main className="px-4 flex flex-col flex-1">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              <div className='md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between mb-4'>
                 <div><UploadSection onUploadClick={toggleUploadOptions} /></div>
                 <div className='hidden md:flex md:col-span-2'><StatsSection totalFiles={0} totalProofs={0} totalImages={0} /></div>
               </div>
-              <div className='md:grid md:grid-cols-3 md:gap-2 md:items-center md:justify-between'>
-                <div>
-                  <div className="hidden bg-white rounded-xl p-5 shadow-sm md:flex flex-col justify-center flex-1">
-                    <UploadOptions onFileSelect={() => { }} />
-                  </div>
-                </div>
-                <div className='md:flex md:col-span-2'>
-                  <SentDocumentsSection documents={documents} showOptions={showUploadOptions} onFileSelect={handleFileSelect} />
-                </div>
+              <div className='flex flex-col flex-1'>
+                <SentDocumentsSection documents={documents} showOptions={showUploadOptions} onFileSelect={handleFileSelect} />
               </div>
             </>
           )}

@@ -6,14 +6,13 @@ import Image from 'next/image';
 import SettingsDesk from '../icons/SettingsDesk';
 import LibraryDesk from '../icons/LibraryDesk';
 import { logo } from '@/src/constants/images';
-import ArrowsLeft from '../icons/ArrowsLeft';
 import IA from '../icons/IA';
 
 const Sidebar = () => {
   return (
     <nav className="hidden md:flex flex-col w-64 bg-white py-5 shadow-sm border-r border-gray-200">
       <div className="flex items-center justify-center mb-10 border-b-2 pb-5 shadow-sm border-gray-300">
-        <Image src={logo} alt="Wundu Logo" className="w-15 h-15 rounded-full  bg-gray-100" />
+        <Image src={logo} alt="Wundu Logo" className="w-12 h-12 rounded-full  bg-gray-100" />
         <span className="text-xl font-bold ml-2">WUNDU</span>
       </div>
 

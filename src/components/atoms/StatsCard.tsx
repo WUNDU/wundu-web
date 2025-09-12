@@ -1,18 +1,12 @@
+import { StatsCardProps } from '@/src/types/card';
 import React from 'react';
 
-interface StatsCardProps {
-  icon: React.ElementType;
-  count: number;
-  label: string;
-  color: string;
-}
-
-const StatsCard: React.FC<StatsCardProps> = ({ icon: Icon, count, label, color }) => {
+const StatsCard: React.FC<StatsCardProps> = ({ icon: Icon, count, label, color, iconColor, border }) => {
   const iconContainerClass = `p-3 rounded-full ${color}`;
-  const iconClass = 'w-6 h-6 text-white';
+  const iconClass = `w-6 h-6 ${iconColor}`;
 
   return (
-    <div className="hidden md:flex items-center justify-center space-x-4 bg-white p-4 rounded-xl ">
+    <div className={`hidden md:flex items-center justify-center space-x-4 bg-white p-4 ${border}`}>
       <div className={iconContainerClass}>
         <Icon className={iconClass} />
       </div>

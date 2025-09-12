@@ -21,7 +21,7 @@ const GreetingHeader = () => {
               <Image
                 src={user}
                 alt="Israel Manuel"
-                className="w-10 h-10 rounded-full"
+                className="w-6 h-6 rounded-full"
               />
             </div>
           </div>

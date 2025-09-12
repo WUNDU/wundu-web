@@ -9,3 +9,9 @@ export interface DetailsSectionProps {
   label: string;
   children: React.ReactNode;
 }
+
+export interface StatsSectionProps {
+  totalFiles: number;
+  totalProofs: number;
+  totalImages: number;
+}
