@@ -1,12 +1,16 @@
 import React from 'react';
 import IA from '../icons/IA';
 import Notification from '../icons/Notification';
-import { user } from '@/src/constants/images';
-import Image from 'next/image';
 import DownArrow from '../icons/DownArrow';
 import NotificationDesk from '../icons/NotificationDesk';
+import Image from 'next/image';
+import { logo, user } from '@/src/constants/images';
 
-const GreetingHeader = () => {
+interface GreetingHeaderProps {
+  onToggleSidebar: () => void;
+}
+
+const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
   return (
     <header className="bg-white px-4 py-3 flex items-center justify-between md:justify-end shadow-sm">
       <div className="flex justify-start items-center md:justify-end">
@@ -25,7 +29,13 @@ const GreetingHeader = () => {
               />
             </div>
           </div>
-          <DownArrow className='hidden md:flex w-4 h-4 text-gray-600' />
+          <button
+            className='hidden md:flex w-4 h-4 text-gray-600'
+            onClick={onToggleSidebar}
+            aria-label="Toggle right sidebar"
+          >
+            <DownArrow />
+          </button>
         </div>
         <div className="md:hidden ml-3">
           <h1 className="text-lg font-semibold text-gray-900">Olá, Israel Manuel</h1>
@@ -34,9 +44,11 @@ const GreetingHeader = () => {
       </div>
       <div className="md:hidden flex items-center space-x-3">
         <div className='border-2 rounded-full border-purple-200 bg-white'>
+          {/* Ícone IA */}
           <IA />
         </div>
         <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
+          {/* Ícone de notificação */}
           <Notification />
         </div>
       </div>
