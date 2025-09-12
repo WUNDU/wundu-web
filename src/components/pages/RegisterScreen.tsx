@@ -23,13 +23,23 @@ const RegisterScreen = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-white flex justify-center items-center lg:my-10">
-      <div className="w-full h-full md:w-2/3 md:h-auto md:max-w-2xl md:shadow-2xl md:rounded-lg md:bg-white">
-        <div className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 hidden">
+    <div className="min-h-screen w-screen bg-white md:bg-gray-100">
+      {/* Layout Mobile (mantém o original) */}
+      <div className="block md:hidden h-screen">
+        {renderStep()}
+      </div>
+
+      {/* Layout Desktop (novo design centralizado) */}
+      <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">
+        {/* Logo WUNDU - fora do container, canto superior esquerdo */}
+        <div className="absolute top-8 left-8 flex items-center gap-2">
           <Image src={logo} alt="Login Illustration" className="w-full" />
           <span className="text-2xl font-bold text-gray-800">WUNDU</span>
         </div>
-        {renderStep()}
+
+        <div className="w-full max-w-3xl bg-white rounded-2xl  shadow-xl px-5 py-10 relative">
+          {renderStep()}
+        </div>
       </div>
     </div>
   );

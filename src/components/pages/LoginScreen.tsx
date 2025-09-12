@@ -19,15 +19,15 @@ const LoginScreen: React.FC = () => {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center md:bg-gray-100 font-sans">
       {/* Logo Wundu - visível para todas as telas, mas posicionado de forma diferente */}
-      <div className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 hidden">
-        <Image src={logo} alt="Login Illustration" className="w-full" />
+      <div className="hidden md:absolute top-8 left-8 md:flex items-center gap-2">
+        <Image src={logo} alt="Logo Wundu" className="w-full" />
         <span className="text-2xl font-bold text-gray-800">WUNDU</span>
       </div>
-      <div className="md:py-14">
+      <div className="md:py-4">
         <div className="flex w-full md:max-w-3xl flex-col items-center md:rounded-3xl md:bg-white md:shadow-2xl md:flex-row md:overflow-hidden md:p-0">
 
           {/* Seção da ilustração - oculta em telas pequenas */}
-          <div className="hidden flex-1 items-center justify-center p-8 md:flex md:w-1/2 lg:p-14">
+          <div className="hidden flex-1 items-center justify-center p-8 md:flex md:w-1/2 md:p-14 lg:p-14">
             <Image src={loginIllustration} alt="Login Illustration" className="w-full" />
           </div>
 
@@ -35,7 +35,7 @@ const LoginScreen: React.FC = () => {
           <div className="flex flex-1 flex-col justify-center  md:w-1/2 md:p-12 lg:p-4">
             {/* Logo para telas pequenas, dentro do contêiner */}
             <div className="w-12 self-start mb-auto md:hidden">
-              <Image src={logo} alt="Login Illustration" className="w-full" />
+              <Image src={logo} alt="Logo Wundu" className="w-full" />
             </div>
 
             <CtaSectionLogin
