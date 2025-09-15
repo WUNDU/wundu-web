@@ -1,5 +1,6 @@
+export { default as ArrowLeftIcon } from '../components/icons/ArrowLeft'
 export { default as ArrowsLeftIcon } from '../components/icons/ArrowsLeft'
-export { default as BackArrowIcon } from '../components/icons/BackArrow'
+export { default as BackArrowIcon } from '../components/icons/ArrowLeft'
 export { default as CalendarIcon } from '../components/icons/Calendar'
 export { default as CheckmarkIcon } from '../components/icons/CheckmarkIcon'
 export { default as ClockIcon } from '../components/icons/Clock'

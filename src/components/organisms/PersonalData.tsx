@@ -10,6 +10,7 @@ import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
 import { BackArrowIcon } from "@/src/constants/icons";
+import NavigationBack from "../atoms/NavigationBack";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();
@@ -32,9 +33,7 @@ const PersonalData = () => {
   return (
     <div className="flex flex-col h-full justify-between items-center p-4 md:p-8">
       <div className="w-full flex-col flex md:flex-row md:items-center md:justify-between">
-        <div onClick={handBackClick}>
-          <BackArrowIcon />
-        </div>
+        <NavigationBack />
         <div className="w-6 h-6 md:hidden" />
         <Image src={logo} alt="Logo" className="w-12 h-12 md:hidden" />
       </div>

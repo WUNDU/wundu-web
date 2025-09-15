@@ -6,8 +6,9 @@ import { logo } from "@/src/constants/images";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
-import BackArrow from "../icons/BackArrow";
+import BackArrow from "../icons/ArrowLeft";
 import { BackArrowIcon } from "@/src/constants/icons";
+import NavigationBack from "../atoms/NavigationBack";
 
 const SecurityData = () => {
   const { data, setRegisterData, nextStep, prevStep } = useRegisterContext();
@@ -31,9 +32,7 @@ const SecurityData = () => {
   return (
     <div className="flex flex-col h-full justify-between items-center p-4 md:p-8">
       <div className="w-full flex-col flex md:flex-row md:items-center md:justify-between">
-        <div onClick={prevStep}>
-          <BackArrowIcon />
-        </div>
+        <NavigationBack prev={prevStep} />
         <div className="w-6 h-6 md:hidden" />
         <Image src={logo} alt="Logo" className="w-12 h-12 md:hidden" />
       </div>

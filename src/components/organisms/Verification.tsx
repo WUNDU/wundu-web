@@ -9,8 +9,9 @@ import CodeInput from "../molecules/InputCode";
 import { ROUTES } from "@/src/constants/routes";
 import Link from "next/link";
 import Clock from "../icons/Clock";
-import BackArrow from "../icons/BackArrow";
+import BackArrow from "../icons/ArrowLeft";
 import { BackArrowIcon } from "@/src/constants/icons";
+import NavigationBack from "../atoms/NavigationBack";
 
 
 const Verification = () => {
@@ -48,13 +49,7 @@ const Verification = () => {
 
   return (
     <div className="flex h-full flex-col gap-y-8 justify-between p-6 md:gap-y-6 md:justify-start md:p-0">
-      <button
-        onClick={prevStep}
-        className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
-      >
-        <BackArrowIcon />
-        <span className="text-sm">Voltar</span>
-      </button>
+      <NavigationBack prev={prevStep} />
       {/* Header - apenas mobile */}
       <div className="block md:hidden">
         <Header title="Verificação do Código" onBack={prevStep} />

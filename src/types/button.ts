@@ -47,3 +47,7 @@ export interface SentDocumentsSectionProps {
 export interface UploadOptionsProps {
   onFileSelect: (file: File, type: 'image' | 'document') => void
 }
+
+export interface NavigationBackProps {
+  prev?: () => void
+}
