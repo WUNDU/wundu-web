@@ -1,7 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { user } from '@/src/constants/images';
-import { DownArrowIcon, ImageIcon, NotificationDeskIcon } from '@/src/constants/icons';
+import { DownArrowIcon, HelpIcon, ImageIcon, LogoutIcon, NotificationDeskIcon, NotificationRightBarIcon, PaymentIcon, ProfileIcon, SettingsRightBarIcon } from '@/src/constants/icons';
+import NotificationRightBar from '../icons/NotificationRightBar';
 
 interface SidebarRightProps {
   isOpen: boolean;
@@ -43,9 +44,6 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
           <div className="w-full flex flex-col space-y-4 pt-4">
             <div className="bg-blue-900 rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between">
               <span className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10v11h18V10M3 10l9-7 9 7M3 10a2 2 0 01-2-2v-1a2 2 0 012-2h18a2 2 0 012 2v1a2 2 0 01-2 2H3z"></path>
-                </svg>
                 <span>Painel de controle</span>
               </span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -53,14 +51,14 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
               </svg>
             </div>
 
-            <div className='border rounded-2xl shadow-2xl bg-white/60 border-gray-50'>
+            <div className='border rounded-2xl shadow-2xl bg-white/40 border-gray-50'>
               <ul className="w-full space-y-2">
                 {[
-                  { icon: <ImageIcon className="w-5 h-5 text-gray-600" />, text: 'Meus dados' },
-                  { icon: <ImageIcon className="w-5 h-5 text-gray-600" />, text: 'Suporte e Feedback' },
-                  { icon: <ImageIcon className="w-5 h-5 text-gray-600" />, text: 'Notificações' },
-                  { icon: <ImageIcon className="w-5 h-5 text-gray-600" />, text: 'Meus plano' },
-                  { icon: <ImageIcon className="w-5 h-5 text-gray-600" />, text: 'Configurações' },
+                  { icon: <ProfileIcon className="w-6 h-6 text-gray-600" />, text: 'Meus dados' },
+                  { icon: <HelpIcon className="w-6 h-6 text-gray-600" />, text: 'Suporte e Feedback' },
+                  { icon: <NotificationRightBarIcon className="w-6 h-6 text-gray-600" />, text: 'Notificações' },
+                  { icon: <PaymentIcon className="w-6 h-6 text-gray-600" />, text: 'Meus plano' },
+                  { icon: <SettingsRightBarIcon className="w-6 h-6 text-gray-600" />, text: 'Configurações' },
                 ].map((item, index) => (
                   <li key={index} className="flex justify-between items-center w-full p-4 rounded-xl hover:bg-gray-100 transition-colors duration-200">
                     <div className="flex items-center space-x-4">
@@ -73,7 +71,7 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                   </li>
                 ))}
                 <li className="flex justify-start items-center w-full p-4 rounded-xl text-red-500 hover:bg-red-50 transition-colors duration-200 space-x-4">
-                  <ImageIcon className="w-5 h-5" />
+                  <LogoutIcon className="w-6 h-6" />
                   <span className="font-medium">Terminar Sessão</span>
                 </li>
               </ul>
