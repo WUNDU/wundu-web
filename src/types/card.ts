@@ -29,4 +29,5 @@ export interface FinancialProgressCardProps {
   valorAlvo: string;
   valorPoupado: string;
   percentage: number;
+  iconColor?: string
 }
