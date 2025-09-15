@@ -3,8 +3,20 @@ import { HistoryIcon, IAIcon, PlusIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
 import FinancialObjectiveCard from "../molecules/FinancialObjectiveCard";
 import GreetingHeader from "../molecules/GreetingHeader";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/src/constants/routes";
 
 const FinancialObjectiveScreen: React.FC = () => {
+  const route = useRouter()
+  const handleFinancialNewObjective = () => {
+    route.push(ROUTES.FINANCIAL_NEW_OBJECTIVE)
+  }
+  const handleFinancialObjective = () => {
+    route.push(ROUTES.FINANCIAL_OBJECTIVE)
+  }
+  const handleFinancialIAObjective = () => {
+    route.push(ROUTES.FINANCIAL_NEW_OBJECTIVE)
+  }
   return (
     <div className="bg-gray-100 min-h-screen font-sans antialiased text-gray-800 flex flex-col">
       <GreetingHeader onToggleSidebar={function (): void {
@@ -16,7 +28,7 @@ const FinancialObjectiveScreen: React.FC = () => {
         <div className="flex flex-col flex-1 bg-white rounded-2xl p-5 space-y-10">
           <h2 className="text-lg font-semibold text-gray-800">Objectivos financeiros</h2>
           <div className="space-y-4">
-            <div className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md">
+            <div className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md" onClick={handleFinancialNewObjective}>
               <FinancialObjectiveCard
                 icon={PlusIcon}
                 title="Crie um objecto financeiro"
@@ -27,7 +39,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                 iconColor="text-yellow-300"
               />
             </div>
-            <div className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md">
+            <div className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md" onClick={handleFinancialObjective}>
               <FinancialObjectiveCard
                 icon={HistoryIcon}
                 title="Meus objectivos"

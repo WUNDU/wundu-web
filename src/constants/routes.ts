@@ -6,5 +6,5 @@ export const ROUTES = {
   RESEND_CODE: '/auth/register',
   FINANCIAL: '/home/financial',
   FINANCIAL_OBJECTIVE: '/home/financial/objective',
-  FINANCIAL_NEW_OBJECTIVE: '/auth/financial/new',
+  FINANCIAL_NEW_OBJECTIVE: '/home/financial/new',
 } as const;
