@@ -3,13 +3,13 @@ import { logo } from "@/src/constants/images";
 import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Image from "next/image";
 import { useState } from "react";
-import BackArrow from "../icons/BackArrow";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import GoogleLoginButton from "../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
+import { BackArrowIcon } from "@/src/constants/icons";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();
@@ -33,7 +33,7 @@ const PersonalData = () => {
     <div className="flex flex-col h-full justify-between items-center p-4 md:p-8">
       <div className="w-full flex-col flex md:flex-row md:items-center md:justify-between">
         <div onClick={handBackClick}>
-          <BackArrow />
+          <BackArrowIcon />
         </div>
         <div className="w-6 h-6 md:hidden" />
         <Image src={logo} alt="Logo" className="w-12 h-12 md:hidden" />

@@ -1,12 +1,7 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
-import HomeDesk from '../icons/HomeDesk';
-import ImageIcon from '../icons/Image';
 import Image from 'next/image';
-import SettingsDesk from '../icons/SettingsDesk';
-import LibraryDesk from '../icons/LibraryDesk';
 import { logo } from '@/src/constants/images';
-import IA from '../icons/IA';
+import { HomeDeskIcon, IAIcon, ImageIcon, LibraryDeskIcon, SettingsDeskIcon } from '@/src/constants/icons';
 
 const Sidebar = () => {
   return (
@@ -20,13 +15,13 @@ const Sidebar = () => {
         <li className='text-gray-400 p-2'>Menu</li>
         <li>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-xl bg-yellow-300 text-white font-semibold">
-            <HomeDesk className="w-5 h-5" />
+            <HomeDeskIcon className="w-5 h-5" />
             <span>Home</span>
           </a>
         </li>
         <li>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors">
-            <LibraryDesk className="w-5 h-5" />
+            <LibraryDeskIcon className="w-5 h-5" />
             <span>Biblioteca</span>
           </a>
         </li>
@@ -38,7 +33,7 @@ const Sidebar = () => {
         </li>
         <li>
           <a href="#" className="flex items-center space-x-3 p-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors">
-            <SettingsDesk className="w-5 h-5" />
+            <SettingsDeskIcon className="w-5 h-5" />
             <span>Configurações</span>
           </a>
         </li>
@@ -50,7 +45,7 @@ const Sidebar = () => {
         </div>
         <button className="flex items-center w-full space-x-3 p-3 rounded-xl bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors">
           <div className='border-2 p-2 rounded-full border-purple-200 bg-white'>
-            <IA />
+            <IAIcon />
           </div>
           <span>Wundu AI</span>
         </button>

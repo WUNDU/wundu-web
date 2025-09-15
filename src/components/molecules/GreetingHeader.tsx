@@ -1,10 +1,7 @@
 import React from 'react';
-import IA from '../icons/IA';
-import Notification from '../icons/Notification';
-import DownArrow from '../icons/DownArrow';
-import NotificationDesk from '../icons/NotificationDesk';
 import Image from 'next/image';
 import { logo, user } from '@/src/constants/images';
+import { DownArrowIcon, IAIcon, NotificationDeskIcon, NotificationIcon } from '@/src/constants/icons';
 
 interface GreetingHeaderProps {
   onToggleSidebar: () => void;
@@ -16,7 +13,7 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
       <div className="flex justify-start items-center md:justify-end">
         <div className='flex items-center space-x-2'>
           <div className='hidden md:flex pr-10'>
-            <NotificationDesk />
+            <NotificationDeskIcon />
           </div>
 
           <div className='md:p-[2px] md:rounded-full
@@ -34,7 +31,7 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
             onClick={onToggleSidebar}
             aria-label="Toggle right sidebar"
           >
-            <DownArrow />
+            <DownArrowIcon />
           </button>
         </div>
         <div className="md:hidden ml-3">
@@ -45,11 +42,11 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
       <div className="md:hidden flex items-center space-x-3">
         <div className='border-2 rounded-full border-purple-200 bg-white'>
           {/* Ícone IA */}
-          <IA />
+          <IAIcon />
         </div>
         <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
           {/* Ícone de notificação */}
-          <Notification />
+          <NotificationIcon />
         </div>
       </div>
     </header>

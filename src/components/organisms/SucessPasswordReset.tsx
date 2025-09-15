@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Button from "../atoms/Button";
-import CheckmarkIcon from "../icons/CheckmarkIcon";
 import { ROUTES } from "@/src/constants/routes";
+import { CheckmarkIcon } from "@/src/constants/icons";
 
 const SuccessPasswordReset = () => {
   const router = useRouter()

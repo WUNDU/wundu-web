@@ -8,7 +8,7 @@ import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
 import { COUNTRIES } from "@/src/constants/countries";
 import { validatePhoneNumber } from "@/src/utils/validation";
-import BackArrow from "../icons/BackArrow";
+import { BackArrowIcon } from "@/src/constants/icons";
 
 const EmailPhone = () => {
   const { setResetData, nextStep } = usePasswordResetContext();
@@ -37,7 +37,7 @@ const EmailPhone = () => {
         onClick={handBackClick}
         className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
       >
-        <BackArrow />
+        <BackArrowIcon />
         <span className="text-sm">Voltar</span>
       </button>
       {/* Header - apenas mobile */}

@@ -9,8 +9,8 @@ import LoadingSpinner from '../atoms/LoadingSpinner';
 import DetailsModal from '../organisms/DetailsModal';
 import Sidebar from '../molecules/Sidebar';
 import StatsSection from '../molecules/StatsSection';
-import ArrowsLeft from '../icons/ArrowsLeft';
 import SidebarRight from '../molecules/SideBarRight';
+import { ArrowsLeftIcon } from '@/src/constants/icons';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -65,7 +65,7 @@ const HomeScreen = () => {
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
         {/* O botão agora é posicionado de forma fixa e se move com o sidebar */}
         <button onClick={toggleSidebar} className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${isSidebarOpen ? 'left-58' : 'left-0'}`}>
-          <ArrowsLeft className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`} />
+          <ArrowsLeftIcon className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`} />
         </button>
         <main className="px-4 flex flex-col flex-1">
           {isLoading ? (

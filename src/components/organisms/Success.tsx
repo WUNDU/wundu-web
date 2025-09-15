@@ -1,7 +1,5 @@
 import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Button from "../atoms/Button";
-import Image from "next/image";
-import { logo } from "@/src/constants/images";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
 import CheckmarkIcon from "../icons/CheckmarkIcon";

@@ -1,5 +1,4 @@
 'use client'
-import { useState } from "react";
 import GoogleLoginButton from "../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import FormSection from "../molecules/FormSection";

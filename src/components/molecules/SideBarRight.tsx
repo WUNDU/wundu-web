@@ -1,10 +1,7 @@
 import React from 'react';
-import ImageIcon from '../icons/Image';
 import Image from 'next/image';
 import { user } from '@/src/constants/images';
-import NotificationDesk from '../icons/NotificationDesk';
-import Close from '../icons/Close';
-import DownArrow from '../icons/DownArrow';
+import { DownArrowIcon, ImageIcon, NotificationDeskIcon } from '@/src/constants/icons';
 
 interface SidebarRightProps {
   isOpen: boolean;
@@ -20,9 +17,9 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
     >
       <div className='pb-20'>
         <div className='flex flex-row justify-between mx-2 px-10 mt-2'>
-          <NotificationDesk />
+          <NotificationDeskIcon />
           <button onClick={onClose} className="">
-            <DownArrow className='w-6 h-6' />
+            <DownArrowIcon className='w-6 h-6' />
           </button>
         </div>
         <div

@@ -10,6 +10,7 @@ import { ROUTES } from "@/src/constants/routes";
 import Link from "next/link";
 import Clock from "../icons/Clock";
 import BackArrow from "../icons/BackArrow";
+import { BackArrowIcon } from "@/src/constants/icons";
 
 
 const Verification = () => {
@@ -51,7 +52,7 @@ const Verification = () => {
         onClick={prevStep}
         className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
       >
-        <BackArrow />
+        <BackArrowIcon />
         <span className="text-sm">Voltar</span>
       </button>
       {/* Header - apenas mobile */}

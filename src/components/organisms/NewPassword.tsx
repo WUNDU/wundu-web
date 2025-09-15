@@ -3,11 +3,10 @@
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
-
 import { useState } from "react";
 import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
 import Header from "./Header";
-import BackArrow from "../icons/BackArrow";
+import { BackArrowIcon } from "@/src/constants/icons";
 
 const NewPassword = () => {
   const { nextStep, prevStep, setResetData } = usePasswordResetContext();
@@ -34,7 +33,7 @@ const NewPassword = () => {
         onClick={prevStep}
         className="md:absolute md:top-8 md:left-8 md:flex md:items-center md:gap-2 md:text-gray-600 md:hover:text-gray-800 md:transition-colors hidden"
       >
-        <BackArrow />
+        <BackArrowIcon />
         <span className="text-sm">Voltar</span>
       </button>
       {/* Header - apenas mobile */}

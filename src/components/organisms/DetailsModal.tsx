@@ -1,11 +1,8 @@
 import { DetailsModalProps } from "@/src/types/modal";
-import Calendar from "../icons/Calendar";
-import Download from "../icons/Download";
-import Info from "../icons/Info";
-import Money from "../icons/Money";
 import CategoryButton from "../molecules/CategoryButton";
 import DetailsSection from "../molecules/DetailsSection";
 import ModalHeader from "../molecules/ModalHeader";
+import { CalendarIcon, DownloadIcon, InfoIcon, MoneyIcon } from "@/src/constants/icons";
 
 const DetailsModal = ({ onClose }: DetailsModalProps) => {
   const handleDownload = () => {
@@ -24,20 +21,20 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             </div>
             <div>
               <button onClick={handleDownload} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                <Download />
+                <DownloadIcon />
               </button>
             </div>
 
           </div>
 
-          <DetailsSection icon={<Money />} label="Montante">
+          <DetailsSection icon={<MoneyIcon />} label="Montante">
             <span className="text-xs font-medium text-gray-500">Valor</span>
             <div className="py-3 px-4 bg-[#F2F7F2] rounded-xl text-[#0F2045] font-bold text-center">
               300.000,00kz
             </div>
           </DetailsSection>
 
-          <DetailsSection icon={<Calendar />} label="Data e Hora">
+          <DetailsSection icon={<CalendarIcon />} label="Data e Hora">
             <div className="flex gap-4">
               <div className="flex-1">
                 <span className="text-xs font-medium text-gray-500">Data</span>
@@ -54,7 +51,7 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             </div>
           </DetailsSection>
 
-          <DetailsSection icon={<Info />} label="Outras informações">
+          <DetailsSection icon={<InfoIcon />} label="Outras informações">
             <span className="text-xs font-medium text-gray-500">Número de operação</span>
             <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
               287805888
