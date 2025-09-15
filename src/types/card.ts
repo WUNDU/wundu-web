@@ -21,4 +21,12 @@ export interface IconContainerProps {
   icon: React.ElementType;
   bgColor: string;
   iconColor: string;
+  className?: string;
+}
+
+export interface FinancialProgressCardProps {
+  title: string;
+  valorAlvo: string;
+  valorPoupado: string;
+  percentage: number;
 }
