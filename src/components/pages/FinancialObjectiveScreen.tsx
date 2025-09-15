@@ -10,11 +10,13 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
 import React, { useState } from 'react';
 import FinancialProgressCard from '../molecules/FinancialProgressCard';
+import ObjectiveForm from '../organisms/ObjectiveForm'; // Ajuste o caminho conforme necessário
 
 const FinancialObjectiveScreen: React.FC = () => {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -25,15 +27,27 @@ const FinancialObjectiveScreen: React.FC = () => {
   };
 
   const handleFinancialNewObjective = () => {
-    router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
+    if (window.innerWidth >= 768) {
+      setShowForm(true);
+    } else {
+      router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
+    }
   };
 
   const handleFinancialObjective = () => {
-    router.push(ROUTES.FINANCIAL_OBJECTIVE);
+    if (window.innerWidth >= 768) {
+      setShowForm(false);
+    } else {
+      router.push(ROUTES.FINANCIAL_OBJECTIVE);
+    }
   };
 
   const handleFinancialIAObjective = () => {
-    router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
+    if (window.innerWidth >= 768) {
+      setShowForm(true);
+    } else {
+      router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
+    }
   };
 
   const objectives = [
@@ -88,9 +102,9 @@ const FinancialObjectiveScreen: React.FC = () => {
 
           <div className="flex flex-col flex-1 bg-white md:bg-gray-100 rounded-2xl p-5 space-y-10">
             <h2 className="text-lg font-semibold text-gray-800 md:hidden">Objectivos financeiros</h2>
-            <div className="space-y-4 md:space-x-0 grid grid-cols-1 md:grid-cols-3 gap-4 md:bg-white md:p-2 md:px-5 rounded-2xl">
+            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-3 gap-4 md:bg-white md:p-2 md:px-5 rounded-2xl">
               <div
-                className="rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
+                className={`rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
                 onClick={handleFinancialNewObjective}
               >
                 <FinancialObjectiveCard
@@ -98,13 +112,13 @@ const FinancialObjectiveScreen: React.FC = () => {
                   title="Crie um objecto financeiro"
                   description="são metas especificas relacionadas ao dinheiro ."
                   borderColor="border-l-yellow-400"
-                  bgColor="bg-yellow-100 md:bg-white"
+                  bgColor={`bg-yellow-100 ${showForm ? 'md:bg-yellow-50 md:bg-blue-50' : 'md:bg-white'}`}
                   iconBgColor="bg-white md:bg-yellow-100"
                   iconColor="text-yellow-300"
                 />
               </div>
               <div
-                className="rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
+                className={`rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
                 onClick={handleFinancialObjective}
               >
                 <FinancialObjectiveCard
@@ -112,19 +126,19 @@ const FinancialObjectiveScreen: React.FC = () => {
                   title="Meus objectivos"
                   description="Visualizar todos os meus objectivos já criados aqui."
                   borderColor="border-l-red-400"
-                  bgColor="bg-red-100 md:bg-white"
+                  bgColor={`bg-red-100 ${!showForm ? 'md:bg-red-50 md:bg-blue-50' : 'md:bg-white'}`}
                   iconBgColor="bg-white md:bg-red-100"
                   iconColor="text-red-600"
                 />
               </div>
               <div
-                className="hidden md:block rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
+                className={`hidden md:block rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
                 onClick={handleFinancialIAObjective}
               >
                 <FinancialObjectiveCard
                   icon={IAIcon}
-                  title="Meus objectivos"
-                  description="Visualizar todos os meus objectivos já criados aqui."
+                  title="Gerar objetivo com AI"
+                  description="Peça à AI que ajude você a criar os seus objetivos"
                   borderColor="border-l-purple-400"
                   bgColor="bg-purple-100 md:bg-white"
                   iconBgColor="bg-white md:bg-purple-100"
@@ -141,8 +155,8 @@ const FinancialObjectiveScreen: React.FC = () => {
               >
                 <FinancialObjectiveCard
                   icon={IAIcon}
-                  title="Meus objectivos"
-                  description="Visualizar todos os meus objectivos já criados aqui."
+                  title="Gerar objetivo com AI"
+                  description="Peça à AI que ajude você a criar os seus objetivos"
                   borderColor="border-l-purple-400"
                   bgColor="bg-purple-100"
                   iconBgColor="bg-white"
@@ -150,60 +164,66 @@ const FinancialObjectiveScreen: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 md:mt-0 rounded-2xl bg-white p-6 h-[calc(100%-200px)]">
-              {/* Meus objetivos financeiros */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">Meus objectivos financeiros</h3>
-                <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-2 p-2'>
-                  {unfulfilledObjectives.map((obj) => (
-                    <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                      <FinancialProgressCard
-                        title={obj.title}
-                        valorAlvo={obj.valorAlvo}
-                        valorPoupado={obj.valorPoupado}
-                        percentage={obj.percentage}
-                        iconColor="text-indigo-600"
-                      />
+            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl bg-white p-6 h-[calc(100%-200px)]">
+              {showForm ? (
+                <ObjectiveForm />
+              ) : (
+                <div className="grid grid-cols-3 gap-8">
+                  {/* Meus objetivos financeiros */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Meus objectivos financeiros</h3>
+                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-2 p-2'>
+                      {unfulfilledObjectives.map((obj) => (
+                        <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                          <FinancialProgressCard
+                            title={obj.title}
+                            valorAlvo={obj.valorAlvo}
+                            valorPoupado={obj.valorPoupado}
+                            percentage={obj.percentage}
+                            iconColor="text-indigo-600"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* Objectivos cumpridos */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">Objectivos cumpridos</h3>
-                <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
-                  {fulfilledObjectives.map((obj) => (
-                    <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                      <FinancialProgressCard
-                        title={obj.title}
-                        valorAlvo={obj.valorAlvo}
-                        valorPoupado={obj.valorPoupado}
-                        percentage={obj.percentage}
-                        iconColor="text-green-600"
-                      />
+                  {/* Objectivos cumpridos */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Objectivos cumpridos</h3>
+                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
+                      {fulfilledObjectives.map((obj) => (
+                        <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                          <FinancialProgressCard
+                            title={obj.title}
+                            valorAlvo={obj.valorAlvo}
+                            valorPoupado={obj.valorPoupado}
+                            percentage={obj.percentage}
+                            iconColor="text-green-600"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* Objectivos por cumprir */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800">Objectivos por cumprir</h3>
-                <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
-                  {unfulfilledObjectives.map((obj) => (
-                    <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                      <FinancialProgressCard
-                        title={obj.title}
-                        valorAlvo={obj.valorAlvo}
-                        valorPoupado={obj.valorPoupado}
-                        percentage={obj.percentage}
-                        iconColor="text-red-600"
-                      />
+                  {/* Objectivos por cumprir */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Objectivos por cumprir</h3>
+                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
+                      {unfulfilledObjectives.map((obj) => (
+                        <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                          <FinancialProgressCard
+                            title={obj.title}
+                            valorAlvo={obj.valorAlvo}
+                            valorPoupado={obj.valorPoupado}
+                            percentage={obj.percentage}
+                            iconColor="text-red-600"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </main>

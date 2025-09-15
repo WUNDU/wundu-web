@@ -2,7 +2,6 @@ import { useState } from "react";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import Select from "../atoms/Select";
-import { CalendarIcon } from "@/src/constants/icons";
 
 const ObjectiveForm: React.FC = () => {
   const [objectiveName, setObjectiveName] = useState('');
@@ -41,50 +40,52 @@ const ObjectiveForm: React.FC = () => {
   const [isDateInput, setIsDateInput] = useState(false);
 
   return (
-    <div className="space-y-6">
-      <Input
-        label="Nome do objetivo"
-        placeholder="Digite o nome do objectivo"
-        value={objectiveName}
-        onChange={(e) => setObjectiveName(e.target.value)}
-        required type={""} />
-      <Input
-        label="Valor necessário"
-        type="text"
-        placeholder="Digite o valor"
-        value={targetValue}
-        onChange={(e) => setTargetValue(e.target.value)}
-        required
-      />
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Input
+          label="Nome do objetivo"
+          placeholder="Digite o nome do objectivo"
+          value={objectiveName}
+          onChange={(e) => setObjectiveName(e.target.value)}
+          required type={""} />
+        <Input
+          label="Valor necessário"
+          type="text"
+          placeholder="Digite o valor"
+          value={targetValue}
+          onChange={(e) => setTargetValue(e.target.value)}
+          required
+        />
 
-      <div className="relative flex w-full flex-col gap-2">
-        <label className="text-gray-600">Data limite</label>
-        <input
-          type={isDateInput ? 'date' : 'text'}
-          placeholder="Selecione a data"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          onFocus={() => setIsDateInput(true)}
-          onBlur={() => !dueDate && setIsDateInput(false)}
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="relative flex w-full flex-col gap-2">
+          <label className="text-gray-600">Data limite</label>
+          <input
+            type={isDateInput ? 'date' : 'text'}
+            placeholder="Selecione a data"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            onFocus={() => setIsDateInput(true)}
+            onBlur={() => !dueDate && setIsDateInput(false)}
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <Select
+          label="Prioridade"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          options={priorityOptions}
+          required
+        />
+        <Select
+          label="Categoria"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={categoryOptions}
           required
         />
       </div>
-
-      <Select
-        label="Prioridade"
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        options={priorityOptions}
-        required
-      />
-      <Select
-        label="Categoria"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        options={categoryOptions}
-        required
-      />
       <Button onClick={handleSaveObjective}>
         Salvar Objectivo
       </Button>
@@ -92,4 +93,4 @@ const ObjectiveForm: React.FC = () => {
   );
 };
 
-export default ObjectiveForm
+export default ObjectiveForm;

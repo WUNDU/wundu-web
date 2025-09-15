@@ -7,4 +7,5 @@ export const ROUTES = {
   FINANCIAL: '/home/financial',
   FINANCIAL_OBJECTIVE: '/home/financial/objective',
   FINANCIAL_NEW_OBJECTIVE: '/home/financial/new',
+  FINANCIAL_IA: '/home/financial/ia',
 } as const;
