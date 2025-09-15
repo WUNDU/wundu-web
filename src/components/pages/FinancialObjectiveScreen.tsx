@@ -11,6 +11,7 @@ import { ROUTES } from '@/src/constants/routes';
 import React, { useState } from 'react';
 import FinancialProgressCard from '../molecules/FinancialProgressCard';
 import ObjectiveForm from '../organisms/ObjectiveForm'; // Ajuste o caminho conforme necessário
+import SketchPanel from '../molecules/SketchPanel';
 
 const FinancialObjectiveScreen: React.FC = () => {
   const router = useRouter();
@@ -110,7 +111,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                 <FinancialObjectiveCard
                   icon={PlusIcon}
                   title="Crie um objecto financeiro"
-                  description="são metas especificas relacionadas ao dinheiro ."
+                  description="são metas específicas relacionadas ao dinheiro."
                   borderColor="border-l-yellow-400"
                   bgColor={`bg-yellow-100 ${showForm ? 'md:bg-yellow-50 md:bg-blue-50' : 'md:bg-white'}`}
                   iconBgColor="bg-white md:bg-yellow-100"
@@ -166,7 +167,14 @@ const FinancialObjectiveScreen: React.FC = () => {
             </div>
             <div className="hidden md:block mt-8 md:mt-0 rounded-2xl bg-white p-6 h-[calc(100%-200px)]">
               {showForm ? (
-                <ObjectiveForm />
+                <div className="flex">
+                  <div className="w-2/3 pr-4">
+                    <ObjectiveForm />
+                  </div>
+                  <div className="w-1/3 pl-4">
+                    <SketchPanel />
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-3 gap-8">
                   {/* Meus objetivos financeiros */}

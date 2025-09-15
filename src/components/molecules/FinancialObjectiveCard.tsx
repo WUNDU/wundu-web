@@ -5,7 +5,7 @@ import IconContainer from "../atoms/IconContainer";
 
 const FinancialObjectiveCard: React.FC<FinancialObjectiveCardProps> = ({ icon, title, description, borderColor, bgColor, iconBgColor, iconColor }) => (
   <div className={`${bgColor} p-4 rounded-xl shadow-sm md:shadow-none ${borderColor}`}>
-    <div className="flex items-start space-x-4">
+    <div className="flex items-center space-x-4">
       <IconContainer icon={icon} bgColor={iconBgColor} iconColor={iconColor} />
       <div>
         <h3 className={`text-base font-semibold ${iconColor} md:text-gray-900`}>{title}</h3>
