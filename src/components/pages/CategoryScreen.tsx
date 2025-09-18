@@ -73,8 +73,8 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
   return (
     <>
       {/* Mobile: Tela inteira para definir categoria */}
-      <div className="fixed inset-0 bg-white z-40 md:hidden">
-        <div className="min-h-screen bg-gray-50 overflow-y-auto">
+      <div className="fixed inset-0 bg-white z-40 md:hidden overflow-y-auto">
+        <div className="min-h-screen bg-gray-50">
           {/* Header */}
           <div className="flex items-center justify-between p-6 bg-gray-100 border-b border-gray-100">
             <button
