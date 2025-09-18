@@ -10,7 +10,7 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
   if (showOptions) {
     return (
       <section className="flex flex-col flex-1 mb-2">
-        <div className="flex justify-between items-center mb-8 border-b-2 py-2 border-gray-200">
+        <div className="flex justify-between items-center mb-8 border-b-2 py-2 border-gray-200 md:hidden">
           <h2 className="text-sm font-bold uppercase text-gray-900">Documentos Enviados</h2>
           <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
             <SettingsIcon className="text-gray-600" />
