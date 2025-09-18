@@ -1,12 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from '../icons/Image';
 import { ChevronRight } from 'lucide-react';
 import UploadOptions from '../molecules/UploadOption';
 import { SentDocumentsSectionProps } from '@/src/types/button';
 import { NoMovementIcon, SettingsIcon } from '@/src/constants/icons';
+import MoreButton from '../atoms/MoreButton';
 
+type Item = {
+  id: number;
+  name: string;
+  type: 'doc' | 'img';
+};
 
 const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, showOptions, onFileSelect }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [items, setItems] = useState<Item[]>([
+    { id: 1, name: 'Comprovativo-12', type: 'doc' },
+    { id: 2, name: 'Imagem', type: 'img' },
+    { id: 3, name: 'Comprovativo', type: 'doc' },
+    { id: 4, name: 'Imagem', type: 'img' },
+  ]);
+
+  const handleLoadMore = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const newItems: Item[] = [
+        { id: items.length + 1, name: `Item Extra ${items.length + 1}`, type: 'doc' },
+        { id: items.length + 2, name: `Item Extra ${items.length + 2}`, type: 'img' },
+      ];
+      setItems([...items, ...newItems]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
   if (showOptions) {
     return (
       <section className="flex flex-col flex-1 mb-2">
@@ -32,7 +58,7 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
             <SettingsIcon className="text-gray-600" />
           </div>
         </div>
-        <div className="bg-white rounded-xl my-4 mb-20  md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
+        <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
           <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
           <p className="text-lg font-semibold text-gray-900">Nenhum movimento registrado.</p>
           <p className="text-sm text-gray-500">Toque no botão acima para começar.</p>
@@ -60,11 +86,8 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
           </div>
         ))}
       </div>
-      <div className="text-center mt-4">
-        <button className="text-sm text-gray-500 flex items-center justify-center space-x-1 mx-auto">
-          <span>Ver mais</span>
-          <span className="text-xs">↻</span>
-        </button>
+      <div className="flex justify-center items-center mt-4 p-4">
+        <MoreButton onClick={handleLoadMore} isLoading={isLoading} />
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import OptionButton from "../atoms/OptionButton";
 import Image from "../icons/Image";
 import Receipt from "../icons/Receipt";
 import { useRef } from "react";
+import MoreButton from "../atoms/MoreButton";
 
 
 const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
@@ -33,6 +34,11 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
         onChange={(e) => handleFileChange(e, 'document')}
         style={{ display: 'none' }}
       />
+      <div className="text-center">
+        <div className="flex justify-center items-center p-4">
+          <MoreButton color="bg-yellow-400" />
+        </div>
+      </div>
     </div>
   );
 };

@@ -77,7 +77,8 @@ const HomeScreen = () => {
           />
         </button>
 
-        <main className="flex-1 mb-0 px-4 flex flex-col h-full overflow-y-auto">
+        {/* Container principal com padding para BottomNavigation no mobile */}
+        <main className="flex-1 mb-0 px-4 pb-20 md:pb-0 flex flex-col h-full overflow-y-auto">
           {isLoading ? (
             <div className="flex flex-1 items-center justify-center h-full">
               <LoadingSpinner />
@@ -108,6 +109,8 @@ const HomeScreen = () => {
             </>
           )}
         </main>
+
+        {/* BottomNavigation - apenas no mobile */}
         <BottomNavigation />
       </div>
 

@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NoMovementIcon, SettingsIcon } from '@/src/constants/icons';
 import { Document } from '@/src/types/button';
+import Button from '../atoms/Button';
+import ArrowRotate from '../icons/ArrowRotate';
+import MoreButton from '../atoms/MoreButton';
 
 interface MovementSectionProps {
   documents: Document[];
 }
 
+type Item = {
+  id: number;
+  name: string;
+  type: 'doc' | 'img';
+};
+
 const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [items, setItems] = useState<Item[]>([
+    { id: 1, name: 'Comprovativo-12', type: 'doc' },
+    { id: 2, name: 'Imagem', type: 'img' },
+    { id: 3, name: 'Comprovativo', type: 'doc' },
+    { id: 4, name: 'Imagem', type: 'img' },
+  ]);
+
+  const handleLoadMore = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const newItems: Item[] = [
+        { id: items.length + 1, name: `Item Extra ${items.length + 1}`, type: 'doc' },
+        { id: items.length + 2, name: `Item Extra ${items.length + 2}`, type: 'img' },
+      ];
+      setItems([...items, ...newItems]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
   if (documents.length === 0) {
     return (
       <section className="flex flex-col flex-1 mb-2 h-full">
@@ -31,11 +60,10 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
           </div>
         ))}
       </div>
-      <div className="text-center mt-4">
-        <button className="text-sm text-gray-500 flex items-center justify-center space-x-1 mx-auto">
-          <span>Ver mais</span>
-          <span className="text-xs">↻</span>
-        </button>
+      <div className="text-center">
+        <div className="flex justify-center items-center p-4">
+          <MoreButton onClick={handleLoadMore} isLoading={isLoading} />
+        </div>
       </div>
     </section>
   );

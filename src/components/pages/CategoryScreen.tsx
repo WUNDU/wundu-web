@@ -22,7 +22,7 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
 
   // Categorias padrão
   const defaultCategories: Category[] = [
-    { id: 'transport', name: 'Transporte', color: '#F59E0B' },
+    { id: 'transport', name: 'Transporte' },
     { id: 'food', name: 'Alimentação' },
     { id: 'entertainment', name: 'Entretenimento' },
     { id: 'health', name: 'Saúde' },
@@ -132,7 +132,7 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
                     value={transactionDescription}
                     onChange={(e) => setTransactionDescription(e.target.value)}
                     placeholder="Escrever"
-                    className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                    className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-base"
                   />
                 </div>
               )}
@@ -173,35 +173,38 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
           {/* Categorias padrão */}
           <div className="mb-8">
             <h3 className="text-base font-medium text-gray-700 mb-6">Categorias padrão</h3>
-            <div className="flex flex-wrap gap-3">
-              {defaultCategories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category)}
-                  className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${selectedCategory?.id === category.id
-                    ? 'bg-yellow-400 text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                    }`}
-                  style={
-                    selectedCategory?.id === category.id && category.color
-                      ? { backgroundColor: category.color }
-                      : {}
-                  }
-                >
-                  {category.name}
+            <div className='rounded-2xl border-2 border-gray-100 p-8'>
+              <div className="flex flex-wrap gap-3">
+                {defaultCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategorySelect(category)}
+                    className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${selectedCategory?.id === category.id
+                      ? 'bg-yellow-400 text-white shadow-lg scale-105'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                      }`}
+                    style={
+                      selectedCategory?.id === category.id && category.color
+                        ? { backgroundColor: category.color }
+                        : {}
+                    }
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-end-safe mb-8">
+                <button className="w-14 h-14 border-2 border-dashed border-blue-300 rounded-full flex items-center justify-center text-blue-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
                 </button>
-              ))}
+              </div>
             </div>
           </div>
 
           {/* Botão adicionar categoria */}
-          <div className="flex justify-center mb-8">
-            <button className="w-14 h-14 border-2 border-dashed border-blue-300 rounded-full flex items-center justify-center text-blue-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
+
 
           {/* Descrição */}
           {selectedCategory && (

@@ -52,3 +52,9 @@ export interface UploadOptionsProps {
 export interface NavigationBackProps {
   prev?: () => void
 }
+
+export interface MoreButtonProps {
+  onClick?: () => void;
+  isLoading?: boolean;
+  color?: string
+}
