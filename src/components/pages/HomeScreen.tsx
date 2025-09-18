@@ -11,6 +11,8 @@ import Sidebar from '../molecules/Sidebar';
 import StatsSection from '../molecules/StatsSection';
 import SidebarRight from '../molecules/SideBarRight';
 import { ArrowsLeftIcon } from '@/src/constants/icons';
+import { CategoryProvider } from '@/src/contexts/CategoryContext';
+import CategoryScreen from './CategoryScreen';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -74,7 +76,7 @@ const HomeScreen = () => {
             </div>
           ) : (
             <>
-              <div className='md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-4'>
+              <div className='md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0'>
                 <div className='flex flex-col flex-1'><UploadSection onUploadClick={toggleUploadOptions} /></div>
                 <div className='hidden md:flex items-center justify-center md:col-span-2'><StatsSection totalFiles={0} totalProofs={0} totalImages={0} /></div>
               </div>
@@ -85,8 +87,11 @@ const HomeScreen = () => {
           )}
         </main>
         <BottomNavigation />
+        <CategoryProvider onClose={handleCloseModal}>
+          {showModal && <DetailsModal onClose={handleCloseModal} />}
+          <CategoryScreen />
+        </CategoryProvider>
 
-        {showModal && <DetailsModal onClose={handleCloseModal} />}
       </div>
       <SidebarRight
         isOpen={isSidebarRightOpen}

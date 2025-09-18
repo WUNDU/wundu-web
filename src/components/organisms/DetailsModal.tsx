@@ -3,15 +3,23 @@ import CategoryButton from "../molecules/CategoryButton";
 import DetailsSection from "../molecules/DetailsSection";
 import ModalHeader from "../molecules/ModalHeader";
 import { CalendarIcon, DownloadIcon, InfoIcon, MoneyIcon } from "@/src/constants/icons";
+import { useCategoryContext } from "@/src/contexts/CategoryContext";
 
 const DetailsModal = ({ onClose }: DetailsModalProps) => {
+  const { setIsCategoryModalOpen } = useCategoryContext();
+
   const handleDownload = () => {
     console.log("Download iniciado!");
   };
 
+  const handleDefineCategory = () => {
+    onClose()
+    setIsCategoryModalOpen(true);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         <ModalHeader title="Detalhes" onClose={onClose} />
 
         <div className="p-6 text-center">
@@ -24,7 +32,6 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
                 <DownloadIcon />
               </button>
             </div>
-
           </div>
 
           <DetailsSection icon={<MoneyIcon />} label="Montante">
@@ -60,11 +67,14 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
         </div>
 
         <div className="p-6 pt-0">
-          <CategoryButton label="Definir categoria" />
+          <CategoryButton
+            label="Definir categoria"
+            onClick={handleDefineCategory}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default DetailsModal
+export default DetailsModal;

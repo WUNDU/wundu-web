@@ -26,6 +26,7 @@ export interface OptionButtonProps {
 
 export interface CategoryButtonProps {
   label: string;
+  onClick?: () => void;
 }
 
 

@@ -29,3 +29,7 @@ export interface ModalHeaderProps {
 export interface DetailsModalProps {
   onClose: () => void;
 }
+
+export interface SuccessModalProps {
+  onClose: () => void;
+}
