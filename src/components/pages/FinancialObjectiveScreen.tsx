@@ -79,7 +79,7 @@ const FinancialObjectiveScreen: React.FC = () => {
 
       {/* Main content with conditional margin for sidebar */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'
+        className={`flex-1 flex flex-col transition-all duration-300 ml-0 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'
           }`}
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
@@ -96,7 +96,7 @@ const FinancialObjectiveScreen: React.FC = () => {
           />
         </button>
 
-        <main className="p-4 space-y-6 flex-1 flex flex-col">
+        <main className="p-4 space-y-6 flex-1 overflow-y-auto">
           <div className="md:hidden">
             <NavigationBack />
           </div>
@@ -165,7 +165,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl bg-white p-6 h-[calc(100%-200px)]">
+            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl bg-white p-6 md:min-w-full">
               {showForm ? (
                 <div className="flex">
                   <div className="w-2/3 pr-4">
@@ -176,11 +176,11 @@ const FinancialObjectiveScreen: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-3 gap-4 flex-1">
                   {/* Meus objetivos financeiros */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex-1">
                     <h3 className="text-lg font-semibold text-gray-800">Meus objectivos financeiros</h3>
-                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-2 p-2'>
+                    <div className='flex flex-col gap-2 flex-1'>
                       {unfulfilledObjectives.map((obj) => (
                         <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                           <FinancialProgressCard
@@ -196,9 +196,9 @@ const FinancialObjectiveScreen: React.FC = () => {
                   </div>
 
                   {/* Objectivos cumpridos */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex-1">
                     <h3 className="text-lg font-semibold text-gray-800">Objectivos cumpridos</h3>
-                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
+                    <div className='flex flex-col gap-2 flex-1'>
                       {fulfilledObjectives.map((obj) => (
                         <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                           <FinancialProgressCard
@@ -214,9 +214,9 @@ const FinancialObjectiveScreen: React.FC = () => {
                   </div>
 
                   {/* Objectivos por cumprir */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex-1">
                     <h3 className="text-lg font-semibold text-gray-800">Objectivos por cumprir</h3>
-                    <div className='max-h-[calc(50%-2rem)] overflow-y-auto space-y-4 p-1'>
+                    <div className='flex flex-col gap-2 flex-1'>
                       {unfulfilledObjectives.map((obj) => (
                         <div key={obj.id} className="cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                           <FinancialProgressCard

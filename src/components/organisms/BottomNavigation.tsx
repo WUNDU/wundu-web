@@ -1,7 +1,7 @@
 import AddButton from '../atoms/AddButton'; // Or wherever you placed it
 import BottomNavItem from '../molecules/BottomNavItem';
-import { HomeIcon, LibraryIcon, ScanIcon } from 'lucide-react';
-import { ProfileIcon } from '@/src/constants/icons';
+
+import { HomeIcon, LibraryIcon, ProfileIcon, ScanIcon } from '@/src/constants/icons';
 
 const BottomNavigation = () => {
   return (

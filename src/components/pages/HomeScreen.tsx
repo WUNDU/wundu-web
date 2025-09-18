@@ -54,7 +54,7 @@ const HomeScreen = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100 relative h-full font-sans">
+    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800">
       {/* Sidebar agora posicionado de forma absoluta, não ocupando espaço no layout principal */}
       <div className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar />
@@ -67,7 +67,7 @@ const HomeScreen = () => {
         <button onClick={toggleSidebar} className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${isSidebarOpen ? 'left-58' : 'left-0'}`}>
           <ArrowsLeftIcon className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`} />
         </button>
-        <main className="px-4 flex flex-col flex-1">
+        <main className="mb-10 sm:mb-10 md:mb-0 px-4 flex flex-col flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex flex-1 items-center justify-center">
               <LoadingSpinner />
