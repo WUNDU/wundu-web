@@ -9,5 +9,6 @@ export const ROUTES = {
   FINANCIAL_NEW_OBJECTIVE: '/home/financial/new',
   FINANCIAL_IA: '/home/financial/ia',
   LIBRARY: '/home/library',
-  ARTICLE: '/home/library/article'
+  ARTICLE: '/home/library/article',
+  PROFILE: '/home/profile'
 } as const;
