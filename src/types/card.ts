@@ -1,3 +1,5 @@
+import { Article } from "./article";
+
 export interface StatsCardProps {
   icon: React.ElementType;
   count: number;
@@ -30,4 +32,9 @@ export interface FinancialProgressCardProps {
   valorPoupado: string;
   percentage: number;
   iconColor?: string
+}
+
+export interface ArticleCardProps {
+  article: Article;
+  onReadMore: (articleId: string) => void;
 }

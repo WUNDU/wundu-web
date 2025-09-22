@@ -14,7 +14,7 @@ const Sidebar = () => {
   // Mapeia os caminhos para os itens do menu
   const menuItems = [
     { name: 'Home', path: '/home', icon: HomeDeskIcon },
-    { name: 'Biblioteca', path: '/biblioteca', icon: LibraryDeskIcon },
+    { name: 'Biblioteca', path: '/library', icon: LibraryDeskIcon },
     { name: 'Objetivos Financeiros', path: '/home/financial', icon: ImageIcon },
     { name: 'Configurações', path: '/configuracoes', icon: SettingsDeskIcon },
   ];

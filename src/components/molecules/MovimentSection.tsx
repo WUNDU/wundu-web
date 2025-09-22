@@ -62,7 +62,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
       </div>
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
-          <MoreButton onClick={handleLoadMore} isLoading={isLoading} />
+          <MoreButton label='Ver mais' onClick={handleLoadMore} isLoading={isLoading} />
         </div>
       </div>
     </section>
