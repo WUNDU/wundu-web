@@ -36,7 +36,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
       />
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
-          <MoreButton color="bg-yellow-400" />
+          <MoreButton label="Ver mais" color="bg-yellow-400" />
         </div>
       </div>
     </div>

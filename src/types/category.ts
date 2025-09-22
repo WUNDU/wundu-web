@@ -14,3 +14,9 @@ export interface CategoryContextType {
   saveCategory: () => void;
   onCloseDetailsModal: () => void; // Added to close DetailsModal
 }
+
+export interface CategoryFilterProps {
+  categories: string[];
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
+}

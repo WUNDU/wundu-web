@@ -87,7 +87,7 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({ documents, 
         ))}
       </div>
       <div className="flex justify-center items-center mt-4 p-4">
-        <MoreButton onClick={handleLoadMore} isLoading={isLoading} />
+        <MoreButton label='Ver mais' onClick={handleLoadMore} isLoading={isLoading} />
       </div>
     </section>
   );

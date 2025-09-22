@@ -18,3 +18,9 @@ export interface CodeInputProps {
   isError?: boolean;
   isSuccess?: boolean
 }
+
+export interface SearchBarProps {
+  placeholder: string;
+  onSearch: (query: string) => void;
+  onFilterClick: () => void;
+}

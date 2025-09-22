@@ -8,4 +8,7 @@ export const ROUTES = {
   FINANCIAL_OBJECTIVE: '/home/financial/objective',
   FINANCIAL_NEW_OBJECTIVE: '/home/financial/new',
   FINANCIAL_IA: '/home/financial/ia',
+  LIBRARY: '/home/library',
+  ARTICLE: '/home/library/article',
+  PROFILE: '/home/profile'
 } as const;

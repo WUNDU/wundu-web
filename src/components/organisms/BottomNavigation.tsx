@@ -9,8 +9,8 @@ const BottomNavigation = () => {
       <BottomNavItem icon={<HomeIcon />} label="Home" href="/home" />
       <BottomNavItem icon={<ScanIcon />} label="Scan" href="/scan" />
       <AddButton />
-      <BottomNavItem icon={<LibraryIcon />} label="Biblioteca" href="/library" />
-      <BottomNavItem icon={<ProfileIcon />} label="Perfil" href="/profile" />
+      <BottomNavItem icon={<LibraryIcon />} label="Biblioteca" href="/home/library" />
+      <BottomNavItem icon={<ProfileIcon />} label="Perfil" href="/home/profile" />
     </nav>
   );
 };
