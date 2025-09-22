@@ -14,17 +14,17 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
   backgroundImage
 }) => {
   return (
-    <div className="relative rounded-t-2xl h-48 bg-gradient-to-br from-blue-900 to-blue-700 overflow-hidden">
+    <div className="relative rounded-t-2xl h-48 bg-gradient-to-br  overflow-hidden">
       {backgroundImage && (
         <img
           src={backgroundImage}
           alt="Article background"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       )}
 
       {/* Candlestick chart overlay effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t" />
 
       <div className="relative flex items-start justify-between p-4 pt-12">
         <NavigationBack color='text-white' />

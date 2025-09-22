@@ -1,9 +1,8 @@
-import InvestmentDetailScreen from "@/src/components/pages/InvestmentDetailScreen";
-import LibraryScreen from "@/src/components/pages/LibraryScreen";
+import ArticleDetailScreen from "@/src/components/pages/ArticleDetailScreen";
 
 
 export default function Library() {
   return (
-    <InvestmentDetailScreen />
+    <ArticleDetailScreen />
   )
 }

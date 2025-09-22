@@ -23,7 +23,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearch, onFilterCl
           className="flex-1 bg-transparent text-red-700 placeholder-gray-400 outline-none"
         />
       </div>
-      <div className='flex flex-col flex-1 items-center justify-center '>
+      <div className='flex flex-col flex-1 items-start justify-center'>
         <button
           type="button"
           onClick={onFilterClick}
