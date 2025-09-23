@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { user } from '@/src/constants/images';
+import { backgroundPanel, user } from '@/src/constants/images';
 import { DownArrowIcon, HelpIcon, LogoutIcon, NotificationDeskIcon, NotificationRightBarIcon, PaymentIcon, ProfileIcon, SettingsRightBarIcon } from '@/src/constants/icons';
 
 interface SidebarRightProps {
@@ -47,7 +47,16 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
 
           {/* Painel de controle */}
           <div className="w-full max-w-md">
-            <div className="bg-blue-900 rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4">
+            <div
+              className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
+              style={{
+                backgroundImage: `url(${backgroundPanel.src})`,
+                backgroundSize: 'cover',  // Ajusta para cobrir toda a div (pode mudar para 'contain' se preferir)
+                backgroundPosition: 'center',  // Centraliza a imagem
+                backgroundRepeat: 'no-repeat'  // Evita repetição
+              }}
+            >
+              {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
               <span>Painel de controle</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
