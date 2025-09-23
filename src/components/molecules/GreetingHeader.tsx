@@ -2,12 +2,19 @@ import React from 'react';
 import Image from 'next/image';
 import { logo, user } from '@/src/constants/images';
 import { DownArrowIcon, IAIcon, NotificationDeskIcon, NotificationIcon } from '@/src/constants/icons';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 interface GreetingHeaderProps {
   onToggleSidebar: () => void;
 }
 
 const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
+  const route = useRouter()
+
+  const handleChatIa = () => {
+    route.push(ROUTES.CHAT_IA)
+  }
   return (
     <header className="bg-white px-4 py-3 flex items-center justify-between md:justify-end shadow-sm">
       <div className="flex justify-start items-center md:justify-end">
@@ -40,10 +47,10 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
         </div>
       </div>
       <div className="md:hidden flex items-center space-x-3">
-        <div className='border-2 rounded-full border-purple-200 bg-white'>
+        <button onClick={handleChatIa} className='border-2 rounded-full border-purple-200 bg-white'>
           {/* Ícone IA */}
           <IAIcon />
-        </div>
+        </button>
         <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
           {/* Ícone de notificação */}
           <NotificationIcon />

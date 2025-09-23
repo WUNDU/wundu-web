@@ -10,5 +10,6 @@ export const ROUTES = {
   FINANCIAL_IA: '/home/financial/ia',
   LIBRARY: '/home/library',
   ARTICLE: '/home/library/article',
-  PROFILE: '/home/profile'
+  PROFILE: '/home/profile',
+  CHAT_IA: '/home/chat'
 } as const;
