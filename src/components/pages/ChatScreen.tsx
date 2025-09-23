@@ -25,12 +25,22 @@ const ChatScreen: React.FC = () => {
     setIsSidebarRightOpen(!isSidebarRightOpen);
   };
 
+  const prev = () => {
+    setShowChat(false)
+  }
+
   return (
     <>
       {/* Layout Mobile - Mantém exatamente igual */}
       <div className="flex flex-col h-screen rounded-2xl py-2 bg-gray-100 md:hidden">
         {/* Header com botão Voltar (fora do container) */}
-        <NavigationBack />
+
+        {
+          showChat ? (
+            <NavigationBack prev={prev} />
+          ) : <NavigationBack />
+        }
+
 
         {/* Container principal branco com margem */}
         <div className="mx-4 my-4 flex-1 bg-white rounded-xl flex flex-col">
