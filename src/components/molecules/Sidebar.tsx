@@ -79,7 +79,6 @@ const Sidebar = () => {
   };
 
   const handleNewChat = () => {
-    // Lógica para criar nova conversa
     console.log('Nova conversa');
   };
 
@@ -99,9 +98,7 @@ const Sidebar = () => {
             <li key={item.name}>
               <Link
                 href={item.path}
-                className={`flex items-center space-x-3 p-3 rounded-xl font-semibold transition-colors text-sm ${activeItem === item.name
-                  ? 'bg-yellow-300 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                className={`flex items-center space-x-3 p-3 rounded-xl font-semibold transition-colors text-sm ${activeItem === item.name ? 'bg-yellow-300 text-white' : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 onClick={() => setActiveItem(item.name)}
               >
@@ -113,94 +110,78 @@ const Sidebar = () => {
         </ul>
       </div>
 
-      {/* Container flexível que se adapta */}
+      {/* Container flexível */}
       <div className="flex-1 flex flex-col px-4 relative overflow-hidden">
-
-        {/* Conversas Anteriores - Animação de entrada quando na página do chat */}
-        <div className={`transition-all duration-500 ease-in-out ${isInChatPage
-          ? 'opacity-100 transform translate-y-0 flex-1'
-          : 'opacity-0 transform translate-y-4 h-0'
-          } overflow-hidden`}>
-
-          {isInChatPage && (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-sm text-gray-500 flex items-center flex-1">
-                  <span className="mr-2">Conversas anteriores</span>
-                  <div className="flex-1 border-b border-gray-300"></div>
-                </div>
-                <button
-                  onClick={handleNewChat}
-                  className="ml-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors"
-                >
-                  + Nova
-                </button>
+        {/* Conversas Anteriores - Agora sempre renderizado, mas escondido quando não no chat */}
+        <div
+          className={`transition-all duration-500 ease-in-out flex flex-col ${isInChatPage ? 'opacity-100 transform translate-y-0 flex-1' : 'opacity-0 transform translate-y-4 h-0'
+            } overflow-hidden`}
+        >
+          {/* Removido o {isInChatPage &&} para evitar remontagem */}
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm text-gray-500 flex items-center flex-1">
+                <span className="mr-2">Conversas anteriores</span>
+                <div className="flex-1 border-b border-gray-300"></div>
               </div>
+              <button
+                onClick={handleNewChat}
+                className="ml-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors"
+              >
+                + Nova
+              </button>
+            </div>
 
-              <div className="flex-1 overflow-y-auto">
-                <div className="space-y-2">
-                  {conversations.map((conversation, index) => (
-                    <div
-                      key={conversation.id}
-                      className={`group flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300 ${isInChatPage ? 'animate-slide-in' : ''
-                        }`}
-                      style={{
-                        animationDelay: `${index * 100}ms`,
-                        animationFillMode: 'both'
-                      }}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">
-                          {conversation.title}
-                        </h4>
-                        <p className="text-xs text-gray-500 truncate mt-1">
-                          {conversation.lastMessage}
-                        </p>
-                        <span className="text-xs text-gray-400 mt-1 block">
-                          {conversation.timestamp}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={(e) => handleDeleteConversation(conversation.id, e)}
-                        className="opacity-0 group-hover:opacity-100 ml-2 p-1 rounded hover:bg-gray-200 transition-all duration-200"
-                        title="Deletar conversa"
-                      >
-                        <TrashIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                      </button>
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-2">
+                {conversations.map((conversation, index) => (
+                  <div
+                    key={conversation.id}
+                    className={`group flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300 ${isInChatPage ? 'animate-slide-in' : ''
+                      }`}
+                    style={{
+                      animationDelay: `${index * 100}ms`,
+                      animationFillMode: 'both',
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-gray-900 truncate">{conversation.title}</h4>
+                      <p className="text-xs text-gray-500 truncate mt-1">{conversation.lastMessage}</p>
+                      <span className="text-xs text-gray-400 mt-1 block">{conversation.timestamp}</span>
                     </div>
-                  ))}
-                </div>
-
-                {conversations.length === 0 && (
-                  <div className="text-center text-gray-400 text-sm py-8">
-                    Nenhuma conversa anterior
+                    <button
+                      onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                      className="opacity-0 group-hover:opacity-100 ml-2 p-1 rounded hover:bg-gray-200 transition-all duration-200"
+                      title="Deletar conversa"
+                    >
+                      <TrashIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                    </button>
                   </div>
-                )}
+                ))}
               </div>
-            </>
-          )}
+              {conversations.length === 0 && (
+                <div className="text-center text-gray-400 text-sm py-8">Nenhuma conversa anterior</div>
+              )}
+            </div>
+          </>
         </div>
 
-        {/* AI Section - Animação para subir quando na página do chat */}
-        <div className={`transition-all duration-500 ease-in-out ${isInChatPage ? 'mt-4' : 'mt-auto'
-          }`}>
+        {/* AI Section */}
+        <div className={`transition-all duration-500 ease-in-out ${isInChatPage ? 'mt-4' : 'mt-auto'}`}>
           <div className="text-sm text-gray-500 mb-3 flex items-center">
             <span className="mr-2">AI</span>
             <div className="flex-1 border-b border-gray-300"></div>
           </div>
           <Link
-            href="/home/chat" // ou sua rota do chat
-            className={`flex items-center w-full space-x-3 p-3 rounded-xl transition-all duration-300 ${activeItem === 'Wundu AI'
-              ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-              : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+            href="/home/chat"
+            className={`flex items-center w-full space-x-3 p-3 rounded-xl transition-all duration-300 ${activeItem === 'Wundu AI' ? 'bg-purple-600 text-white shadow-lg transform scale-105' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
               }`}
             onClick={() => setActiveItem('Wundu AI')}
           >
-            <div className={`border-2 p-2 rounded-full transition-all duration-300 ${activeItem === 'Wundu AI'
-              ? 'border-purple-300 bg-purple-100'
-              : 'border-purple-200 bg-white'
-              }`}>
+            <div
+              className={`border-2 p-2 rounded-full transition-all duration-300 ${activeItem === 'Wundu AI' ? 'border-purple-300 bg-purple-100' : 'border-purple-200 bg-white'
+                }`}
+            >
               <IAIcon className={activeItem === 'Wundu AI' ? 'text-white' : ''} />
             </div>
             <span className="font-semibold">Wundu AI</span>
@@ -213,7 +194,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Adicionar estilos CSS customizados */}
+      {/* Estilos CSS */}
       <style jsx>{`
         @keyframes slide-in {
           from {
@@ -225,7 +206,6 @@ const Sidebar = () => {
             transform: translateX(0);
           }
         }
-        
         .animate-slide-in {
           animation: slide-in 0.6s ease-out forwards;
         }
