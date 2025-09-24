@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React, { useState } from 'react';
 import { Tab } from '../atoms/Tab';
 import LineChart from '../molecules/LineChart';
@@ -9,6 +10,7 @@ import { TransactionsList } from '../organisms/TransactionList';
 import NavigationBack from '../atoms/NavigationBack';
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from '@/src/constants/icons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import HeaderSection from '../organisms/HeaderSection';
 
 // Dados simulados
 const mockDataByTimeRange = {
@@ -143,14 +145,14 @@ const ControlPanelDashboardScreen: React.FC = () => {
       <Head>
         <title>Dashboard Financeiro</title>
       </Head>
-      <div className='py-4'>
+      <div className="py-4">
         <NavigationBack />
       </div>
-      <div className=" mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden">
+      <div className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden">
         {/* Top Bar */}
-        <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end '}`}>
+        <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end'}`}>
           <div>
-            <div className={`flex bg-blue-950 text-white space-x-2 p-1 rounded-2xl ${viewMode === 'pie' ? '' : 'hidden'} `}>
+            <div className={`flex bg-blue-950 text-white space-x-2 p-1 rounded-2xl ${viewMode === 'pie' ? '' : 'hidden'}`}>
               <button className="flex items-center">
                 <ChevronLeft />
               </button>
@@ -160,35 +162,35 @@ const ControlPanelDashboardScreen: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="flex space-x-2  bg-gray-300 p-1 rounded-full">
-            <button onClick={() => setViewMode('line')} className={`p-1 text-slate-950 rounded-full ${viewMode === 'line' ? 'bg-gray-900 text-white' : ''}`}>
+          <div className="flex space-x-2 bg-gray-300 p-1 rounded-full">
+            <button
+              onClick={() => setViewMode('line')}
+              className={`p-1 text-slate-950 rounded-full ${viewMode === 'line' ? 'bg-gray-900 text-white' : ''}`}
+            >
               <ChartDataIcon />
             </button>
-            <button onClick={() => setViewMode('pie')} className={`p-1 text-slate-950 rounded-full ${viewMode === 'pie' ? 'bg-gray-900 text-white' : ''}`}>
+            <button
+              onClick={() => setViewMode('pie')}
+              className={`p-1 text-slate-950 rounded-full ${viewMode === 'pie' ? 'bg-gray-900 text-white' : ''}`}
+            >
               <DonutChartIcon />
             </button>
-            <button onClick={() => setViewMode('bar')} className={`p-1 text-slate-900 rounded-full ${viewMode === 'bar' ? 'bg-gray-900 text-white' : ''}`}>
+            <button
+              onClick={() => setViewMode('bar')}
+              className={`p-1 text-slate-900 rounded-full ${viewMode === 'bar' ? 'bg-gray-900 text-white' : ''}`}
+            >
               <BarChartIcon />
             </button>
           </div>
         </div>
 
         {/* Header Section */}
-        <div className={`mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg ${viewMode === 'pie' ? 'hidden' : ''}`}>
-          <div className="flex justify-center items-center mb-4">
-            <div className='flex bg-gray-500 space-x-4 rounded-2xl'>
-              <button className="flex items-center">
-                <ChevronLeft />
-              </button>
-              <span className="font-semibold text-lg">{isCredit ? 'IMG' : 'Todos'}</span>
-              <button className="flex items-center">
-                <ChevronRight />
-              </button>
-            </div>
-          </div>
-          <p className="text-sm text-center">{headerText}</p>
-          <h1 className="text-3xl font-bold text-center">{headerAmount.toLocaleString('pt-AO')},00KZ</h1>
-        </div>
+        <HeaderSection
+          isCredit={isCredit}
+          headerText={headerText}
+          headerAmount={headerAmount}
+          viewMode={viewMode}
+        />
 
         {/* Chart Section */}
         <div className="p-4">
