@@ -148,7 +148,18 @@ const ControlPanelDashboardScreen: React.FC = () => {
       </div>
       <div className=" mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden">
         {/* Top Bar */}
-        <div className="flex justify-end items-center p-4">
+        <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end '}`}>
+          <div>
+            <div className={`flex bg-blue-950 text-white space-x-2 p-1 rounded-2xl ${viewMode === 'pie' ? '' : 'hidden'} `}>
+              <button className="flex items-center">
+                <ChevronLeft />
+              </button>
+              <span className="font-semibold text-lg">{isCredit ? 'IMG' : 'Todos'}</span>
+              <button className="flex items-center">
+                <ChevronRight />
+              </button>
+            </div>
+          </div>
           <div className="flex space-x-2  bg-gray-300 p-1 rounded-full">
             <button onClick={() => setViewMode('line')} className={`p-1 text-slate-950 rounded-full ${viewMode === 'line' ? 'bg-gray-900 text-white' : ''}`}>
               <ChartDataIcon />
@@ -163,7 +174,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         </div>
 
         {/* Header Section */}
-        <div className="mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg">
+        <div className={`mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg ${viewMode === 'pie' ? 'hidden' : ''}`}>
           <div className="flex justify-center items-center mb-4">
             <div className='flex bg-gray-500 space-x-4 rounded-2xl'>
               <button className="flex items-center">
