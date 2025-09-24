@@ -4,13 +4,18 @@ import React from 'react';
 import Image from 'next/image';
 import { backgroundPanel, user } from '@/src/constants/images';
 import { DownArrowIcon, HelpIcon, LogoutIcon, NotificationDeskIcon, NotificationRightBarIcon, PaymentIcon, ProfileIcon, SettingsRightBarIcon } from '@/src/constants/icons';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
+import { SidebarRightProps } from '@/src/types/sidebar';
 
-interface SidebarRightProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+
 
 const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
+  const route = useRouter();
+
+  const handleControlPanel = () => {
+    route.push(ROUTES.CONTROL_PANEL)
+  }
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-black/5 backdrop-blur-sm z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -57,7 +62,9 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
               }}
             >
               {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
-              <span>Painel de controle</span>
+              <button onClick={handleControlPanel}>
+                <span>Painel de controle</span>
+              </button>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>

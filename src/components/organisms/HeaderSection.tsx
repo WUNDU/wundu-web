@@ -18,9 +18,9 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({
   viewMode,
 }) => {
   return (
-    <div className={`mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg ${viewMode === 'pie' ? 'hidden' : ''}`}>
+    <div className={`mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg ${viewMode === 'pie' ? 'hidden md:block' : ''}`}>
       <div className="flex justify-center items-center mb-4">
-        <div className="flex bg-gray-500 space-x-4 rounded-2xl">
+        <div className="flex bg-gray-500/45 p-2 space-x-4 rounded-2xl">
           <button className="flex items-center">
             <ChevronLeft />
           </button>

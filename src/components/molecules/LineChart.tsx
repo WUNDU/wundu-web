@@ -77,7 +77,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMo
                 xValue: selectedMonth,
                 yValue: selectedValue,
                 xAdjust: 30,
-                yAdjust: -50,
+                yAdjust: -25,
                 backgroundColor: dotColor,
                 borderWidth: 0,
                 borderRadius: 3,
