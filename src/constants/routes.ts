@@ -11,5 +11,6 @@ export const ROUTES = {
   LIBRARY: '/home/library',
   ARTICLE: '/home/library/article',
   PROFILE: '/home/profile',
-  CHAT_IA: '/home/chat'
+  CHAT_IA: '/home/chat',
+  CONTROL_PANEL: '/home/profile/control_panel',
 } as const;

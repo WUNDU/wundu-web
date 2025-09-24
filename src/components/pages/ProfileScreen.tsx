@@ -4,9 +4,6 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { backgroundPanel, user } from '@/src/constants/images';
 import {
-  HomeIcon,
-  ScanIcon,
-  LibraryIcon,
   ProfileIcon,
   HelpIcon,
   NotificationRightBarIcon,
@@ -15,9 +12,12 @@ import {
   LogoutIcon
 } from '@/src/constants/icons';
 import BottomNavigation from '../organisms/BottomNavigation';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 const ProfileScreen: React.FC = () => {
   const [userName, setUserName] = useState('Israel Manuel');
+  const route = useRouter()
 
   const menuItems = [
     { icon: <ProfileIcon />, text: 'Meus dados' },
@@ -27,6 +27,10 @@ const ProfileScreen: React.FC = () => {
     { icon: <SettingsRightBarIcon />, text: 'Configurações' },
     { icon: <LogoutIcon className="text-red-500" />, text: 'Sair' },
   ];
+
+  const handleControlPanel = () => {
+    route.push(ROUTES.CONTROL_PANEL)
+  }
 
   return (
     <div className="flex flex-col justify-center h-full my-5 bg-gray-50">
@@ -90,9 +94,11 @@ const ProfileScreen: React.FC = () => {
           >
             {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
             <span>Painel de controle</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
+            <button onClick={handleControlPanel}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
 
           {/* Lista de menu */}
