@@ -1,32 +1,38 @@
 'use client'
-import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import { useState } from "react";
 import Image from "next/image";
 import { logo } from "@/src/constants/images";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
-import BackArrow from "../icons/ArrowLeft";
-import { BackArrowIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
+import { useRegisterContext } from "@/src/hooks/useRegisterContext";
 
 const SecurityData = () => {
-  const { data, setRegisterData, nextStep, prevStep } = useRegisterContext();
+  const { data, setRegisterData, nextStep, prevStep, registerUser, error } = useRegisterContext();
   const [form, setForm] = useState({
     password: data.password || "",
     confirmPassword: "",
   });
   const [passwordError, setPasswordError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       setPasswordError("As senhas não coincidem!");
       return;
     }
     setPasswordError("");
+
+    // Atualiza senha no estado
     setRegisterData({ password: form.password });
-    nextStep();
+
+    try {
+      await registerUser(); // Chama a API (lógica no contexto)
+      nextStep(); // Avança só se sucesso
+    } catch (err) {
+      setPasswordError(error || "Falha no registro. Tente novamente."); // Usa erro do contexto ou fallback
+    }
   };
 
   return (
@@ -51,7 +57,7 @@ const SecurityData = () => {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Digite sua senha"
           required
-          isError={!!passwordError}
+          isError={!!passwordError || !!error}
         />
         <Input
           id="confirmPassword"
@@ -61,10 +67,10 @@ const SecurityData = () => {
           onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
           placeholder="Digite sua senha novamente"
           required
-          isError={!!passwordError}
+          isError={!!passwordError || !!error}
         />
-        {passwordError && (
-          <p className="text-red-500 text-sm mt-2">{passwordError}</p>
+        {(passwordError || error) && (
+          <p className="text-red-500 text-sm mt-2">{passwordError || error}</p>
         )}
         <Button type="submit" onClick={() => { }}>
           Finalizar cadastro
