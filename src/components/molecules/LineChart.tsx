@@ -1,13 +1,19 @@
 import { ChartProps } from '@/src/types/panel';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 import annotationPlugin from 'chartjs-plugin-annotation';
 
 Chart.register(annotationPlugin);
 
-const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMonth }) => {
+const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColor, dotColor }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(Math.floor(data.length / 2));
+
+  useEffect(() => {
+    // Reset selected index when data changes
+    setSelectedIndex(Math.floor(data.length / 2));
+  }, [data]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,9 +29,9 @@ const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMo
     const maxVal = Math.max(...values);
     const minVal = 0; // Set min to 0 to match the image starting at 0
 
-    const selectedIndex = data.findIndex(d => d.month === selectedMonth);
-    if (selectedIndex === -1) return; // Handle error if needed
+    if (selectedIndex < 0 || selectedIndex >= data.length) return; // Handle error if needed
 
+    const selectedMonth = data[selectedIndex].month;
     const selectedValue = data[selectedIndex].value;
     const selectedLabel = `${selectedValue}K`;
 
@@ -54,6 +60,17 @@ const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMo
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        },
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            setSelectedIndex(index);
+          }
+        },
         plugins: {
           legend: {
             display: false,
@@ -62,6 +79,7 @@ const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMo
             enabled: false,
           },
           annotation: {
+            clip: false,
             annotations: {
               verticalLine: {
                 type: 'line',
@@ -117,21 +135,54 @@ const LineChart: React.FC<ChartProps> = ({ data, lineColor, dotColor, selectedMo
         },
         elements: {
           point: {
-            hitRadius: 0,
+            hitRadius: 10, // Increase hit radius for easier clicking
           }
         }
       }
     });
+
+    // Adjust label position after chart creation
+    if (chartRef.current) {
+      const chart = chartRef.current;
+      const yScale = chart.scales['y'];
+      const xScale = chart.scales['x'];
+      const pixelY = yScale.getPixelForValue(selectedValue);
+      const pixelX = xScale.getPixelForValue(selectedIndex);
+      const labelHeightApprox = 30; // Approximate label height
+      const labelWidthApprox = 60; // Approximate label width
+
+      let yAdj = -35; // Default above
+      if (pixelY + yAdj < yScale.top + labelHeightApprox / 2) {
+        yAdj = 35; // Place below if overflowing top
+      }
+
+      let xAdj = 30; // Default to the right
+      if (pixelX + xAdj + labelWidthApprox > xScale.right) {
+        xAdj = -30 - labelWidthApprox; // Place to the left if overflowing right
+      } else if (pixelX + xAdj < xScale.left) {
+        xAdj = 0; // Center if overflowing left
+      }
+
+      const annotationPluginOptions = chart.options.plugins?.annotation;
+      if (annotationPluginOptions) {
+        const annotations = annotationPluginOptions.annotations as Record<string, any>;
+        if (annotations && !Array.isArray(annotations) && 'valueLabel' in annotations) {
+          annotations['valueLabel'].yAdjust = yAdj;
+          annotations['valueLabel'].xAdjust = xAdj;
+          chart.update();
+        }
+      }
+    }
 
     return () => {
       if (chartRef.current) {
         chartRef.current.destroy();
       }
     };
-  }, [data, lineColor, dotColor, selectedMonth]);
+  }, [data, lineColor, dotColor, selectedIndex]);
 
   return (
-    <div className="relative w-full h-48">
+    <div className="relative w-full h-48 overflow-visible">
       <canvas ref={canvasRef} />
     </div>
   );

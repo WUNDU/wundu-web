@@ -5,9 +5,10 @@ import Chart from 'chart.js/auto';
 interface PieChartProps {
   transactions: TransactionProps[];
   totalAmount: number;
+  timeRangeText?: string;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
+const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount, timeRangeText = "Esse mês" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -19,6 +20,11 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
 
     if (chartRef.current) {
       chartRef.current.destroy();
+    }
+
+    // Only create chart if there are transactions
+    if (transactions.length === 0) {
+      return;
     }
 
     const centerText = {
@@ -37,14 +43,16 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
         ctx.font = '24px sans-serif';
         ctx.fillText(`KZ ${totalAmount.toLocaleString('pt-AO')}`, x, y);
         ctx.font = '14px sans-serif';
-        ctx.fillText('Esse mês', x, y + 25);
+        // Use the dynamic time range text
+        const displayText = timeRangeText.replace('Gastos ', '').replace('Créditos ', '');
+        ctx.fillText(displayText, x, y + 25);
         ctx.restore();
       },
     };
 
     Chart.register(centerText);
 
-    const colors = ['#60A5FA', '#2DD4BF', '#A78BFA'];
+    const colors = ['#60A5FA', '#2DD4BF', '#A78BFA', '#F87171', '#FBBF24', '#8B5CF6', '#F97316'];
 
     chartRef.current = new Chart(ctx, {
       type: 'doughnut',
@@ -53,7 +61,7 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
         datasets: [
           {
             data: transactions.map((tx) => Math.abs(tx.amount)),
-            backgroundColor: colors,
+            backgroundColor: colors.slice(0, transactions.length),
             hoverOffset: 10,
           },
         ],
@@ -69,6 +77,12 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
           },
           tooltip: {
             enabled: true,
+            callbacks: {
+              label: function (context) {
+                const transaction = transactions[context.dataIndex];
+                return `${transaction.title}: KZ ${Math.abs(transaction.amount).toLocaleString('pt-AO')} (${transaction.percentage}%)`;
+              }
+            }
           },
         },
         animation: {
@@ -84,7 +98,19 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount }) => {
       }
       Chart.unregister(centerText);
     };
-  }, [transactions, totalAmount]);
+  }, [transactions, totalAmount, timeRangeText]);
+
+  // Show empty state if no transactions
+  if (transactions.length === 0) {
+    return (
+      <div className="flex justify-center items-center w-full h-64">
+        <div className="text-center text-gray-500">
+          <p className="text-lg font-medium">Nenhuma transação</p>
+          <p className="text-sm">encontrada para este período</p>
+        </div>
+      </div>
+    );
+  }
 
   // Ensure the container is centered and responsive
   return (
