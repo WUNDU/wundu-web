@@ -60,3 +60,7 @@ export interface MoreButtonProps {
   color?: string
   label: string
 }
+
+export interface OptionChatButtonProps {
+  label: string;
+}

@@ -1,6 +1,5 @@
 'use client'
 import { logo } from "@/src/constants/images";
-import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Image from "next/image";
 import { useState } from "react";
 import Input from "../atoms/Input";
@@ -9,8 +8,8 @@ import GoogleLoginButton from "../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
-import { BackArrowIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
+import { useRegisterContext } from "@/src/hooks/useRegisterContext";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();

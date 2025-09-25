@@ -2,15 +2,20 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { user } from '@/src/constants/images';
+import { backgroundPanel, user } from '@/src/constants/images';
 import { DownArrowIcon, HelpIcon, LogoutIcon, NotificationDeskIcon, NotificationRightBarIcon, PaymentIcon, ProfileIcon, SettingsRightBarIcon } from '@/src/constants/icons';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
+import { SidebarRightProps } from '@/src/types/sidebar';
 
-interface SidebarRightProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+
 
 const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
+  const route = useRouter();
+
+  const handleControlPanel = () => {
+    route.push(ROUTES.CONTROL_PANEL)
+  }
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-black/5 backdrop-blur-sm z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -47,8 +52,19 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
 
           {/* Painel de controle */}
           <div className="w-full max-w-md">
-            <div className="bg-blue-900 rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4">
-              <span>Painel de controle</span>
+            <div
+              className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
+              style={{
+                backgroundImage: `url(${backgroundPanel.src})`,
+                backgroundSize: 'cover',  // Ajusta para cobrir toda a div (pode mudar para 'contain' se preferir)
+                backgroundPosition: 'center',  // Centraliza a imagem
+                backgroundRepeat: 'no-repeat'  // Evita repetição
+              }}
+            >
+              {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
+              <button onClick={handleControlPanel}>
+                <span>Painel de controle</span>
+              </button>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>

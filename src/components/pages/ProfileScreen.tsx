@@ -2,11 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { user } from '@/src/constants/images';
+import { backgroundPanel, user } from '@/src/constants/images';
 import {
-  HomeIcon,
-  ScanIcon,
-  LibraryIcon,
   ProfileIcon,
   HelpIcon,
   NotificationRightBarIcon,
@@ -15,9 +12,12 @@ import {
   LogoutIcon
 } from '@/src/constants/icons';
 import BottomNavigation from '../organisms/BottomNavigation';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 const ProfileScreen: React.FC = () => {
   const [userName, setUserName] = useState('Israel Manuel');
+  const route = useRouter()
 
   const menuItems = [
     { icon: <ProfileIcon />, text: 'Meus dados' },
@@ -27,6 +27,10 @@ const ProfileScreen: React.FC = () => {
     { icon: <SettingsRightBarIcon />, text: 'Configurações' },
     { icon: <LogoutIcon className="text-red-500" />, text: 'Sair' },
   ];
+
+  const handleControlPanel = () => {
+    route.push(ROUTES.CONTROL_PANEL)
+  }
 
   return (
     <div className="flex flex-col justify-center h-full my-5 bg-gray-50">
@@ -79,13 +83,22 @@ const ProfileScreen: React.FC = () => {
 
         {/* Painel de controle */}
         <div className="p-4">
-          <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-2xl p-4 text-white mb-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Painel de controle</h2>
+          <div
+            className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
+            style={{
+              backgroundImage: `url(${backgroundPanel.src})`,
+              backgroundSize: 'cover',  // Ajusta para cobrir toda a div (pode mudar para 'contain' se preferir)
+              backgroundPosition: 'center',  // Centraliza a imagem
+              backgroundRepeat: 'no-repeat'  // Evita repetição
+            }}
+          >
+            {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
+            <span>Painel de controle</span>
+            <button onClick={handleControlPanel}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
-            </div>
+            </button>
           </div>
 
           {/* Lista de menu */}

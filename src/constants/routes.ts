@@ -10,5 +10,7 @@ export const ROUTES = {
   FINANCIAL_IA: '/home/financial/ia',
   LIBRARY: '/home/library',
   ARTICLE: '/home/library/article',
-  PROFILE: '/home/profile'
+  PROFILE: '/home/profile',
+  CHAT_IA: '/home/chat',
+  CONTROL_PANEL: '/home/profile/control_panel',
 } as const;

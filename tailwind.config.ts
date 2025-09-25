@@ -12,6 +12,9 @@ const config: Config = {
         'primary': '#ffd400',
         'secondary': '#ff4081',
       },
+      fontFamily: {
+        inter: ["var(--font-inter)", "sans-serif"],
+      },
     },
   },
   plugins: [],

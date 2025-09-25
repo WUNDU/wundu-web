@@ -1,8 +1,8 @@
-import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import Button from "../atoms/Button";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
 import CheckmarkIcon from "../icons/CheckmarkIcon";
+import useRegisterContext from "@/src/hooks/useRegisterContext";
 
 const Success = () => {
   const { data } = useRegisterContext();

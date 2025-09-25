@@ -1,6 +1,7 @@
 import HomeScreen from "@/src/components/pages/HomeScreen";
 
-export default function Home() {
+export default async function Home() {
+  await new Promise(resolve => setTimeout(resolve, 2000));
   return (
     <HomeScreen />
   )

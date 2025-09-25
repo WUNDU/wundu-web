@@ -5,8 +5,8 @@ export interface CtaSectionProps {
 }
 
 export interface DetailsSectionProps {
-  icon: React.ReactNode;
-  label: string;
+  icon?: React.ReactNode;
+  label?: string;
   children: React.ReactNode;
 }
 

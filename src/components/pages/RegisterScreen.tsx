@@ -1,10 +1,10 @@
 'use client'
-import { useRegisterContext } from "@/src/contexts/RegisterContext";
 import PersonalData from "../organisms/PersonalData";
 import SecurityData from "../organisms/SecurityData";
 import Success from "../organisms/Success";
 import Image from "next/image";
 import { logo } from "@/src/constants/images";
+import { useRegisterContext } from "@/src/hooks/useRegisterContext";
 
 const RegisterScreen = () => {
   const { currentStep } = useRegisterContext();
