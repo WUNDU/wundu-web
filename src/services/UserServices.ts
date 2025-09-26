@@ -1,5 +1,7 @@
 import api from '@/src/lib/api';
 import { RegisterData } from '@/src/types/register';
+import { AxiosError } from 'axios';
+import { ApiErrorResponse } from '../types/api';
 
 export const UserService = {
   register: async (data: RegisterData) => {
@@ -11,19 +13,32 @@ export const UserService = {
       planType: 'FREE',
     };
     try {
+      console.log('Payload enviado:', payload);
       const response = await api.post('/users', payload);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to register user');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'Failed to register user';
+      console.log('Erro no UserService.register:', message);
+      throw new Error(message);
     }
   },
 
   login: async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth', { email, password });
       return response.data.token;
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to login');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'Failed to login';
+      console.log('Erro no UserService.login:', message);
+      throw new Error(message);
     }
   },
 };

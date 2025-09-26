@@ -1,12 +1,7 @@
 'use client'
 import { createContext, ReactNode, useState, useContext } from 'react';
 import { UserService } from '../services/UserServices';
-
-interface AuthContextType {
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-}
+import { AuthContextType } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

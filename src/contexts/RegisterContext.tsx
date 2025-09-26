@@ -36,7 +36,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Opcional: Função de login, se necessário
   const loginUser = async (email: string, password: string) => {
     setError(null);
     try {
