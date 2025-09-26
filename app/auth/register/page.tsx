@@ -1,11 +1,13 @@
 import RegisterScreen from "@/src/components/pages/RegisterScreen";
+import { AuthProvider } from "@/src/contexts/AuthContext";
 import { RegisterProvider } from "@/src/contexts/RegisterContext";
 
 export default function Register() {
   return (
-    <RegisterProvider>
-      <RegisterScreen />
-    </RegisterProvider>
-
+    <AuthProvider>
+      <RegisterProvider>
+        <RegisterScreen />
+      </RegisterProvider>
+    </AuthProvider>
   )
 }
