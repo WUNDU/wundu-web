@@ -42,7 +42,7 @@ const HomeScreen = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       setDocuments(prevDocs => [...prevDocs, { name: file.name, type }]);
     } catch (error) {
-      console.error('Erro ao fazer upload do arquivo:', error);
+      console.log('Erro ao fazer upload do arquivo:', error);
     } finally {
       setIsLoading(false);
       // Não setar showUploadOptions para false aqui, para manter o layout side-by-side

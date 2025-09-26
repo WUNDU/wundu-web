@@ -1,22 +1,13 @@
 'use client'
-
-import GoogleLoginButton from "../atoms/GoogleLoginButton";
-import CtaSectionLogin from "../molecules/CtaSectionLogin";
-import FormSection from "../molecules/FormSection";
-import { errorIllustration, loginIllustration, logo } from "@/src/constants/images";
-import Image from "next/image";
-import Link from "next/link";
-import { ROUTES } from "@/src/constants/routes";
-import { useUiStore } from "@/src/store/uiStore";
+import GoogleLoginButton from '../atoms/GoogleLoginButton';
+import CtaSectionLogin from '../molecules/CtaSectionLogin';
+import FormSection from '../molecules/FormSection';
+import { loginIllustration, logo } from '@/src/constants/images';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ROUTES } from '@/src/constants/routes';
 
 const LoginScreen: React.FC = () => {
-
-  const { openModal } = useUiStore();
-
-  const handleLogin = () => {
-    openModal('error', 'Erro de Login', 'A senha inserida está incorreta!');
-  }
-
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center md:bg-gray-100 font-sans">
       {/* Logo Wundu - visível para todas as telas, mas posicionado de forma diferente */}
@@ -27,7 +18,6 @@ const LoginScreen: React.FC = () => {
 
       <div className="md:py-4">
         <div className="flex w-full md:max-w-2xl lg:max-w-3xl flex-col items-center md:rounded-3xl md:bg-white md:shadow-2xl md:overflow-hidden md:p-0">
-
           {/* Seção dos textos centralizados no topo - apenas visível em desktop */}
           <div className="hidden md:flex md:w-full md:flex-col md:items-center md:justify-center md:text-center md:pt-8 md:px-4">
             <CtaSectionLogin
@@ -59,7 +49,9 @@ const LoginScreen: React.FC = () => {
               </div>
 
               <div className="mt-8 flex w-full flex-col">
-                <FormSection onLogin={handleLogin} />
+                <FormSection onLogin={function (): void {
+                  throw new Error('Function not implemented.');
+                }} />
 
                 <div className="relative my-4 flex items-center">
                   <div className="flex-grow border-t border-gray-300"></div>
@@ -88,17 +80,17 @@ const LoginScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Links de política de privacidade e termos de uso - visíveis para todas as telas, mas com posicionamento diferente */}
+      {/* Links de política de privacidade e termos de uso */}
       <div className="mt-4 md:mt-8 w-full max-w-xl text-center md:absolute md:bottom-8 md:left-1/2 md:-translate-x-1/2">
         <p className="mt-1 px-10 text-center text-xs text-gray-500">
-          Ao entrar, você concorda com nossos{" "}
+          Ao entrar, você concorda com nossos{' '}
           <Link href="https://wundu.netlify.app/privacy-policy#terms-policy" className="underline">
             termos de uso
-          </Link>{" "}
-          e nossa{" "}
+          </Link>{' '}
+          e nossa{' '}
           <Link href="https://wundu.netlify.app/privacy-policy" className="underline">
             política de privacidade
-          </Link>  .
+          </Link>.
         </p>
       </div>
     </div>

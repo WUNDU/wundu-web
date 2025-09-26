@@ -53,7 +53,7 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
           console.log('Returning to previous state');
         }, 2000);
       } catch (error) {
-        console.error('Error saving category:', error);
+        console.log('Error saving category:', error);
       }
     } else {
       console.warn('Cannot save: missing category or description');
