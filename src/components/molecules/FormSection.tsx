@@ -7,9 +7,11 @@ import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
 import useRegisterContext from "@/src/hooks/useRegisterContext";
 import { validateEmail, validatePassword } from "@/src/utils/validation";
+import { useRouter } from "next/navigation";
 
-const FormSection: React.FC<FormSectionProps> = ({ onLogin }) => {
+const FormSection: React.FC<FormSectionProps> = () => {
   const { loginUser, error: contextError } = useRegisterContext();
+  const router = useRouter()
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -39,6 +41,7 @@ const FormSection: React.FC<FormSectionProps> = ({ onLogin }) => {
     if (valid) {
       try {
         await loginUser(form.email, form.password);
+        router.push(ROUTES.HOME)
       } catch (err) {
         console.log('Erro de login Capturado', contextError)
       }

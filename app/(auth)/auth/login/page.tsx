@@ -1,12 +1,13 @@
-import RegisterScreen from "@/src/components/pages/RegisterScreen";
+'use client'
+import LoginScreen from "@/src/components/pages/LoginScreen";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { RegisterProvider } from "@/src/contexts/RegisterContext";
 
-export default function Register() {
+export default function Login() {
   return (
     <AuthProvider>
       <RegisterProvider>
-        <RegisterScreen />
+        <LoginScreen />
       </RegisterProvider>
     </AuthProvider>
   )

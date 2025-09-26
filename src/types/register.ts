@@ -14,4 +14,7 @@ export interface RegisterContextType {
   error: string | null;
   registerUser: (overrideData?: RegisterData) => Promise<any>;
   loginUser: (email: string, password: string) => Promise<string>;
+  logoutUser: () => void;
+  token: string | null;
+  isAuthenticated: boolean;
 }
