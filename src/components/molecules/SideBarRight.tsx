@@ -7,14 +7,20 @@ import { DownArrowIcon, HelpIcon, LogoutIcon, NotificationDeskIcon, Notification
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
 import { SidebarRightProps } from '@/src/types/sidebar';
+import useRegisterContext from '@/src/hooks/useRegisterContext';
 
 
 
 const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const route = useRouter();
+  const { error, logoutUser } = useRegisterContext()
 
   const handleControlPanel = () => {
     route.push(ROUTES.CONTROL_PANEL)
+  }
+
+  const handleLogout = async () => {
+    await logoutUser()
   }
   return (
     <div
@@ -93,12 +99,14 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
               </ul>
 
               {/* Botão de logout */}
-              <div className="p-4 border-t border-gray-100">
-                <div className="flex items-center space-x-4 text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors duration-200 cursor-pointer">
-                  <LogoutIcon className="w-6 h-6" />
-                  <span className="font-medium text-sm sm:text-base">Terminar Sessão</span>
+              <button onClick={handleLogout}>
+                <div className="p-4 border-t border-gray-100">
+                  <div className="flex items-center space-x-4 text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors duration-200 cursor-pointer">
+                    <LogoutIcon className="w-6 h-6" />
+                    <span className="font-medium text-sm sm:text-base">Terminar Sessão</span>
+                  </div>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
