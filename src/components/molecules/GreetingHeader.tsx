@@ -7,10 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
 import useRegisterContext from '@/src/hooks/useRegisterContext';
 import LoadingSpinner from '../atoms/LoadingSpinner';
-
-interface GreetingHeaderProps {
-  onToggleSidebar: () => void;
-}
+import type { GreetingHeaderProps } from '@/src/types/header';
 
 const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
   const route = useRouter()

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { backgroundPanel, user } from '@/src/constants/images';
+import { backgroundPanel, user as avatar } from '@/src/constants/images';
 import { DownArrowIcon, HelpIcon, LogoutIcon, NotificationDeskIcon, NotificationRightBarIcon, PaymentIcon, ProfileIcon, SettingsRightBarIcon } from '@/src/constants/icons';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
@@ -10,10 +10,9 @@ import { SidebarRightProps } from '@/src/types/sidebar';
 import useRegisterContext from '@/src/hooks/useRegisterContext';
 
 
-
 const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const route = useRouter();
-  const { error, logoutUser } = useRegisterContext()
+  const { logoutUser, user } = useRegisterContext()
 
   const handleControlPanel = () => {
     route.push(ROUTES.CONTROL_PANEL)
@@ -46,15 +45,15 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
           <div className="p-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600">
             <div className="bg-white p-3 rounded-full">
               <Image
-                src={user}
-                alt="Israel Manuel"
+                src={avatar}
+                alt={user?.name || 'Usuário'}
                 className="w-12 h-12 rounded-full object-cover"
               />
             </div>
           </div>
 
           {/* Nome do usuário */}
-          <span className="text-xl sm:text-2xl font-semibold text-black">Israel Manuel</span>
+          <span className="text-xl sm:text-2xl font-semibold text-black">{user?.name || 'Usuário'}</span>
 
           {/* Painel de controle */}
           <div className="w-full max-w-md">
