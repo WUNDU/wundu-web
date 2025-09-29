@@ -9,7 +9,7 @@ import useRegisterContext from "@/src/hooks/useRegisterContext";
 import { validateEmail, validatePassword } from "@/src/utils/validation";
 import { useRouter } from "next/navigation";
 
-const FormSection: React.FC<FormSectionProps> = () => {
+const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
   const { loginUser, error: contextError } = useRegisterContext();
   const router = useRouter()
   const [form, setForm] = useState({
@@ -37,6 +37,7 @@ const FormSection: React.FC<FormSectionProps> = () => {
     }
 
     setErrors(newErrors)
+    onErrorChange?.(!!newErrors.email || !!newErrors.password || !!contextError)
 
     if (valid) {
       try {

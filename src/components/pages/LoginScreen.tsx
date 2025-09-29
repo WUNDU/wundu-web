@@ -2,12 +2,14 @@
 import GoogleLoginButton from '../atoms/GoogleLoginButton';
 import CtaSectionLogin from '../molecules/CtaSectionLogin';
 import FormSection from '../molecules/FormSection';
-import { loginIllustration, logo } from '@/src/constants/images';
+import { loginIllustration, errorIllustration, logo } from '@/src/constants/images';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ROUTES } from '@/src/constants/routes';
+import { useState } from 'react';
 
 const LoginScreen: React.FC = () => {
+  const [hasError, setHasError] = useState(false)
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center md:bg-gray-100 font-sans">
       {/* Logo Wundu - visível para todas as telas, mas posicionado de forma diferente */}
@@ -30,7 +32,7 @@ const LoginScreen: React.FC = () => {
           <div className="flex w-full flex-col md:flex-row">
             {/* Seção da ilustração - oculta em telas pequenas */}
             <div className="hidden flex-1 items-center justify-center p-8 md:flex md:w-1/2 md:p-14 lg:p-14">
-              <Image src={loginIllustration} alt="Login Illustration" className="w-full" />
+              <Image src={hasError ? errorIllustration : loginIllustration} alt="Login Illustration" width={300} />
             </div>
 
             {/* Seção do formulário */}
@@ -49,9 +51,10 @@ const LoginScreen: React.FC = () => {
               </div>
 
               <div className="mt-8 flex w-full flex-col">
-                <FormSection onLogin={function (): void {
-                  throw new Error('Function not implemented.');
-                }} />
+                <FormSection onErrorChange={(error) => setHasError(error)}
+                  onLogin={function (): void {
+                    throw new Error('Function not implemented.');
+                  }} />
 
                 <div className="relative my-4 flex items-center">
                   <div className="flex-grow border-t border-gray-300"></div>

@@ -7,9 +7,11 @@
 }
 
 * {
-  font-family: var(--font-inter); /* Default to Inter */
+  font-family: var(--font-inter);
+  /* Default to Inter */
 }
 
 .open-sans {
-  font-family: var(--font-open-sans); /* Use Open Sans for specific elements */
+  font-family: var(--font-open-sans);
+  /* Use Open Sans for specific elements */
 }
