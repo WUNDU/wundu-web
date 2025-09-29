@@ -1,9 +1,12 @@
+'use client'
 import React from 'react';
 import Image from 'next/image';
-import { logo, user } from '@/src/constants/images';
+import { logo, user as avatar } from '@/src/constants/images';
 import { DownArrowIcon, IAIcon, NotificationDeskIcon, NotificationIcon } from '@/src/constants/icons';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
+import useRegisterContext from '@/src/hooks/useRegisterContext';
+import LoadingSpinner from '../atoms/LoadingSpinner';
 
 interface GreetingHeaderProps {
   onToggleSidebar: () => void;
@@ -11,9 +14,14 @@ interface GreetingHeaderProps {
 
 const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
   const route = useRouter()
+  const { user, isAuthenticated } = useRegisterContext()
 
   const handleChatIa = () => {
     route.push(ROUTES.CHAT_IA)
+  }
+
+  if (!user && isAuthenticated) {
+    return <LoadingSpinner />;
   }
   return (
     <header className="bg-white px-4 py-3 flex items-center justify-between md:justify-end shadow-sm">
@@ -27,8 +35,8 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
             md:bg-gradient-to-r md:from-yellow-400 md:to-yellow-600'>
             <div className='bg-white md:p-4 rounded-full '>
               <Image
-                src={user}
-                alt="Israel Manuel"
+                src={avatar}
+                alt={user?.name || 'Usuário'}
                 className="w-6 h-6 rounded-full"
               />
             </div>
@@ -42,7 +50,7 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
           </button>
         </div>
         <div className="md:hidden ml-3">
-          <h1 className="text-lg font-semibold text-gray-900">Olá, Israel Manuel</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Olá, {user?.name || 'Usuário'}</h1>
           <p className="text-sm text-gray-500">Bem-vindo ao wundu</p>
         </div>
       </div>

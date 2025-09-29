@@ -30,7 +30,7 @@ export const UserService = {
   login: async (email: string, password: string) => {
     try {
       const response = await api.post('/auth', { email, password });
-      return response.data.token;
+      return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
       const message =

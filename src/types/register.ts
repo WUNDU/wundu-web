@@ -1,3 +1,5 @@
+import type { User } from "./user";
+
 export interface RegisterData {
   name?: string;
   email?: string;
@@ -13,8 +15,10 @@ export interface RegisterContextType {
   currentStep: number;
   error: string | null;
   registerUser: (overrideData?: RegisterData) => Promise<any>;
-  loginUser: (email: string, password: string) => Promise<string>;
+  loginUser: (email: string, password: string) => Promise<void>;
   logoutUser: () => void;
   token: string | null;
+  user: User | null; // Add user to the interface
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
