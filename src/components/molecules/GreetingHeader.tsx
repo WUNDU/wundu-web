@@ -17,6 +17,10 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
     route.push(ROUTES.CHAT_IA)
   }
 
+  const handleProfile = () => {
+    route.push(ROUTES.PROFILE)
+  }
+
   if (!user && isAuthenticated) {
     return <LoadingSpinner />;
   }
@@ -34,7 +38,14 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
               <Image
                 src={avatar}
                 alt={user?.name || 'Usuário'}
-                className="w-6 h-6 rounded-full"
+                className="md:hidden w-6 h-6 rounded-full"
+                onClick={handleProfile}
+              />
+              <Image
+                src={avatar}
+                alt={user?.name || 'Usuário'}
+                className="hidden md:block w-6 h-6 rounded-full"
+
               />
             </div>
           </div>

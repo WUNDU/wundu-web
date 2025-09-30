@@ -16,6 +16,7 @@ import Sidebar from '../molecules/Sidebar';
 import SidebarRight from '../molecules/SideBarRight';
 import { ArrowsLeftIcon } from '@/src/constants/icons';
 import StatsSection from '../molecules/StatsSection';
+import BottomNavigation from '../organisms/BottomNavigation';
 
 // Fallback mock data for when no transactions are available
 const mockDataByTimeRange = {
@@ -361,11 +362,11 @@ const ControlPanelDashboardScreen: React.FC = () => {
       </Head>
 
       {/* Mobile Layout */}
-      <div className="md:hidden min-h-screen bg-gray-200 p-4 font-sans">
-        <div className="py-4">
+      <div className="md:hidden min-h-screen bg-gray-200 p-2 font-sans">
+        {/* <div className="py-4">
           <NavigationBack />
-        </div>
-        <div className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden">
+        </div> */}
+        <div className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden pb-15">
           {/* Top Bar */}
           <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end'}`}>
             <div>
@@ -445,6 +446,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           {/* Transactions List */}
           <TransactionsList transactions={transactions} />
         </div>
+        <BottomNavigation />
       </div>
 
       {/* Desktop Layout */}
