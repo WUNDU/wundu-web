@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { backgroundPanel, user } from '@/src/constants/images';
+import { backgroundPanel, user as avatar } from '@/src/constants/images';
 import {
   ProfileIcon,
   HelpIcon,
@@ -14,9 +14,10 @@ import {
 import BottomNavigation from '../organisms/BottomNavigation';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/src/constants/routes';
+import useRegisterContext from '@/src/hooks/useRegisterContext';
 
 const ProfileScreen: React.FC = () => {
-  const [userName, setUserName] = useState('Israel Manuel');
+  const { user } = useRegisterContext();
   const route = useRouter()
 
   const menuItems = [
@@ -49,8 +50,8 @@ const ProfileScreen: React.FC = () => {
                   {/* Container da imagem */}
                   <div className="bg-white p-2 rounded-full relative">
                     <Image
-                      src={user}
-                      alt="Israel Manuel"
+                      src={avatar}
+                      alt={user?.name || "Usuário"}
                       className="w-12 h-12 rounded-full object-cover"
                     />
 
@@ -75,7 +76,7 @@ const ProfileScreen: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{userName}</h1>
+                <h1 className="text-lg font-semibold text-gray-900">{user?.name}</h1>
               </div>
             </div>
           </div>
