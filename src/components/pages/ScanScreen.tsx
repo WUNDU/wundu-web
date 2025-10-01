@@ -21,30 +21,6 @@ const ScanScreen = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const tabs = [
-    { href: ROUTES.HOME, label: 'Home' },
-    { href: ROUTES.SCAN, label: 'Scan' },
-    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
-    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
-  ];
-  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
-
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
-        router.push(tabs[currentIndex + 1].href);
-      }
-    },
-    onSwipedRight: () => {
-      if (currentIndex > 0 && currentIndex !== -1) {
-        router.push(tabs[currentIndex - 1].href);
-      }
-    },
-    preventScrollOnSwipe: true,
-    trackMouse: false, // Only enable for touch devices (mobile)
-  });
 
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
@@ -74,7 +50,7 @@ const ScanScreen = () => {
   return (
     <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800 flex-col">
       {/* Conteúdo Principal - Apenas mobile */}
-      <div {...handlers} className="flex-1 flex flex-col h-full">
+      <div className="flex-1 flex flex-col h-full">
         <GreetingHeader onToggleSidebar={function (): void {
           throw new Error('Function not implemented.');
         }} />

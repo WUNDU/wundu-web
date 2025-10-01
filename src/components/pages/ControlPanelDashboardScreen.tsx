@@ -180,30 +180,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const tabs = [
-    { href: ROUTES.HOME, label: 'Home' },
-    { href: '/scan', label: 'Scan' },
-    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
-    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
-  ];
-  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
-
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
-        router.push(tabs[currentIndex + 1].href);
-      }
-    },
-    onSwipedRight: () => {
-      if (currentIndex > 0 && currentIndex !== -1) {
-        router.push(tabs[currentIndex - 1].href);
-      }
-    },
-    preventScrollOnSwipe: true,
-    trackMouse: false,
-  });
 
   // Filter transactions based on time range
   const filteredTransactions = useMemo(() => {
@@ -393,7 +369,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         {/* <div className="py-4">
           <NavigationBack />
         </div> */}
-        <div {...handlers} className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden pb-15">
+        <div className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden pb-15">
           {/* Top Bar */}
           <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end'}`}>
             <div>
