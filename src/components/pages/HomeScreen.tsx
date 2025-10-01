@@ -15,6 +15,9 @@ import { CategoryProvider, useCategoryContext } from '@/src/contexts/CategoryCon
 import CategoryScreen from './CategoryScreen';
 import MovementSection from '../molecules/MovimentSection';
 import DetailsModal from '../organisms/DetailsModal';
+import { useSwipeable } from 'react-swipeable';
+import { usePathname, useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -23,6 +26,31 @@ const HomeScreen = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const tabs = [
+    { href: ROUTES.HOME, label: 'Home' },
+    { href: ROUTES.SCAN, label: 'Scan' },
+    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
+    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
+  ];
+  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
+        router.push(tabs[currentIndex + 1].href);
+      }
+    },
+    onSwipedRight: () => {
+      if (currentIndex > 0 && currentIndex !== -1) {
+        router.push(tabs[currentIndex - 1].href);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: false, // Only enable for touch devices (mobile)
+  });
 
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
@@ -66,7 +94,7 @@ const HomeScreen = () => {
       </div>
 
       {/* Conteúdo Principal */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} h-full`}>
+      <div {...handlers} className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} h-full`}>
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
         <button
           onClick={toggleSidebar}

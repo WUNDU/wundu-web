@@ -16,6 +16,8 @@ import SidebarRight from '../molecules/SideBarRight';
 import { ArrowsLeftIcon, NoMovementIcon } from '@/src/constants/icons';
 import InvestmentContent from '../organisms/InvestmentContent';
 import { InvestmentType } from '@/src/types/article';
+import { useSwipeable } from 'react-swipeable';
+import { usePathname } from 'next/navigation';
 
 const LibraryScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +27,31 @@ const LibraryScreen = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const route = useRouter();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const tabs = [
+    { href: ROUTES.HOME, label: 'Home' },
+    { href: ROUTES.SCAN, label: 'Scan' },
+    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
+    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
+  ];
+  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
+        router.push(tabs[currentIndex + 1].href);
+      }
+    },
+    onSwipedRight: () => {
+      if (currentIndex > 0 && currentIndex !== -1) {
+        router.push(tabs[currentIndex - 1].href);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: false,
+  });
 
   const categories = ['Finanças', 'Investimentos', 'Poupança', 'Gestão'];
 
@@ -110,7 +136,7 @@ const LibraryScreen = () => {
       setSelectedArticle(article);
       // No mobile, navega para a página de detalhes
       // No desktop, mostra o conteúdo na sidebar direita
-      route.push(ROUTES.ARTICLE);
+      router.push(ROUTES.ARTICLE);
     }
   };
 
@@ -172,7 +198,7 @@ const LibraryScreen = () => {
     <>
       {/* Layout Mobile - Mantém exatamente igual */}
       <div className="flex flex-col min-h-screen bg-gray-100 pb-20 md:hidden">
-        <div className="m-2 flex flex-col flex-1 rounded-2xl bg-white">
+        <div {...handlers} className="m-2 flex flex-col flex-1 rounded-2xl bg-white">
           {/* Search Section */}
           <div className="px-4 py-6 shadow-sm">
             <SearchBar

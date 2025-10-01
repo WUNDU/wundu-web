@@ -1,0 +1,168 @@
+'use client';
+
+import React, { useState } from 'react';
+import GreetingHeader from '../molecules/GreetingHeader';
+import UploadSection from '../organisms/UploadSection';
+import BottomNavigation from '../organisms/BottomNavigation';
+import SentDocumentsSection from '../organisms/SendDocumentSection';
+import { Document } from '@/src/types/button';
+import LoadingSpinner from '../atoms/LoadingSpinner';
+import { CategoryProvider, useCategoryContext } from '@/src/contexts/CategoryContext';
+import CategoryScreen from './CategoryScreen';
+import DetailsModal from '../organisms/DetailsModal';
+import { useSwipeable } from 'react-swipeable';
+import { usePathname, useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
+
+// Tipagem para o componente principal
+const ScanScreen = () => {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const tabs = [
+    { href: ROUTES.HOME, label: 'Home' },
+    { href: ROUTES.SCAN, label: 'Scan' },
+    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
+    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
+  ];
+  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
+        router.push(tabs[currentIndex + 1].href);
+      }
+    },
+    onSwipedRight: () => {
+      if (currentIndex > 0 && currentIndex !== -1) {
+        router.push(tabs[currentIndex - 1].href);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: false, // Only enable for touch devices (mobile)
+  });
+
+  const toggleUploadOptions = () => {
+    setShowUploadOptions(!showUploadOptions);
+  };
+
+  const handleFileSelect = async (file: File, type: 'image' | 'document') => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setDocuments(prevDocs => [...prevDocs, { name: file.name, type }]);
+    } catch (error) {
+      console.log('Erro ao fazer upload do arquivo:', error);
+    } finally {
+      setIsLoading(false);
+      setShowModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleCategoryCloseOrSuccess = () => {
+    setShowUploadOptions(false);
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800 flex-col">
+      {/* Conteúdo Principal - Apenas mobile */}
+      <div {...handlers} className="flex-1 flex flex-col h-full">
+        <GreetingHeader onToggleSidebar={function (): void {
+          throw new Error('Function not implemented.');
+        }} />
+
+        {/* Container principal com padding para BottomNavigation no mobile */}
+        <main className="flex-1 mb-0 px-4 pb-20 flex flex-col h-full overflow-y-auto">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center h-full">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              {/* Seção Superior - Adaptada para Scan com botão de upload, apenas mobile */}
+              <div className="flex items-center justify-between m-0 h-auto">
+                {/* Para mobile, adicionar UploadSection ou botão similar */}
+                <UploadSection onUploadClick={toggleUploadOptions} />
+              </div>
+
+              {/* Seção Principal */}
+              <CategoryProvider onClose={handleCloseModal}>
+                <ScanMainContent
+                  documents={documents}
+                  showUploadOptions={showUploadOptions}
+                  showModal={showModal}
+                  handleCloseModal={handleCloseModal}
+                  handleFileSelect={handleFileSelect}
+                  onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
+                />
+              </CategoryProvider>
+            </>
+          )}
+        </main>
+
+        {/* BottomNavigation - Apenas no mobile */}
+        <BottomNavigation />
+      </div>
+    </div>
+  );
+};
+
+// Tipagem para o componente auxiliar
+interface ScanMainContentProps {
+  documents: Document[];
+  showUploadOptions: boolean;
+  showModal: boolean;
+  handleCloseModal: () => void;
+  handleFileSelect: (file: File, type: 'image' | 'document') => void;
+  onCategoryCloseOrSuccess: () => void;
+}
+
+// Componente auxiliar para o conteúdo principal, separado como organism/template
+const ScanMainContent: React.FC<ScanMainContentProps> = ({
+  documents,
+  showUploadOptions,
+  showModal,
+  handleCloseModal,
+  handleFileSelect,
+  onCategoryCloseOrSuccess,
+}) => {
+  const { isCategoryModalOpen } = useCategoryContext();
+
+  return (
+    <>
+      <div className="flex flex-col flex-1 h-full">
+        {!showUploadOptions ? (
+          <div className='flex flex-col flex-1 h-full'>
+            {/* Mobile: Área para conteúdo de scan */}
+            <div className="flex flex-1 flex-col">
+              {/* Aqui pode adicionar conteúdo específico para scan, como preview de câmera ou placeholder */}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: SentDocumentsSection full para upload options */}
+            <div className='flex flex-col flex-1 h-full'>
+              <SentDocumentsSection documents={[]} showOptions={true} onFileSelect={handleFileSelect} />
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Mobile: Modais como overlay */}
+      <div>
+        {showModal && <DetailsModal onClose={handleCloseModal} />}
+        {isCategoryModalOpen && <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />}
+      </div>
+    </>
+  );
+};
+
+export default ScanScreen;

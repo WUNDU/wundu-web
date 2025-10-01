@@ -13,4 +13,5 @@ export const ROUTES = {
   PROFILE: '/home/profile',
   CHAT_IA: '/home/chat',
   CONTROL_PANEL: '/home/profile/control_panel',
+  SCAN: '/home/scan',
 } as const;

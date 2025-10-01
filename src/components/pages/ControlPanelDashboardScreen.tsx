@@ -7,7 +7,6 @@ import PieChart from '../molecules/PieChart';
 import Head from 'next/head';
 import { TimeRange, TransactionProps, ViewMode } from '@/src/types/panel';
 import { TransactionsList } from '../organisms/TransactionList';
-import NavigationBack from '../atoms/NavigationBack';
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from '@/src/constants/icons';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import HeaderSection from '../organisms/HeaderSection';
@@ -17,6 +16,9 @@ import SidebarRight from '../molecules/SideBarRight';
 import { ArrowsLeftIcon } from '@/src/constants/icons';
 import StatsSection from '../molecules/StatsSection';
 import BottomNavigation from '../organisms/BottomNavigation';
+import { useSwipeable } from 'react-swipeable';
+import { usePathname, useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 // Fallback mock data for when no transactions are available
 const mockDataByTimeRange = {
@@ -177,6 +179,31 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isCredit, setIsCredit] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const tabs = [
+    { href: ROUTES.HOME, label: 'Home' },
+    { href: '/scan', label: 'Scan' },
+    { href: ROUTES.LIBRARY, label: 'Biblioteca' },
+    { href: ROUTES.CONTROL_PANEL, label: 'Gráfico' },
+  ];
+  const currentIndex = tabs.findIndex(tab => tab.href === pathname);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (currentIndex < tabs.length - 1 && currentIndex !== -1) {
+        router.push(tabs[currentIndex + 1].href);
+      }
+    },
+    onSwipedRight: () => {
+      if (currentIndex > 0 && currentIndex !== -1) {
+        router.push(tabs[currentIndex - 1].href);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: false,
+  });
 
   // Filter transactions based on time range
   const filteredTransactions = useMemo(() => {
@@ -366,7 +393,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         {/* <div className="py-4">
           <NavigationBack />
         </div> */}
-        <div className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden pb-15">
+        <div {...handlers} className="mx-auto bg-gray-100 rounded-3xl shadow-xl overflow-hidden pb-15">
           {/* Top Bar */}
           <div className={`flex items-center p-4 ${viewMode === 'pie' ? 'justify-between' : 'justify-end'}`}>
             <div>
