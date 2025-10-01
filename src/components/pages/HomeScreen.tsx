@@ -87,7 +87,10 @@ const HomeScreen = () => {
             <>
               {/* Seção Superior */}
               <div className="md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0 h-auto">
-                <div className="flex flex-col flex-1">
+                <div className="md:hidden flex flex-col flex-1">
+                  <StatsSection totalFiles={0} totalProofs={0} totalImages={0} />
+                </div>
+                <div className="hidden md:flex flex-col flex-1">
                   <UploadSection onUploadClick={toggleUploadOptions} />
                 </div>
                 <div className="hidden md:flex items-center justify-center md:col-span-2">

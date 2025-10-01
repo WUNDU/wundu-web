@@ -38,8 +38,8 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
 
   if (documents.length === 0) {
     return (
-      <section className="flex flex-col flex-1 mb-2 h-full">
-        <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1 h-screen">
+      <section className="flex flex-col flex-1 min-h-full pb-5">
+        <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1 min-h-full">
           <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
           <p className="text-lg font-semibold text-gray-900">Nenhum movimento registrado.</p>
           <p className="text-sm text-gray-500">Toque no botão acima para começar.</p>
@@ -49,8 +49,8 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
   }
 
   return (
-    <section className="flex flex-col flex-1 mb-2 h-full">
-      <div className="bg-white rounded-xl shadow-sm flex flex-col flex-1 h-full overflow-y-auto">
+    <section className="flex flex-col flex-1 min-h-full pb-5">
+      <div className="bg-white rounded-xl shadow-sm flex flex-col flex-1 min-h-full overflow-y-auto">
         {documents.map((doc, index) => (
           <div key={index} className="flex flex-1 items-center p-4 border-b border-gray-200 last:border-b-0">
             <div className="flex items-center space-x-4">
@@ -62,7 +62,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
       </div>
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
-          <MoreButton label='Ver mais' onClick={handleLoadMore} isLoading={isLoading} />
+          <MoreButton label="Ver mais" onClick={handleLoadMore} isLoading={isLoading} />
         </div>
       </div>
     </section>
