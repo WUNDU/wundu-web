@@ -10,7 +10,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ icon: Icon, count, label, color, 
       <div className={iconContainerClass}>
         <Icon className={iconClass} />
       </div>
-      <div className='text-center py-2'>
+      <div className='text-center md:text-left'>
         <h3 className="text-sm sm:text-base lg:text-xl font-bold text-gray-900">{count}</h3>
         <p className="text-xs sm:text-xs lg:text-sm text-gray-500">{label}</p>
       </div>

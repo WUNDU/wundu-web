@@ -121,7 +121,7 @@ const HomeScreen = () => {
                 <div className="hidden md:flex flex-col flex-1">
                   <UploadSection onUploadClick={toggleUploadOptions} />
                 </div>
-                <div className="hidden md:flex items-center justify-center md:col-span-2">
+                <div className="hidden md:flex flex-1 items-center justify-center md:col-span-2">
                   <StatsSection totalFiles={0} totalProofs={0} totalImages={0} />
                 </div>
               </div>

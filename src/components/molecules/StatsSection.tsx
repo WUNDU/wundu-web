@@ -6,7 +6,7 @@ import { StatsSectionProps } from '@/src/types/ctaSection';
 
 const StatsSection: React.FC<StatsSectionProps> = ({ totalFiles, totalProofs, totalImages }) => {
   return (
-    <div className="flex justify-center flex-row flex-nowrap gap-1 bg-white py-6 sm:p-4 lg:p-10 rounded-2xl shadow-xl overflow-x-auto mt-4 sm:mt-6 max-w-full">
+    <div className="flex flex-1 justify-center flex-row flex-nowrap gap-1 bg-white py-6 sm:p-4 lg:p-10 rounded-2xl shadow-xl overflow-x-auto mt-4 sm:mt-6 max-w-full">
       <StatsCard icon={File} count={totalFiles} label="Total Arquivos" color="bg-blue-100" iconColor="text-blue-400" />
       <StatsCard
         icon={ImageHome}
