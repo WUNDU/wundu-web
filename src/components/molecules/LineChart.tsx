@@ -5,7 +5,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 
 Chart.register(annotationPlugin);
 
-const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColor, dotColor }) => {
+const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColor, dotColor, className }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(Math.floor(data.length / 2));
@@ -182,7 +182,7 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
   }, [data, lineColor, dotColor, selectedIndex]);
 
   return (
-    <div className="relative w-full h-48 overflow-visible">
+    <div className={`relative w-full h-48 overflow-visible ${className}`}>
       <canvas ref={canvasRef} />
     </div>
   );

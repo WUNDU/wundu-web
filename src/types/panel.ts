@@ -31,6 +31,7 @@ export interface ChartProps {
   lineColor: string;
   dotColor: string;
   selectedMonth?: string;
+  className?: string
 }
 
 export interface HeaderProps {

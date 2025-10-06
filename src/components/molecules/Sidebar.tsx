@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ChartDesktopIcon, ChartIcon, HomeDeskIcon, IAIcon, ImageIcon, LibraryDeskIcon, SettingsDeskIcon } from '@/src/constants/icons';
+import { ChartDesktopIcon, HomeDeskIcon, IAIcon, ImageIcon, LibraryDeskIcon, SettingsDeskIcon } from '@/src/constants/icons';
 import Link from 'next/link';
 import { logo } from '@/src/constants/images';
 import { TrashIcon } from 'lucide-react';

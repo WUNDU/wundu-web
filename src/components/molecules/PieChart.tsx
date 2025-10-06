@@ -6,9 +6,10 @@ interface PieChartProps {
   transactions: TransactionProps[];
   totalAmount: number;
   timeRangeText?: string;
+  className?: string
 }
 
-const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount, timeRangeText = "Esse mês" }) => {
+const PieChart: React.FC<PieChartProps> = ({ transactions, className, totalAmount, timeRangeText = "Esse mês" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -114,7 +115,7 @@ const PieChart: React.FC<PieChartProps> = ({ transactions, totalAmount, timeRang
 
   // Ensure the container is centered and responsive
   return (
-    <div className="flex justify-center items-center w-full h-64">
+    <div className={`flex justify-center items-center w-full h-64 ${className}`}>
       <div className="relative w-full max-w-md h-full">
         <canvas ref={canvasRef} />
       </div>

@@ -360,9 +360,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>Dashboard Financeiro</title>
-      </Head>
 
       {/* Mobile Layout */}
       <div className="md:hidden min-h-screen bg-gray-200 p-2 font-sans">
@@ -418,19 +415,23 @@ const ControlPanelDashboardScreen: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-800">
               {viewMode === 'pie' ? 'Distribuição por Categoria' : `Despesas ${timeRange === '1D' ? 'Diárias' : timeRange === '1S' ? 'Semanais' : 'Mensais'}`}
             </h2>
-            {viewMode === 'line' ? (
-              <LineChart
-                data={data}
-                lineColor={isCredit ? '#10B981' : '#E05445'}
-                dotColor={isCredit ? '#10B981' : '#E05445'}
-              />
-            ) : (
-              <PieChart
-                transactions={transactions}
-                totalAmount={totalExpenses}
-                timeRangeText={headerText}
-              />
-            )}
+            <div className="w-full h-[300px]">
+              {viewMode === 'line' ? (
+                <LineChart
+                  className="w-full h-full"
+                  data={data}
+                  lineColor={isCredit ? '#10B981' : '#E05445'}
+                  dotColor={isCredit ? '#10B981' : '#E05445'}
+                />
+              ) : (
+                <PieChart
+                  className="w-full h-full"
+                  transactions={transactions}
+                  totalAmount={totalExpenses}
+                  timeRangeText={headerText}
+                />
+              )}
+            </div>
           </div>
 
           {/* Time Range Tabs */}
@@ -481,7 +482,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
             />
           </button>
 
-          <main className="p-6 space-y-6 flex-1 overflow-y-auto">
+          <main className="p-6 space-y-6 flex-1 flex flex-col overflow-y-auto">
             {/* Stats Section */}
             {/* Main Dashboard Layout */}
             <div className="grid grid-cols-3 gap-4">
@@ -496,9 +497,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-4">
+            <div className="flex flex-1 flex-row gap-4 items-start">
               {/* Categories Section */}
-              <div className="bg-white col-span-2 rounded-2xl p-6 shadow-sm">
+              <div className="bg-white basis-2/5 flex-shrink-0 rounded-2xl p-6 shadow-sm overflow-y-auto max-h-full">
                 <div className="flex items-center justify-start mb-4">
                   <h3 className="text-lg font-semibold text-gray-800">Categorias ({headerText.toLowerCase()})</h3>
                   <ChevronDown />
@@ -531,9 +532,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
               </div>
 
               {/* Right Column - Chart and Controls */}
-              <div className="col-span-3 space-y-1">
+              <div className="flex-1 h-full">
                 {/* Chart Section */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <div className="bg-white flex flex-col h-full rounded-2xl p-6 shadow-sm">
                   <div className="flex items-center justify-end">
                     <div className="flex space-x-2 bg-gray-300 p-1 rounded-full">
                       <button
@@ -556,25 +557,31 @@ const ControlPanelDashboardScreen: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    {viewMode === 'pie' ? 'Distribuição por Categoria' : `Despesas ${timeRange === '1D' ? 'Diárias' : timeRange === '1S' ? 'Semanais' : 'Mensais'}`}
-                  </h3>
-                  {viewMode === 'line' ? (
-                    <LineChart
-                      data={data}
-                      lineColor={isCredit ? '#10B981' : '#E05445'}
-                      dotColor={isCredit ? '#10B981' : '#E05445'}
-                    />
-                  ) : (
-                    <PieChart
-                      transactions={transactions}
-                      totalAmount={totalExpenses}
-                      timeRangeText={headerText}
-                    />
-                  )}
+                  <div className="flex-1 flex flex-col">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      {viewMode === 'pie' ? 'Distribuição por Categoria' : `Despesas ${timeRange === '1D' ? 'Diárias' : timeRange === '1S' ? 'Semanais' : 'Mensais'}`}
+                    </h3>
+                    <div className="flex-1 w-full h-full">
+                      {viewMode === 'line' ? (
+                        <LineChart
+                          className="w-full h-full"
+                          data={data}
+                          lineColor={isCredit ? '#10B981' : '#E05445'}
+                          dotColor={isCredit ? '#10B981' : '#E05445'}
+                        />
+                      ) : (
+                        <PieChart
+                          className="w-full h-full"
+                          transactions={transactions}
+                          totalAmount={totalExpenses}
+                          timeRangeText={headerText}
+                        />
+                      )}
+                    </div>
+                  </div>
 
                   {/* Time Range Tabs */}
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center">
                     <div className="flex bg-gray-100 p-1 rounded-full">
                       {tabRanges.map(range => (
                         <Tab
