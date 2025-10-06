@@ -1,6 +1,6 @@
 import { FinancialProgressCardProps } from "@/src/types/card";
 import IconContainer from "../atoms/IconContainer";
-import { ObjectiveIcon } from "@/src/constants/icons";
+import { EditIcon, ObjectiveIcon } from "@/src/constants/icons";
 
 const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({ title, valorAlvo, valorPoupado, percentage }) => {
   const progressColor = percentage < 100 ? 'text-red-500' : 'text-green-500';
@@ -26,33 +26,43 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({ title, va
             <p className="text-xs text-orange-400">Valor poupado: <span className="text-gray-800 font-medium">{valorPoupado}</span></p>
           </div>
         </div>
-        <div className="relative w-12 h-12 flex items-center justify-center">
-          <svg className="w-full h-full transform -rotate-90">
-            <circle
-              className={progressBgColor}
-              strokeWidth="4"
-              fill="transparent"
-              r={radius}
-              cx="50%"
-              cy="50%"
+        <div className="flex flex-col items-center">
+          <div className="relative w-12 h-12">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                className={progressBgColor}
+                strokeWidth="4"
+                fill="transparent"
+                r={radius}
+                cx="50%"
+                cy="50%"
+              />
+              <circle
+                className={progressRingColor}
+                strokeWidth="4"
+                fill="transparent"
+                r={radius}
+                cx="50%"
+                cy="50%"
+                style={{ strokeDasharray: circumference, strokeDashoffset }}
+              />
+            </svg>
+            <span className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${progressColor}`}>
+              {percentage}%
+            </span>
+          </div>
+          <button>
+            <IconContainer
+              icon={EditIcon}
+              bgColor="bg-white"
+              iconColor="text-indigo-600"
+              className="mt-2"
             />
-            <circle
-              className={progressRingColor}
-              strokeWidth="4"
-              fill="transparent"
-              r={radius}
-              cx="50%"
-              cy="50%"
-              style={{ strokeDasharray: circumference, strokeDashoffset }}
-            />
-          </svg>
-          <span className={`absolute text-xs font-bold ${progressColor}`}>
-            {percentage}%
-          </span>
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default FinancialProgressCard
+export default FinancialProgressCard;
