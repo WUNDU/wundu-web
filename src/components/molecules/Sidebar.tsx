@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { HomeDeskIcon, IAIcon, ImageIcon, LibraryDeskIcon, SettingsDeskIcon } from '@/src/constants/icons';
+import { ChartDesktopIcon, ChartIcon, HomeDeskIcon, IAIcon, ImageIcon, LibraryDeskIcon, SettingsDeskIcon } from '@/src/constants/icons';
 import Link from 'next/link';
 import { logo } from '@/src/constants/images';
 import { TrashIcon } from 'lucide-react';
+import { ROUTES } from '@/src/constants/routes';
 
 interface Conversation {
   id: string;
@@ -54,10 +55,12 @@ const Sidebar = () => {
 
   // Mapeia os caminhos para os itens do menu
   const menuItems = [
-    { name: 'Home', path: '/home', icon: HomeDeskIcon },
-    { name: 'Biblioteca', path: '/home/library', icon: LibraryDeskIcon },
-    { name: 'Objetivos Financeiros', path: '/home/financial', icon: ImageIcon },
+    { name: 'Home', path: ROUTES.HOME, icon: HomeDeskIcon },
+    { name: 'Análises', path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon },
+    { name: 'Biblioteca', path: ROUTES.LIBRARY, icon: LibraryDeskIcon },
+    { name: 'Objetivos Financeiros', path: ROUTES.FINANCIAL, icon: ImageIcon },
     { name: 'Configurações', path: '/configuracoes', icon: SettingsDeskIcon },
+
   ];
 
   // Verifica se está na página do chat e atualiza o item ativo
