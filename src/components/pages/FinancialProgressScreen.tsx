@@ -1,16 +1,10 @@
 'use client'
+import { objectives } from "@/src/constants/mockData";
 import NavigationBack from "../atoms/NavigationBack";
 import FinancialProgressCard from "../molecules/FinancialProgressCard";
 import GreetingHeader from "../molecules/GreetingHeader";
 
 const FinancialProgressScreen: React.FC = () => {
-  const objectives = [
-    { id: 1, title: 'Comprar carro', valorAlvo: '1.000.000,00kz', valorPoupado: '600.000,00kz', percentage: 60 },
-    { id: 2, title: 'Comprar roupa', valorAlvo: '2.000.000,00kz', valorPoupado: '800.000,00kz', percentage: 40 },
-    { id: 3, title: 'Comprar casa', valorAlvo: '5.000.000,00kz', valorPoupado: '5.000.000,00kz', percentage: 100 },
-    { id: 4, title: 'Viagem', valorAlvo: '1.500.000,00kz', valorPoupado: '1.500.000,00kz', percentage: 100 },
-    { id: 5, title: 'Comprar eletrônicos', valorAlvo: '900.000,00kz', valorPoupado: '300.000,00kz', percentage: 33 },
-  ];
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans antialiased text-gray-800 flex flex-col">

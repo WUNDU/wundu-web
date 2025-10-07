@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import FinancialProgressCard from '../molecules/FinancialProgressCard';
 import ObjectiveForm from '../organisms/ObjectiveForm'; // Ajuste o caminho conforme necessário
 import SketchPanel from '../molecules/SketchPanel';
+import { objectives } from '@/src/constants/mockData';
 
 const FinancialObjectiveScreen: React.FC = () => {
   const router = useRouter();
@@ -51,18 +52,6 @@ const FinancialObjectiveScreen: React.FC = () => {
     }
   };
 
-  const objectives = [
-    { id: 1, title: 'Comprar carro', valorAlvo: '1.000.000,00kz', valorPoupado: '600.000,00kz', percentage: 60 },
-    { id: 2, title: 'Comprar roupa', valorAlvo: '2.000.000,00kz', valorPoupado: '800.000,00kz', percentage: 40 },
-    { id: 3, title: 'Comprar casa', valorAlvo: '5.000.000,00kz', valorPoupado: '5.000.000,00kz', percentage: 100 },
-    { id: 4, title: 'Viagem', valorAlvo: '1.500.000,00kz', valorPoupado: '1.500.000,00kz', percentage: 100 },
-    { id: 5, title: 'Comprar eletrônicos', valorAlvo: '900.000,00kz', valorPoupado: '300.000,00kz', percentage: 33 },
-    { id: 6, title: 'Comprar carro', valorAlvo: '1.000.000,00kz', valorPoupado: '600.000,00kz', percentage: 60 },
-    { id: 7, title: 'Comprar roupa', valorAlvo: '2.000.000,00kz', valorPoupado: '800.000,00kz', percentage: 40 },
-    { id: 8, title: 'Comprar casa', valorAlvo: '5.000.000,00kz', valorPoupado: '5.000.000,00kz', percentage: 100 },
-    { id: 9, title: 'Viagem', valorAlvo: '1.500.000,00kz', valorPoupado: '1.500.000,00kz', percentage: 100 },
-    { id: 10, title: 'Comprar eletrônicos', valorAlvo: '900.000,00kz', valorPoupado: '300.000,00kz', percentage: 33 },
-  ];
 
   const fulfilledObjectives = objectives.filter(obj => obj.percentage === 100);
   const unfulfilledObjectives = objectives.filter(obj => obj.percentage < 100);

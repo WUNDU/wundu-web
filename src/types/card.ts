@@ -32,6 +32,7 @@ export interface FinancialProgressCardProps {
   valorPoupado: string;
   percentage: number;
   iconColor?: string
+  onEdit?: () => void
 }
 
 export interface ArticleCardProps {

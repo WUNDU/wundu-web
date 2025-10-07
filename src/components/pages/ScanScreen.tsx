@@ -10,9 +10,6 @@ import LoadingSpinner from '../atoms/LoadingSpinner';
 import { CategoryProvider, useCategoryContext } from '@/src/contexts/CategoryContext';
 import CategoryScreen from './CategoryScreen';
 import DetailsModal from '../organisms/DetailsModal';
-import { useSwipeable } from 'react-swipeable';
-import { usePathname, useRouter } from 'next/navigation';
-import { ROUTES } from '@/src/constants/routes';
 
 // Tipagem para o componente principal
 const ScanScreen = () => {

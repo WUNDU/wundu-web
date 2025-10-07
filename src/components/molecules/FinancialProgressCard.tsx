@@ -2,7 +2,19 @@ import { FinancialProgressCardProps } from "@/src/types/card";
 import IconContainer from "../atoms/IconContainer";
 import { EditIcon, ObjectiveIcon } from "@/src/constants/icons";
 
-const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({ title, valorAlvo, valorPoupado, percentage }) => {
+interface FinancialProgressCardPropsExtended extends FinancialProgressCardProps {
+  onEdit?: () => void;
+  iconColor?: string;
+}
+
+const FinancialProgressCard: React.FC<FinancialProgressCardPropsExtended> = ({
+  title,
+  valorAlvo,
+  valorPoupado,
+  percentage,
+  onEdit,
+  iconColor = 'text-indigo-600'
+}) => {
   const progressColor = percentage < 100 ? 'text-red-500' : 'text-green-500';
   const progressRingColor = percentage < 100 ? 'stroke-red-500' : 'stroke-green-500';
   const progressBgColor = 'stroke-gray-300';
@@ -17,7 +29,7 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({ title, va
           <IconContainer
             icon={ObjectiveIcon}
             bgColor="bg-white"
-            iconColor="text-indigo-600"
+            iconColor={iconColor}
             className="self-start"
           />
           <div>
@@ -51,7 +63,15 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({ title, va
               {percentage}%
             </span>
           </div>
-          <button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('Botão edit clicado!'); // Debug: verifica se o clique no botão é detectado
+              onEdit?.();
+            }}
+            className="p-1 hover:bg-gray-200 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            aria-label="Editar objetivo"
+          >
             <IconContainer
               icon={EditIcon}
               bgColor="bg-white"

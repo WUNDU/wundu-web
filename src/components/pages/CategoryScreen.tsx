@@ -1,3 +1,4 @@
+import { defaultCategories } from '@/src/constants/mockData';
 import { useCategoryContext } from '@/src/contexts/CategoryContext';
 import { Category } from '@/src/types/category';
 import React, { useState } from 'react';
@@ -19,16 +20,6 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
   } = useCategoryContext();
 
   const [showSuccessScreen, setShowSuccessScreen] = useState(false); // Mudança aqui
-
-  // Categorias padrão
-  const defaultCategories: Category[] = [
-    { id: 'transport', name: 'Transporte' },
-    { id: 'food', name: 'Alimentação' },
-    { id: 'entertainment', name: 'Entretenimento' },
-    { id: 'health', name: 'Saúde' },
-    { id: 'education', name: 'Educação' },
-    { id: 'leisure', name: 'Lazer' },
-  ];
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);

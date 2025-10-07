@@ -15,9 +15,7 @@ import Sidebar from '../molecules/Sidebar';
 import SidebarRight from '../molecules/SideBarRight';
 import { ArrowsLeftIcon, NoMovementIcon } from '@/src/constants/icons';
 import InvestmentContent from '../organisms/InvestmentContent';
-import { InvestmentType } from '@/src/types/article';
-import { useSwipeable } from 'react-swipeable';
-import { usePathname } from 'next/navigation';
+import { categories, investmentTypes, mockArticles } from "@/src/constants/mockData";
 
 const LibraryScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,68 +29,7 @@ const LibraryScreen = () => {
 
 
 
-  const categories = ['Finanças', 'Investimentos', 'Poupança', 'Gestão'];
 
-  const investmentTypes: InvestmentType[] = [
-    {
-      id: '1',
-      name: '1-Poupança (Baixo risco, baixo retorno)',
-      description: 'Exemplos: contas poupança, depósitos a prazo.',
-      riskLevel: 'baixo',
-      examples: [
-        'Ideal para emergências, mas rendem pouco.'
-      ]
-    },
-    {
-      id: '2',
-      name: '2-Títulos Públicos e Obrigações (Baixa a médio risco)',
-      description: 'Tu emprestas dinheiro ao governo ou a empresas e recebes com juros.',
-      riskLevel: 'baixo',
-      examples: [
-        'Mais seguro que ações, mas menos rentável.'
-      ]
-    },
-    {
-      id: '3',
-      name: '3-Ações (Médio a alto risco)',
-      description: 'Tu compras uma parte de uma empresa.',
-      riskLevel: 'alto',
-      examples: []
-    }
-  ];
-
-  const mockArticles: Article[] = [
-    {
-      id: '1',
-      title: 'Gerencie o seu dinheiro',
-      description: 'Aprenda a cuidar do seudinheiro da maneira certa investindo em...',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg',
-      category: 'finanças',
-      isNew: true
-    },
-    {
-      id: '2',
-      title: 'Como investir o seu dinheiro',
-      description: 'Aprenda a cuidar do seudinheiro da maneira certa investindo em...',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg',
-      category: 'investimentos',
-      isNew: true
-    },
-    {
-      id: '3',
-      title: 'Gerencie o seu dinheiro',
-      description: 'Aprenda a cuidar do seudinheiro da maneira certa investindo em...',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg',
-      category: 'finanças'
-    },
-    {
-      id: '4',
-      title: 'Investimentos',
-      description: 'Aprenda a cuidar do seudinheiro da maneira certa investindo em...',
-      imageUrl: 'https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg',
-      category: 'investimentos'
-    }
-  ];
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
