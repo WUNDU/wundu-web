@@ -2,12 +2,7 @@ import { FinancialProgressCardProps } from "@/src/types/card";
 import IconContainer from "../atoms/IconContainer";
 import { EditIcon, ObjectiveIcon } from "@/src/constants/icons";
 
-interface FinancialProgressCardPropsExtended extends FinancialProgressCardProps {
-  onEdit?: () => void;
-  iconColor?: string;
-}
-
-const FinancialProgressCard: React.FC<FinancialProgressCardPropsExtended> = ({
+const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
   title,
   valorAlvo,
   valorPoupado,
@@ -69,14 +64,14 @@ const FinancialProgressCard: React.FC<FinancialProgressCardPropsExtended> = ({
               console.log('Botão edit clicado!'); // Debug: verifica se o clique no botão é detectado
               onEdit?.();
             }}
-            className="p-1 hover:bg-gray-200 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="hover:bg-gray-200 flex flex-col items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-200"
             aria-label="Editar objetivo"
           >
             <IconContainer
               icon={EditIcon}
               bgColor="bg-white"
               iconColor="text-indigo-600"
-              className="mt-2"
+              className="m-1"
             />
           </button>
         </div>

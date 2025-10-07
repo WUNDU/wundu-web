@@ -43,3 +43,19 @@ export interface ModalProps {
   cancelText?: string;
   onConfirm?: () => void;
 }
+
+export interface EditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  objective: {
+    id: number;
+    title: string;
+    valorAlvo: string;
+    valorPoupado: string;
+    percentage: number;
+    categoria?: string;
+    prioridade?: string;
+    dataLimite?: string;
+  } | null;
+}
+

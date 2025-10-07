@@ -13,12 +13,25 @@ import FinancialProgressCard from '../molecules/FinancialProgressCard';
 import ObjectiveForm from '../organisms/ObjectiveForm'; // Ajuste o caminho conforme necessário
 import SketchPanel from '../molecules/SketchPanel';
 import { objectives } from '@/src/constants/mockData';
+import EditModal from '../molecules/EditModal';
 
 const FinancialObjectiveScreen: React.FC = () => {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedObjective, setSelectedObjective] = useState<any>(null)
+
+  const handleEdit = (obj: any) => {
+    setSelectedObjective({
+      ...obj,
+      categoria: 'Viagem',
+      prioridade: 'Alta',
+      dataLimite: '01/01/2026'
+    });
+    setIsModalOpen(true);
+  }
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -178,6 +191,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                             valorPoupado={obj.valorPoupado}
                             percentage={obj.percentage}
                             iconColor="text-indigo-600"
+                            onEdit={() => handleEdit(obj)}
                           />
                         </div>
                       ))}
@@ -196,6 +210,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                             valorPoupado={obj.valorPoupado}
                             percentage={obj.percentage}
                             iconColor="text-green-600"
+                            onEdit={() => handleEdit(obj)}
                           />
                         </div>
                       ))}
@@ -214,6 +229,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                             valorPoupado={obj.valorPoupado}
                             percentage={obj.percentage}
                             iconColor="text-red-600"
+                            onEdit={() => handleEdit(obj)}
                           />
                         </div>
                       ))}
@@ -225,10 +241,13 @@ const FinancialObjectiveScreen: React.FC = () => {
           </div>
         </main>
       </div>
-
+      <EditModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        objective={selectedObjective} />
       {/* Right Sidebar */}
       <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
-    </div>
+    </div >
   );
 };
 
