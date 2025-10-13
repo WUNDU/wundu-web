@@ -57,9 +57,9 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Home', path: ROUTES.HOME, icon: HomeDeskIcon },
     { name: 'Análises', path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon },
-    { name: 'Biblioteca', path: ROUTES.LIBRARY, icon: LibraryDeskIcon },
+    // { name: 'Biblioteca', path: ROUTES.LIBRARY, icon: LibraryDeskIcon },
     { name: 'Objetivos Financeiros', path: ROUTES.FINANCIAL, icon: ImageIcon },
-    { name: 'Configurações', path: '/configuracoes', icon: SettingsDeskIcon },
+    // { name: 'Configurações', path: '/configuracoes', icon: SettingsDeskIcon },
 
   ];
 
@@ -170,7 +170,7 @@ const Sidebar = () => {
         </div>
 
         {/* AI Section */}
-        <div className={`transition-all duration-500 ease-in-out ${isInChatPage ? 'mt-4' : 'mt-auto'}`}>
+        {/* <div className={`transition-all duration-500 ease-in-out ${isInChatPage ? 'mt-4' : 'mt-auto'}`}>
           <div className="text-sm text-gray-500 mb-3 flex items-center">
             <span className="mr-2">AI</span>
             <div className="flex-1 border-b border-gray-300"></div>
@@ -194,7 +194,7 @@ const Sidebar = () => {
               </div>
             )}
           </Link>
-        </div>
+        </div> */}
       </div>
 
       {/* Estilos CSS */}

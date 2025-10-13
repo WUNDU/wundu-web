@@ -57,7 +57,7 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
 
           {/* Painel de controle */}
           <div className="w-full max-w-md">
-            <div
+            {/* <div
               className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
               style={{
                 backgroundImage: `url(${backgroundPanel.src})`,
@@ -65,25 +65,25 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                 backgroundPosition: 'center',  // Centraliza a imagem
                 backgroundRepeat: 'no-repeat'  // Evita repetição
               }}
-            >
-              {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
-              <button onClick={handleControlPanel}>
+            > */}
+            {/* Removi a <Image> pequena, pois agora a imagem é o fundo. Se quiser mantê-la como ícone, adicione de volta. */}
+            {/* <button onClick={handleControlPanel}>
                 <span>Painel de controle</span>
               </button>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
-            </div>
+            </div> */}
 
             {/* Menu de opções */}
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden">
               <ul className="divide-y divide-gray-100">
                 {[
-                  { icon: <ProfileIcon className="w-6 h-6 text-gray-600" />, text: 'Meus dados' },
+                  // { icon: <ProfileIcon className="w-6 h-6 text-gray-600" />, text: 'Meus dados' },
                   { icon: <HelpIcon className="w-6 h-6 text-gray-600" />, text: 'Suporte e Feedback' },
                   { icon: <NotificationRightBarIcon className="w-6 h-6 text-gray-600" />, text: 'Notificações' },
-                  { icon: <PaymentIcon className="w-6 h-6 text-gray-600" />, text: 'Meus plano' },
-                  { icon: <SettingsRightBarIcon className="w-6 h-6 text-gray-600" />, text: 'Configurações' },
+                  // { icon: <PaymentIcon className="w-6 h-6 text-gray-600" />, text: 'Meus plano' },
+                  // { icon: <SettingsRightBarIcon className="w-6 h-6 text-gray-600" />, text: 'Configurações' },
                 ].map((item, index) => (
                   <li key={index} className="flex justify-between items-center p-4 hover:bg-white/50 transition-colors duration-200">
                     <div className="flex items-center space-x-4">

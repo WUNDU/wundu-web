@@ -63,10 +63,10 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
         </div>
       </div>
       <div className="md:hidden flex items-center space-x-3">
-        <button onClick={handleChatIa} className='border-2 rounded-full border-purple-200 bg-white'>
-          {/* Ícone IA */}
-          <IAIcon />
-        </button>
+        {/* <button onClick={handleChatIa} className='border-2 rounded-full border-purple-200 bg-white'> */}
+        {/* Ícone IA */}
+        {/* <IAIcon />
+        </button> */}
         <div className='border-2 rounded-full border-gray-300 bg-gray-300'>
           {/* Ícone de notificação */}
           <NotificationIcon />
