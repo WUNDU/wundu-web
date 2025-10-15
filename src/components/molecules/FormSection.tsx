@@ -73,9 +73,9 @@ const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
       {(errors.password || contextError) && (
         <p className="text-red-500 text-sm mt-2">{errors.password || contextError}</p>
       )}
-      <Link href={ROUTES.RESET_PASSWORD} className="self-end text-sm text-gray-600">
+      {/* <Link href={ROUTES.RESET_PASSWORD} className="self-end text-sm text-gray-600">
         Esqueci minha senha
-      </Link>
+      </Link> */}
       <LoginButton onClick={() => { }} type="submit">Entrar</LoginButton>
     </form>
   );
