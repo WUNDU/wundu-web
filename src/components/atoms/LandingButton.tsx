@@ -1,10 +1,30 @@
-const LandingButton = ({ children, variant = 'primary', className = '' }: { children: React.ReactNode, variant?: 'primary' | 'secondary', className?: string }) => {
-  const baseClasses = "px-6 py-3 font-semibold rounded-full transition-transform transform hover:scale-105";
+'use client';
+
+import type { LandingButtonProps } from '@/src/types/button';
+import React from 'react';
+
+const LandingButton: React.FC<LandingButtonProps> = ({
+  children,
+  onClick,
+  variant = 'primary',
+  className = '',
+  type = 'button'
+}) => {
+  const baseStyles = 'px-6 py-2 font-semibold rounded-full transition';
   const variants = {
-    primary: "bg-yellow-400 text-blue-900 hover:bg-yellow-500",
-    secondary: "bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50"
+    primary: 'btn-primary text-blue-900',
+    secondary: 'text-gray-700 border border-gray-300 hover:bg-gray-50'
   };
-  return <button className={`${baseClasses} ${variants[variant]} ${className}`}>{children}</button>;
+
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={`${baseStyles} ${variants[variant]} ${className}`}
+    >
+      {children}
+    </button>
+  );
 };
 
 export default LandingButton;

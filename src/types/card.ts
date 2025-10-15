@@ -39,3 +39,10 @@ export interface ArticleCardProps {
   article: Article;
   onReadMore: (articleId: string) => void;
 }
+
+export interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay?: string;
+}

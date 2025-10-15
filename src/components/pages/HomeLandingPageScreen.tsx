@@ -1,50 +1,42 @@
 'use client';
-
-import type { NextPage } from 'next';
-import { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import LandingHeader from '../organisms/LandingHeader';
 import HeroSection from '../organisms/HeroSection';
 import FeaturesSection from '../organisms/FeaturesSection';
 import AISection from '../organisms/AISection';
-import CtaSectionLanding from '../molecules/CtaSectionLanding';
+import CTASection from '../organisms/CTASection';
 import LandingFooter from '../organisms/LandingFooter';
 
-const HomeLandingPage: NextPage = () => {
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-
+const WunduLanding: React.FC = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fadeIn');
-            entry.target.classList.add('opacity-100');
-            entry.target.classList.remove('opacity-0');
+            entry.target.classList.add('animate-in');
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    sectionRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
+    document.querySelectorAll('.fade-in-section').forEach((el) => {
+      observer.observe(el);
     });
 
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div className="bg-white min-h-screen text-gray-800 font-sans">
+    <div className="min-h-screen bg-white">
       <LandingHeader />
-      <main>
-        <HeroSection ref={(el) => { sectionRefs.current[0] = el; }} />
-        <FeaturesSection ref={(el) => { sectionRefs.current[1] = el; }} />
-        <AISection ref={(el) => { sectionRefs.current[2] = el; }} />
-        <CtaSectionLanding ref={(el) => { sectionRefs.current[3] = el; }} />
-      </main>
-      <LandingFooter ref={(el) => { sectionRefs.current[4] = el; }} />
+      <HeroSection />
+      <FeaturesSection />
+      <AISection />
+      <CTASection />
+      <LandingFooter />
     </div>
   );
 };
 
-export default HomeLandingPage;
+export default WunduLanding;

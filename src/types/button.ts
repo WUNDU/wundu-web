@@ -64,3 +64,11 @@ export interface MoreButtonProps {
 export interface OptionChatButtonProps {
   label: string;
 }
+
+export interface LandingButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: 'primary' | 'secondary';
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+}
