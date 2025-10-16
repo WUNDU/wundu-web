@@ -63,7 +63,7 @@ const AISection: React.FC = () => {
 
           <div className="fade-in-section">
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl opacity-20 blur-xl"></div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-yellow-500 to-blue-500 rounded-3xl opacity-20 blur-xl"></div>
               <Image
                 src={appScreen}
                 alt="App Wundu"
