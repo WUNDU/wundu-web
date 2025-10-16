@@ -31,7 +31,7 @@ const WunduLanding: React.FC = () => {
     <div className="min-h-screen bg-white">
       <LandingHeader />
       <HeroSection />
-      <FeaturesSection />
+      <FeaturesSection title={''} subtitle={''} features={[]} />
       <AISection />
       <CTASection />
       <LandingFooter />

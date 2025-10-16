@@ -1,0 +1,71 @@
+// src/components/molecules/ContactForm/index.tsx
+'use client';
+import { useState } from 'react';
+import Input from '@/src/components/atoms/Input';
+import LandingButton from '@/src/components/atoms/LandingButton';
+
+const ContactForm: React.FC = () => {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Lógica para enviar o formulário
+    console.log('Formulário enviado:', form);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6">
+      <Input
+        id="name"
+        label="Nome completo"
+        type="text"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        placeholder="Digite seu nome completo"
+        required
+      />
+      <Input
+        id="email"
+        label="E-mail"
+        type="email"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+        placeholder="Digite seu e-mail"
+        required
+      />
+      <Input
+        id="subject"
+        label="Assunto"
+        type="text"
+        value={form.subject}
+        onChange={(e) => setForm({ ...form, subject: e.target.value })}
+        placeholder="Digite o assunto"
+        required
+      />
+      <div className="flex flex-col gap-2">
+        <label htmlFor="message" className="text-sm font-medium text-gray-700">
+          Mensagem
+        </label>
+        <textarea
+          id="message"
+          value={form.message}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
+          placeholder="Digite sua mensagem"
+          required
+          rows={4}
+          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <LandingButton type="submit" variant="primary" className="w-full">
+        Enviar Mensagem
+      </LandingButton>
+    </form>
+  );
+};
+
+export default ContactForm;
