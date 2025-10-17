@@ -19,7 +19,7 @@ const ContactForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <Input
         id="name"
         label="Nome completo"
@@ -29,6 +29,7 @@ const ContactForm: React.FC = () => {
         placeholder="Digite seu nome completo"
         required
       />
+
       <Input
         id="email"
         label="E-mail"
@@ -38,6 +39,7 @@ const ContactForm: React.FC = () => {
         placeholder="Digite seu e-mail"
         required
       />
+
       <Input
         id="subject"
         label="Assunto"
@@ -47,6 +49,7 @@ const ContactForm: React.FC = () => {
         placeholder="Digite o assunto"
         required
       />
+
       <div className="flex flex-col gap-2">
         <label htmlFor="message" className="text-sm font-medium text-gray-700">
           Mensagem
@@ -57,10 +60,11 @@ const ContactForm: React.FC = () => {
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           placeholder="Digite sua mensagem"
           required
-          rows={4}
-          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          rows={5}
+          className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
         />
       </div>
+
       <LandingButton type="submit" variant="primary" className="w-full">
         Enviar Mensagem
       </LandingButton>
