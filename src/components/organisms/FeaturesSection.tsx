@@ -1,21 +1,39 @@
-// Atualização no FeaturesSection existente
+// src/components/organisms/FeaturesSection/index.tsx
+// Atualizado para ser mais reutilizável com props adicionais para customização
 interface FeaturesSectionProps {
   title: string;
   subtitle: string;
   features: Array<{
-    icon: string | React.ReactNode;
+    icon: React.ReactNode;
     title: string;
     description: string;
     subDescription?: string;
   }>;
   backgroundColor?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+  containerSize?: string;
+  containerRounded?: string;
+  cardRounded?: string;
+  gridCols?: number;
+  textColor?: string;
+  descriptionClass?: string;
+  titleClass?: string;
 }
 
 const FeaturesSection: React.FC<FeaturesSectionProps> = ({
   title,
   subtitle,
   features,
-  backgroundColor = "bg-white"
+  backgroundColor = "bg-white",
+  gradientFrom = "from-blue-100",
+  gradientTo = "to-blue-200",
+  containerSize = "w-16 h-16",
+  containerRounded = "rounded-2xl",
+  cardRounded = "rounded-3xl",
+  gridCols = 4,
+  descriptionClass = "text-gray-700 leading-relaxed font-medium mb-2",
+  titleClass = "text-xl font-bold text-gray-900 mb-3",
 }) => {
   return (
     <section className={`py-20 ${backgroundColor} border-2 m-2 border-gray-100 shadow-2xs`}>
@@ -27,14 +45,14 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${gridCols} gap-8`}>
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-3xl p-8 text-center card-hover fade-in-section shadow-xl hover:shadow-2xl transition-all duration-500">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg text-2xl">
+            <div key={index} className={`bg-white ${cardRounded} p-8 text-center card-hover fade-in-section shadow-xl hover:shadow-2xl transition-all duration-500`}>
+              <div className={`${containerSize}  bg-gradient-to-br ${gradientFrom} ${gradientTo} ${containerRounded} flex items-center justify-center mx-auto mb-6 shadow-lg text-2xl`}>
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-              <p className="text-gray-700 leading-relaxed font-medium mb-2">
+              <h3 className={titleClass}>{feature.title}</h3>
+              <p className={descriptionClass}>
                 {feature.description}
               </p>
               {feature.subDescription && (

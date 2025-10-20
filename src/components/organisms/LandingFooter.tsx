@@ -1,22 +1,68 @@
+// src/components/organisms/LandingFooter/index.tsx
+'use client';
 import React from 'react';
-import { Github, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Facebook, Github, Instagram, Linkedin, Twitter } from 'lucide-react';
 import LogoType from '@/src/components/atoms/LogoType';
-import SocialLink from '../molecules/SocialLink';
-
+import { EmailIcon, GithubIcon, LocationIcon, MirantesIcon, XIcon } from '@/src/constants/icons';
 
 const LandingFooter: React.FC = () => {
   const socialLinks = [
-    { href: '#', icon: Github, color: 'text-blue-600' },
-    { href: '#', icon: Twitter, color: 'text-blue-400' },
-    { href: '#', icon: Linkedin, color: 'text-blue-700' },
-    { href: '#', icon: Instagram, color: 'text-pink-600' }
+    {
+      href: 'https://github.com/wundu',
+      icon: GithubIcon,
+      name: 'GitHub'
+    },
+    {
+      href: 'https://x.com/onewundu',
+      icon: XIcon,
+      name: 'Twitter'
+    },
+    {
+      href: 'https://www.linkedin.com/company/onewundu/',
+      icon: Linkedin,
+      name: 'LinkedIn'
+    },
+    {
+      href: 'https://www.instagram.com/onewundu/#',
+      icon: Instagram,
+      name: 'Instagram'
+    },
+    {
+      href: 'https://web.facebook.com/people/Wundu/61574847264364/',
+      icon: Facebook,
+      name: 'Instagram'
+    },
+    {
+      href: 'https://mirantes.io/profile/pt/wundu-6af8c1ba',
+      icon: MirantesIcon,
+      name: 'Mirantes'
+    }
+  ];
+
+  const recursosLinks = [
+    { href: '#', label: 'Blog' },
+    { href: '#', label: 'Documentação' },
+    { href: '#', label: 'GitHub' },
+    { href: '#', label: 'FAQs' }
+  ];
+
+  const empresaLinks = [
+    { href: '/sobre', label: 'Sobre nós' },
+    { href: '/funcionalidades', label: 'Planos e funcionalidades' },
+    { href: '/contactos', label: 'Contactos' }
+  ];
+
+  const legalLinks = [
+    { href: '#', label: 'Termos de Uso' },
+    { href: '#', label: 'Política de privacidade' },
+    { href: '#', label: 'Configurações de Cookies' }
   ];
 
   return (
     <>
       {/* Desktop Footer */}
-      <footer className="hidden md:block bg-white text-gray-800 py-16 border-2 m-2 border-gray-100 shadow-2xs">
-        <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="hidden md:block bg-white text-gray-800 py-16 border-2 m-2 border-gray-100 shadow-2xs rounded-2xl">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             {/* Company Description */}
             <div>
@@ -30,7 +76,15 @@ const LandingFooter: React.FC = () => {
               {/* Social Media */}
               <div className="flex space-x-4">
                 {socialLinks.map((link, index) => (
-                  <SocialLink key={index} href={link.href} icon={link.icon} color={link.color} />
+                  <a
+                    key={index}
+                    href={link.href}
+                    target='_blank'
+                    className="text-gray-500 hover:text-blue-600 transition-all duration-300 transform hover:scale-110"
+                    aria-label={link.name}
+                  >
+                    <link.icon className="w-6 h-6" />
+                  </a>
                 ))}
               </div>
             </div>
@@ -39,10 +93,16 @@ const LandingFooter: React.FC = () => {
             <div>
               <h4 className="font-bold text-xl mb-6 text-gray-900">Recursos</h4>
               <ul className="space-y-4 text-lg">
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">Blog</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">Documentação</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">GitHub</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">FAQs</a></li>
+                {recursosLinks.map((link, index) => (
+                  <li key={index}>
+                    <a
+                      href={link.href}
+                      className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -50,9 +110,16 @@ const LandingFooter: React.FC = () => {
             <div>
               <h4 className="font-bold text-xl mb-6 text-gray-900">Empresa</h4>
               <ul className="space-y-4 text-lg">
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">Sobre nós</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">Planos e funcionalidades</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block">Contactos</a></li>
+                {empresaLinks.map((link, index) => (
+                  <li key={index}>
+                    <a
+                      href={link.href}
+                      className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-2 block"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -61,27 +128,34 @@ const LandingFooter: React.FC = () => {
               <h4 className="font-bold text-xl mb-6 text-gray-900">Contacto</h4>
               <ul className="space-y-4 text-lg text-gray-600">
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span>📧</span>
+                  <span className='text-yellow-700'><EmailIcon /></span>
                   <span>suporte@wundu.tech</span>
                 </li>
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span>📍</span>
+                  <span className='text-yellow-700'><LocationIcon /></span>
                   <span>Angola, Luanda</span>
                 </li>
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span>🔗</span>
+                  <span className='text-yellow-700'><GithubIcon /></span>
                   <span>github.com/wundu</span>
                 </li>
               </ul>
             </div>
           </div>
 
+          {/* Bottom Section */}
           <div className="border-t-2 border-gray-300 pt-8 flex flex-col md:flex-row justify-between items-center text-lg">
             <p className="text-gray-600 mb-4 md:mb-0">© 2025 WUNDU. Todos os direitos reservados.</p>
             <div className="flex space-x-8">
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300">Termos de Uso</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300">Política de privacidade</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-all duration-300">Configurações de Cookies</a>
+              {legalLinks.map((link, index) => (
+                <a
+                  key={index}
+                  href={link.href}
+                  className="text-gray-600 hover:text-blue-600 transition-all duration-300"
+                >
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -102,7 +176,12 @@ const LandingFooter: React.FC = () => {
             {/* Social Media */}
             <div className="flex justify-center space-x-6 mb-8">
               {socialLinks.map((link, index) => (
-                <a key={index} href={link.href} className={`text-blue-200 hover:text-white transition-all duration-300 transform hover:scale-110`}>
+                <a
+                  key={index}
+                  href={link.href}
+                  className="text-blue-200 hover:text-white transition-all duration-300 transform hover:scale-110"
+                  aria-label={link.name}
+                >
                   <link.icon className="w-6 h-6" />
                 </a>
               ))}
@@ -115,10 +194,16 @@ const LandingFooter: React.FC = () => {
             <div>
               <h4 className="font-bold text-lg mb-4 text-white">Recursos</h4>
               <ul className="space-y-3 text-blue-100">
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">Documentação</a></li>
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">GitHub</a></li>
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">FAQs</a></li>
+                {recursosLinks.map((link, index) => (
+                  <li key={index}>
+                    <a
+                      href={link.href}
+                      className="hover:text-white transition-all duration-300 block"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -126,9 +211,16 @@ const LandingFooter: React.FC = () => {
             <div>
               <h4 className="font-bold text-lg mb-4 text-white">Empresa</h4>
               <ul className="space-y-3 text-blue-100">
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">Sobre nós</a></li>
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">Planos e funcionalidades</a></li>
-                <li><a href="#" className="hover:text-white transition-all duration-300 block">Contactos</a></li>
+                {empresaLinks.map((link, index) => (
+                  <li key={index}>
+                    <a
+                      href={link.href}
+                      className="hover:text-white transition-all duration-300 block"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -156,9 +248,15 @@ const LandingFooter: React.FC = () => {
           <div className="border-t border-blue-700 pt-6 text-center">
             <p className="text-blue-200 mb-4">© 2025 WUNDU. Todos os direitos reservados.</p>
             <div className="flex flex-wrap justify-center gap-4 text-blue-200 text-sm">
-              <a href="#" className="hover:text-white transition-all duration-300">Termos de Uso</a>
-              <a href="#" className="hover:text-white transition-all duration-300">Política de privacidade</a>
-              <a href="#" className="hover:text-white transition-all duration-300">Configurações de Cookies</a>
+              {legalLinks.map((link, index) => (
+                <a
+                  key={index}
+                  href={link.href}
+                  className="hover:text-white transition-all duration-300"
+                >
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>

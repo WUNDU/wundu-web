@@ -1,4 +1,4 @@
-// src/components/templates/AboutTemplate/index.tsx
+// src/components/templates/AboutTemplate/index.tsx (Adaptado para usar FeaturesSection no lugar da seção hardcoded de valores)
 'use client';
 import React, { useEffect } from 'react';
 import LandingHeader from '@/src/components/organisms/LandingHeader';
@@ -6,11 +6,12 @@ import LandingFooter from '@/src/components/organisms/LandingFooter';
 import PageHero from '@/src/components/organisms/PageHero';
 import TextSection from '@/src/components/molecules/TextSection';
 import TechnologySection from '@/src/components/molecules/TechnologySection';
+import FeaturesSection from '@/src/components/organisms/FeaturesSection';
 
 // Import ícones para os valores
 import { Shield, Zap, Lightbulb, Eye } from 'lucide-react';
 
-const AboutTemplate: React.FC = () => {
+const AboutLandingPage: React.FC = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -67,23 +68,20 @@ const AboutTemplate: React.FC = () => {
           content="Democratizar o acesso a ferramentas financeiras inteligentes, ajudando cada pessoa a tomar decisões mais informadas sobre o seu dinheiro."
         />
 
-        {/* Seção de Valores - reutilizando FeaturesSection */}
-        <section className="py-12">
-          <div className="text-center mb-20 fade-in-section">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">Os Nossos Valores</h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <div key={index} className="bg-white rounded-3xl p-10 text-center card-hover fade-in-section shadow-xl hover:shadow-2xl transition-all duration-500">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
-                  {value.icon}
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">{value.title}</h3>
-                <p className="text-gray-600 leading-relaxed text-lg">{value.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Seção de Valores - agora reutilizando FeaturesSection com customizações para matching o estilo original */}
+        <FeaturesSection
+          title="Os Nossos Valores"
+          subtitle=""
+          features={values}
+          gradientFrom="from-orange-100"
+          gradientTo="to-orange-200"
+          containerSize="w-20 h-20"
+          containerRounded="rounded-3xl"
+          cardRounded="rounded-3xl"
+          gridCols={4}
+          descriptionClass="text-gray-600 leading-relaxed text-lg"
+          titleClass="text-2xl font-bold text-gray-900 mb-6"
+        />
       </div>
       <div className='border-2 mx-2 p-10 my-5 shadow-2xs border-gray-100'>
         <TextSection
@@ -99,4 +97,4 @@ const AboutTemplate: React.FC = () => {
   );
 };
 
-export default AboutTemplate;
+export default AboutLandingPage;
