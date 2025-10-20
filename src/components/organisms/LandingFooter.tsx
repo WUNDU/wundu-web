@@ -4,6 +4,7 @@ import React from 'react';
 import { Facebook, Github, Instagram, Linkedin, Twitter } from 'lucide-react';
 import LogoType from '@/src/components/atoms/LogoType';
 import { EmailIcon, GithubIcon, LocationIcon, MirantesIcon, XIcon } from '@/src/constants/icons';
+import { ROUTES } from '@/src/constants/routes';
 
 const LandingFooter: React.FC = () => {
   const socialLinks = [
@@ -47,9 +48,9 @@ const LandingFooter: React.FC = () => {
   ];
 
   const empresaLinks = [
-    { href: '/sobre', label: 'Sobre nós' },
-    { href: '/funcionalidades', label: 'Planos e funcionalidades' },
-    { href: '/contactos', label: 'Contactos' }
+    { href: ROUTES.ABOUT, label: 'Sobre nós' },
+    { href: ROUTES.FEATURES, label: 'Planos e funcionalidades' },
+    { href: ROUTES.CONTACTS, label: 'Contactos' }
   ];
 
   const legalLinks = [

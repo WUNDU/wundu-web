@@ -1,5 +1,9 @@
 export const ROUTES = {
   HOME: '/home',
+  LANDINGPAGE: '/',
+  ABOUT: '/about',
+  FEATURES: '/features',
+  CONTACTS: '/contacts',
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   RESET_PASSWORD: '/auth/reset_password',

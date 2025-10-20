@@ -4,11 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import LogoType from '@/src/components/atoms/LogoType';
 import LandingButton from '@/src/components/atoms/LandingButton';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 const LandingHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,12 +24,15 @@ const LandingHeader: React.FC = () => {
   }, []);
 
   const navItems = [
-    { href: '/funcionalidades', label: 'Funcionalidades' },
-    { href: '/planos', label: 'Planos' },
-    { href: '/contactos', label: 'Contactos' },
-    { href: '/sobre', label: 'Sobre' }
+    { href: ROUTES.FEATURES, label: 'Funcionalidades' },
+    // { href: '/planos', label: 'Planos' },
+    { href: ROUTES.CONTACTS, label: 'Contactos' },
+    { href: ROUTES.ABOUT, label: 'Sobre' }
   ];
 
+  const handleHome = () => {
+    router.push(ROUTES.LANDINGPAGE)
+  }
   return (
     <header
       className={`bg-white/95 backdrop-blur-md border-2 m-2 border-gray-100 shadow-2xs rounded-2xl sticky top-2 z-50 transition-all duration-500 ${isScrolled ? 'shadow-xl scale-[0.98] bg-white/98' : 'shadow-2xs'
@@ -35,7 +41,7 @@ const LandingHeader: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <div onClick={handleHome} className="flex items-center space-x-2">
             <LogoType />
           </div>
 

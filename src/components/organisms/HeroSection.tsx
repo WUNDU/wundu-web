@@ -18,7 +18,7 @@ const HeroSection: React.FC = () => {
           Com o WUNDU, controlar gastos, definir metas e organizar cartões nunca foi tão simples. Um app feito para o teu bolso e o teu ritmo.
         </p>
         <div className="mt-12 fade-in-section animate-in delay-4">
-          <LandingButton className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+          <LandingButton className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
             <span>Experimente agora - É grátis</span>
             <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
           </LandingButton>
