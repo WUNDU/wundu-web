@@ -14,7 +14,7 @@ const CTASection: React.FC<CTASectionProps> = ({
   buttonText = "Experimente agora - É grátis"
 }) => {
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-400 border-2 m-2 border-gray-100 shadow-2xs relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-400 border-2 m-2 border-gray-100 shadow-2xs relative overflow-hidden rounded-2xl">
       {/* Background Pattern com Animação */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-blue-800/10 to-purple-900/20"></div>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-30 animate-pulse-slow"></div>
@@ -33,7 +33,7 @@ const CTASection: React.FC<CTASectionProps> = ({
         <div className="fade-in-section delay-4">
           <LandingButton
             variant="primary"
-            className="px-12 py-5 font-bold rounded-full inline-flex items-center space-x-3 text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 border-0"
+            className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 border-0"
           >
             <span>{buttonText}</span>
             <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />

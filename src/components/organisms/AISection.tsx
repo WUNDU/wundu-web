@@ -21,7 +21,7 @@ const AISection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-white overflow-hidden border-2 m-2 border-gray-100 shadow-2xs">
+    <section className="py-20 bg-white overflow-hidden border-2 m-2 border-gray-100 shadow-2xs rounded-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div className="fade-in-section">
@@ -49,9 +49,14 @@ const AISection: React.FC = () => {
               <Image
                 src={appScreen}
                 alt="App Wundu"
-                className="rounded-3xl mx-auto max-w-md shadow-2xl relative z-10 float-animation"
-                width={400}
-                height={800}
+                className="hidden md:flex rounded-3xl mx-auto max-w-md shadow-2xl relative z-10 float-animation"
+                width={500}
+              />
+              <Image
+                src={appScreen}
+                alt="App Wundu"
+                className="md:hidden rounded-3xl mx-auto max-w-md shadow-2xl relative z-10 float-animation"
+                width={300}
               />
             </div>
           </div>

@@ -36,7 +36,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({
   titleClass = "text-xl font-bold text-gray-900 mb-3",
 }) => {
   return (
-    <section className={`py-20 ${backgroundColor} border-2 m-2 border-gray-100 shadow-2xs`}>
+    <section className={`py-20 ${backgroundColor} border-2 m-2 border-gray-100 shadow-2xs rounded-2xl`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20 fade-in-section">
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">{title}</h2>
