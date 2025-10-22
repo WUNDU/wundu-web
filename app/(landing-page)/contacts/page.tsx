@@ -1,4 +1,4 @@
-import ContactLandingPage from "@/src/components/pages/ContactLandingPage";
+import ContactLandingPage from "@/src/components/pages/landing-page/ContactLandingPage";
 
 
 export default function Contacts() {

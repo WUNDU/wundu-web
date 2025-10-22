@@ -1,24 +1,28 @@
-'use client'
-import PersonalData from "../organisms/PersonalData";
-import SecurityData from "../organisms/SecurityData";
-import Success from "../organisms/Success";
-import Image from "next/image";
-import { logo } from "@/src/constants/images";
-import { useRegisterContext } from "@/src/hooks/useRegisterContext";
+'use client';
 
-const RegisterScreen = () => {
-  const { currentStep } = useRegisterContext();
+import { usePasswordResetContext } from "@/src/contexts/PasswordResetContext";
+import EmailPhone from "../../organisms/EmailPhone";
+import Verification from "../../organisms/Verification";
+import NewPassword from "../../organisms/NewPassword";
+import SuccessPasswordReset from "../../organisms/SucessPasswordReset";
+import { logo } from "@/src/constants/images";
+import Image from "next/image";
+
+const PasswordResetScreen = () => {
+  const { currentStep } = usePasswordResetContext();
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <PersonalData />;
+        return <EmailPhone />;
       case 2:
-        return <SecurityData />;
+        return <Verification />;
       case 3:
-        return <Success />;
+        return <NewPassword />;
+      case 4:
+        return <SuccessPasswordReset />;
       default:
-        return <PersonalData />;
+        return <EmailPhone />;
     }
   };
 
@@ -37,7 +41,7 @@ const RegisterScreen = () => {
           <span className="text-2xl font-bold text-gray-800">WUNDU</span>
         </div>
 
-        <div className="w-full max-w-3xl bg-white rounded-2xl  shadow-xl px-5 py-10 relative">
+        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
           {renderStep()}
         </div>
       </div>
@@ -45,4 +49,4 @@ const RegisterScreen = () => {
   );
 };
 
-export default RegisterScreen;
+export default PasswordResetScreen;

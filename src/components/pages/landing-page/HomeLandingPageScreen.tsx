@@ -31,17 +31,17 @@ const WunduLanding: React.FC = () => {
 
   const homeFeatures = [
     {
-      icon: <StatsIcon className="w-10 h-10 text-yellow-600" />,
+      icon: <StatsIcon className="w-10 h-10 text-orange-600" />,
       title: 'Gestão de gastos',
       description: 'Upload de extratos automático com categorização inteligente por IA. Mantenha sempre o controle dos seus gastos.',
     },
     {
-      icon: <CardIcon className="w-10 h-10 text-yellow-600" />,
+      icon: <CardIcon className="w-10 h-10 text-orange-600" />,
       title: 'Gestão de orçamento',
       description: 'Crie orçamentos realistas e controle seus gastos por categoria para nunca mais estourar suas finanças.',
     },
     {
-      icon: <GoalsIcon className="w-10 h-10 text-yellow-600" />,
+      icon: <GoalsIcon className="w-10 h-10 text-orange-600" />,
       title: 'Metas financeiras',
       description: 'Defina objetivos claros e acompanhe o progresso em tempo real. Transforma sonhos em planos concretos.',
     },

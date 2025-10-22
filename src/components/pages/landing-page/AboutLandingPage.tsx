@@ -73,8 +73,8 @@ const AboutLandingPage: React.FC = () => {
           title="Os Nossos Valores"
           subtitle=""
           features={values}
-          gradientFrom="from-orange-100"
-          gradientTo="to-orange-200"
+          gradientFrom="from-blue-100"
+          gradientTo="to-yellow-200"
           containerSize="w-20 h-20"
           containerRounded="rounded-3xl"
           cardRounded="rounded-3xl"

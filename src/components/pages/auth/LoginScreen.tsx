@@ -1,7 +1,7 @@
 'use client'
-import GoogleLoginButton from '../atoms/GoogleLoginButton';
-import CtaSectionLogin from '../molecules/CtaSectionLogin';
-import FormSection from '../molecules/FormSection';
+import GoogleLoginButton from '../../atoms/GoogleLoginButton';
+import CtaSectionLogin from '../../molecules/CtaSectionLogin';
+import FormSection from '../../molecules/FormSection';
 import { loginIllustration, errorIllustration, logo } from '@/src/constants/images';
 import Image from 'next/image';
 import Link from 'next/link';

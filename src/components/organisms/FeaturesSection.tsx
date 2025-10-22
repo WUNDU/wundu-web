@@ -1,5 +1,3 @@
-// src/components/organisms/FeaturesSection/index.tsx
-// Atualizado para ser mais reutilizável com props adicionais para customização
 interface FeaturesSectionProps {
   title: string;
   subtitle: string;
@@ -26,9 +24,9 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({
   subtitle,
   features,
   backgroundColor = "bg-white",
-  gradientFrom = "from-blue-100",
+  gradientFrom = "from-yellow-100",
   gradientTo = "to-blue-200",
-  containerSize = "w-16 h-16",
+  containerSize = "w-20 h-20",
   containerRounded = "rounded-2xl",
   cardRounded = "rounded-3xl",
   gridCols = 4,

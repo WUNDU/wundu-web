@@ -1,30 +1,32 @@
+import { EmailIcon, LocationIcon, MessageIcon, PhoneIcon } from "@/src/constants/icons";
+
 // src/components/organisms/ContactMethods/index.tsx
 const ContactMethods: React.FC = () => {
   const contactMethods = [
     {
-      icon: '📧',
+      icon: <EmailIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: 'E-mail',
       description: 'support@wundu.com',
       subDescription: 'Respostas em até 24h'
     },
     {
-      icon: '📞',
+      icon: <PhoneIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: 'Telefone',
       description: '+244 923 123 456',
       subDescription: 'Seg-Sex 08AM-10PM'
     },
     {
-      icon: '💬',
+      icon: <MessageIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: 'Whatsapp',
       description: '+244 923 123 456',
       subDescription: 'Seg-Sex 08AM-10PM'
     },
-    {
-      icon: '📍',
-      title: 'Escritório',
-      description: 'Luanda, Maianga',
-      subDescription: 'Rua da Liberdade, 123'
-    }
+    // {
+    //   icon: <LocationIcon className="w-10 h-10 text-[#CA6F06]" />,
+    //   title: 'Escritório',
+    //   description: 'Luanda, Maianga',
+    //   subDescription: 'Rua da Liberdade, 123'
+    // }
   ];
 
   return (
@@ -39,10 +41,12 @@ const ContactMethods: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contactMethods.map((method, index) => (
             <div key={index} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300 fade-in-section">
-              <div className="text-3xl mb-4">{method.icon}</div>
+              <div className="text-3xl mb-4 flex items-center justify-center">
+                <div className="bg-[#FFC72730] rounded-full p-2">{method.icon}</div>
+              </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">{method.title}</h3>
               <p className="text-gray-700 font-medium mb-1">{method.description}</p>
               <p className="text-gray-500 text-sm">{method.subDescription}</p>
