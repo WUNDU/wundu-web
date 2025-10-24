@@ -1,3 +1,5 @@
+import { ChartDesktopIcon, DocumentLibraryIcon, RobotIcon } from "@/src/constants/icons"
+
 // src/components/organisms/HowItWorks/index.tsx
 const HowItWorks: React.FC = () => {
   const steps = [
@@ -5,19 +7,19 @@ const HowItWorks: React.FC = () => {
       number: '1',
       title: 'Carrega os extratos',
       description: 'Faça upload dos seus extratos bancários ou faturas. Suportamos PDF, JPG e PNG.',
-      icon: '📄'
+      icon: <DocumentLibraryIcon className="w-10 h-10 text-[#CA6F06]/40" />
     },
     {
       number: '2',
       title: 'Processamento automático',
       description: 'A nossa IA analisa e categoriza automaticamente todas as transações.',
-      icon: '🤖'
+      icon: <RobotIcon className="w-10 h-10 text-[#CA6F06]/40" />
     },
     {
       number: '3',
       title: 'Acompanha e otimiza',
       description: 'Visualiza relatórios, define metas e obtém insights para melhorar suas finanças.',
-      icon: '📈'
+      icon: <ChartDesktopIcon className="w-10 h-10 text-[#CA6F06]/40" />
     }
   ];
 
@@ -28,7 +30,7 @@ const HowItWorks: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Como funciona
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-yellow-500 mx-auto rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -36,15 +38,15 @@ const HowItWorks: React.FC = () => {
             <div key={index} className="text-center fade-in-section group">
               <div className="relative mb-6">
                 {/* Gradiente Radial de Fundo */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-200 via-purple-200 to-pink-200 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-200  to-orange-200 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
 
                 {/* Círculo Principal com Gradiente */}
-                <div className="relative w-24 h-24 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-2 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                <div className="relative w-24 h-24 bg-gradient-to-br from-blue-600 to-yellow-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-2 shadow-xl group-hover:scale-110 transition-transform duration-300">
                   {step.number}
                 </div>
 
                 {/* Ícone Flutuante */}
-                <div className="absolute -top-2 -right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center text-lg shadow-lg border border-gray-100">
+                <div className="absolute -top-2 -right-2 w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-lg shadow-lg border border-gray-100">
                   {step.icon}
                 </div>
               </div>

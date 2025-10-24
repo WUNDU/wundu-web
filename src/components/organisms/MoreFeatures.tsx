@@ -1,26 +1,29 @@
+import { BookIcon, ComputerPhoneSyncIcon, MobileIcon } from "@/src/constants/icons"
+import { ShieldIcon, Phone } from "lucide-react";
+
 // src/components/organisms/MoreFeatures/index.tsx
 const MoreFeatures: React.FC = () => {
   const moreFeatures = [
     {
-      icon: '📚',
+      icon: <BookIcon className="w-10 h-10 text-white" />,
       title: 'Educação Financeira',
       description: 'Acede a conteúdos educativos e simuladores para melhorar a sua literacia financeira.',
       color: 'from-indigo-500 to-purple-500'
     },
     {
-      icon: '🔒',
+      icon: <ShieldIcon className="w-10 h-10 text-white" />,
       title: 'Segurança Bancária',
       description: 'Criptografia de nível bancário para proteger todos os seus dados financeiros.',
       color: 'from-red-500 to-pink-500'
     },
     {
-      icon: '📱',
+      icon: <MobileIcon className="w-10 h-10 text-white" />,
       title: 'Multiplataforma',
       description: 'Acede as suas finanças em qualquer dispositivo – web, mobile ou tablet.',
       color: 'from-green-500 to-teal-500'
     },
     {
-      icon: '🔄',
+      icon: <ComputerPhoneSyncIcon className="w-10 h-10 text-white" />,
       title: 'Sincronização Automática',
       description: 'Acede as suas finanças em qualquer dispositivo – web, mobile ou tablet.',
       color: 'from-yellow-500 to-orange-500'

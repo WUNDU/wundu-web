@@ -33,6 +33,14 @@ const LandingHeader: React.FC = () => {
   const handleHome = () => {
     router.push(ROUTES.LANDINGPAGE)
   }
+
+  const handleLogin = () => {
+    router.push(ROUTES.LOGIN)
+  }
+
+  const handleRegister = () => {
+    router.push(ROUTES.REGISTER)
+  }
   return (
     <header
       className={`bg-white/95 backdrop-blur-md border-2 m-2 border-gray-100 shadow-2xs rounded-2xl sticky top-2 z-50 transition-all duration-500 ${isScrolled ? 'shadow-xl scale-[0.98] bg-white/98' : 'shadow-2xs'
@@ -60,10 +68,10 @@ const LandingHeader: React.FC = () => {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <LandingButton variant="secondary" className="hover:scale-105 transition-all duration-300">
+            <LandingButton onClick={handleLogin} variant="secondary" className="hover:scale-105 transition-all duration-300">
               Entrar
             </LandingButton>
-            <LandingButton variant="primary" className="hover:scale-105 transition-all duration-300">
+            <LandingButton onClick={handleRegister} variant="primary" className="hover:scale-105 transition-all duration-300">
               Criar Conta
             </LandingButton>
           </div>

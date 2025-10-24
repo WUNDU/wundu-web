@@ -1,8 +1,10 @@
+import { NotificationDeskIcon, ObjectiveIcon, StatsIcon, UploadIcon } from "@/src/constants/icons"
+
 // src/components/organisms/MainFeatures/index.tsx
 const MainFeatures: React.FC = () => {
   const features = [
     {
-      icon: '📤',
+      icon: <UploadIcon className="w-10 h-10 text-white" />,
       title: 'Carregamento inteligente',
       description: 'Carregue extratos bancários e faturas em PDF ou Imagem. Nosso OCR processa automaticamente e categoriza as transações.',
       items: [
@@ -13,7 +15,7 @@ const MainFeatures: React.FC = () => {
       color: 'from-blue-500 to-blue-600'
     },
     {
-      icon: '📊',
+      icon: <StatsIcon className="w-10 h-10 text-white" />,
       title: 'Relatórios Avançados',
       description: 'Visualize seus gastos com gráficos interativos e relatórios detalhados. Exporte em PDF para compartilhar ou salvar.',
       items: [
@@ -24,7 +26,7 @@ const MainFeatures: React.FC = () => {
       color: 'from-green-500 to-green-600'
     },
     {
-      icon: '🎯',
+      icon: <ObjectiveIcon className="w-10 h-10 text-white" />,
       title: 'Metas Financeiras',
       description: 'Definir objetivos de poupança e gastos. Acompanha o progresso em tempo real e recebe dicas personalizadas.',
       items: [
@@ -35,7 +37,7 @@ const MainFeatures: React.FC = () => {
       color: 'from-purple-500 to-purple-600'
     },
     {
-      icon: '🔔',
+      icon: <NotificationDeskIcon className="w-10 h-10 text-white" />,
       title: 'Notificações Inteligentes',
       description: 'Recebe alertas quando ultrapassas limites de gastos ou quando é altura de poupar para as tuas metas.',
       items: [

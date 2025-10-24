@@ -1,6 +1,8 @@
 // src/components/organisms/CTASection/index.tsx
 import { ArrowRight } from 'lucide-react';
 import LandingButton from '@/src/components/atoms/LandingButton';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/src/constants/routes';
 
 interface CTASectionProps {
   title?: string;
@@ -13,6 +15,10 @@ const CTASection: React.FC<CTASectionProps> = ({
   subtitle = "Junte-se a milhares de usuários que já controlam melhor seu dinheiro com o WUNDU.",
   buttonText = "Experimente agora - É grátis"
 }) => {
+  const router = useRouter()
+  const handleLogin = () => {
+    router.push(ROUTES.LOGIN)
+  }
   return (
     <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-400 border-2 m-2 border-gray-100 shadow-2xs relative overflow-hidden rounded-2xl">
       {/* Background Pattern com Animação */}
@@ -31,7 +37,7 @@ const CTASection: React.FC<CTASectionProps> = ({
           {subtitle}
         </p>
         <div className="fade-in-section delay-4">
-          <LandingButton
+          <LandingButton onClick={handleLogin}
             variant="primary"
             className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 border-0"
           >
