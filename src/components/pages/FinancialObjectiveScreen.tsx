@@ -70,7 +70,7 @@ const FinancialObjectiveScreen: React.FC = () => {
   const unfulfilledObjectives = objectives.filter(obj => obj.percentage < 100);
 
   return (
-    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800">
+    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800 min-h-0">
       {/* Sidebar positioned absolutely */}
       <div
         className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -98,14 +98,14 @@ const FinancialObjectiveScreen: React.FC = () => {
           />
         </button>
 
-        <main className="p-4 space-y-6 flex-1 overflow-y-auto">
+        <main className="p-4 space-y-6 flex-1 overflow-y-auto min-h-0">
           <div className="md:hidden">
             <NavigationBack />
           </div>
 
           <div className="flex flex-col flex-1 bg-white md:bg-gray-100 rounded-2xl p-5 space-y-10">
             <h2 className="text-lg font-semibold text-gray-800 md:hidden">Objectivos financeiros</h2>
-            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-3 gap-4 md:bg-white md:p-2 md:px-5 rounded-2xl">
+            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-2 gap-4 md:bg-white md:p-2 md:px-5 rounded-2xl">
               <div
                 className={`rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
                 onClick={handleFinancialNewObjective}
@@ -134,7 +134,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                   iconColor="text-red-600"
                 />
               </div>
-              <div
+              {/* <div
                 className={`hidden md:block rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
                 onClick={handleFinancialIAObjective}
               >
@@ -147,10 +147,10 @@ const FinancialObjectiveScreen: React.FC = () => {
                   iconBgColor="bg-white md:bg-purple-100"
                   iconColor="text-purple-600"
                 />
-              </div>
+              </div> */}
             </div>
 
-            <div className="md:hidden mt-8">
+            {/* <div className="md:hidden mt-8">
               <h2 className="text-lg font-semibold text-gray-400">Gerar o objectivo financeiro com AI</h2>
               <div
                 className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
@@ -166,19 +166,19 @@ const FinancialObjectiveScreen: React.FC = () => {
                   iconColor="text-purple-600"
                 />
               </div>
-            </div>
-            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl bg-white p-6 md:min-w-full">
+            </div> */}
+            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl h-full bg-white p-6 md:min-w-full">
               {showForm ? (
-                <div className="flex">
-                  <div className="w-2/3 pr-4">
+                <div className="flex gap-4 min-h-0">
+                  <div className="w-2/3 h-full min-h-0">
                     <ObjectiveForm />
                   </div>
-                  <div className="w-1/3 pl-4">
+                  <div className="w-1/3 h-full min-h-0">
                     <SketchPanel />
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-4 flex-1">
+                <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
                   {/* Meus objetivos financeiros */}
                   <div className="space-y-4 flex-1">
                     <h3 className="text-lg font-semibold text-gray-800">Meus objectivos financeiros</h3>

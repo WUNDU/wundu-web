@@ -40,14 +40,17 @@ const ObjectiveForm: React.FC = () => {
   const [isDateInput, setIsDateInput] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="flex flex-col gap-6 h-full min-h-0">
+      {/* Adicione min-h-0 e flex-1 para controlar o overflow */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0 overflow-auto">
         <Input
           label="Nome do objetivo"
           placeholder="Digite o nome do objectivo"
           value={objectiveName}
           onChange={(e) => setObjectiveName(e.target.value)}
-          required type={""} />
+          required
+          type={""}
+        />
         <Input
           label="Valor necessário"
           type="text"
@@ -86,6 +89,7 @@ const ObjectiveForm: React.FC = () => {
           required
         />
       </div>
+
       <Button onClick={handleSaveObjective}>
         Salvar Objectivo
       </Button>
