@@ -5,10 +5,6 @@ import { RegisterProvider } from "@/src/contexts/RegisterContext";
 
 export default function Login() {
   return (
-    <AuthProvider>
-      <RegisterProvider>
-        <LoginScreen />
-      </RegisterProvider>
-    </AuthProvider>
+    <LoginScreen />
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "../src/styles/globals.css";
+import { RegisterProvider } from "@/src/contexts/RegisterContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${openSans.variable} antialiased`}
       >
-        {children}
+        <RegisterProvider>
+          {children}
+        </RegisterProvider>
       </body>
     </html>
   );

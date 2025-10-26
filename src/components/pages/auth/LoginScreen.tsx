@@ -19,7 +19,7 @@ const LoginScreen: React.FC = () => {
       </div>
 
       <div className="md:py-4">
-        <div className="flex w-full md:max-w-2xl lg:max-w-3xl flex-col items-center md:rounded-3xl md:bg-white md:shadow-2xl md:overflow-hidden md:p-0">
+        <div className="flex w-full md:w-full lg:w-full flex-col items-center md:rounded-3xl md:bg-white md:shadow-2xl md:overflow-hidden md:p-0">
           {/* Seção dos textos centralizados no topo - apenas visível em desktop */}
           <div className="hidden md:flex md:w-full md:flex-col md:items-center md:justify-center md:text-center md:pt-8 md:px-4">
             <CtaSectionLogin

@@ -41,4 +41,26 @@ export const UserService = {
       throw new Error(message);
     }
   },
+
+  getUser: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Token não encontrado')
+    }
+    let config = {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+    try {
+      const response = await api.get('/users/me', config);
+      return response.data
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>
+      const message = axiosError.response?.data?.message || axiosError.message ||
+        'Failed to get user';
+      console.log('Error no UserService.getUser:', message)
+      throw new Error(message)
+    }
+  }
 };
