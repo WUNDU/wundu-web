@@ -1,13 +1,22 @@
 // src/context/RegisterContext.tsx
-'use client';
-import { createContext, ReactNode, useState, useMemo, useEffect, useCallback } from 'react';
-import { RegisterContextType, RegisterData } from '@/src/types/register';
-import { AxiosError } from 'axios';
-import { ApiErrorResponse } from '@/src/types/api';
-import { UserService } from '../services/UserServices';
-import type { User } from '../types/user';
+"use client";
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+} from "react";
+import { RegisterContextType, RegisterData } from "@/src/types/register";
+import { AxiosError } from "axios";
+import { ApiErrorResponse } from "@/src/types/api";
+import { UserService } from "../services/UserServices";
+import type { User } from "../types/user";
 
-const RegisterContext = createContext<RegisterContextType | undefined>(undefined);
+const RegisterContext = createContext<RegisterContextType | undefined>(
+  undefined
+);
 
 export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -21,46 +30,46 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      if (typeof window === 'undefined') {
-        setIsLoading(false)
+      if (typeof window === "undefined") {
+        setIsLoading(false);
         setInitialized(true);
-        return
+        return;
       }
 
-      const storedToken = localStorage.getItem('token')
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
-        setIsLoading(false)
+        setIsLoading(false);
         setInitialized(true);
-        return
+        return;
       }
 
       try {
-        setTokenState(storedToken)
-        const userData = await UserService.getUser()
-        setUser(userData)
+        setTokenState(storedToken);
+        const userData = await UserService.getUser();
+        setUser(userData);
       } catch (error) {
-        console.log('Erro ao carregar usuário', error)
-        localStorage.removeItem('token')
-        setTokenState(null)
+        console.log("Erro ao carregar usuário", error);
+        localStorage.removeItem("token");
+        setTokenState(null);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
         setInitialized(true);
       }
-    }
-    initializeAuth()
-  }, [])
+    };
+    initializeAuth();
+  }, []);
 
   const setToken = useCallback((newToken: string | null) => {
     setTokenState(newToken);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (newToken) {
-        localStorage.setItem('token', newToken)
+        localStorage.setItem("token", newToken);
       } else {
-        localStorage.removeItem('token')
+        localStorage.removeItem("token");
       }
     }
-  }, [])
+  }, []);
 
   const setRegisterData = (newData: Partial<RegisterData>) => {
     setData((prevData) => ({ ...prevData, ...newData }));
@@ -73,15 +82,15 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const result = await UserService.register(overrideData || data);
-      console.log('Registro bem-sucedido:', result);
+      console.log("Registro bem-sucedido:", result);
       return result;
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       const message =
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Falha no registro';
-      console.log('Erro no registerUser:', message);
+        "Falha no registro";
+      console.log("Erro no registerUser:", message);
       setError(message);
       throw new Error(message);
     }
@@ -92,26 +101,26 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const result = await UserService.login(email, password);
-      console.log('Login bem-sucedido:', result);
+      console.log("Login bem-sucedido:", result);
 
       // Atualiza o token primeiro
-      setToken(result.token)
+      setToken(result.token);
 
       // Busca os dados do usuário
       const userData = await UserService.getUser();
-      console.log('Dados do usuário:', userData)
+      console.log("Dados do usuário:", userData);
 
       // Atualiza o usuário
-      setUser(userData)
+      setUser(userData);
 
-      return result
+      return result;
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       const message =
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Falha no login';
-      console.log('Erro no loginUser:', message);
+        "Falha no login";
+      console.log("Erro no loginUser:", message);
       setError(message);
       throw new Error(message);
     } finally {
@@ -121,9 +130,9 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logoutUser = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      sessionStorage.removeItem('user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("user");
     }
     setToken(null);
     setUser(null);

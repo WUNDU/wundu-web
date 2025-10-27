@@ -1,8 +1,7 @@
-import React from 'react';
-import ActionButton from '../atoms/ActionButton';
-import { ModalProps } from '@/src/types/modal';
-import { DocumentIcon } from '@/src/constants/icons';
-
+import React from "react";
+import ActionButton from "../atoms/ActionButton";
+import { ModalProps } from "@/src/types/modal";
+import { DocumentIcon } from "@/src/constants/icons";
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -11,7 +10,7 @@ const Modal: React.FC<ModalProps> = ({
   message,
   confirmText = "Sim",
   cancelText = "Não",
-  onConfirm
+  onConfirm,
 }) => {
   if (!isOpen) return null;
 
@@ -25,13 +24,9 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {title}
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
 
-          <p className="text-gray-600 text-sm mb-6">
-            {message}
-          </p>
+          <p className="text-gray-600 text-sm mb-6">{message}</p>
 
           <div className="flex flex-row items-center justify-center gap-3">
             <ActionButton

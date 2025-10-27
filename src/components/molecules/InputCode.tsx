@@ -1,18 +1,26 @@
-'use client';
+"use client";
 
-import { useRef, useEffect } from 'react';
-import Input from '../atoms/InputCode';
-import { CodeInputProps } from '@/src/types/input';
+import { useRef, useEffect } from "react";
+import Input from "../atoms/InputCode";
+import { CodeInputProps } from "@/src/types/input";
 
-
-const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError = false, isSuccess = false }) => {
+const CodeInput: React.FC<CodeInputProps> = ({
+  length,
+  value,
+  onChange,
+  isError = false,
+  isSuccess = false,
+}) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     inputRefs.current = inputRefs.current.slice(0, length);
   }, [length]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const val = e.target.value;
     if (/[^0-9]/.test(val)) return;
 
@@ -24,28 +32,37 @@ const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError 
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && !e.currentTarget.value && index > 0) {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const borderColorClass = isError ? 'border-red-500' : isSuccess ? 'border-green-500' : 'border-gray-300';
-  const shadowClass = 'shadow-sm';
+  const borderColorClass = isError
+    ? "border-red-500"
+    : isSuccess
+    ? "border-green-500"
+    : "border-gray-300";
+  const shadowClass = "shadow-sm";
 
   return (
     <div className="flex flex-row gap-2.5 justify-center">
       {[...Array(length)].map((_, index) => (
         <Input
-          label=''
+          label=""
           key={index}
           id={`code-input-${index}`}
           type="tel"
           className={`text-center w-12 h-12 text-3xl ${shadowClass} border ${borderColorClass}`}
-          value={value[index] || ''}
+          value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          ref={(el) => { inputRefs.current[index] = el; }}
+          ref={(el) => {
+            inputRefs.current[index] = el;
+          }}
           maxLength={1}
           inputMode="numeric"
         />
@@ -55,4 +72,3 @@ const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError 
 };
 
 export default CodeInput;
-

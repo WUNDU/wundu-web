@@ -9,4 +9,4 @@ const InfoPoint = ({ children }: { children: React.ReactNode }) => (
   </li>
 );
 
-export default InfoPoint
+export default InfoPoint;

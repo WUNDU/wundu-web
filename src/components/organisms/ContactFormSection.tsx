@@ -1,6 +1,6 @@
 // src/components/organisms/ContactFormSection/index.tsx
-import ContactForm from '@/src/components/molecules/ContactForm';
-import FAQSection from '@/src/components/molecules/FAQSection';
+import ContactForm from "@/src/components/molecules/ContactForm";
+import FAQSection from "@/src/components/molecules/FAQSection";
 
 const ContactFormSection: React.FC = () => {
   return (
@@ -13,7 +13,8 @@ const ContactFormSection: React.FC = () => {
               Envia-nos uma Mensagem
             </h2>
             <p className="text-gray-600 mb-8">
-              Preencha o formulário abaixo que nós entraremos em contacto consigo
+              Preencha o formulário abaixo que nós entraremos em contacto
+              consigo
             </p>
             <ContactForm />
           </div>

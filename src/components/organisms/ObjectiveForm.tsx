@@ -4,31 +4,31 @@ import Button from "../atoms/Button";
 import Select from "../atoms/Select";
 
 const ObjectiveForm: React.FC = () => {
-  const [objectiveName, setObjectiveName] = useState('');
-  const [targetValue, setTargetValue] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('');
-  const [category, setCategory] = useState('');
+  const [objectiveName, setObjectiveName] = useState("");
+  const [targetValue, setTargetValue] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("");
+  const [category, setCategory] = useState("");
 
   const priorityOptions = [
-    { value: '', label: 'Selecione o tipo de prioridade' },
-    { value: 'low', label: 'Baixa' },
-    { value: 'medium', label: 'Média' },
-    { value: 'high', label: 'Alta' },
+    { value: "", label: "Selecione o tipo de prioridade" },
+    { value: "low", label: "Baixa" },
+    { value: "medium", label: "Média" },
+    { value: "high", label: "Alta" },
   ];
 
   const categoryOptions = [
-    { value: '', label: 'Selecione a categoria' },
-    { value: 'travel', label: 'Viagem' },
-    { value: 'car', label: 'Carro' },
-    { value: 'house', label: 'Casa' },
-    { value: 'education', label: 'Educação' },
-    { value: 'other', label: 'Outro' },
+    { value: "", label: "Selecione a categoria" },
+    { value: "travel", label: "Viagem" },
+    { value: "car", label: "Carro" },
+    { value: "house", label: "Casa" },
+    { value: "education", label: "Educação" },
+    { value: "other", label: "Outro" },
   ];
 
   const handleSaveObjective = () => {
     // Lógica para salvar o objetivo aqui
-    console.log('Salvar Objetivo:', {
+    console.log("Salvar Objetivo:", {
       objectiveName,
       targetValue,
       dueDate,
@@ -63,7 +63,7 @@ const ObjectiveForm: React.FC = () => {
         <div className="relative flex w-full flex-col gap-2">
           <label className="text-gray-600">Data limite</label>
           <input
-            type={isDateInput ? 'date' : 'text'}
+            type={isDateInput ? "date" : "text"}
             placeholder="Selecione a data"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
@@ -90,9 +90,7 @@ const ObjectiveForm: React.FC = () => {
         />
       </div>
 
-      <Button onClick={handleSaveObjective}>
-        Salvar Objectivo
-      </Button>
+      <Button onClick={handleSaveObjective}>Salvar Objectivo</Button>
     </div>
   );
 };

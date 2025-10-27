@@ -1,11 +1,11 @@
-import React from 'react';
-import CategoryButton from '../atoms/CategoryButton';
-import { CategoryFilterProps } from '@/src/types/category';
+import React from "react";
+import CategoryButton from "../atoms/CategoryButton";
+import { CategoryFilterProps } from "@/src/types/category";
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({
   categories,
   activeCategory,
-  onCategoryChange
+  onCategoryChange,
 }) => {
   return (
     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">

@@ -1,7 +1,7 @@
-import { ROUTES } from '@/src/constants/routes';
-import AddButton from '../atoms/AddButton'; // Or wherever you placed it
-import BottomNavItem from '../molecules/BottomNavItem';
-import { ChartIcon, HomeIcon, LibraryIcon, ProfileIcon, ScanIcon } from '@/src/constants/icons';
+import { ROUTES } from "@/src/constants/routes";
+import AddButton from "../atoms/AddButton"; // Or wherever you placed it
+import BottomNavItem from "../molecules/BottomNavItem";
+import { ChartIcon, HomeIcon } from "@/src/constants/icons";
 
 const BottomNavigation = () => {
   return (
@@ -10,7 +10,11 @@ const BottomNavigation = () => {
       {/* <BottomNavItem icon={<ScanIcon />} label="Scan" href={ROUTES.SCAN} /> */}
       <AddButton />
       {/* <BottomNavItem icon={<LibraryIcon />} label="Biblioteca" href={ROUTES.LIBRARY} /> */}
-      <BottomNavItem icon={<ChartIcon />} label="Gráfico" href={ROUTES.CONTROL_PANEL} />
+      <BottomNavItem
+        icon={<ChartIcon />}
+        label="Gráfico"
+        href={ROUTES.CONTROL_PANEL}
+      />
     </nav>
   );
 };

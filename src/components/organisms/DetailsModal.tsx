@@ -2,7 +2,12 @@ import { DetailsModalProps } from "@/src/types/modal";
 import CategoryButton from "../molecules/CategoryButton";
 import DetailsSection from "../molecules/DetailsSection";
 import ModalHeader from "../molecules/ModalHeader";
-import { CalendarIcon, DownloadIcon, InfoIcon, MoneyIcon } from "@/src/constants/icons";
+import {
+  CalendarIcon,
+  DownloadIcon,
+  InfoIcon,
+  MoneyIcon,
+} from "@/src/constants/icons";
 import { useCategoryContext } from "@/src/contexts/CategoryContext";
 
 const DetailsModal = ({ onClose }: DetailsModalProps) => {
@@ -37,10 +42,10 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             </button>
           </div>
 
-
-
           <DetailsSection icon={<MoneyIcon />} label="Montante">
-            <span className="text-sm text-start font-medium text-gray-500">Valor</span>
+            <span className="text-sm text-start font-medium text-gray-500">
+              Valor
+            </span>
             <div className="py-3 px-4 bg-[#ECF7F2] rounded-xl text-[#4EC988] font-bold text-center">
               300.000,00kz
             </div>
@@ -49,13 +54,17 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             <DetailsSection icon={<CalendarIcon />} label="Data e Hora">
               <div className="flex items-center justify-between space-x-8">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Data</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Data
+                  </span>
                   <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                     12 jan de 2025
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Hora</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Hora
+                  </span>
                   <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                     12:32
                   </div>
@@ -64,23 +73,25 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             </DetailsSection>
 
             <DetailsSection icon={<InfoIcon />} label="Outras informações">
-              <span className="text-sm font-medium text-gray-500">Número de operação</span>
+              <span className="text-sm font-medium text-gray-500">
+                Número de operação
+              </span>
               <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                 287805888
               </div>
             </DetailsSection>
-          </div >
-        </div >
+          </div>
+        </div>
         <div className="p-6 pt-0">
           <CategoryButton
             label="Definir categoria"
             onClick={handleDefineCategory}
           />
         </div>
-      </div >
+      </div>
 
       {/* Mobile: Mantém o comportamento original de modal */}
-      < div className="md:hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" >
+      <div className="md:hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
           <ModalHeader title="Detalhes" onClose={onClose} />
 
@@ -90,7 +101,10 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
                 <span className="font-medium text-center">Comprovativo-12</span>
               </div>
               <div>
-                <button onClick={handleDownload} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <button
+                  onClick={handleDownload}
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                >
                   <DownloadIcon />
                 </button>
               </div>
@@ -106,13 +120,17 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             <DetailsSection icon={<CalendarIcon />} label="Data e Hora">
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <span className="text-sm font-medium text-gray-500">Data</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Data
+                  </span>
                   <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                     12 jan de 2025
                   </div>
                 </div>
                 <div className="flex-1">
-                  <span className="text-sm font-medium text-gray-500">Hora</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Hora
+                  </span>
                   <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                     12:32
                   </div>
@@ -121,7 +139,9 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             </DetailsSection>
 
             <DetailsSection icon={<InfoIcon />} label="Outras informações">
-              <span className="text-sm font-medium text-gray-500">Número de operação</span>
+              <span className="text-sm font-medium text-gray-500">
+                Número de operação
+              </span>
               <div className="py-3 px-4 bg-[#F2F2F7] rounded-xl text-[#0F2045] font-bold mt-1">
                 287805888
               </div>
@@ -135,7 +155,7 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
             />
           </div>
         </div>
-      </div >
+      </div>
     </>
   );
 };

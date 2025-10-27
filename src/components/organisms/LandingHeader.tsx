@@ -1,17 +1,17 @@
 // src/components/organisms/LandingHeader/index.tsx
-'use client';
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import LogoType from '@/src/components/atoms/LogoType';
-import LandingButton from '@/src/components/atoms/LandingButton';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/src/constants/routes';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
+import LogoType from "@/src/components/atoms/LogoType";
+import LandingButton from "@/src/components/atoms/LandingButton";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/src/constants/routes";
 
 const LandingHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,32 +19,33 @@ const LandingHeader: React.FC = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems = [
-    { href: ROUTES.FEATURES, label: 'Funcionalidades' },
+    { href: ROUTES.FEATURES, label: "Funcionalidades" },
     // { href: '/planos', label: 'Planos' },
-    { href: ROUTES.CONTACTS, label: 'Contactos' },
-    { href: ROUTES.ABOUT, label: 'Sobre' }
+    { href: ROUTES.CONTACTS, label: "Contactos" },
+    { href: ROUTES.ABOUT, label: "Sobre" },
   ];
 
   const handleHome = () => {
-    router.push(ROUTES.LANDINGPAGE)
-  }
+    router.push(ROUTES.LANDINGPAGE);
+  };
 
   const handleLogin = () => {
-    router.push(ROUTES.LOGIN)
-  }
+    router.push(ROUTES.LOGIN);
+  };
 
   const handleRegister = () => {
-    router.push(ROUTES.REGISTER)
-  }
+    router.push(ROUTES.REGISTER);
+  };
   return (
     <header
-      className={`bg-white/95 backdrop-blur-md border-2 m-2 border-gray-100 shadow-2xs rounded-2xl sticky top-2 z-50 transition-all duration-500 ${isScrolled ? 'shadow-xl scale-[0.98] bg-white/98' : 'shadow-2xs'
-        }`}
+      className={`bg-white/95 backdrop-blur-md border-2 m-2 border-gray-100 shadow-2xs rounded-2xl sticky top-2 z-50 transition-all duration-500 ${
+        isScrolled ? "shadow-xl scale-[0.98] bg-white/98" : "shadow-2xs"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -68,10 +69,18 @@ const LandingHeader: React.FC = () => {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <LandingButton onClick={handleLogin} variant="secondary" className="hover:scale-105 transition-all duration-300">
+            <LandingButton
+              onClick={handleLogin}
+              variant="secondary"
+              className="hover:scale-105 transition-all duration-300"
+            >
               Entrar
             </LandingButton>
-            <LandingButton onClick={handleRegister} variant="primary" className="hover:scale-105 transition-all duration-300">
+            <LandingButton
+              onClick={handleRegister}
+              variant="primary"
+              className="hover:scale-105 transition-all duration-300"
+            >
               Criar Conta
             </LandingButton>
           </div>
@@ -105,10 +114,16 @@ const LandingHeader: React.FC = () => {
               </a>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-200">
-              <LandingButton variant="secondary" className="w-full justify-center hover:scale-105 transition-all duration-300">
+              <LandingButton
+                variant="secondary"
+                className="w-full justify-center hover:scale-105 transition-all duration-300"
+              >
                 Entrar
               </LandingButton>
-              <LandingButton variant="primary" className="w-full justify-center hover:scale-105 transition-all duration-300">
+              <LandingButton
+                variant="primary"
+                className="w-full justify-center hover:scale-105 transition-all duration-300"
+              >
                 Criar Conta
               </LandingButton>
             </div>

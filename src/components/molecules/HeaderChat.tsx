@@ -1,5 +1,4 @@
-
-import { IAIcon } from "@/src/constants/icons"
+import { IAIcon } from "@/src/constants/icons";
 
 const HeaderChat: React.FC = () => {
   return (
@@ -10,4 +9,4 @@ const HeaderChat: React.FC = () => {
   );
 };
 
-export default HeaderChat
+export default HeaderChat;

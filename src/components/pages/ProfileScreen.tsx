@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { backgroundPanel, user as avatar } from '@/src/constants/images';
+import React, { useState } from "react";
+import Image from "next/image";
+import { backgroundPanel, user as avatar } from "@/src/constants/images";
 import {
   ProfileIcon,
   HelpIcon,
@@ -10,11 +10,11 @@ import {
   PaymentIcon,
   SettingsRightBarIcon,
   LogoutIcon,
-} from '@/src/constants/icons';
-import BottomNavigation from '../organisms/BottomNavigation';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/src/constants/routes';
-import useRegisterContext from '@/src/hooks/useRegisterContext';
+} from "@/src/constants/icons";
+import BottomNavigation from "../organisms/BottomNavigation";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/src/constants/routes";
+import useRegisterContext from "@/src/hooks/useRegisterContext";
 
 const ProfileScreen: React.FC = () => {
   const { user, logoutUser } = useRegisterContext();
@@ -22,17 +22,21 @@ const ProfileScreen: React.FC = () => {
 
   // Função para logout (exemplo)
   const handleLogout = async () => {
-    await logoutUser()
+    await logoutUser();
   };
 
   // Lista de itens do menu com rotas ou funções
   const menuItems = [
-    { icon: <ProfileIcon />, text: 'Meus dados' },
-    { icon: <HelpIcon />, text: 'Suporte e Feedback', },
-    { icon: <NotificationRightBarIcon />, text: 'Notificações' },
-    { icon: <PaymentIcon />, text: 'Meus plano', },
-    { icon: <SettingsRightBarIcon />, text: 'Configurações' },
-    { icon: <LogoutIcon className="text-red-500" />, text: 'Sair', action: handleLogout },
+    { icon: <ProfileIcon />, text: "Meus dados" },
+    { icon: <HelpIcon />, text: "Suporte e Feedback" },
+    { icon: <NotificationRightBarIcon />, text: "Notificações" },
+    { icon: <PaymentIcon />, text: "Meus plano" },
+    { icon: <SettingsRightBarIcon />, text: "Configurações" },
+    {
+      icon: <LogoutIcon className="text-red-500" />,
+      text: "Sair",
+      action: handleLogout,
+    },
   ];
 
   const handleControlPanel = () => {
@@ -40,10 +44,10 @@ const ProfileScreen: React.FC = () => {
   };
 
   // Função para lidar com o clique em cada item
-  const handleMenuClick = (item: typeof menuItems[0]) => {
+  const handleMenuClick = (item: (typeof menuItems)[0]) => {
     // if (item.route) {
     //   router.push(item.route); // Navega para a rota especificada
-    // } else 
+    // } else
     if (item.action) {
       item.action(); // Executa a função especificada
     }
@@ -62,7 +66,7 @@ const ProfileScreen: React.FC = () => {
                   <div className="bg-white p-2 rounded-full relative">
                     <Image
                       src={avatar}
-                      alt={user?.name || 'Usuário'}
+                      alt={user?.name || "Usuário"}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   </div>
@@ -84,7 +88,9 @@ const ProfileScreen: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{user?.name}</h1>
+                <h1 className="text-lg font-semibold text-gray-900">
+                  {user?.name}
+                </h1>
               </div>
             </div>
           </div>
@@ -96,15 +102,25 @@ const ProfileScreen: React.FC = () => {
             className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
             style={{
               backgroundImage: `url(${backgroundPanel.src})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }}
           >
             <span>Painel de controle</span>
             <button onClick={handleControlPanel}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
@@ -120,16 +136,28 @@ const ProfileScreen: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl">{item.icon}</div>
                   <span
-                    className={`text-sm font-medium ${item.text === 'Sair' ? 'text-red-500' : 'text-gray-700'}`}
+                    className={`text-sm font-medium ${
+                      item.text === "Sair" ? "text-red-500" : "text-gray-700"
+                    }`}
                   >
                     {item.text}
                   </span>
                 </div>
-                {item.text === 'Sair' ? (
-                  ''
+                {item.text === "Sair" ? (
+                  ""
                 ) : (
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 )}
               </div>

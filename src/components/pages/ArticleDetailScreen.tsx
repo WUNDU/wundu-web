@@ -1,16 +1,14 @@
-'use client'
+"use client";
 
-import { InvestmentType } from '@/src/types/article';
-import React, { useState } from 'react';
-import ArticleHeader from '../organisms/ArticleHeader';
-import InvestmentContent from '../organisms/InvestmentContent';
-import Modal from '../organisms/LibraryModal';
-import BottomNavigation from '../organisms/BottomNavigation';
-import { investmentTypes } from '@/src/constants/mockData';
+import React, { useState } from "react";
+import ArticleHeader from "../organisms/ArticleHeader";
+import InvestmentContent from "../organisms/InvestmentContent";
+import Modal from "../organisms/LibraryModal";
+import BottomNavigation from "../organisms/BottomNavigation";
+import { investmentTypes } from "@/src/constants/mockData";
 
 const ArticleDetailScreen: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-
 
   const handleBack = () => {
     window.history.back();
@@ -21,7 +19,7 @@ const ArticleDetailScreen: React.FC = () => {
   };
 
   const handleConfirmDownload = () => {
-    console.log('Download confirmed');
+    console.log("Download confirmed");
     setShowModal(false);
   };
 
@@ -29,7 +27,9 @@ const ArticleDetailScreen: React.FC = () => {
     <>
       <div className="flex flex-col p-2 min-h-screen bg-gray-200 rounded-2xl md:hidden">
         {/* Conteúdo principal com padding bottom para o nav */}
-        <div className="flex-1 pb-20"> {/* Adicionado pb-20 aqui */}
+        <div className="flex-1 pb-20">
+          {" "}
+          {/* Adicionado pb-20 aqui */}
           <ArticleHeader
             onBack={handleBack}
             onDownload={handleDownload}

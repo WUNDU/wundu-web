@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import GreetingHeader from '../molecules/GreetingHeader';
-import UploadSection from '../organisms/UploadSection';
-import BottomNavigation from '../organisms/BottomNavigation';
-import SentDocumentsSection from '../organisms/SendDocumentSection';
-import { Document } from '@/src/types/button';
-import LoadingSpinner from '../atoms/LoadingSpinner';
-import { CategoryProvider, useCategoryContext } from '@/src/contexts/CategoryContext';
-import CategoryScreen from './CategoryScreen';
-import DetailsModal from '../organisms/DetailsModal';
+import React, { useState } from "react";
+import GreetingHeader from "../molecules/GreetingHeader";
+import UploadSection from "../organisms/UploadSection";
+import BottomNavigation from "../organisms/BottomNavigation";
+import SentDocumentsSection from "../organisms/SendDocumentSection";
+import { Document } from "@/src/types/button";
+import LoadingSpinner from "../atoms/LoadingSpinner";
+import {
+  CategoryProvider,
+  useCategoryContext,
+} from "@/src/contexts/CategoryContext";
+import CategoryScreen from "./CategoryScreen";
+import DetailsModal from "../organisms/DetailsModal";
 
 // Tipagem para o componente principal
 const ScanScreen = () => {
@@ -18,18 +21,17 @@ const ScanScreen = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
   };
 
-  const handleFileSelect = async (file: File, type: 'image' | 'document') => {
+  const handleFileSelect = async (file: File, type: "image" | "document") => {
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setDocuments(prevDocs => [...prevDocs, { name: file.name, type }]);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setDocuments((prevDocs) => [...prevDocs, { name: file.name, type }]);
     } catch (error) {
-      console.log('Erro ao fazer upload do arquivo:', error);
+      console.log("Erro ao fazer upload do arquivo:", error);
     } finally {
       setIsLoading(false);
       setShowModal(true);
@@ -48,9 +50,11 @@ const ScanScreen = () => {
     <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800 flex-col">
       {/* Conteúdo Principal - Apenas mobile */}
       <div className="flex-1 flex flex-col h-full">
-        <GreetingHeader onToggleSidebar={function (): void {
-          throw new Error('Function not implemented.');
-        }} />
+        <GreetingHeader
+          onToggleSidebar={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
 
         {/* Container principal com padding para BottomNavigation no mobile */}
         <main className="flex-1 mb-0 px-4 pb-20 flex flex-col h-full overflow-y-auto">
@@ -94,7 +98,7 @@ interface ScanMainContentProps {
   showUploadOptions: boolean;
   showModal: boolean;
   handleCloseModal: () => void;
-  handleFileSelect: (file: File, type: 'image' | 'document') => void;
+  handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
 }
 
@@ -113,7 +117,7 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
     <>
       <div className="flex flex-col flex-1 h-full">
         {!showUploadOptions ? (
-          <div className='flex flex-col flex-1 h-full'>
+          <div className="flex flex-col flex-1 h-full">
             {/* Mobile: Área para conteúdo de scan */}
             <div className="flex flex-1 flex-col">
               {/* Aqui pode adicionar conteúdo específico para scan, como preview de câmera ou placeholder */}
@@ -122,8 +126,12 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
         ) : (
           <>
             {/* Mobile: SentDocumentsSection full para upload options */}
-            <div className='flex flex-col flex-1 h-full'>
-              <SentDocumentsSection documents={[]} showOptions={true} onFileSelect={handleFileSelect} />
+            <div className="flex flex-col flex-1 h-full">
+              <SentDocumentsSection
+                documents={[]}
+                showOptions={true}
+                onFileSelect={handleFileSelect}
+              />
             </div>
           </>
         )}
@@ -132,7 +140,9 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
       {/* Mobile: Modais como overlay */}
       <div>
         {showModal && <DetailsModal onClose={handleCloseModal} />}
-        {isCategoryModalOpen && <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />}
+        {isCategoryModalOpen && (
+          <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />
+        )}
       </div>
     </>
   );

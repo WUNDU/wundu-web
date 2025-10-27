@@ -1,62 +1,68 @@
 // src/components/organisms/LandingFooter/index.tsx
-'use client';
-import React from 'react';
-import { Facebook, Github, Instagram, Linkedin, Twitter } from 'lucide-react';
-import LogoType from '@/src/components/atoms/LogoType';
-import { EmailIcon, GithubIcon, LocationIcon, MirantesIcon, XIcon } from '@/src/constants/icons';
-import { ROUTES } from '@/src/constants/routes';
+"use client";
+import React from "react";
+import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react";
+import LogoType from "@/src/components/atoms/LogoType";
+import {
+  EmailIcon,
+  GithubIcon,
+  LocationIcon,
+  MirantesIcon,
+  XIcon,
+} from "@/src/constants/icons";
+import { ROUTES } from "@/src/constants/routes";
 
 const LandingFooter: React.FC = () => {
   const socialLinks = [
     {
-      href: 'https://github.com/wundu',
+      href: "https://github.com/wundu",
       icon: GithubIcon,
-      name: 'GitHub'
+      name: "GitHub",
     },
     {
-      href: 'https://x.com/onewundu',
+      href: "https://x.com/onewundu",
       icon: XIcon,
-      name: 'Twitter'
+      name: "Twitter",
     },
     {
-      href: 'https://www.linkedin.com/company/onewundu/',
+      href: "https://www.linkedin.com/company/onewundu/",
       icon: Linkedin,
-      name: 'LinkedIn'
+      name: "LinkedIn",
     },
     {
-      href: 'https://www.instagram.com/onewundu/#',
+      href: "https://www.instagram.com/onewundu/#",
       icon: Instagram,
-      name: 'Instagram'
+      name: "Instagram",
     },
     {
-      href: 'https://web.facebook.com/people/Wundu/61574847264364/',
+      href: "https://web.facebook.com/people/Wundu/61574847264364/",
       icon: Facebook,
-      name: 'Instagram'
+      name: "Instagram",
     },
     {
-      href: 'https://mirantes.io/profile/pt/wundu-6af8c1ba',
+      href: "https://mirantes.io/profile/pt/wundu-6af8c1ba",
       icon: MirantesIcon,
-      name: 'Mirantes'
-    }
+      name: "Mirantes",
+    },
   ];
 
   const recursosLinks = [
-    { href: '#', label: 'Blog' },
-    { href: '#', label: 'Documentação' },
-    { href: '#', label: 'GitHub' },
-    { href: '#', label: 'FAQs' }
+    { href: "#", label: "Blog" },
+    { href: "#", label: "Documentação" },
+    { href: "#", label: "GitHub" },
+    { href: "#", label: "FAQs" },
   ];
 
   const empresaLinks = [
-    { href: ROUTES.ABOUT, label: 'Sobre nós' },
-    { href: ROUTES.FEATURES, label: 'Planos e funcionalidades' },
-    { href: ROUTES.CONTACTS, label: 'Contactos' }
+    { href: ROUTES.ABOUT, label: "Sobre nós" },
+    { href: ROUTES.FEATURES, label: "Planos e funcionalidades" },
+    { href: ROUTES.CONTACTS, label: "Contactos" },
   ];
 
   const legalLinks = [
-    { href: '#', label: 'Termos de Uso' },
-    { href: '#', label: 'Política de privacidade' },
-    { href: '#', label: 'Configurações de Cookies' }
+    { href: "#", label: "Termos de Uso" },
+    { href: "#", label: "Política de privacidade" },
+    { href: "#", label: "Configurações de Cookies" },
   ];
 
   return (
@@ -71,7 +77,8 @@ const LandingFooter: React.FC = () => {
                 <LogoType />
               </div>
               <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                Transformando a maneira como as pessoas gerenciam suas finanças pessoais com tecnologia intuitiva e insights inteligentes.
+                Transformando a maneira como as pessoas gerenciam suas finanças
+                pessoais com tecnologia intuitiva e insights inteligentes.
               </p>
 
               {/* Social Media */}
@@ -80,7 +87,7 @@ const LandingFooter: React.FC = () => {
                   <a
                     key={index}
                     href={link.href}
-                    target='_blank'
+                    target="_blank"
                     className="text-gray-500 hover:text-blue-600 transition-all duration-300 transform hover:scale-110"
                     aria-label={link.name}
                   >
@@ -129,15 +136,21 @@ const LandingFooter: React.FC = () => {
               <h4 className="font-bold text-xl mb-6 text-gray-900">Contacto</h4>
               <ul className="space-y-4 text-lg text-gray-600">
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className='text-yellow-700'><EmailIcon /></span>
+                  <span className="text-yellow-700">
+                    <EmailIcon />
+                  </span>
                   <span>suporte@wundu.tech</span>
                 </li>
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className='text-yellow-700'><LocationIcon /></span>
+                  <span className="text-yellow-700">
+                    <LocationIcon />
+                  </span>
                   <span>Angola, Luanda</span>
                 </li>
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className='text-yellow-700'><GithubIcon /></span>
+                  <span className="text-yellow-700">
+                    <GithubIcon />
+                  </span>
                   <span>github.com/wundu</span>
                 </li>
               </ul>
@@ -146,7 +159,9 @@ const LandingFooter: React.FC = () => {
 
           {/* Bottom Section */}
           <div className="border-t-2 border-gray-300 pt-8 flex flex-col md:flex-row justify-between items-center text-lg">
-            <p className="text-gray-600 mb-4 md:mb-0">© 2025 WUNDU. Todos os direitos reservados.</p>
+            <p className="text-gray-600 mb-4 md:mb-0">
+              © 2025 WUNDU. Todos os direitos reservados.
+            </p>
             <div className="flex space-x-8">
               {legalLinks.map((link, index) => (
                 <a
@@ -171,7 +186,8 @@ const LandingFooter: React.FC = () => {
               <LogoType />
             </div>
             <p className="text-blue-100 text-lg leading-relaxed mb-6">
-              Transformando a maneira como as pessoas gerenciam suas finanças pessoais com tecnologia intuitiva e insights inteligentes.
+              Transformando a maneira como as pessoas gerenciam suas finanças
+              pessoais com tecnologia intuitiva e insights inteligentes.
             </p>
 
             {/* Social Media */}
@@ -231,15 +247,21 @@ const LandingFooter: React.FC = () => {
             <h4 className="font-bold text-lg mb-4 text-white">Contacto</h4>
             <ul className="space-y-3 text-blue-100">
               <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className='text-gray-200'><EmailIcon /></span>
+                <span className="text-gray-200">
+                  <EmailIcon />
+                </span>
                 <span>suporte@wundu.tech</span>
               </li>
               <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className='text-gray-200'><LocationIcon /></span>
+                <span className="text-gray-200">
+                  <LocationIcon />
+                </span>
                 <span>Angola, Luanda</span>
               </li>
               <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className='text-gray-200'><GithubIcon /></span>
+                <span className="text-gray-200">
+                  <GithubIcon />
+                </span>
                 <span>github.com/wundu</span>
               </li>
             </ul>
@@ -247,7 +269,9 @@ const LandingFooter: React.FC = () => {
 
           {/* Bottom Section */}
           <div className="border-t border-blue-700 pt-6 text-center">
-            <p className="text-blue-200 mb-4">© 2025 WUNDU. Todos os direitos reservados.</p>
+            <p className="text-blue-200 mb-4">
+              © 2025 WUNDU. Todos os direitos reservados.
+            </p>
             <div className="flex flex-wrap justify-center gap-4 text-blue-200 text-sm">
               {legalLinks.map((link, index) => (
                 <a

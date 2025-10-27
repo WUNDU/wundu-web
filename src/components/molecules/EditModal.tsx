@@ -1,31 +1,35 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { objectives } from "@/src/constants/mockData";
 import NavigationBack from "../atoms/NavigationBack";
 import FinancialProgressCard from "./FinancialProgressCard";
 import GreetingHeader from "./GreetingHeader";
 import IconContainer from "../atoms/IconContainer";
 import { EditIcon, ObjectiveIcon } from "@/src/constants/icons";
-import type { EditModalProps } from '@/src/types/modal';
+import type { EditModalProps } from "@/src/types/modal";
 
 // Modal Component
-const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => {
+const EditModal: React.FC<EditModalProps> = ({
+  isOpen,
+  onClose,
+  objective,
+}) => {
   const [formData, setFormData] = useState({
-    nome: objective?.title || '',
-    valorNecessario: objective?.valorAlvo.replace(/[^\d]/g, '') || '',
-    valorArrecadado: objective?.valorPoupado.replace(/[^\d]/g, '') || '',
-    dataLimite: objective?.dataLimite || '01/01/2026',
-    categoria: objective?.categoria || 'Viagem',
-    prioridade: objective?.prioridade || 'Alta'
+    nome: objective?.title || "",
+    valorNecessario: objective?.valorAlvo.replace(/[^\d]/g, "") || "",
+    valorArrecadado: objective?.valorPoupado.replace(/[^\d]/g, "") || "",
+    dataLimite: objective?.dataLimite || "01/01/2026",
+    categoria: objective?.categoria || "Viagem",
+    prioridade: objective?.prioridade || "Alta",
   });
 
   if (!isOpen || !objective) return null;
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = () => {
-    console.log('Salvando alterações:', formData);
+    console.log("Salvando alterações:", formData);
     onClose();
   };
 
@@ -48,7 +52,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
               <input
                 type="text"
                 value={formData.nome}
-                onChange={(e) => handleChange('nome', e.target.value)}
+                onChange={(e) => handleChange("nome", e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Comprar uma moto"
               />
@@ -62,7 +66,9 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
               <input
                 type="text"
                 value={formData.valorNecessario}
-                onChange={(e) => handleChange('valorNecessario', e.target.value)}
+                onChange={(e) =>
+                  handleChange("valorNecessario", e.target.value)
+                }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="800.000"
               />
@@ -77,12 +83,22 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
                 <input
                   type="text"
                   value={formData.dataLimite}
-                  onChange={(e) => handleChange('dataLimite', e.target.value)}
+                  onChange={(e) => handleChange("dataLimite", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="01/01/2026"
                 />
-                <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -95,7 +111,9 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
               <input
                 type="text"
                 value={formData.valorArrecadado}
-                onChange={(e) => handleChange('valorArrecadado', e.target.value)}
+                onChange={(e) =>
+                  handleChange("valorArrecadado", e.target.value)
+                }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="400.000"
               />
@@ -109,7 +127,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
               <div className="relative">
                 <select
                   value={formData.categoria}
-                  onChange={(e) => handleChange('categoria', e.target.value)}
+                  onChange={(e) => handleChange("categoria", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
                 >
                   <option value="Viagem">Viagem</option>
@@ -118,8 +136,18 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
                   <option value="Veículo">Veículo</option>
                   <option value="Investimento">Investimento</option>
                 </select>
-                <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -132,15 +160,25 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
               <div className="relative">
                 <select
                   value={formData.prioridade}
-                  onChange={(e) => handleChange('prioridade', e.target.value)}
+                  onChange={(e) => handleChange("prioridade", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
                 >
                   <option value="Alta">Alta</option>
                   <option value="Média">Média</option>
                   <option value="Baixa">Baixa</option>
                 </select>
-                <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -167,4 +205,4 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, objective }) => 
   );
 };
 
-export default EditModal
+export default EditModal;

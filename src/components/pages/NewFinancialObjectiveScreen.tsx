@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import NavigationBack from "../atoms/NavigationBack";
 import ObjectiveForm from "../organisms/ObjectiveForm";
 

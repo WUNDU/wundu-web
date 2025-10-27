@@ -10,7 +10,7 @@ const LegalSection: React.FC<LegalSectionProps> = ({
   icon,
   title,
   children,
-  delay = 0
+  delay = 0,
 }) => {
   return (
     <div

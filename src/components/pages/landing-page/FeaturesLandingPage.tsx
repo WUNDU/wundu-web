@@ -1,13 +1,13 @@
 // src/components/templates/FeaturesTemplate/index.tsx
-'use client';
-import React, { useEffect } from 'react';
-import LandingHeader from '@/src/components/organisms/LandingHeader';
-import LandingFooter from '@/src/components/organisms/LandingFooter';
-import FeaturesHero from '@/src/components/organisms/FeaturesHero';
-import MainFeatures from '@/src/components/organisms/MainFeatures';
-import MoreFeatures from '@/src/components/organisms/MoreFeatures';
-import HowItWorks from '@/src/components/organisms/HowItWorks';
-import CTASection from '@/src/components/organisms/CTASection';
+"use client";
+import React, { useEffect } from "react";
+import LandingHeader from "@/src/components/organisms/LandingHeader";
+import LandingFooter from "@/src/components/organisms/LandingFooter";
+import FeaturesHero from "@/src/components/organisms/FeaturesHero";
+import MainFeatures from "@/src/components/organisms/MainFeatures";
+import MoreFeatures from "@/src/components/organisms/MoreFeatures";
+import HowItWorks from "@/src/components/organisms/HowItWorks";
+import CTASection from "@/src/components/organisms/CTASection";
 
 const FeaturesLandingPage: React.FC = () => {
   useEffect(() => {
@@ -15,14 +15,14 @@ const FeaturesLandingPage: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
+            entry.target.classList.add("animate-in");
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('.fade-in-section').forEach((el) => {
+    document.querySelectorAll(".fade-in-section").forEach((el) => {
       observer.observe(el);
     });
 

@@ -1,21 +1,21 @@
 // src/components/molecules/ContactForm/index.tsx
-'use client';
-import { useState } from 'react';
-import Input from '@/src/components/atoms/Input';
-import LandingButton from '@/src/components/atoms/LandingButton';
+"use client";
+import { useState } from "react";
+import Input from "@/src/components/atoms/Input";
+import LandingButton from "@/src/components/atoms/LandingButton";
 
 const ContactForm: React.FC = () => {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Lógica para enviar o formulário
-    console.log('Formulário enviado:', form);
+    console.log("Formulário enviado:", form);
   };
 
   return (

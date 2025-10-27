@@ -5,7 +5,6 @@ import Receipt from "../icons/Receipt";
 import { useRef } from "react";
 import MoreButton from "../atoms/MoreButton";
 
-
 const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -15,7 +14,10 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'document') => {
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: "image" | "document"
+  ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       onFileSelect(files[0], type);
@@ -24,15 +26,23 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
 
   return (
     <div className="flex flex-col space-y-4">
-      <OptionButton icon={Receipt} text="Comprovativo" onClick={handleButtonClick} />
+      <OptionButton
+        icon={Receipt}
+        text="Comprovativo"
+        onClick={handleButtonClick}
+      />
       <OptionButton icon={Image} text="Imagem" onClick={handleButtonClick} />
-      <OptionButton icon={Receipt} text="Extrato Bancário" onClick={handleButtonClick} />
+      <OptionButton
+        icon={Receipt}
+        text="Extrato Bancário"
+        onClick={handleButtonClick}
+      />
 
       <input
         type="file"
         ref={fileInputRef}
-        onChange={(e) => handleFileChange(e, 'document')}
-        style={{ display: 'none' }}
+        onChange={(e) => handleFileChange(e, "document")}
+        style={{ display: "none" }}
       />
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
@@ -43,4 +53,4 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
   );
 };
 
-export default UploadOptions
+export default UploadOptions;

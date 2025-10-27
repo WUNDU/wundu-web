@@ -1,26 +1,33 @@
-import { ChartDesktopIcon, DocumentLibraryIcon, RobotIcon } from "@/src/constants/icons"
+import {
+  ChartDesktopIcon,
+  DocumentLibraryIcon,
+  RobotIcon,
+} from "@/src/constants/icons";
 
 // src/components/organisms/HowItWorks/index.tsx
 const HowItWorks: React.FC = () => {
   const steps = [
     {
-      number: '1',
-      title: 'Carrega os extratos',
-      description: 'Faça upload dos seus extratos bancários ou faturas. Suportamos PDF, JPG e PNG.',
-      icon: <DocumentLibraryIcon className="w-10 h-10 text-[#CA6F06]/40" />
+      number: "1",
+      title: "Carrega os extratos",
+      description:
+        "Faça upload dos seus extratos bancários ou faturas. Suportamos PDF, JPG e PNG.",
+      icon: <DocumentLibraryIcon className="w-10 h-10 text-[#CA6F06]/40" />,
     },
     {
-      number: '2',
-      title: 'Processamento automático',
-      description: 'A nossa IA analisa e categoriza automaticamente todas as transações.',
-      icon: <RobotIcon className="w-10 h-10 text-[#CA6F06]/40" />
+      number: "2",
+      title: "Processamento automático",
+      description:
+        "A nossa IA analisa e categoriza automaticamente todas as transações.",
+      icon: <RobotIcon className="w-10 h-10 text-[#CA6F06]/40" />,
     },
     {
-      number: '3',
-      title: 'Acompanha e otimiza',
-      description: 'Visualiza relatórios, define metas e obtém insights para melhorar suas finanças.',
-      icon: <ChartDesktopIcon className="w-10 h-10 text-[#CA6F06]/40" />
-    }
+      number: "3",
+      title: "Acompanha e otimiza",
+      description:
+        "Visualiza relatórios, define metas e obtém insights para melhorar suas finanças.",
+      icon: <ChartDesktopIcon className="w-10 h-10 text-[#CA6F06]/40" />,
+    },
   ];
 
   return (

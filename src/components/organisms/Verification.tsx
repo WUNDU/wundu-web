@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Button from "../atoms/Button";
@@ -13,9 +13,17 @@ import BackArrow from "../icons/ArrowLeft";
 import { BackArrowIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
 
-
 const Verification = () => {
-  const { nextStep, prevStep, timer, setTimer, resetTimer, isCodeIncorrect, setIsCodeIncorrect, data } = usePasswordResetContext();
+  const {
+    nextStep,
+    prevStep,
+    timer,
+    setTimer,
+    resetTimer,
+    isCodeIncorrect,
+    setIsCodeIncorrect,
+    data,
+  } = usePasswordResetContext();
   const [code, setCode] = useState("");
   const [isCodeCorrect, setIsCodeCorrect] = useState(false);
 
@@ -62,21 +70,46 @@ const Verification = () => {
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6">
-        <CodeInput length={6} value={code} onChange={setCode} isError={isCodeIncorrect} isSuccess={isCodeCorrect} />
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6"
+      >
+        <CodeInput
+          length={6}
+          value={code}
+          onChange={setCode}
+          isError={isCodeIncorrect}
+          isSuccess={isCodeCorrect}
+        />
         {isCodeIncorrect && (
-          <p className="text-sm text-red-500 text-center">Código incorreto. Tente novamente.</p>
+          <p className="text-sm text-red-500 text-center">
+            Código incorreto. Tente novamente.
+          </p>
         )}
         <div className="flex items-center justify-between">
-          <Link href={ROUTES.RESEND_CODE} className="text-sm text-gray-600" onClick={resetTimer}>
+          <Link
+            href={ROUTES.RESEND_CODE}
+            className="text-sm text-gray-600"
+            onClick={resetTimer}
+          >
             Não recebi o código
           </Link>
-          <div className={`flex items-center text-sm ${isRed ? 'text-red-500' : 'text-gray-600'}`}>
-            <Clock className="mr-1" style={{ stroke: isRed ? '#EF4444' : '#49B58F' }} />
-            {minutes.toString().padStart(2, '0')}:{(seconds).toString().padStart(2, '0')}
+          <div
+            className={`flex items-center text-sm ${
+              isRed ? "text-red-500" : "text-gray-600"
+            }`}
+          >
+            <Clock
+              className="mr-1"
+              style={{ stroke: isRed ? "#EF4444" : "#49B58F" }}
+            />
+            {minutes.toString().padStart(2, "0")}:
+            {seconds.toString().padStart(2, "0")}
           </div>
         </div>
-        <Button onClick={() => { }} type="submit">Confirmar</Button>
+        <Button onClick={() => {}} type="submit">
+          Confirmar
+        </Button>
 
         {/* Botão Voltar apenas para desktop */}
       </form>

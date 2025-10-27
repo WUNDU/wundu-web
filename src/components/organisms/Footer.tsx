@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useRouter } from "next/navigation";
 import Button from "../atoms/Button";
 import { ROUTES } from "@/src/constants/routes";
@@ -6,11 +6,11 @@ import { ROUTES } from "@/src/constants/routes";
 const Footer: React.FC = () => {
   const router = useRouter();
   const handleCadastreSe = () => {
-    router.push(ROUTES.REGISTER)
+    router.push(ROUTES.REGISTER);
   };
 
   const handleFacaLogin = () => {
-    router.push(ROUTES.LOGIN)
+    router.push(ROUTES.LOGIN);
   };
 
   return (
@@ -25,4 +25,4 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer
+export default Footer;

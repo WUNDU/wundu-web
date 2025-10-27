@@ -1,15 +1,15 @@
 // src/components/templates/AboutTemplate/index.tsx (Adaptado para usar FeaturesSection no lugar da seção hardcoded de valores)
-'use client';
-import React, { useEffect } from 'react';
-import LandingHeader from '@/src/components/organisms/LandingHeader';
-import LandingFooter from '@/src/components/organisms/LandingFooter';
-import PageHero from '@/src/components/organisms/PageHero';
-import TextSection from '@/src/components/molecules/TextSection';
-import TechnologySection from '@/src/components/molecules/TechnologySection';
-import FeaturesSection from '@/src/components/organisms/FeaturesSection';
+"use client";
+import React, { useEffect } from "react";
+import LandingHeader from "@/src/components/organisms/LandingHeader";
+import LandingFooter from "@/src/components/organisms/LandingFooter";
+import PageHero from "@/src/components/organisms/PageHero";
+import TextSection from "@/src/components/molecules/TextSection";
+import TechnologySection from "@/src/components/molecules/TechnologySection";
+import FeaturesSection from "@/src/components/organisms/FeaturesSection";
 
 // Import ícones para os valores
-import { Shield, Zap, Lightbulb, Eye } from 'lucide-react';
+import { Shield, Zap, Lightbulb, Eye } from "lucide-react";
 
 const AboutLandingPage: React.FC = () => {
   useEffect(() => {
@@ -17,14 +17,14 @@ const AboutLandingPage: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
+            entry.target.classList.add("animate-in");
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('.fade-in-section').forEach((el) => {
+    document.querySelectorAll(".fade-in-section").forEach((el) => {
       observer.observe(el);
     });
 
@@ -35,24 +35,28 @@ const AboutLandingPage: React.FC = () => {
   const values = [
     {
       icon: <Shield className="w-10 h-10 text-orange-600" />,
-      title: 'Segurança',
-      description: 'Os teus dados financeiros são protegidos com os mais altos padrões de segurança.'
+      title: "Segurança",
+      description:
+        "Os teus dados financeiros são protegidos com os mais altos padrões de segurança.",
     },
     {
       icon: <Zap className="w-10 h-10 text-orange-600" />,
-      title: 'Simplicidade',
-      description: 'Interface intuitivo que torna a gestão financeira acessível a todos.'
+      title: "Simplicidade",
+      description:
+        "Interface intuitivo que torna a gestão financeira acessível a todos.",
     },
     {
       icon: <Lightbulb className="w-10 h-10 text-orange-600" />,
-      title: 'Inovação',
-      description: 'Utilizamos tecnologia de ponta para criar soluções financeiras inteligentes.'
+      title: "Inovação",
+      description:
+        "Utilizamos tecnologia de ponta para criar soluções financeiras inteligentes.",
     },
     {
       icon: <Eye className="w-10 h-10 text-orange-600" />,
-      title: 'Transparência',
-      description: 'Comunicação clara sobre como utilizamos os teus dados e como funciona a nossa plataforma.'
-    }
+      title: "Transparência",
+      description:
+        "Comunicação clara sobre como utilizamos os teus dados e como funciona a nossa plataforma.",
+    },
   ];
 
   return (
@@ -83,7 +87,7 @@ const AboutLandingPage: React.FC = () => {
           titleClass="text-2xl font-bold text-gray-900 mb-6"
         />
       </div>
-      <div className='border-2 mx-2 p-10 my-5 shadow-2xs border-gray-100'>
+      <div className="border-2 mx-2 p-10 my-5 shadow-2xs border-gray-100">
         <TextSection
           title="A Nossa História"
           content="A WUNDU nasceu da necessidade de simplificar a gestão financeira pessoal. Percebemos que muitas pessoas têm dificuldade em acompanhar os seus gastos e atingir as suas metas financeiras. Criamos uma solução que combina inteligência artificial com design intuitivo, permitindo que qualquer pessoa possa ter controlo total sobre as suas finanças de forma simples e eficaz. Hoje, ajudamos milhares de utilizadores a alcançar a liberdade financeira através de ferramentas inteligentes e educação financeira de qualidade."

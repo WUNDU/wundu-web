@@ -1,16 +1,15 @@
-import React from 'react';
-import Message from '../atoms/Message';
-
+import React from "react";
+import Message from "../atoms/Message";
 
 const ChatMessages: React.FC = () => {
   const messages = [
-    { text: 'Olá, Israel Manuel\nEm que posso ajudar ?', isUser: false },
-    { text: 'Preciso de 3 dicas de como economizar.', isUser: true },
+    { text: "Olá, Israel Manuel\nEm que posso ajudar ?", isUser: false },
+    { text: "Preciso de 3 dicas de como economizar.", isUser: true },
     {
-      text: 'Claro, aqui está a 5 para economizar dinheiro, em resumo:\n\nOrçamento: Acompanhe receitas e despesas.\n\nMetas: Defina o quanto quer economizar.\n\nCortes: Reduza gastos desnecessários.',
-      isUser: false
+      text: "Claro, aqui está a 5 para economizar dinheiro, em resumo:\n\nOrçamento: Acompanhe receitas e despesas.\n\nMetas: Defina o quanto quer economizar.\n\nCortes: Reduza gastos desnecessários.",
+      isUser: false,
     },
-    { text: 'Muito obrigado Wundo AI', isUser: true }
+    { text: "Muito obrigado Wundo AI", isUser: true },
   ];
 
   return (
@@ -22,4 +21,4 @@ const ChatMessages: React.FC = () => {
   );
 };
 
-export default ChatMessages
+export default ChatMessages;

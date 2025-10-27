@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useUiStore } from '../../store/uiStore';
-import { CloseButton } from '../atoms/CloseButton';
-import { ModalContent } from '../molecules/ModalConten';
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { useUiStore } from "../../store/uiStore";
+import { CloseButton } from "../atoms/CloseButton";
+import { ModalContent } from "../molecules/ModalConten";
 
 export function GenericModal() {
   const { isOpen, type, title, message, closeModal, onClose } = useUiStore();
@@ -46,17 +46,15 @@ export function GenericModal() {
     }
   };
 
-  const modalBgClass = type === 'error'
-    ? 'bg-red-700'
-    : 'bg-green-600';
+  const modalBgClass = type === "error" ? "bg-red-700" : "bg-green-600";
 
   return createPortal(
     <div
       className={`
         fixed inset-0 z-50 flex items-end justify-center
         transition-colors duration-500 ease-in-out
-        ${isOpen ? 'bg-black/0 bg-opacity-50' : 'bg-transparent'}
-        ${!isOpen && 'pointer-events-none'}
+        ${isOpen ? "bg-black/0 bg-opacity-50" : "bg-transparent"}
+        ${!isOpen && "pointer-events-none"}
       `}
       onClick={handleClose}
     >
@@ -65,7 +63,7 @@ export function GenericModal() {
           relative flex flex-col ${modalBgClass} shadow-lg rounded-xl
           transition-all duration-500 ease-out transform
           m-4 w-full sm:max-w-sm
-          ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
+          ${isOpen ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}
         `}
         onClick={(e) => e.stopPropagation()}
       >

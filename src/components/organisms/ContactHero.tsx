@@ -9,7 +9,8 @@ const ContactHero: React.FC = () => {
           Fale Connosco
         </h1>
         <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto fade-in-section animate-in delay-2 leading-relaxed">
-          Tem alguma dúvida ou sugestão? A nossa equipe está pronta para te ajudar.
+          Tem alguma dúvida ou sugestão? A nossa equipe está pronta para te
+          ajudar.
         </p>
       </div>
     </section>

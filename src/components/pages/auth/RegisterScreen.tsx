@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import PersonalData from "../../organisms/PersonalData";
 import SecurityData from "../../organisms/SecurityData";
 import Success from "../../organisms/Success";
@@ -25,9 +25,7 @@ const RegisterScreen = () => {
   return (
     <div className="min-h-screen w-screen bg-white md:bg-gray-100">
       {/* Layout Mobile (mantém o original) */}
-      <div className="block md:hidden h-screen">
-        {renderStep()}
-      </div>
+      <div className="block md:hidden h-screen">{renderStep()}</div>
 
       {/* Layout Desktop (novo design centralizado) */}
       <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">

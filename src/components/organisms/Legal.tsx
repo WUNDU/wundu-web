@@ -1,7 +1,7 @@
-'use client';
-import React, { useEffect } from 'react';
-import LandingHeader from '@/src/components/organisms/LandingHeader';
-import LandingFooter from '@/src/components/organisms/LandingFooter';
+"use client";
+import React, { useEffect } from "react";
+import LandingHeader from "@/src/components/organisms/LandingHeader";
+import LandingFooter from "@/src/components/organisms/LandingFooter";
 
 interface LegalTemplateProps {
   title: string;
@@ -14,21 +14,21 @@ const LegalTemplate: React.FC<LegalTemplateProps> = ({
   title,
   subtitle,
   description,
-  children
+  children,
 }) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
+            entry.target.classList.add("animate-in");
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('.fade-in-section').forEach((el) => {
+    document.querySelectorAll(".fade-in-section").forEach((el) => {
       observer.observe(el);
     });
 
@@ -58,9 +58,7 @@ const LegalTemplate: React.FC<LegalTemplateProps> = ({
       </section>
 
       {/* Content */}
-      <div className="bg-white">
-        {children}
-      </div>
+      <div className="bg-white">{children}</div>
 
       <LandingFooter />
     </div>

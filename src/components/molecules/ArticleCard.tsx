@@ -1,6 +1,5 @@
-import { ArticleCardProps } from '@/src/types/card';
-import React from 'react';
-
+import { ArticleCardProps } from "@/src/types/card";
+import React from "react";
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, onReadMore }) => {
   return (
@@ -24,14 +23,24 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onReadMore }) => {
         <p className="text-gray-600 text-xs mb-3 line-clamp-2">
           {article.description}
         </p>
-        <div className='flex flex-col items-end justify-center'>
+        <div className="flex flex-col items-end justify-center">
           <button
             onClick={() => onReadMore(article.id)}
             className="flex items-center text-gray-900 text-xs font-medium hover:text-gray-700 transition-colors"
           >
             Saber Mais
-            <svg className="h-3 w-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg
+              className="h-3 w-3 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </button>
         </div>
