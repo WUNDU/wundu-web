@@ -2,12 +2,12 @@
 "use client";
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";
-import HeroSection from "@/src/components/organisms/HeroSection";
 import FeaturesSection from "@/src/components/organisms/FeaturesSection";
 import AISection from "@/src/components/organisms/AISection";
 import CTASection from "@/src/components/organisms/CTASection";
 import LandingFooter from "@/src/components/organisms/LandingFooter";
 import { CardIcon, StatsIcon, GoalsIcon } from "@/src/constants/icons";
+import PageHero from "../../organisms/PageHero";
 
 const WunduLanding: React.FC = () => {
   useEffect(() => {
@@ -53,7 +53,19 @@ const WunduLanding: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <LandingHeader />
-      <HeroSection />
+      <PageHero
+        title={
+          <>
+            O futuro das tuas
+            <br />
+            <span className="text-gradient bg-gradient-to-r from-yellow-400 to-orange-500">
+              Finanças começa aqui
+            </span>
+          </>
+        }
+        description="Com o WUNDU, controlar gastos, definir metas e organizar cartões nunca foi tão simples. Um app feito para o teu bolso e o teu ritmo."
+        showButton={true}
+      />
       <FeaturesSection
         title="Gestão financeira simplificada"
         subtitle="Três pilares fundamentais para o controle total das suas finanças pessoais."

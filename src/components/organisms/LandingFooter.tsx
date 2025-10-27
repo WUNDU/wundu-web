@@ -60,9 +60,9 @@ const LandingFooter: React.FC = () => {
   ];
 
   const legalLinks = [
-    { href: "#", label: "Termos de Uso" },
-    { href: "#", label: "Política de privacidade" },
-    { href: "#", label: "Configurações de Cookies" },
+    { href: ROUTES.LEGAL, label: "Termos de Uso" },
+    { href: ROUTES.LEGAL, label: "Política de privacidade" },
+    { href: ROUTES.LEGAL, label: "Configurações de Cookies" },
   ];
 
   return (

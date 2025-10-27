@@ -1,10 +1,23 @@
 // src/components/organisms/PrivacyPolicy/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
+import {
+  InfoIcon,
+  SecurityIcon,
+  SettingsDeskIcon,
+  ShareIcon,
+} from "@/src/constants/icons";
+import {
+  Clock10Icon,
+  EditIcon,
+  LockIcon,
+  Shield,
+  UserLock,
+} from "lucide-react";
 
 const PrivacyPolicy: React.FC = () => {
   return (
     <div className="space-y-8">
-      <LegalSection icon="🛡️" title="1. Introdução" delay={100}>
+      <LegalSection icon={<Shield />} title="1. Introdução" delay={100}>
         <p>
           A WUNDU está empenhada em proteger sua privacidade e garantir a
           segurança dos seus dados pessoais. Esta Política de Privacidade
@@ -16,7 +29,11 @@ const PrivacyPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="📊" title="2. Informações que coletamos" delay={200}>
+      <LegalSection
+        icon={<InfoIcon />}
+        title="2. Informações que coletamos"
+        delay={200}
+      >
         <p className="mb-4">Coletamos os seguintes tipos de informações:</p>
 
         <h3 className="text-xl font-semibold text-gray-900 mb-3">
@@ -59,7 +76,7 @@ const PrivacyPolicy: React.FC = () => {
       </LegalSection>
 
       <LegalSection
-        icon="⚙️"
+        icon={<SettingsDeskIcon />}
         title="3. Como usamos suas informações"
         delay={300}
       >
@@ -101,7 +118,7 @@ const PrivacyPolicy: React.FC = () => {
       </LegalSection>
 
       <LegalSection
-        icon="🔗"
+        icon={<ShareIcon />}
         title="4. Compartilhamento de informações"
         delay={400}
       >
@@ -123,7 +140,11 @@ const PrivacyPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="🔒" title="5. Segurança dos dados" delay={500}>
+      <LegalSection
+        icon={<LockIcon />}
+        title="5. Segurança dos dados"
+        delay={500}
+      >
         <p className="mb-4">
           Implementamos medidas técnicas e organizacionais apropriadas para
           proteger seus dados pessoais, incluindo:
@@ -143,7 +164,7 @@ const PrivacyPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="👤" title="6. Seus direitos" delay={600}>
+      <LegalSection icon={<UserLock />} title="6. Seus direitos" delay={600}>
         <p className="mb-4">
           Você tem certos direitos relacionados aos seus dados pessoais:
         </p>
@@ -169,7 +190,11 @@ const PrivacyPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="⏰" title="7. Retenção de dados" delay={700}>
+      <LegalSection
+        icon={<Clock10Icon />}
+        title="7. Retenção de dados"
+        delay={700}
+      >
         <p>
           Mantemos seus dados pessoais apenas pelo tempo necessário para cumprir
           os propósitos descritos nesta política, a menos que um período de
@@ -177,7 +202,11 @@ const PrivacyPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="📝" title="8. Alterações nesta política" delay={800}>
+      <LegalSection
+        icon={<EditIcon />}
+        title="8. Alterações nesta política"
+        delay={800}
+      >
         <p className="mb-4">
           Podemos atualizar esta Política de Privacidade periodicamente para
           refletir mudanças em nossas práticas ou por outros motivos

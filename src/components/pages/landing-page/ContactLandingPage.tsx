@@ -3,9 +3,9 @@
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";
 import LandingFooter from "@/src/components/organisms/LandingFooter";
-import ContactHero from "@/src/components/organisms/ContactHero";
 import ContactMethods from "@/src/components/organisms/ContactMethods";
 import ContactFormSection from "@/src/components/organisms/ContactFormSection";
+import PageHero from "../../organisms/PageHero";
 
 const ContactLandingPage: React.FC = () => {
   useEffect(() => {
@@ -30,7 +30,11 @@ const ContactLandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <LandingHeader />
-      <ContactHero />
+      <PageHero
+        title="Fale Connosco"
+        description="Tem alguma dúvida ou sugestão? A nossa equipe está pronta para te ajudar."
+      />
+
       <ContactMethods />
       <ContactFormSection />
       <LandingFooter />

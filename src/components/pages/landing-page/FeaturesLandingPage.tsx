@@ -3,11 +3,11 @@
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";
 import LandingFooter from "@/src/components/organisms/LandingFooter";
-import FeaturesHero from "@/src/components/organisms/FeaturesHero";
 import MainFeatures from "@/src/components/organisms/MainFeatures";
 import MoreFeatures from "@/src/components/organisms/MoreFeatures";
 import HowItWorks from "@/src/components/organisms/HowItWorks";
 import CTASection from "@/src/components/organisms/CTASection";
+import PageHero from "../../organisms/PageHero";
 
 const FeaturesLandingPage: React.FC = () => {
   useEffect(() => {
@@ -32,7 +32,18 @@ const FeaturesLandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <LandingHeader />
-      <FeaturesHero />
+      <PageHero
+        title={
+          <>
+            Todas as{" "}
+            <span className="text-gradient bg-gradient-to-r from-blue-400 to-blue-600">
+              funcionalidades
+            </span>{" "}
+            que você precisa
+          </>
+        }
+        description="Descobre como o WUNDU pode revolucionar a forma como gere o seu dinheiro, com tecnologia de ponta e design intuitivo."
+      />
       <MainFeatures />
       <MoreFeatures />
       <HowItWorks />

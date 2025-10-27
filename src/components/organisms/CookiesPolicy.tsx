@@ -1,10 +1,16 @@
 // src/components/organisms/CookiesPolicy/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
+import { SettingsDeskIcon, SettingsIcon } from "@/src/constants/icons";
+import { CookieIcon, PlugIcon } from "lucide-react";
 
 const CookiesPolicy: React.FC = () => {
   return (
     <div className="space-y-8">
-      <LegalSection icon="🍪" title="1. O que são cookies?" delay={100}>
+      <LegalSection
+        icon={<CookieIcon />}
+        title="1. O que são cookies?"
+        delay={100}
+      >
         <p>
           Cookies são pequenos arquivos de texto que são armazenados no seu
           dispositivo (computador, tablet, smartphone) quando você visita um
@@ -14,7 +20,11 @@ const CookiesPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="⚙️" title="2. Como usamos cookies" delay={200}>
+      <LegalSection
+        icon={<SettingsDeskIcon />}
+        title="2. Como usamos cookies"
+        delay={200}
+      >
         <p className="mb-4">
           A WUNDU utiliza cookies para os seguintes propósitos:
         </p>
@@ -56,7 +66,11 @@ const CookiesPolicy: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="🎛️" title="3. Controle de cookies" delay={300}>
+      <LegalSection
+        icon={<SettingsIcon />}
+        title="3. Controle de cookies"
+        delay={300}
+      >
         <p className="mb-4">
           Você pode controlar e/ou excluir cookies conforme desejar. Você pode
           excluir todos os cookies que já estão no seu dispositivo e pode
@@ -104,7 +118,11 @@ const CookiesPolicy: React.FC = () => {
         </ul>
       </LegalSection>
 
-      <LegalSection icon="🔌" title="4. Cookies de terceiros" delay={400}>
+      <LegalSection
+        icon={<PlugIcon />}
+        title="4. Cookies de terceiros"
+        delay={400}
+      >
         <p className="mb-4">
           Alguns cookies são colocados por serviços de terceiros que aparecem em
           nossas páginas. Utilizamos serviços de terceiros como:

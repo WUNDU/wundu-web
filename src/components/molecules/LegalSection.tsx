@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 // src/components/molecules/LegalSection/index.tsx
 interface LegalSectionProps {
-  icon: string;
+  icon: ReactNode;
   title: string;
   children: React.ReactNode;
   delay?: number;

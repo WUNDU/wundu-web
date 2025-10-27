@@ -1,10 +1,22 @@
 // src/components/organisms/TermsOfUse/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
+import { DocumentIcon, EditIcon, InfoIcon } from "@/src/constants/icons";
+import {
+  CopyIcon,
+  CopyrightIcon,
+  GavelIcon,
+  RocketIcon,
+  UserPenIcon,
+} from "lucide-react";
 
 const TermsOfUse: React.FC = () => {
   return (
     <div className="space-y-8">
-      <LegalSection icon="📄" title="1. Aceitação dos Termos" delay={100}>
+      <LegalSection
+        icon={<DocumentIcon />}
+        title="1. Aceitação dos Termos"
+        delay={100}
+      >
         <p>
           Ao acessar e utilizar o aplicativo e serviços da WUNDU, você concorda
           com estes Termos de Uso e com nossa Política de Privacidade. Se você
@@ -13,7 +25,7 @@ const TermsOfUse: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="🚀" title="2. Uso do Serviço" delay={200}>
+      <LegalSection icon={<RocketIcon />} title="2. Uso do Serviço" delay={200}>
         <p className="mb-4">
           A WUNDU oferece um aplicativo de gerenciamento financeiro pessoal que
           permite aos usuários rastrear gastos, criar orçamentos e estabelecer
@@ -30,7 +42,11 @@ const TermsOfUse: React.FC = () => {
         </ul>
       </LegalSection>
 
-      <LegalSection icon="💾" title="3. Conteúdo do Usuário" delay={300}>
+      <LegalSection
+        icon={<UserPenIcon />}
+        title="3. Conteúdo do Usuário"
+        delay={300}
+      >
         <p>
           Você é o único responsável pelos dados que inserir no aplicativo
           WUNDU. Ao fornecer seu conteúdo em nosso serviço, você concede à WUNDU
@@ -40,7 +56,11 @@ const TermsOfUse: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="©️" title="4. Propriedade Intelectual" delay={400}>
+      <LegalSection
+        icon={<CopyrightIcon />}
+        title="4. Propriedade Intelectual"
+        delay={400}
+      >
         <p>
           Todo o conteúdo, recursos e funcionalidades do aplicativo WUNDU,
           incluindo, mas não se limitando a textos, gráficos, logotipos, ícones,
@@ -51,7 +71,7 @@ const TermsOfUse: React.FC = () => {
       </LegalSection>
 
       <LegalSection
-        icon="⚠️"
+        icon={<InfoIcon />}
         title="5. Limitação de Responsabilidade"
         delay={500}
       >
@@ -69,7 +89,11 @@ const TermsOfUse: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="📝" title="6. Modificações dos Termos" delay={600}>
+      <LegalSection
+        icon={<EditIcon />}
+        title="6. Modificações dos Termos"
+        delay={600}
+      >
         <p>
           Reservamo-nos o direito de modificar ou substituir estes termos a
           qualquer momento. Notificaremos sobre alterações significativas
@@ -78,7 +102,7 @@ const TermsOfUse: React.FC = () => {
         </p>
       </LegalSection>
 
-      <LegalSection icon="⚖️" title="7. Lei Aplicável" delay={700}>
+      <LegalSection icon={<GavelIcon />} title="7. Lei Aplicável" delay={700}>
         <p className="mb-4">
           Estes Termos de Uso são regidos e interpretados de acordo com as leis
           da República de Angola. Especificamente, o processamento de dados

@@ -7,6 +7,7 @@ import LegalTabs from "@/src/components/molecules/LegalTabs";
 import PrivacyPolicy from "@/src/components/organisms/PrivacyPolicy";
 import CookiesPolicy from "@/src/components/organisms/CookiesPolicy";
 import TermsOfUse from "@/src/components/organisms/TermsOfUse";
+import { MessagesSquare, MessagesSquareIcon } from "lucide-react";
 
 const LegalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"privacy" | "cookies" | "terms">(
@@ -62,9 +63,12 @@ const LegalPage: React.FC = () => {
               </a>
               <a
                 href="/contactos"
-                className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-300 hover:scale-105"
+                className="bg-white/20 flex backdrop-blur-sm text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-300 hover:scale-105"
               >
-                Fale Conosco <span className="ml-2">💬</span>
+                Fale Conosco{" "}
+                <span className="ml-2">
+                  <MessagesSquare />
+                </span>
               </a>
             </div>
           </div>
@@ -128,16 +132,10 @@ const LegalPage: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="/contactos"
+                  href="/contacts"
                   className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-full font-medium text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   Fale Conosco <span className="ml-2">→</span>
-                </a>
-                <a
-                  href="/funcionalidades"
-                  className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-300 hover:scale-105"
-                >
-                  Baixe o MVP <span className="ml-2">📥</span>
                 </a>
               </div>
             </div>
