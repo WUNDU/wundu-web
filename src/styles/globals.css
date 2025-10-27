@@ -96,14 +96,22 @@
 }
 
 .hero-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background-image: radial-gradient(
+      circle at 20% 50%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    );
   opacity: 0.5;
 }
 
@@ -152,7 +160,6 @@
 
 /* Animações personalizadas */
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0px);
@@ -164,7 +171,6 @@
 }
 
 @keyframes pulse-slow {
-
   0%,
   100% {
     opacity: 0.3;
@@ -197,7 +203,6 @@
 }
 
 @keyframes gradient-shift {
-
   0%,
   100% {
     background-position: 0% 50%;
@@ -210,7 +215,8 @@
 
 /* Transições suaves para todos os elementos interativos */
 * {
-  transition-property: color, background-color, border-color, transform, box-shadow;
+  transition-property: color, background-color, border-color, transform,
+    box-shadow;
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -235,14 +241,14 @@
 /* Efeitos de gradiente para bordas */
 .border-gradient-border {
   border: 2px solid transparent;
-  background:
-    linear-gradient(white, white) padding-box,
+  background: linear-gradient(white, white) padding-box,
     linear-gradient(to right, #3b82f6, #8b5cf6) border-box;
 }
 
 /* Melhorias de hover para todos os elementos */
 * {
-  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-property: color, background-color, border-color, transform,
+    box-shadow, opacity;
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -280,4 +286,67 @@ footer {
 
 .social-icon:hover {
   transform: translateY(-2px) scale(1.1);
+}
+
+/* Animações para a página legal */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efeitos de hover suaves */
+.hover-lift:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
+/* Gradientes melhorados */
+.gradient-primary {
+  background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+/* Backdrop blur melhorado */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
 }

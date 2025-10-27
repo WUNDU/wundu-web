@@ -1,9 +1,7 @@
-import ScanScreen from "@/src/components/pages/ScanScreen"
+import ScanScreen from "@/src/components/pages/ScanScreen";
 
 const Scan = () => {
-  return (
-    <ScanScreen />
-  )
-}
+  return <ScanScreen />;
+};
 
-export default Scan
+export default Scan;

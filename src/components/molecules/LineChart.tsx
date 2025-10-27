@@ -1,14 +1,21 @@
-import { ChartProps } from '@/src/types/panel';
-import React, { useRef, useEffect, useState } from 'react';
-import Chart from 'chart.js/auto';
-import annotationPlugin from 'chartjs-plugin-annotation';
+import { ChartProps } from "@/src/types/panel";
+import React, { useRef, useEffect, useState } from "react";
+import Chart from "chart.js/auto";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(annotationPlugin);
 
-const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColor, dotColor, className }) => {
+const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
+  data,
+  lineColor,
+  dotColor,
+  className,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(Math.floor(data.length / 2));
+  const [selectedIndex, setSelectedIndex] = useState(
+    Math.floor(data.length / 2)
+  );
 
   useEffect(() => {
     // Reset selected index when data changes
@@ -18,14 +25,14 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     if (chartRef.current) {
       chartRef.current.destroy();
     }
 
-    const values = data.map(d => d.value);
+    const values = data.map((d) => d.value);
     const maxVal = Math.max(...values);
     const minVal = 0; // Set min to 0 to match the image starting at 0
 
@@ -36,34 +43,40 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
     const selectedLabel = `${selectedValue}K`;
 
     const pointRadii = data.map((_, i) => (i === selectedIndex ? 6 : 0));
-    const pointBackgroundColors = data.map((_, i) => (i === selectedIndex ? 'white' : 'transparent'));
-    const pointBorderColors = data.map((_, i) => (i === selectedIndex ? lineColor : 'transparent'));
+    const pointBackgroundColors = data.map((_, i) =>
+      i === selectedIndex ? "white" : "transparent"
+    );
+    const pointBorderColors = data.map((_, i) =>
+      i === selectedIndex ? lineColor : "transparent"
+    );
     const pointBorderWidths = data.map((_, i) => (i === selectedIndex ? 2 : 0));
 
     chartRef.current = new Chart(ctx, {
-      type: 'line',
+      type: "line",
       data: {
-        labels: data.map(d => d.month),
-        datasets: [{
-          data: values,
-          borderColor: lineColor,
-          borderWidth: 2,
-          backgroundColor: `${lineColor}22`,
-          fill: true,
-          tension: 0.3, // Slight curve to match wavy appearance in image
-          pointRadius: pointRadii,
-          pointBackgroundColor: pointBackgroundColors,
-          pointBorderColor: pointBorderColors,
-          pointBorderWidth: pointBorderWidths,
-        }]
+        labels: data.map((d) => d.month),
+        datasets: [
+          {
+            data: values,
+            borderColor: lineColor,
+            borderWidth: 2,
+            backgroundColor: `${lineColor}22`,
+            fill: true,
+            tension: 0.3, // Slight curve to match wavy appearance in image
+            pointRadius: pointRadii,
+            pointBackgroundColor: pointBackgroundColors,
+            pointBorderColor: pointBorderColors,
+            pointBorderWidth: pointBorderWidths,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: {
-          mode: 'nearest',
-          axis: 'x',
-          intersect: false
+          mode: "nearest",
+          axis: "x",
+          intersect: false,
         },
         onClick: (event, elements) => {
           if (elements.length > 0) {
@@ -82,7 +95,7 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
             clip: false,
             annotations: {
               verticalLine: {
-                type: 'line',
+                type: "line",
                 xMin: selectedMonth,
                 xMax: selectedMonth,
                 yMin: minVal,
@@ -91,7 +104,7 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
                 borderDash: [5, 5],
               },
               valueLabel: {
-                type: 'label',
+                type: "label",
                 xValue: selectedMonth,
                 yValue: selectedValue,
                 xAdjust: 30,
@@ -100,7 +113,7 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
                 borderWidth: 0,
                 borderRadius: 3,
                 content: selectedLabel,
-                color: 'white',
+                color: "white",
                 font: {
                   size: 14,
                 },
@@ -110,9 +123,9 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
                   left: 10,
                   right: 10,
                 },
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           x: {
@@ -120,7 +133,7 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
               display: false,
             },
             ticks: {
-              color: '#6b7280',
+              color: "#6b7280",
               font: {
                 size: 12,
               },
@@ -131,21 +144,21 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
             display: false,
             min: minVal,
             max: maxVal,
-          }
+          },
         },
         elements: {
           point: {
             hitRadius: 10, // Increase hit radius for easier clicking
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Adjust label position after chart creation
     if (chartRef.current) {
       const chart = chartRef.current;
-      const yScale = chart.scales['y'];
-      const xScale = chart.scales['x'];
+      const yScale = chart.scales["y"];
+      const xScale = chart.scales["x"];
       const pixelY = yScale.getPixelForValue(selectedValue);
       const pixelX = xScale.getPixelForValue(selectedIndex);
       const labelHeightApprox = 30; // Approximate label height
@@ -165,10 +178,17 @@ const LineChart: React.FC<Omit<ChartProps, 'selectedMonth'>> = ({ data, lineColo
 
       const annotationPluginOptions = chart.options.plugins?.annotation;
       if (annotationPluginOptions) {
-        const annotations = annotationPluginOptions.annotations as Record<string, any>;
-        if (annotations && !Array.isArray(annotations) && 'valueLabel' in annotations) {
-          annotations['valueLabel'].yAdjust = yAdj;
-          annotations['valueLabel'].xAdjust = xAdj;
+        const annotations = annotationPluginOptions.annotations as Record<
+          string,
+          any
+        >;
+        if (
+          annotations &&
+          !Array.isArray(annotations) &&
+          "valueLabel" in annotations
+        ) {
+          annotations["valueLabel"].yAdjust = yAdj;
+          annotations["valueLabel"].xAdjust = xAdj;
           chart.update();
         }
       }

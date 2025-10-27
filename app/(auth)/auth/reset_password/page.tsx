@@ -6,5 +6,5 @@ export default function PasswordReset() {
     <PasswordResetProvider>
       <PasswordResetScreen />
     </PasswordResetProvider>
-  )
+  );
 }

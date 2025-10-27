@@ -1,9 +1,7 @@
-import ChatScreen from "@/src/components/pages/ChatScreen"
+import ChatScreen from "@/src/components/pages/ChatScreen";
 
 const Chat = () => {
-  return (
-      <ChatScreen />
-  )
-}
+  return <ChatScreen />;
+};
 
-export default Chat
+export default Chat;

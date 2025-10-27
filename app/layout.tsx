@@ -25,12 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt">
-      <body
-        className={`${inter.variable} ${openSans.variable} antialiased`}
-      >
-        <RegisterProvider>
-          {children}
-        </RegisterProvider>
+      <body className={`${inter.variable} ${openSans.variable} antialiased`}>
+        <RegisterProvider>{children}</RegisterProvider>
       </body>
     </html>
   );

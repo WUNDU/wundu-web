@@ -11,11 +11,16 @@ const NavigationBack: React.FC<NavigationBackProps> = ({ prev, color }) => {
   };
 
   return (
-    <div className="flex items-center space-x-2" onClick={prev ? prev : handleBack}>
-      <ArrowLeftIcon className={`h-5 w-5 ${color ? color : "text-gray-500"} `} />
+    <div
+      className="flex items-center space-x-2"
+      onClick={prev ? prev : handleBack}
+    >
+      <ArrowLeftIcon
+        className={`h-5 w-5 ${color ? color : "text-gray-500"} `}
+      />
       <span className={`${color ? color : "text-gray-700"}`}>Voltar</span>
     </div>
-  )
+  );
 };
 
-export default NavigationBack
+export default NavigationBack;

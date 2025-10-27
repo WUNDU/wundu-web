@@ -7,4 +7,4 @@ const Logo: React.FC<LogoProps> = ({ src }) => {
     </div>
   );
 };
-export default Logo
+export default Logo;

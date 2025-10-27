@@ -1,7 +1,10 @@
-import { IAIcon } from '@/src/constants/icons';
-import React from 'react';
+import { IAIcon } from "@/src/constants/icons";
+import React from "react";
 
-const Message: React.FC<{ text: string; isUser: boolean }> = ({ text, isUser }) => {
+const Message: React.FC<{ text: string; isUser: boolean }> = ({
+  text,
+  isUser,
+}) => {
   const UserAvatar = () => (
     <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
       <span className="text-sm">👤</span>
@@ -31,4 +34,4 @@ const Message: React.FC<{ text: string; isUser: boolean }> = ({ text, isUser }) 
   );
 };
 
-export default Message
+export default Message;

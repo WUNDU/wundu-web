@@ -1,10 +1,7 @@
-import ControlPanelDashboardScreen from "@/src/components/pages/ControlPanelDashboardScreen"
-
+import ControlPanelDashboardScreen from "@/src/components/pages/ControlPanelDashboardScreen";
 
 const ControlPanel = () => {
-  return (
-    <ControlPanelDashboardScreen />
-  )
-}
+  return <ControlPanelDashboardScreen />;
+};
 
-export default ControlPanel
+export default ControlPanel;

@@ -1,9 +1,8 @@
-
-import { SendIcon } from '@/src/constants/icons';
-import React, { useState } from 'react';
+import { SendIcon } from "@/src/constants/icons";
+import React, { useState } from "react";
 
 const InputArea: React.FC = () => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   return (
     <div className="p-4 bg-white border-t border-gray-200">
@@ -23,4 +22,4 @@ const InputArea: React.FC = () => {
   );
 };
 
-export default InputArea
+export default InputArea;
