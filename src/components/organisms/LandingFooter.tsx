@@ -1,6 +1,6 @@
 // src/components/organisms/LandingFooter/index.tsx
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react";
 import LogoType from "@/src/components/atoms/LogoType";
 import {
@@ -11,8 +11,11 @@ import {
   XIcon,
 } from "@/src/constants/icons";
 import { ROUTES } from "@/src/constants/routes";
+import { useCookieConsent } from "@/src/contexts/CookieConsetContext";
 
 const LandingFooter: React.FC = () => {
+  const { openCookiePreferences } = useCookieConsent();
+
   const socialLinks = [
     {
       href: "https://github.com/wundu",
@@ -62,7 +65,6 @@ const LandingFooter: React.FC = () => {
   const legalLinks = [
     { href: ROUTES.LEGAL, label: "Termos de Uso" },
     { href: ROUTES.LEGAL, label: "Política de privacidade" },
-    { href: ROUTES.LEGAL, label: "Configurações de Cookies" },
   ];
 
   return (
@@ -172,6 +174,12 @@ const LandingFooter: React.FC = () => {
                   {link.label}
                 </a>
               ))}
+              <a
+                onClick={openCookiePreferences}
+                className="text-gray-600 hover:text-blue-600 transition-all duration-300"
+              >
+                Configurações de Cookies
+              </a>
             </div>
           </div>
         </div>

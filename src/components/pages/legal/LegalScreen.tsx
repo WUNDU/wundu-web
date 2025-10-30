@@ -7,7 +7,7 @@ import LegalTabs from "@/src/components/molecules/LegalTabs";
 import PrivacyPolicy from "@/src/components/organisms/PrivacyPolicy";
 import CookiesPolicy from "@/src/components/organisms/CookiesPolicy";
 import TermsOfUse from "@/src/components/organisms/TermsOfUse";
-import { MessagesSquare, MessagesSquareIcon } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 
 const LegalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"privacy" | "cookies" | "terms">(
@@ -62,7 +62,7 @@ const LegalPage: React.FC = () => {
                 Ler a Política <span className="ml-2">↓</span>
               </a>
               <a
-                href="/contactos"
+                href="/contacts"
                 className="bg-white/20 flex backdrop-blur-sm text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-300 hover:scale-105"
               >
                 Fale Conosco{" "}

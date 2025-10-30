@@ -4,8 +4,12 @@ import Image from "../icons/Image";
 import Receipt from "../icons/Receipt";
 import { useRef } from "react";
 import MoreButton from "../atoms/MoreButton";
+import { EditIcon } from "@/src/constants/icons";
 
-const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
+const UploadOptions: React.FC<UploadOptionsProps> = ({
+  onFileSelect,
+  onManualClick,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
@@ -24,8 +28,21 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect }) => {
     }
   };
 
+  const handleManualButtonClick = () => {
+    if (onManualClick) {
+      onManualClick(); // Abre o modal de transação manual
+    } else {
+      handleButtonClick(); // Fallback para o comportamento original
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-4">
+      <OptionButton
+        icon={EditIcon}
+        text="Manual"
+        onClick={handleManualButtonClick}
+      />
       <OptionButton
         icon={Receipt}
         text="Comprovativo"

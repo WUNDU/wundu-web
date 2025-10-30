@@ -18,9 +18,7 @@ import {
 import CategoryScreen from "./CategoryScreen";
 import MovementSection from "../molecules/MovimentSection";
 import DetailsModal from "../organisms/DetailsModal";
-import { useSwipeable } from "react-swipeable";
-import { usePathname, useRouter } from "next/navigation";
-import { ROUTES } from "@/src/constants/routes";
+import AddTransactionModal from "../molecules/AddTransactionModal";
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -29,6 +27,15 @@ const HomeScreen = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+
+  const handleSaveTransaction = (transactionData: any) => {
+    console.log("Transação salva:", transactionData);
+  };
+
+  const handleOpenTransactionModal = () => {
+    setIsTransactionModalOpen(true);
+  };
 
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
@@ -133,6 +140,7 @@ const HomeScreen = () => {
                   handleCloseModal={handleCloseModal}
                   handleFileSelect={handleFileSelect}
                   onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
+                  onManualClick={handleOpenTransactionModal}
                 />
               </CategoryProvider>
             </>
@@ -145,6 +153,11 @@ const HomeScreen = () => {
 
       {/* Sidebar Direito */}
       <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
+      <AddTransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        onSave={handleSaveTransaction}
+      />
     </div>
   );
 };
@@ -157,6 +170,7 @@ const MainContent = ({
   handleCloseModal,
   handleFileSelect,
   onCategoryCloseOrSuccess,
+  onManualClick,
 }: {
   documents: Document[];
   showUploadOptions: boolean;
@@ -164,6 +178,7 @@ const MainContent = ({
   handleCloseModal: () => void;
   handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
+  onManualClick: () => void;
 }) => {
   const { isCategoryModalOpen } = useCategoryContext();
 
@@ -201,6 +216,7 @@ const MainContent = ({
                 documents={[]}
                 showOptions={true}
                 onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
               />
             </div>
             {/* Desktop: SentDocumentsSection sempre visível à esquerda */}
@@ -209,6 +225,7 @@ const MainContent = ({
                 documents={[]}
                 showOptions={true}
                 onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
               />
             </div>
             {/* Desktop: Área direita (substituição da MovementSection) */}
@@ -218,7 +235,6 @@ const MainContent = ({
           </>
         )}
       </div>
-
       {/* Mobile: Modais como overlay */}
       <div className="md:hidden">
         {showModal && <DetailsModal onClose={handleCloseModal} />}

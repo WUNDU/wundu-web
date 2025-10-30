@@ -9,20 +9,21 @@ import MoreButton from "../atoms/MoreButton";
 type Item = {
   id: number;
   name: string;
-  type: "doc" | "img";
+  type: "doc" | "img" | "text";
 };
 
 const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
   documents,
   showOptions,
   onFileSelect,
+  onManualClick,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [items, setItems] = useState<Item[]>([
+    { id: 1, name: "Manual", type: "text" },
     { id: 1, name: "Comprovativo-12", type: "doc" },
     { id: 2, name: "Imagem", type: "img" },
-    { id: 3, name: "Comprovativo", type: "doc" },
-    { id: 4, name: "Imagem", type: "img" },
+    { id: 3, name: "Extrato", type: "doc" },
   ]);
 
   const handleLoadMore = () => {
@@ -57,7 +58,10 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
           </div>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1">
-          <UploadOptions onFileSelect={onFileSelect} />
+          <UploadOptions
+            onFileSelect={onFileSelect}
+            onManualClick={onManualClick}
+          />
         </div>
       </section>
     );

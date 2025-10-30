@@ -57,13 +57,13 @@ const FinancialObjectiveScreen: React.FC = () => {
     }
   };
 
-  const handleFinancialIAObjective = () => {
-    if (window.innerWidth >= 768) {
-      setShowForm(true);
-    } else {
-      router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
-    }
-  };
+  // const handleFinancialIAObjective = () => {
+  //   if (window.innerWidth >= 768) {
+  //     setShowForm(true);
+  //   } else {
+  //     router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
+  //   }
+  // };
 
   const fulfilledObjectives = objectives.filter(
     (obj) => obj.percentage === 100

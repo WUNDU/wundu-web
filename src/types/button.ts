@@ -4,18 +4,18 @@ export type CloseButtonProps = {
   onClick: () => void;
 };
 
-
 export interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  variant?: 'primary' | 'secondary' | 'google';
-  type?: 'submit' | 'button';
+  variant?: "primary" | "secondary" | "google";
+  type?: "submit" | "button";
   disabled?: any;
 }
 
-export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IconButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  'aria-label': string;
+  "aria-label": string;
 }
 
 export interface OptionButtonProps {
@@ -29,36 +29,37 @@ export interface CategoryButtonProps {
   onClick?: () => void;
 }
 
-
 export interface UploadProps {
   onUploadClick: () => void;
 }
 
 export interface Document {
-  type: 'image' | 'document';
+  type: "image" | "document";
   name: string;
 }
 
 export interface SentDocumentsSectionProps {
   documents: Document[];
   showOptions: boolean;
-  onFileSelect: (file: File, type: 'image' | 'document') => void;
+  onFileSelect: (file: File, type: "image" | "document") => void;
+  onManualClick?: () => void;
 }
 
 export interface UploadOptionsProps {
-  onFileSelect: (file: File, type: 'image' | 'document') => void
+  onFileSelect: (file: File, type: "image" | "document") => void;
+  onManualClick?: () => void;
 }
 
 export interface NavigationBackProps {
-  prev?: () => void
-  color?: string
+  prev?: () => void;
+  color?: string;
 }
 
 export interface MoreButtonProps {
   onClick?: () => void;
   isLoading?: boolean;
-  color?: string
-  label: string
+  color?: string;
+  label: string;
 }
 
 export interface OptionChatButtonProps {
@@ -68,7 +69,7 @@ export interface OptionChatButtonProps {
 export interface LandingButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: "primary" | "secondary";
   className?: string;
-  type?: 'button' | 'submit' | 'reset';
+  type?: "button" | "submit" | "reset";
 }

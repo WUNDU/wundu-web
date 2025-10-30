@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "../src/styles/globals.css";
 import { RegisterProvider } from "@/src/contexts/RegisterContext";
+import CookieConsent from "@/src/components/molecules/CookieConsent";
+import { CookieConsentProvider } from "@/src/contexts/CookieConsetContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +28,12 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body className={`${inter.variable} ${openSans.variable} antialiased`}>
-        <RegisterProvider>{children}</RegisterProvider>
+        <RegisterProvider>
+          <CookieConsentProvider>
+            {children}
+            <CookieConsent />
+          </CookieConsentProvider>
+        </RegisterProvider>
       </body>
     </html>
   );
