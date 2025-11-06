@@ -1,13 +1,22 @@
 // src/context/RegisterContext.tsx
-'use client';
-import { createContext, ReactNode, useState, useMemo, useEffect } from 'react';
-import { RegisterContextType, RegisterData } from '@/src/types/register';
-import { AxiosError } from 'axios';
-import { ApiErrorResponse } from '@/src/types/api';
-import { UserService } from '../services/UserServices';
-import type { User } from '../types/user';
+"use client";
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+} from "react";
+import { RegisterContextType, RegisterData } from "@/src/types/register";
+import { AxiosError } from "axios";
+import { ApiErrorResponse } from "@/src/types/api";
+import { UserService } from "../services/UserServices";
+import type { User } from "../types/user";
 
-const RegisterContext = createContext<RegisterContextType | undefined>(undefined);
+const RegisterContext = createContext<RegisterContextType | undefined>(
+  undefined
+);
 
 export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -15,48 +24,52 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
-    }
-    return null;
-  });
+  const [token, setTokenState] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
-  const [user, setUser] = useState<User | null>(() => {
-    // Inicializar do sessionStorage ao carregar
-    if (typeof window !== 'undefined') {
-      const storedUser = sessionStorage.getItem('user');
-      if (storedUser) {
-        try {
-          return JSON.parse(storedUser);
-        } catch {
-          return null;
-        }
-      }
-    }
-    return null;
-  });
-
-  // Sincronizar user com sessionStorage quando mudar
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (user) {
-        sessionStorage.setItem('user', JSON.stringify(user));
+    const initializeAuth = async () => {
+      if (typeof window === "undefined") {
+        setIsLoading(false);
+        setInitialized(true);
+        return;
+      }
+
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        setIsLoading(false);
+        setInitialized(true);
+        return;
+      }
+
+      try {
+        setTokenState(storedToken);
+        const userData = await UserService.getUser();
+        setUser(userData);
+      } catch (error) {
+        console.log("Erro ao carregar usuário", error);
+        localStorage.removeItem("token");
+        setTokenState(null);
+      } finally {
+        setIsLoading(false);
+        setInitialized(true);
+      }
+    };
+    initializeAuth();
+  }, []);
+
+  const setToken = useCallback((newToken: string | null) => {
+    setTokenState(newToken);
+    if (typeof window !== "undefined") {
+      if (newToken) {
+        localStorage.setItem("token", newToken);
       } else {
-        sessionStorage.removeItem('user');
+        localStorage.removeItem("token");
       }
     }
-  }, [user]);
-
-  // Verificar se há token sem user (caso sessionStorage foi limpo)
-  useEffect(() => {
-    if (token && !user) {
-      // Token existe mas user não - sessão inválida, fazer logout
-      console.log('Token existe mas user não encontrado - fazendo logout');
-      logoutUser();
-    }
-    setIsLoading(false);
-  }, [token, user]);
+  }, []);
 
   const setRegisterData = (newData: Partial<RegisterData>) => {
     setData((prevData) => ({ ...prevData, ...newData }));
@@ -69,15 +82,15 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const result = await UserService.register(overrideData || data);
-      console.log('Registro bem-sucedido:', result);
+      console.log("Registro bem-sucedido:", result);
       return result;
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       const message =
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Falha no registro';
-      console.log('Erro no registerUser:', message);
+        "Falha no registro";
+      console.log("Erro no registerUser:", message);
       setError(message);
       throw new Error(message);
     }
@@ -88,34 +101,38 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const result = await UserService.login(email, password);
-      console.log('Login bem-sucedido:', result);
+      console.log("Login bem-sucedido:", result);
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', result.token);
-        sessionStorage.setItem('user', JSON.stringify(result.user));
-      }
-
-      // Definir token e user ao mesmo tempo
+      // Atualiza o token primeiro
       setToken(result.token);
-      setUser(result.user);
+
+      // Busca os dados do usuário
+      const userData = await UserService.getUser();
+      console.log("Dados do usuário:", userData);
+
+      // Atualiza o usuário
+      setUser(userData);
+
+      return result;
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       const message =
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Falha no login';
-      console.log('Erro no loginUser:', message);
+        "Falha no login";
+      console.log("Erro no loginUser:", message);
       setError(message);
       throw new Error(message);
     } finally {
+      // IMPORTANTE: Só marca como não carregando após tudo estar pronto
       setIsLoading(false);
     }
   };
 
   const logoutUser = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      sessionStorage.removeItem('user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("user");
     }
     setToken(null);
     setUser(null);
@@ -124,7 +141,10 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setCurrentStep(1);
   };
 
-  const isAuthenticated = useMemo(() => !!token && !!user, [token, user]);
+  const isAuthenticated = useMemo(() => {
+    // Só considera autenticado quando já inicializou e tem token + user
+    return initialized && !!token && !!user;
+  }, [token, user, initialized]);
 
   return (
     <RegisterContext.Provider

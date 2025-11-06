@@ -1,12 +1,7 @@
-import ProtectedRoute from "@/src/components/atoms/ProtectedRoute"
-import ScanScreen from "@/src/components/pages/ScanScreen"
+import ScanScreen from "@/src/components/pages/ScanScreen";
 
 const Scan = () => {
-  return (
-    <ProtectedRoute>
-      <ScanScreen />
-    </ProtectedRoute>
-  )
-}
+  return <ScanScreen />;
+};
 
-export default Scan
+export default Scan;
