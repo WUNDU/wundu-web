@@ -1,10 +1,9 @@
 import { UploadOptionsProps } from "@/src/types/button";
-import OptionButton from "../atoms/OptionButton";
 import Image from "../icons/Image";
 import Receipt from "../icons/Receipt";
 import { useRef } from "react";
-import MoreButton from "../atoms/MoreButton";
 import { EditIcon } from "@/src/constants/icons";
+import Button from "../atoms/Button";
 
 const UploadOptions: React.FC<UploadOptionsProps> = ({
   onFileSelect,
@@ -38,20 +37,28 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
 
   return (
     <div className="flex flex-col space-y-4">
-      <OptionButton
-        icon={EditIcon}
-        text="Manual"
+      <Button
+        leftIcon={<EditIcon />}
+        variant="option"
+        label="Manual"
         onClick={handleManualButtonClick}
       />
-      <OptionButton
-        icon={Receipt}
-        text="Comprovativo"
+      <Button
+        leftIcon={<Receipt />}
+        label="Comprovativo"
+        variant="option"
         onClick={handleButtonClick}
       />
-      <OptionButton icon={Image} text="Imagem" onClick={handleButtonClick} />
-      <OptionButton
-        icon={Receipt}
-        text="Extrato Bancário"
+      <Button
+        leftIcon={<Image />}
+        label="Imagem"
+        variant="option"
+        onClick={handleButtonClick}
+      />
+      <Button
+        leftIcon={<Receipt />}
+        variant="option"
+        label="Extrato Bancário"
         onClick={handleButtonClick}
       />
 
@@ -63,7 +70,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
       />
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
-          <MoreButton label="Ver mais" color="bg-yellow-400" />
+          <Button variant="more" label="Ver mais" color="bg-yellow-400" />
         </div>
       </div>
     </div>

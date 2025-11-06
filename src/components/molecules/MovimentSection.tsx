@@ -3,7 +3,6 @@ import { NoMovementIcon, SettingsIcon } from "@/src/constants/icons";
 import { Document } from "@/src/types/button";
 import Button from "../atoms/Button";
 import ArrowRotate from "../icons/ArrowRotate";
-import MoreButton from "../atoms/MoreButton";
 
 interface MovementSectionProps {
   documents: Document[];
@@ -81,10 +80,11 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
       </div>
       <div className="text-center">
         <div className="flex justify-center items-center p-4">
-          <MoreButton
-            label="Ver mais"
-            onClick={handleLoadMore}
-            isLoading={isLoading}
+          <Button
+            variant="more"
+            rightIcon={<ArrowRotate />}
+            loading
+            label="Mais"
           />
         </div>
       </div>

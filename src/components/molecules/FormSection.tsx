@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import Input from "../atoms/Input";
-import LoginButton from "../atoms/LoginButton";
 import { FormSectionProps } from "@/src/types/form";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
 import useRegisterContext from "@/src/hooks/useRegisterContext";
 import { validateEmail, validatePassword } from "@/src/utils/validation";
 import { useRouter } from "next/navigation";
+import Button from "../atoms/Button";
 
 const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
   const { loginUser, error: contextError } = useRegisterContext();
@@ -80,12 +80,15 @@ const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
           {errors.password || contextError}
         </p>
       )}
-      {/* <Link href={ROUTES.RESET_PASSWORD} className="self-end text-sm text-gray-600">
+      {/* <Link
+        href={ROUTES.RESET_PASSWORD}
+        className="self-end text-sm text-gray-600"
+      >
         Esqueci minha senha
       </Link> */}
-      <LoginButton onClick={() => {}} type="submit">
+      <Button variant="warning" onClick={() => {}} type="submit">
         Entrar
-      </LoginButton>
+      </Button>
     </form>
   );
 };

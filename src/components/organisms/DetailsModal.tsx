@@ -1,5 +1,4 @@
 import { DetailsModalProps } from "@/src/types/modal";
-import CategoryButton from "../molecules/CategoryButton";
 import DetailsSection from "../molecules/DetailsSection";
 import ModalHeader from "../molecules/ModalHeader";
 import {
@@ -9,6 +8,7 @@ import {
   MoneyIcon,
 } from "@/src/constants/icons";
 import { useCategoryContext } from "@/src/contexts/CategoryContext";
+import Button from "../atoms/Button";
 
 const DetailsModal = ({ onClose }: DetailsModalProps) => {
   const { setIsCategoryModalOpen } = useCategoryContext();
@@ -83,7 +83,8 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
           </div>
         </div>
         <div className="p-6 pt-0">
-          <CategoryButton
+          <Button
+            variant="tab"
             label="Definir categoria"
             onClick={handleDefineCategory}
           />
@@ -149,7 +150,8 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
           </div>
 
           <div className="p-6 pt-0">
-            <CategoryButton
+            <Button
+              variant="tab"
               label="Definir categoria"
               onClick={handleDefineCategory}
             />

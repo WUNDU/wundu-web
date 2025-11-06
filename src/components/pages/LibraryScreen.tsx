@@ -1,35 +1,36 @@
-'use client'
+"use client";
 
 import { useState } from "react";
-import SearchBar from "../molecules/SearchBar"
+import SearchBar from "../molecules/SearchBar";
 import { Article } from "@/src/types/article";
 import CategoryFilter from "../molecules/CategoryFilter";
 import EmptyState from "../molecules/EmptyState";
 import ArticleGrid from "../organisms/ArticleGrid";
-import MoreButton from "../atoms/MoreButton";
 import BottomNavigation from "../organisms/BottomNavigation";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
-import GreetingHeader from '../molecules/GreetingHeader';
-import Sidebar from '../molecules/Sidebar';
-import SidebarRight from '../molecules/SideBarRight';
-import { ArrowsLeftIcon, NoMovementIcon } from '@/src/constants/icons';
-import InvestmentContent from '../organisms/InvestmentContent';
-import { categories, investmentTypes, mockArticles } from "@/src/constants/mockData";
+import GreetingHeader from "../molecules/GreetingHeader";
+import Sidebar from "../molecules/Sidebar";
+import SidebarRight from "../molecules/SideBarRight";
+import { ArrowsLeftIcon, NoMovementIcon } from "@/src/constants/icons";
+import InvestmentContent from "../organisms/InvestmentContent";
+import {
+  categories,
+  investmentTypes,
+  mockArticles,
+} from "@/src/constants/mockData";
+import Button from "../atoms/Button";
+import ArrowRotate from "../icons/ArrowRotate";
 
 const LibraryScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Finanças');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Finanças");
   const [isLoading, setIsLoading] = useState(false);
   const [showArticles, setShowArticles] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const router = useRouter();
-
-
-
-
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -38,7 +39,7 @@ const LibraryScreen = () => {
 
   const handleFilterClick = () => {
     // Implement filter modal logic here
-    console.log('Filter clicked');
+    console.log("Filter clicked");
   };
 
   const handleCategoryChange = (category: string) => {
@@ -46,7 +47,7 @@ const LibraryScreen = () => {
   };
 
   const handleReadMore = (articleId: string) => {
-    const article = mockArticles.find(a => a.id === articleId);
+    const article = mockArticles.find((a) => a.id === articleId);
     if (article) {
       setSelectedArticle(article);
       // No mobile, navega para a página de detalhes
@@ -93,7 +94,8 @@ const LibraryScreen = () => {
                 <NoMovementIcon />
               </div>
               <p className="text-center">
-                Sem artigos abertos. Clique em um dos artigos para visualizar aqui.
+                Sem artigos abertos. Clique em um dos artigos para visualizar
+                aqui.
               </p>
             </div>
           ) : (
@@ -101,7 +103,10 @@ const LibraryScreen = () => {
               {/* Imagem do artigo com bordas específicas */}
 
               {/* Usa o InvestmentContent do ArticleDetailScreen */}
-              <InvestmentContent imageUrl={selectedArticle.imageUrl} types={investmentTypes} />
+              <InvestmentContent
+                imageUrl={selectedArticle.imageUrl}
+                types={investmentTypes}
+              />
             </div>
           )}
         </div>
@@ -142,7 +147,9 @@ const LibraryScreen = () => {
               <>
                 {/* New Articles Section */}
                 <div className="mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">Artigos Novos</h2>
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">
+                    Artigos Novos
+                  </h2>
                   <ArticleGrid
                     articles={mockArticles}
                     onReadMore={handleReadMore}
@@ -151,10 +158,12 @@ const LibraryScreen = () => {
 
                 {/* Load More Button */}
                 <div className="flex justify-center mt-6">
-                  <MoreButton
+                  <Button
+                    variant="more"
                     label="Ver mais"
+                    rightIcon={<ArrowRotate />}
                     onClick={handleLoadMore}
-                    isLoading={isLoading}
+                    loading={isLoading}
                   />
                 </div>
               </>
@@ -167,20 +176,32 @@ const LibraryScreen = () => {
       {/* Layout Desktop - Seguindo exatamente a imagem */}
       <div className="hidden md:flex h-screen bg-gray-50 relative overflow-hidden font-sans antialiased text-gray-800">
         {/* Sidebar Esquerdo */}
-        <div className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div
+          className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
           <Sidebar />
         </div>
 
         {/* Conteúdo Principal */}
-        <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} h-full`}>
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 ${
+            isSidebarOpen ? "md:ml-64" : "md:ml-0"
+          } h-full`}
+        >
           <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
           <button
             onClick={toggleSidebar}
-            className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${isSidebarOpen ? 'left-58' : 'left-0'}`}
+            className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${
+              isSidebarOpen ? "left-58" : "left-0"
+            }`}
           >
             <ArrowsLeftIcon
-              className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`}
+              className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${
+                isSidebarOpen ? "" : "rotate-180"
+              }`}
             />
           </button>
 
@@ -208,11 +229,15 @@ const LibraryScreen = () => {
                     <>
                       {/* New Articles Section */}
                       <div className="mb-6 bg-white p-4 rounded-2xl">
-                        <h2 className="text-lg font-bold  text-gray-900 mb-4">Artigos Novos</h2>
+                        <h2 className="text-lg font-bold  text-gray-900 mb-4">
+                          Artigos Novos
+                        </h2>
                         <ArticleGrid
                           articles={mockArticles}
                           onReadMore={(articleId) => {
-                            const article = mockArticles.find(a => a.id === articleId);
+                            const article = mockArticles.find(
+                              (a) => a.id === articleId
+                            );
                             if (article) {
                               setSelectedArticle(article);
                             }
@@ -222,10 +247,12 @@ const LibraryScreen = () => {
 
                       {/* Load More Button */}
                       <div className="flex justify-center mt-6">
-                        <MoreButton
+                        <Button
+                          variant="more"
                           label="Ver mais"
+                          rightIcon={<ArrowRotate />}
                           onClick={handleLoadMore}
-                          isLoading={isLoading}
+                          loading={isLoading}
                         />
                       </div>
                     </>
@@ -242,7 +269,10 @@ const LibraryScreen = () => {
         </div>
 
         {/* Sidebar Direito */}
-        <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
+        <SidebarRight
+          isOpen={isSidebarRightOpen}
+          onClose={toggleSidebarRight}
+        />
       </div>
     </>
   );

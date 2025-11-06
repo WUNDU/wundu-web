@@ -4,13 +4,13 @@ import React, { useState } from "react";
 import HeaderChat from "../molecules/HeaderChat";
 import ChatOptions from "../molecules/ChatOption";
 import ChatMessages from "../molecules/ChatMessage";
-import InputArea from "../atoms/InputArea";
 import NavigationBack from "../atoms/NavigationBack";
 import InitialInputArea from "../molecules/InitializeInputArea";
 import GreetingHeader from "../molecules/GreetingHeader";
 import SidebarRight from "../molecules/SideBarRight";
 import { ArrowsLeftIcon } from "@/src/constants/icons";
 import Sidebar from "../molecules/Sidebar";
+import Input from "../atoms/Input";
 
 const ChatScreen: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
@@ -50,7 +50,7 @@ const ChatScreen: React.FC = () => {
           ) : (
             <>
               <ChatMessages />
-              <InputArea />
+              <Input />
             </>
           )}
         </div>
@@ -109,7 +109,7 @@ const ChatScreen: React.FC = () => {
                   ) : (
                     <>
                       <ChatMessages />
-                      <InputArea />
+                      <Input showSendButton />
                     </>
                   )}
                 </div>

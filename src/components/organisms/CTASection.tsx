@@ -1,8 +1,8 @@
 // src/components/organisms/CTASection/index.tsx
 import { ArrowRight } from "lucide-react";
-import LandingButton from "@/src/components/atoms/LandingButton";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
+import Button from "../atoms/Button";
 
 interface CTASectionProps {
   title?: string;
@@ -37,14 +37,13 @@ const CTASection: React.FC<CTASectionProps> = ({
           {subtitle}
         </p>
         <div className="fade-in-section delay-4">
-          <LandingButton
+          <Button
             onClick={handleLogin}
-            variant="primary"
-            className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-500 text-blue-900 border-0"
+            variant="landing"
           >
             <span>{buttonText}</span>
             <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-          </LandingButton>
+          </Button>
         </div>
       </div>
     </section>

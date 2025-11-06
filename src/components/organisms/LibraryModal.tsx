@@ -1,7 +1,7 @@
 import React from "react";
-import ActionButton from "../atoms/ActionButton";
 import { ModalProps } from "@/src/types/modal";
 import { DocumentIcon } from "@/src/constants/icons";
+import Button from "../atoms/Button";
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -29,17 +29,17 @@ const Modal: React.FC<ModalProps> = ({
           <p className="text-gray-600 text-sm mb-6">{message}</p>
 
           <div className="flex flex-row items-center justify-center gap-3">
-            <ActionButton
+            <Button
               label={confirmText}
-              variant="primary"
+              variant="destructive"
               onClick={() => {
                 onConfirm?.();
                 onClose();
               }}
             />
-            <ActionButton
+            <Button
               label={cancelText}
-              variant="secondary"
+              variant="destructive"
               onClick={onClose}
             />
           </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import LandingButton from "../atoms/LandingButton";
 import { ROUTES } from "@/src/constants/routes";
+import Button from "../atoms/Button";
 
 const CtaSectionLanding = ({ ref }: { ref: React.Ref<HTMLDivElement> }) => {
   const router = useRouter();
@@ -23,12 +23,9 @@ const CtaSectionLanding = ({ ref }: { ref: React.Ref<HTMLDivElement> }) => {
           relação com o dinheiro.
         </p>
         <div className="mt-8">
-          <LandingButton
-            onClick={handleLogin}
-            className="bg-yellow-400 text-blue-900 hover:bg-yellow-500 animate-pulse"
-          >
+          <Button onClick={handleLogin} variant="landing">
             Experimente agora - É grátis →
-          </LandingButton>
+          </Button>
         </div>
       </div>
     </section>

@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import LogoType from "@/src/components/atoms/LogoType";
-import LandingButton from "@/src/components/atoms/LandingButton";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
+import Button from "../atoms/Button";
 
 const LandingHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -69,20 +69,20 @@ const LandingHeader: React.FC = () => {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <LandingButton
+            <Button
               onClick={handleLogin}
               variant="secondary"
               className="hover:scale-105 transition-all duration-300"
             >
               Entrar
-            </LandingButton>
-            <LandingButton
+            </Button>
+            <Button
               onClick={handleRegister}
-              variant="primary"
+              variant="landing"
               className="hover:scale-105 transition-all duration-300"
             >
               Criar Conta
-            </LandingButton>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,18 +114,18 @@ const LandingHeader: React.FC = () => {
               </a>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-200">
-              <LandingButton
-                variant="secondary"
+              <Button
+                variant="landing"
                 className="w-full justify-center hover:scale-105 transition-all duration-300"
               >
                 Entrar
-              </LandingButton>
-              <LandingButton
-                variant="primary"
+              </Button>
+              <Button
+                variant="landing"
                 className="w-full justify-center hover:scale-105 transition-all duration-300"
               >
                 Criar Conta
-              </LandingButton>
+              </Button>
             </div>
           </div>
         </div>

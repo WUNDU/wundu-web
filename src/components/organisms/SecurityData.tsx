@@ -6,7 +6,6 @@ import { logo } from "@/src/constants/images";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
-import { BackArrowIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
 import { validatePassword } from "@/src/utils/validation";
 

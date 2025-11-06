@@ -1,22 +1,33 @@
-import { useState, useEffect } from "react";
-import type { AddTransactionModalProps } from "@/src/types/modal";
+// src/components/organisms/AddTransactionModal/AddTransactionModal.tsx
+import { useEffect, useState } from "react";
+import Button from "@/src/components/atoms/Button";
+import type { TransactionFormData } from "@/src/types/transaction/transaction_type";
+import Input from "../atoms/Input";
+import { useUiStore } from "@/src/store/uiStore";
 
-// Modal Component
+interface AddTransactionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: () => Promise<boolean>;
+  formData: TransactionFormData;
+  errors: Record<string, string>;
+  isLoading: boolean;
+  submitError: string;
+  onFormChange: (field: string, value: string) => void; // Mantém como string para flexibilidade
+}
+
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   isOpen,
   onClose,
-  onSave,
+  onSubmit,
+  formData,
+  errors,
+  isLoading,
+  submitError,
+  onFormChange,
 }) => {
-  const [formData, setFormData] = useState({
-    type: "expense",
-    amount: "",
-    description: "",
-    transaction_date: new Date().toISOString().split("T")[0],
-    category_id: "",
-  });
-
   const [isVisible, setIsVisible] = useState(false);
-
+  const { showNotification } = useUiStore();
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
@@ -25,34 +36,25 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSave) {
-      onSave({
-        ...formData,
-        amount: parseFloat(formData.amount) || 0,
-      });
-    }
-    handleClose();
-  };
-
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
       onClose();
-      // Reset form when closing
-      setFormData({
-        type: "expense",
-        amount: "",
-        description: "",
-        transaction_date: new Date().toISOString().split("T")[0],
-        category_id: "",
-      });
     }, 300);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await onSubmit();
+
+    if (success) {
+      showNotification(
+        "success",
+        "Transação Adicionada!",
+        "Sua transação foi registrada com sucesso."
+      );
+      handleClose();
+    }
   };
 
   if (!isOpen && !isVisible) return null;
@@ -70,130 +72,135 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 bg-opacity-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
     >
       <div
-        className={`bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300 ${
+        className={`bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-lg transform transition-all duration-300 ${
           isVisible
             ? "scale-100 translate-y-0 opacity-100"
             : "scale-95 translate-y-4 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 md:p-8">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-              Adicionar Transação Manual
-            </h2>
-            <p className="text-sm text-gray-600 mt-2">
-              Preencha os dados da transação
-            </p>
-          </div>
+        {/* Header */}
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Adicionar Transação
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Preencha os dados da transação
+          </p>
+        </div>
 
-          {/* Form */}
+        <div className="p-6">
+          {/* Error Message */}
+          {submitError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {submitError}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              {/* Tipo de Transação */}
+            <div className="space-y-5">
+              {/* Transaction Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
                   Tipo de Transação
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => handleChange("type", "income")}
-                    className={`p-3 rounded-lg border-2 transition-all duration-300 ease-in-out ${
+                    onClick={() => onFormChange("type", "income")}
+                    className={`p-4 rounded-lg border transition-all duration-200 ${
                       formData.type === "income"
-                        ? "border-green-500 bg-green-50 text-green-700 shadow-md scale-105"
-                        : "border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                        ? "border-green-500 bg-green-500 text-white shadow-sm"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <div className="font-medium">Receita</div>
-                    <div className="text-xs opacity-75">Entrada de valor</div>
+                    <div className="font-medium text-sm">Receita</div>
+                    <div className="text-xs opacity-90 mt-1">
+                      Entrada de valor
+                    </div>
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleChange("type", "expense")}
-                    className={`p-3 rounded-lg border-2 transition-all duration-300 ease-in-out ${
+                    onClick={() => onFormChange("type", "expense")}
+                    className={`p-4 rounded-lg border transition-all duration-200 ${
                       formData.type === "expense"
-                        ? "border-red-500 bg-red-50 text-red-700 shadow-md scale-105"
-                        : "border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                        ? "border-red-500 bg-red-500 text-white shadow-sm"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <div className="font-medium">Despesa</div>
-                    <div className="text-xs opacity-75">Saída de valor</div>
+                    <div className="font-medium text-sm">Despesa</div>
+                    <div className="text-xs opacity-90 mt-1">
+                      Saída de valor
+                    </div>
                   </button>
                 </div>
               </div>
 
-              {/* Valor */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Valor
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => handleChange("amount", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                    placeholder="0.00"
-                    required
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500">€</span>
-                  </div>
-                </div>
+              <div className="border-t border-gray-200 my-2"></div>
+
+              {/* Amount */}
+              <Input
+                label="Montante"
+                type="number"
+                placeholder="0,00"
+                value={formData.amount}
+                onChange={(e) => onFormChange("amount", e.target.value)}
+                isError={!!errors.amount}
+                required={true}
+              />
+              {errors.amount && (
+                <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
+              )}
+              <div className="flex justify-end -mt-4">
+                <span className="text-sm text-gray-500">kz</span>
               </div>
 
-              {/* Descrição */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descrição
-                </label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                  placeholder="Ex: Compra no supermercado"
-                  required
-                />
-              </div>
+              {/* Description */}
+              <Input
+                label="Descrição"
+                type="text"
+                placeholder="Ex: Compra no supermercado"
+                value={formData.description}
+                onChange={(e) => onFormChange("description", e.target.value)}
+                isError={!!errors.description}
+                required={true}
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description}
+                </p>
+              )}
 
-              {/* Data */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Data da Transação
-                </label>
-                <input
-                  type="date"
-                  value={formData.transaction_date}
-                  onChange={(e) =>
-                    handleChange("transaction_date", e.target.value)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                  required
-                />
-              </div>
+              {/* Date */}
+              <Input
+                label="Data e Hora"
+                type="date"
+                value={formData.transactionDate}
+                onChange={(e) =>
+                  onFormChange("transactionDate", e.target.value)
+                }
+                required={true}
+                placeholder={""}
+              />
 
-              {/* Categoria */}
+              {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Categoria
                 </label>
                 <div className="relative">
                   <select
-                    value={formData.category_id}
-                    onChange={(e) =>
-                      handleChange("category_id", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white transition-all duration-300"
+                    value={formData.category}
+                    onChange={(e) => onFormChange("category", e.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 bg-white transition-colors appearance-none ${
+                      errors.category ? "border-red-500" : "border-gray-300"
+                    }`}
                     required
                   >
                     <option value="">Selecione uma categoria</option>
@@ -204,7 +211,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     ))}
                   </select>
                   <svg
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none transition-transform duration-300"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -217,27 +224,35 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     />
                   </svg>
                 </div>
+                {errors.category_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.category_id}
+                  </p>
+                )}
               </div>
             </div>
 
+            <div className="border-t border-gray-200 my-6"></div>
+
             {/* Buttons */}
-            <div className="mt-8 flex flex-col-reverse md:flex-row gap-3">
-              <button
-                type="button"
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <Button
+                variant="secondary"
                 onClick={handleClose}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+                disabled={isLoading}
               >
                 Cancelar
-              </button>
+              </Button>
               <button
                 type="submit"
-                className={`flex-1 px-6 py-3 text-white rounded-lg font-medium hover:shadow-md transition-all duration-300 transform hover:scale-105 ${
+                disabled={isLoading}
+                className={`flex-1 rounded-lg px-6 py-3 text-white font-semibold shadow-lg transition-colors hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed ${
                   formData.type === "income"
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-red-500 hover:bg-red-600"
                 }`}
               >
-                Adicionar Transação
+                {isLoading ? "Adicionando..." : "Adicionar"}
               </button>
             </div>
           </form>

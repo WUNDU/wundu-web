@@ -2,7 +2,6 @@
 import LegalSection from "@/src/components/molecules/LegalSection";
 import {
   InfoIcon,
-  SecurityIcon,
   SettingsDeskIcon,
   ShareIcon,
 } from "@/src/constants/icons";

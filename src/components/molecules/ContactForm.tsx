@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import Input from "@/src/components/atoms/Input";
-import LandingButton from "@/src/components/atoms/LandingButton";
+import Button from "../atoms/Button";
 
 const ContactForm: React.FC = () => {
   const [form, setForm] = useState({
@@ -65,9 +65,9 @@ const ContactForm: React.FC = () => {
         />
       </div>
 
-      <LandingButton type="submit" variant="primary" className="w-full">
+      <Button type="submit" variant="primary" className="w-full">
         Enviar Mensagem
-      </LandingButton>
+      </Button>
     </form>
   );
 };

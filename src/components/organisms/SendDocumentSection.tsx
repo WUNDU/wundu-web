@@ -4,7 +4,8 @@ import { ChevronRight } from "lucide-react";
 import UploadOptions from "../molecules/UploadOption";
 import { SentDocumentsSectionProps } from "@/src/types/button";
 import { NoMovementIcon, SettingsIcon } from "@/src/constants/icons";
-import MoreButton from "../atoms/MoreButton";
+import Button from "../atoms/Button";
+import ArrowRotate from "../icons/ArrowRotate";
 
 type Item = {
   id: number;
@@ -120,10 +121,12 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
         ))}
       </div>
       <div className="flex justify-center items-center mt-4 p-4">
-        <MoreButton
+        <Button
           label="Ver mais"
+          variant="more"
+          rightIcon={<ArrowRotate />}
           onClick={handleLoadMore}
-          isLoading={isLoading}
+          loading={isLoading}
         />
       </div>
     </section>

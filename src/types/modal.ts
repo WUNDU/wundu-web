@@ -1,7 +1,7 @@
-export type ModalType = "success" | "error" | "info";
+export type ModalType = "success" | "error" | "info" | null;
 
 export type ModalIconProps = {
-  type: "success" | "error" | "info";
+  type: "success" | "error" | "info" | null;
 };
 
 export type ModalContentProps = {
@@ -70,7 +70,7 @@ export interface AddTransactionModalProps {
     type: string;
     amount: number;
     description: string;
-    transaction_date: string;
+    transactionDate: string;
     category_id: string;
   }) => void;
 }

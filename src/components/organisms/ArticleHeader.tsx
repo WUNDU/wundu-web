@@ -1,6 +1,5 @@
 import React from "react";
 import NavigationBack from "../atoms/NavigationBack";
-import { DownloadIcon } from "@/src/constants/icons";
 
 interface ArticleHeaderProps {
   onBack: () => void;

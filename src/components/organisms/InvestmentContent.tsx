@@ -1,8 +1,8 @@
 import React from "react";
 import InvestmentTypeCard from "../molecules/InvestmentTypeCard";
-import MoreButton from "../atoms/MoreButton";
 import { InvestmentContentProps } from "@/src/types/article";
 import { DownloadIcon } from "@/src/constants/icons";
+import Button from "../atoms/Button";
 
 const InvestmentContent: React.FC<
   InvestmentContentProps & { imageUrl?: string }
@@ -70,10 +70,11 @@ const InvestmentContent: React.FC<
 
       {/* Load more button */}
       <div className="flex justify-center">
-        <MoreButton
+        <Button
+          variant="more"
           label="Ler mais"
           onClick={handleLoadMore}
-          isLoading={isLoading}
+          loading={isLoading}
           color="bg-gray-100 hover:bg-gray-200"
         />
       </div>

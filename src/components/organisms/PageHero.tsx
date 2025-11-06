@@ -1,9 +1,9 @@
 // src/components/organisms/PageHero/index.tsx
 import React from "react";
 import { ArrowRight } from "lucide-react";
-import LandingButton from "@/src/components/atoms/LandingButton";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
+import Button from "../atoms/Button";
 
 interface PageHeroProps {
   title: string | React.ReactNode;
@@ -63,13 +63,14 @@ const PageHero: React.FC<PageHeroProps> = ({
 
         {showButton && (
           <div className="mt-12 fade-in-section animate-in delay-4">
-            <LandingButton
+            <Button
+              variant="landing"
               onClick={handleLogin}
               className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl"
             >
               <span>{buttonText}</span>
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </LandingButton>
+            </Button>
           </div>
         )}
       </div>

@@ -5,12 +5,12 @@ import Image from "next/image";
 import { logo } from "@/src/constants/images";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
-import GoogleLoginButton from "../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
 import NavigationBack from "../atoms/NavigationBack";
 import { validateEmail, validatePhoneNumber } from "@/src/utils/validation";
+import { GoogleIcon } from "@/src/constants/icons";
 
 const PersonalData = () => {
   const { data, setRegisterData, nextStep } = useRegisterContext();
@@ -112,8 +112,12 @@ const PersonalData = () => {
           <span className="mx-4 shrink text-gray-500">Ou</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
-        <div className="m-3.5">
-          <GoogleLoginButton />
+        <div className="m-3.5 flex items-center justify-center">
+          <Button
+            variant="google"
+            leftIcon={<GoogleIcon className="w-5" />}
+            label="Entrar com Google"
+          />
         </div>
       </div>
       <div className="flex flex-col items-center mt-auto w-full md:w-2/3">

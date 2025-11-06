@@ -1,5 +1,4 @@
 "use client";
-import GoogleLoginButton from "../../atoms/GoogleLoginButton";
 import CtaSectionLogin from "../../molecules/CtaSectionLogin";
 import FormSection from "../../molecules/FormSection";
 import {
@@ -11,6 +10,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/src/constants/routes";
 import { useState } from "react";
+import Button from "../../atoms/Button";
+import { Twitch } from "lucide-react";
+import { GoogleIcon } from "@/src/constants/icons";
 
 const LoginScreen: React.FC = () => {
   const [hasError, setHasError] = useState(false);
@@ -72,7 +74,11 @@ const LoginScreen: React.FC = () => {
                   <div className="flex-grow border-t border-gray-300"></div>
                 </div>
 
-                <GoogleLoginButton />
+                <Button
+                  variant="google"
+                  leftIcon={<GoogleIcon className="w-5" />}
+                  label="Entrar com Google"
+                />
 
                 {/* Link de registro para mobile - oculto em desktop */}
                 <div className="mt-8 text-center md:hidden">

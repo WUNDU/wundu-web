@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import Input from "../atoms/InputCode";
 import { CodeInputProps } from "@/src/types/input";
+import Input from "../atoms/Input";
 
 const CodeInput: React.FC<CodeInputProps> = ({
   length,
@@ -56,7 +56,7 @@ const CodeInput: React.FC<CodeInputProps> = ({
           key={index}
           id={`code-input-${index}`}
           type="tel"
-          className={`text-center w-12 h-12 text-3xl ${shadowClass} border ${borderColorClass}`}
+          className={`text-center rounded-lg w-12 h-12 text-3xl ${shadowClass} border ${borderColorClass}`}
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
