@@ -83,6 +83,16 @@ const HomeScreen: React.FC = () => {
       <NotificationToast />
 
       {/* Modal de Adicionar Transação */}
+      <AddTransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={closeTransactionModal}
+        onSubmit={handleTransactionSubmit}
+        formData={formData}
+        errors={errors}
+        isLoading={isTransactionLoading}
+        submitError={submitError}
+        onFormChange={handleTransactionChange}
+      />
     </HomeScreenLayout>
   );
 };
