@@ -3,9 +3,7 @@ import { HistoryIcon, IAIcon, PlusIcon } from "@/src/constants/icons";
 import NavigationBack from "../atoms/NavigationBack";
 import FinancialObjectiveCard from "../molecules/FinancialObjectiveCard";
 import GreetingHeader from "../molecules/GreetingHeader";
-import Sidebar from "../molecules/Sidebar";
 import SidebarRight from "../molecules/SideBarRight";
-import { ArrowsLeftIcon } from "@/src/constants/icons";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
 import React, { useState } from "react";
@@ -75,35 +73,14 @@ const FinancialObjectiveScreen: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800 min-h-0">
       {/* Sidebar positioned absolutely */}
-      <div
-        className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar />
-      </div>
 
       {/* Main content with conditional margin for sidebar */}
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ml-0 ${
-          isSidebarOpen ? "md:ml-64" : "md:ml-0"
+          isSidebarOpen ? "" : "md:ml-0"
         }`}
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
-
-        {/* Sidebar toggle button */}
-        <button
-          onClick={toggleSidebar}
-          className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${
-            isSidebarOpen ? "left-58" : "left-0"
-          }`}
-        >
-          <ArrowsLeftIcon
-            className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${
-              isSidebarOpen ? "" : "rotate-180"
-            }`}
-          />
-        </button>
 
         <main className="p-4 space-y-6 flex-1 overflow-y-auto min-h-0">
           <div className="md:hidden">

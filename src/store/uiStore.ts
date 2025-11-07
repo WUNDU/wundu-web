@@ -27,9 +27,8 @@ export const useUiStore = create<UiStore>((set, get) => ({
     type,
     title,
     message,
-    { duration = 40000, onClose } = {}
+    { duration = 4000, onClose } = {}
   ) => {
-    // Fecha notificação anterior imediatamente se existir
     get().closeNotification();
 
     const notification: Notification = { type, title, message, onClose };

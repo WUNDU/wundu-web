@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
@@ -21,8 +21,20 @@ interface Conversation {
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const [activeItem, setActiveItem] = useState("");
-  const [isInChatPage, setIsInChatPage] = useState(false);
+
+  const menuItems = useMemo(
+    () => [
+      { name: "Home", path: ROUTES.HOME, icon: HomeDeskIcon },
+      { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon },
+      {
+        name: "Objetivos Financeiros",
+        path: ROUTES.FINANCIAL,
+        icon: ImageIcon,
+      },
+    ],
+    []
+  );
+
   const [conversations, setConversations] = useState<Conversation[]>([
     {
       id: "1",
@@ -56,104 +68,80 @@ const Sidebar = () => {
     },
   ]);
 
-  const menuItems = [
-    { name: "Home", path: ROUTES.HOME, icon: HomeDeskIcon },
-    { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon },
-    { name: "Objetivos Financeiros", path: ROUTES.FINANCIAL, icon: ImageIcon },
-  ];
+  // Detectar se está em página de chat
+  const isInChatPage = useMemo(
+    () => pathname.includes("/chat") || pathname.includes("/ai"),
+    [pathname]
+  );
 
-  useEffect(() => {
-    const isChatRoute = pathname.includes("/chat") || pathname.includes("/ai");
-    setIsInChatPage(isChatRoute);
-    if (isChatRoute) {
-      setActiveItem("Wundu AI");
-    } else {
-      const currentItem = menuItems.find((item) => item.path === pathname);
-      setActiveItem(currentItem ? currentItem.name : "Home");
-    }
-  }, [pathname]);
-
-  const handleDeleteConversation = (
-    conversationId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    setConversations((prev) =>
-      prev.filter((conv) => conv.id !== conversationId)
-    );
-  };
-
-  const handleNewChat = () => {
-    console.log("Nova conversa");
-  };
+  // Encontrar item ativo baseado na rota atual
+  const activeItem = useMemo(() => {
+    if (isInChatPage) return "Wundu AI";
+    return menuItems.find((item) => item.path === pathname)?.name || "Home";
+  }, [pathname, isInChatPage, menuItems]);
 
   return (
-    <nav className="hidden md:flex h-full flex-col w-64 bg-white py-5 shadow-sm border-r border-gray-200 overflow-hidden">
+    <nav className="flex flex-col h-full w-64 bg-white py-5 shadow-sm border-r border-gray-200 overflow-hidden">
       {/* Logo Header */}
-      <div className="flex items-center justify-center mb-6 border-b-2 pb-5 shadow-sm border-gray-300">
+      <div className="flex items-center justify-center mb-6 border-b-2 pb-5 border-gray-300 px-4">
         <Image
           src={logo}
           alt="Wundu Logo"
           className="w-12 h-12 rounded-full bg-gray-100"
+          priority
         />
         <span className="text-xl font-bold ml-2">WUNDU</span>
       </div>
+
       {/* Menu Navigation */}
       <div className="px-4 mb-6">
         <p className="text-gray-400 text-sm mb-3">Menu</p>
         <ul className="space-y-1">
-          {menuItems.map((item) => (
-            <li key={item.name}>
-              <Link
-                href={item.path}
-                className={`flex items-center space-x-3 p-3 rounded-xl font-semibold transition-colors text-sm duration-300 ease-in-out ${
-                  activeItem === item.name
-                    ? "bg-yellow-300 text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-                onClick={() => setActiveItem(item.name)}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.name}</span>
-              </Link>
-            </li>
-          ))}
+          {menuItems.map((item) => {
+            const isActive = activeItem === item.name;
+            return (
+              <li key={item.name}>
+                <Link
+                  href={item.path}
+                  prefetch={true}
+                  className={`flex items-center space-x-3 p-3 rounded-xl font-semibold text-sm transition-all duration-200 ease-out ${
+                    isActive
+                      ? "bg-yellow-300 text-white shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
-      {/* Container flexível */}
-      <div className="flex-1 flex flex-col px-4 relative overflow-hidden">
-        {/* Conversas Anteriores */}
+
+      {/* Container flexível para conversas */}
+      <div className="flex-1 flex flex-col px-4 overflow-hidden">
         <div
-          className={`transition-all duration-500 ease-in-out flex flex-col ${
-            isInChatPage
-              ? "opacity-100 transform translate-y-0 flex-1"
-              : "opacity-0 transform translate-y-4 h-0"
-          } overflow-hidden`}
+          className={`flex flex-col transition-all duration-300 ease-out flex-1 ${
+            isInChatPage ? "opacity-100 visible" : "opacity-0 invisible h-0"
+          }`}
         >
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm text-gray-500 flex items-center flex-1">
               <span className="mr-2">Conversas anteriores</span>
               <div className="flex-1 border-b border-gray-300"></div>
             </div>
-            <button
-              onClick={handleNewChat}
-              className="ml-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors duration-300 ease-in-out"
-            >
+            <button className="ml-2 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md hover:bg-blue-100 transition-colors duration-200">
               + Nova
             </button>
           </div>
+
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-2">
-              {conversations.map((conversation, index) => (
+              {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className={`group flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-300 ease-in-out ${
-                    isInChatPage ? "animate-slide-in" : ""
-                  }`}
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    animationFillMode: "both",
-                  }}
+                  className="group flex items-start p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200"
                 >
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -166,42 +154,15 @@ const Sidebar = () => {
                       {conversation.timestamp}
                     </span>
                   </div>
-                  <button
-                    onClick={(e) =>
-                      handleDeleteConversation(conversation.id, e)
-                    }
-                    className="opacity-0 group-hover:opacity-100 ml-2 p-1 rounded hover:bg-gray-200 transition-all duration-200 ease-in-out"
-                    title="Deletar conversa"
-                  >
+                  <button className="opacity-0 group-hover:opacity-100 ml-2 p-1 rounded hover:bg-gray-200 transition-all duration-200">
                     <TrashIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
                   </button>
                 </div>
               ))}
             </div>
-            {conversations.length === 0 && (
-              <div className="text-center text-gray-400 text-sm py-8">
-                Nenhuma conversa anterior
-              </div>
-            )}
           </div>
         </div>
       </div>
-      {/* Estilos CSS */}
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.6s ease-out forwards;
-        }
-      `}</style>
     </nav>
   );
 };

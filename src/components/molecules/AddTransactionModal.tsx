@@ -53,7 +53,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         "Transação Adicionada!",
         "Sua transação foi registrada com sucesso."
       );
-      handleClose();
     }
   };
 

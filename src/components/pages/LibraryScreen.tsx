@@ -10,9 +10,8 @@ import BottomNavigation from "../organisms/BottomNavigation";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
 import GreetingHeader from "../molecules/GreetingHeader";
-import Sidebar from "../molecules/Sidebar";
 import SidebarRight from "../molecules/SideBarRight";
-import { ArrowsLeftIcon, NoMovementIcon } from "@/src/constants/icons";
+import { NoMovementIcon } from "@/src/constants/icons";
 import InvestmentContent from "../organisms/InvestmentContent";
 import {
   categories,
@@ -175,15 +174,6 @@ const LibraryScreen = () => {
 
       {/* Layout Desktop - Seguindo exatamente a imagem */}
       <div className="hidden md:flex h-screen bg-gray-50 relative overflow-hidden font-sans antialiased text-gray-800">
-        {/* Sidebar Esquerdo */}
-        <div
-          className={`absolute left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <Sidebar />
-        </div>
-
         {/* Conteúdo Principal */}
         <div
           className={`flex-1 flex flex-col transition-all duration-300 ${
@@ -191,19 +181,6 @@ const LibraryScreen = () => {
           } h-full`}
         >
           <GreetingHeader onToggleSidebar={toggleSidebarRight} />
-
-          <button
-            onClick={toggleSidebar}
-            className={`hidden md:flex fixed my-12 -translate-y-1/2 cursor-pointer z-40 transition-all duration-300 ${
-              isSidebarOpen ? "left-58" : "left-0"
-            }`}
-          >
-            <ArrowsLeftIcon
-              className={`w-8 h-8 bg-blue-950 ml-2 p-2 rounded-full border border-blue-950 transform transition-transform duration-300 ${
-                isSidebarOpen ? "" : "rotate-180"
-              }`}
-            />
-          </button>
 
           {/* Container principal */}
           <main className="flex-1 px-4 pb-0 flex h-full overflow-hidden">

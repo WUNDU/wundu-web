@@ -15,17 +15,6 @@ export const useHomeScreen = () => {
     right: false,
   });
 
-  const { showNotification } = useUiStore();
-
-  // Mostrar notificação inicial
-  useEffect(() => {
-    showNotification(
-      "success",
-      "Transação Adicionada!",
-      "Sua transação foi registrada com sucesso."
-    );
-  }, [showNotification]);
-
   // Toggle functions
   const toggleModal = (modal: keyof typeof modals) => {
     setModals((prev) => ({ ...prev, [modal]: !prev[modal] }));
