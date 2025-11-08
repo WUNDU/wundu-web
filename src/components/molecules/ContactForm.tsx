@@ -1,4 +1,3 @@
-// src/components/molecules/ContactForm/index.tsx
 "use client";
 import { useState } from "react";
 import Input from "@/src/components/atoms/Input";
@@ -14,8 +13,6 @@ const ContactForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Lógica para enviar o formulário
-    console.log("Formulário enviado:", form);
   };
 
   return (

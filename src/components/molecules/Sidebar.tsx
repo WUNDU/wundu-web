@@ -68,13 +68,11 @@ const Sidebar = () => {
     },
   ]);
 
-  // Detectar se está em página de chat
   const isInChatPage = useMemo(
     () => pathname.includes("/chat") || pathname.includes("/ai"),
     [pathname]
   );
 
-  // Encontrar item ativo baseado na rota atual
   const activeItem = useMemo(() => {
     if (isInChatPage) return "Wundu AI";
     return menuItems.find((item) => item.path === pathname)?.name || "Home";

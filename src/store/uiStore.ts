@@ -1,4 +1,3 @@
-// store/uiStore.ts
 import { create } from "zustand";
 
 export type NotificationType = "success" | "error" | "info";

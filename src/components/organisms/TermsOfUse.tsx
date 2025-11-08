@@ -1,4 +1,3 @@
-// src/components/organisms/TermsOfUse/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
 import { DocumentIcon, EditIcon, InfoIcon } from "@/src/constants/icons";
 import {

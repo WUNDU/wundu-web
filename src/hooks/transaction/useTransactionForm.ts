@@ -1,4 +1,3 @@
-// src/hooks/useTransactionForm.ts
 import type {
   TransactionFormData,
   TransactionFormField,
@@ -20,16 +19,13 @@ export const useTransactionForm = (
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Agora aceita TransactionFormField como tipo para o field
   const handleChange = (field: TransactionFormField, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  // ... restante do código permanece igual
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 

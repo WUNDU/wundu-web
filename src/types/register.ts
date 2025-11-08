@@ -18,7 +18,7 @@ export interface RegisterContextType {
   loginUser: (email: string, password: string) => Promise<void>;
   logoutUser: () => void;
   token: string | null;
-  user: User | null; // Add user to the interface
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }

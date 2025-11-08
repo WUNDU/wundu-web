@@ -31,10 +31,9 @@ api.interceptors.request.use(
     if (!config.headers) {
       config.headers = {} as any;
     }
-    // Não adicionar token para endpoints públicos
     const publicEndpoints = ["/users", "/auth/login"];
     if (!publicEndpoints.some((endpoint) => config.url?.includes(endpoint))) {
-      const token = localStorage.getItem("token") || ""; // Remova 'Bearer <your-token-here>' para evitar token estático
+      const token = localStorage.getItem("token") || "";
       if (token) {
         config.headers.Authorization = token;
       }

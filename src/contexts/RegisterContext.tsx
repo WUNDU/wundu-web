@@ -1,4 +1,3 @@
-// src/context/RegisterContext.tsx
 "use client";
 import {
   createContext,
@@ -103,14 +102,10 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
       const result = await UserService.login(email, password);
       console.log("Login bem-sucedido:", result);
 
-      // Atualiza o token primeiro
       setToken(result.token);
 
-      // Busca os dados do usuário
       const userData = await UserService.getUser();
       console.log("Dados do usuário:", userData);
-
-      // Atualiza o usuário
       setUser(userData);
 
       return result;
@@ -124,7 +119,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
       setError(message);
       throw new Error(message);
     } finally {
-      // IMPORTANTE: Só marca como não carregando após tudo estar pronto
       setIsLoading(false);
     }
   };
@@ -142,7 +136,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isAuthenticated = useMemo(() => {
-    // Só considera autenticado quando já inicializou e tem token + user
     return initialized && !!token && !!user;
   }, [token, user, initialized]);
 

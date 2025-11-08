@@ -1,4 +1,3 @@
-// src/components/organisms/CookiesPolicy/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
 import { SettingsDeskIcon, SettingsIcon } from "@/src/constants/icons";
 import { CookieIcon, PlugIcon } from "lucide-react";

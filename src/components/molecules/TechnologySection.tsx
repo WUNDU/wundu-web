@@ -1,4 +1,3 @@
-// src/components/molecules/TechnologySection/index.tsx
 const TechnologySection: React.FC = () => {
   const technologies = [
     "IA e Machine Learning",

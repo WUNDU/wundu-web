@@ -27,7 +27,6 @@ const ObjectiveForm: React.FC = () => {
   ];
 
   const handleSaveObjective = () => {
-    // Lógica para salvar o objetivo aqui
     console.log("Salvar Objetivo:", {
       objectiveName,
       targetValue,

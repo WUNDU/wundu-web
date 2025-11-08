@@ -1,4 +1,3 @@
-// Átomos
 export interface IconProps {
   initials: string;
   color: string;
@@ -25,7 +24,6 @@ export interface TabProps {
   onClick: (value: string) => void;
 }
 
-// Moléculas
 export interface ChartProps {
   data: ChartDataPoint[];
   lineColor: string;
@@ -40,12 +38,10 @@ export interface HeaderProps {
   isCredit: boolean;
 }
 
-// Organismos
 export interface TransactionsListProps {
   transactions: TransactionProps[];
 }
 
-// Páginas
 export type ViewMode = 'line' | 'pie' | 'bar';
 export type TimeRange = '1D' | '1S' | '1M' | '6M' | '1A';
 

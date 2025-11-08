@@ -42,13 +42,12 @@ const Verification = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Função de teste: o código correto é "123456"
     if (code === "123456") {
       setIsCodeIncorrect(false);
       setIsCodeCorrect(true);
       setTimeout(() => {
         nextStep();
-      }, 500); // Espera um momento para mostrar a borda verde antes de avançar
+      }, 500);
     } else {
       setIsCodeIncorrect(true);
       setIsCodeCorrect(false);

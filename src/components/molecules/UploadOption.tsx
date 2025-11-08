@@ -29,9 +29,9 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
 
   const handleManualButtonClick = () => {
     if (onManualClick) {
-      onManualClick(); // Abre o modal de transação manual
+      onManualClick();
     } else {
-      handleButtonClick(); // Fallback para o comportamento original
+      handleButtonClick();
     }
   };
 

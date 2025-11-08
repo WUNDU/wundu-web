@@ -1,13 +1,6 @@
 import { useState } from "react";
-import { objectives } from "@/src/constants/mockData";
-import NavigationBack from "../atoms/NavigationBack";
-import FinancialProgressCard from "./FinancialProgressCard";
-import GreetingHeader from "./GreetingHeader";
-import IconContainer from "../atoms/IconContainer";
-import { EditIcon, ObjectiveIcon } from "@/src/constants/icons";
 import type { EditModalProps } from "@/src/types/modal";
 
-// Modal Component
 const EditModal: React.FC<EditModalProps> = ({
   isOpen,
   onClose,

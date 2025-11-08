@@ -109,17 +109,11 @@ const LoginScreen: React.FC = () => {
       <div className="mt-4 md:mt-8 w-full max-w-xl text-center md:absolute md:bottom-8 md:left-1/2 md:-translate-x-1/2">
         <p className="mt-1 px-10 text-center text-xs text-gray-500">
           Ao entrar, você concorda com nossos{" "}
-          <Link
-            href="https://wundu.netlify.app/privacy-policy#terms-policy"
-            className="underline"
-          >
+          <Link href={ROUTES.LEGAL} className="underline">
             termos de uso
           </Link>{" "}
           e nossa{" "}
-          <Link
-            href="https://wundu.netlify.app/privacy-policy"
-            className="underline"
-          >
+          <Link href={ROUTES.LEGAL} className="underline">
             política de privacidade
           </Link>
           .

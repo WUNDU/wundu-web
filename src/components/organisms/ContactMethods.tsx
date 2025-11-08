@@ -5,7 +5,6 @@ import {
   PhoneIcon,
 } from "@/src/constants/icons";
 
-// src/components/organisms/ContactMethods/index.tsx
 const ContactMethods: React.FC = () => {
   const contactMethods = [
     {

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";
 import React, { useState } from "react";
 import FinancialProgressCard from "../molecules/FinancialProgressCard";
-import ObjectiveForm from "../organisms/ObjectiveForm"; // Ajuste o caminho conforme necessário
+import ObjectiveForm from "../organisms/ObjectiveForm";
 import SketchPanel from "../molecules/SketchPanel";
 import { objectives } from "@/src/constants/mockData";
 import EditModal from "../molecules/EditModal";

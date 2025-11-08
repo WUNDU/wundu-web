@@ -1,4 +1,3 @@
-// src/components/organisms/PrivacyPolicy/index.tsx
 import LegalSection from "@/src/components/molecules/LegalSection";
 import {
   InfoIcon,

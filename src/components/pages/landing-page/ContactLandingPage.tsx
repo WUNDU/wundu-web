@@ -1,4 +1,3 @@
-// src/components/templates/ContactTemplate/index.tsx
 "use client";
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";

@@ -21,7 +21,6 @@ const SecurityData = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar senha
     if (!validatePassword(form.password)) {
       setPasswordError(
         `Senha deve ter no mínimo 8 caracteres e no máximo 12 (valor rejeitado: '${form.password}')`
@@ -29,7 +28,6 @@ const SecurityData = () => {
       return;
     }
 
-    // Validar confirmação de senha
     if (form.password !== form.confirmPassword) {
       setPasswordError("As senhas não coincidem!");
       return;
@@ -46,7 +44,6 @@ const SecurityData = () => {
       nextStep();
     } catch (err) {
       console.log("Erro capturado em SecurityData:", error);
-      // Não sobrescrever o erro do contexto, apenas logar
     }
   };
 

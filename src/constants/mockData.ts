@@ -27,7 +27,6 @@ export const investmentTypes: InvestmentType[] = [
   },
 ];
 
-// Categorias padrão
 
 export const defaultCategories: Category[] = [
   { id: "transport", name: "Transporte" },
@@ -38,7 +37,6 @@ export const defaultCategories: Category[] = [
   { id: "leisure", name: "Lazer" },
 ];
 
-// Fallback mock data for when no transactions are available
 export const mockDataByTimeRange = {
   "1D": [
     { month: "09:00", value: 15 },
@@ -86,7 +84,6 @@ export const mockDataByTimeRange = {
   ],
 };
 
-// Base transactions with current timestamps for filtering
 export const baseTransactions: (TransactionProps & { timestamp: Date })[] = [
   {
     icon: { initials: "T", color: "white", bgColor: "bg-blue-950" },

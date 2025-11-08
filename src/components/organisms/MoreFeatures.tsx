@@ -5,7 +5,6 @@ import {
 } from "@/src/constants/icons";
 import { ShieldIcon, Phone } from "lucide-react";
 
-// src/components/organisms/MoreFeatures/index.tsx
 const MoreFeatures: React.FC = () => {
   const moreFeatures = [
     {

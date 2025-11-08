@@ -1,4 +1,3 @@
-// src/components/atoms/ProtectedRoute.tsx (or ProtectedLayout.tsx)
 "use client";
 import { useRegisterContext } from "@/src/hooks/useRegisterContext";
 import { useRouter } from "next/navigation";
@@ -29,7 +28,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
   }, [isAuthenticated, isLoading, router, user]);
 
   if (!isAuthenticated) {
-    return null; // Prevent rendering until authenticated
+    return null;
   }
 
   if (isLoading || !checked) {

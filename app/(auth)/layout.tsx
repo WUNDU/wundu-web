@@ -1,4 +1,3 @@
-// app/(auth)/layout.tsx
 "use client";
 import { useRegisterContext } from "@/src/hooks/useRegisterContext";
 import { useRouter } from "next/navigation";
@@ -12,7 +11,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    // Só verifica após o loading terminar
     if (!isLoading) {
       if (isAuthenticated) {
         console.log(
@@ -25,7 +23,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Mostra loading enquanto verifica
   if (isLoading || !checked) {
     return (
       <div className="flex flex-1 justify-center h-screen items-center">
@@ -34,11 +31,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // Se está autenticado (e já verificou), não renderiza
   if (isAuthenticated) {
     return null;
   }
 
-  // Se não está autenticado, renderiza children (login/register)
   return <>{children}</>;
 }

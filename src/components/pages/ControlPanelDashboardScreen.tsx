@@ -31,7 +31,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
 
-  // Filter transactions based on time range
   const filteredTransactions = useMemo(() => {
     const now = new Date();
     const sourceTransactions = isCredit
@@ -68,7 +67,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
       (tx) => tx.timestamp >= cutoffDate
     );
 
-    // Recalculate percentages based on filtered data
     const totalFiltered = filtered.reduce(
       (sum, tx) => sum + Math.abs(tx.amount),
       0
@@ -83,27 +81,23 @@ const ControlPanelDashboardScreen: React.FC = () => {
     }));
   }, [timeRange, isCredit]);
 
-  // Generate chart data based on filtered transactions - showing the same categories as PieChart
   const chartData = useMemo(() => {
     if (filteredTransactions.length === 0) {
       return mockDataByTimeRange[timeRange];
     }
 
-    // Create line chart data based on the transaction categories (same as PieChart)
     switch (timeRange) {
       case "1D": {
-        // Show transactions by category for today with time distribution
         const hours = ["09:00", "12:00", "15:00", "18:00", "21:00"];
         return filteredTransactions
           .slice(0, Math.min(5, filteredTransactions.length))
           .map((tx, index) => ({
             month: hours[index] || `${9 + index * 3}:00`,
-            value: Math.abs(tx.amount) / 1000, // Convert to K format
+            value: Math.abs(tx.amount) / 1000,
           }));
       }
 
       case "1S": {
-        // Show transactions by category for this week
         const days = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
         return filteredTransactions
           .slice(0, Math.min(7, filteredTransactions.length))
@@ -114,7 +108,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
       }
 
       case "1M": {
-        // Show transactions by category for this month (group into weeks if needed)
         if (filteredTransactions.length <= 4) {
           const weeks = ["S1", "S2", "S3", "S4"];
           return filteredTransactions.map((tx, index) => ({
@@ -122,7 +115,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
             value: Math.abs(tx.amount) / 1000,
           }));
         } else {
-          // If more than 4 transactions, group by weeks
           const weeks = ["S1", "S2", "S3", "S4"];
           return weeks.map((week, weekIndex) => {
             const weekTransactions = filteredTransactions.filter(
@@ -143,7 +135,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
       }
 
       case "6M": {
-        // Show transactions by category for 6 months
         const months = ["Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         if (filteredTransactions.length <= 6) {
           return filteredTransactions.map((tx, index) => ({
@@ -151,7 +142,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
             value: Math.abs(tx.amount) / 1000,
           }));
         } else {
-          // Group transactions by month
           return months.map((month, monthIndex) => {
             const monthTransactions = filteredTransactions.filter(
               (_, txIndex) =>
@@ -171,7 +161,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
       }
 
       case "1A": {
-        // Show transactions by category for the year
         const months = [
           "Jan",
           "Fev",
@@ -192,7 +181,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
             value: Math.abs(tx.amount) / 1000,
           }));
         } else {
-          // Group transactions by month
           return months.map((month, monthIndex) => {
             const monthTransactions = filteredTransactions.filter(
               (_, txIndex) =>
@@ -219,7 +207,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const data = chartData;
   const transactions = filteredTransactions;
 
-  // Calculate totals based on filtered transactions
   const totalExpenses = transactions.reduce(
     (sum, tx) => sum + (tx.amount > 0 ? 0 : Math.abs(tx.amount)),
     0
@@ -231,7 +218,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
 
   const headerAmount = isCredit ? totalIncome : totalExpenses;
 
-  // Dynamic header text based on time range
   const getHeaderText = () => {
     const prefix = isCredit ? "Créditos" : "Gastos";
     switch (timeRange) {

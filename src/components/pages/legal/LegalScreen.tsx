@@ -1,4 +1,3 @@
-// src/components/templates/LegalPageTemplate/index.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";

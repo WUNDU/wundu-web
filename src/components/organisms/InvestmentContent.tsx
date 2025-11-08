@@ -11,7 +11,6 @@ const InvestmentContent: React.FC<
 
   const handleLoadMore = () => {
     setIsLoading(true);
-    // Simulate loading more content
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);

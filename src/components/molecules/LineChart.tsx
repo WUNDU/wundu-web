@@ -18,7 +18,6 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
   );
 
   useEffect(() => {
-    // Reset selected index when data changes
     setSelectedIndex(Math.floor(data.length / 2));
   }, [data]);
 
@@ -34,9 +33,9 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
 
     const values = data.map((d) => d.value);
     const maxVal = Math.max(...values);
-    const minVal = 0; // Set min to 0 to match the image starting at 0
+    const minVal = 0;
 
-    if (selectedIndex < 0 || selectedIndex >= data.length) return; // Handle error if needed
+    if (selectedIndex < 0 || selectedIndex >= data.length) return;
 
     const selectedMonth = data[selectedIndex].month;
     const selectedValue = data[selectedIndex].value;
@@ -62,7 +61,7 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
             borderWidth: 2,
             backgroundColor: `${lineColor}22`,
             fill: true,
-            tension: 0.3, // Slight curve to match wavy appearance in image
+            tension: 0.3,
             pointRadius: pointRadii,
             pointBackgroundColor: pointBackgroundColors,
             pointBorderColor: pointBorderColors,
@@ -148,32 +147,31 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
         },
         elements: {
           point: {
-            hitRadius: 10, // Increase hit radius for easier clicking
+            hitRadius: 10,
           },
         },
       },
     });
 
-    // Adjust label position after chart creation
     if (chartRef.current) {
       const chart = chartRef.current;
       const yScale = chart.scales["y"];
       const xScale = chart.scales["x"];
       const pixelY = yScale.getPixelForValue(selectedValue);
       const pixelX = xScale.getPixelForValue(selectedIndex);
-      const labelHeightApprox = 30; // Approximate label height
-      const labelWidthApprox = 60; // Approximate label width
+      const labelHeightApprox = 30; 
+      const labelWidthApprox = 60; 
 
-      let yAdj = -35; // Default above
+      let yAdj = -35; 
       if (pixelY + yAdj < yScale.top + labelHeightApprox / 2) {
-        yAdj = 35; // Place below if overflowing top
+        yAdj = 35; 
       }
 
-      let xAdj = 30; // Default to the right
+      let xAdj = 30;
       if (pixelX + xAdj + labelWidthApprox > xScale.right) {
-        xAdj = -30 - labelWidthApprox; // Place to the left if overflowing right
+        xAdj = -30 - labelWidthApprox; 
       } else if (pixelX + xAdj < xScale.left) {
-        xAdj = 0; // Center if overflowing left
+        xAdj = 0; 
       }
 
       const annotationPluginOptions = chart.options.plugins?.annotation;

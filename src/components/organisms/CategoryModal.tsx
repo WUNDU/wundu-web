@@ -15,7 +15,6 @@ const CategoryModal = () => {
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Categorias padrão
   const defaultCategories: Category[] = [
     { id: "transport", name: "Transporte", color: "#F59E0B" },
     { id: "food", name: "Alimentação" },
@@ -34,7 +33,6 @@ const CategoryModal = () => {
       saveCategory();
       setShowSuccessModal(true);
 
-      // Fechar modal de sucesso após 2 segundos
       setTimeout(() => {
         setShowSuccessModal(false);
         setIsCategoryModalOpen(false);
@@ -50,7 +48,6 @@ const CategoryModal = () => {
 
   if (!isCategoryModalOpen) return null;
 
-  // Modal de sucesso
   if (showSuccessModal) {
     return (
       <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">

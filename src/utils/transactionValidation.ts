@@ -1,4 +1,3 @@
-// src/services/validation/transactionValidation.ts
 export interface ValidationResult {
   isValid: boolean;
   errors: Record<string, string>;

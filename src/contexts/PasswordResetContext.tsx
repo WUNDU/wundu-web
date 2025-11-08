@@ -16,7 +16,6 @@ export const usePasswordResetContext = () => {
   return context;
 };
 
-// Provedor do Contexto
 export const PasswordResetProvider = ({
   children,
 }: {

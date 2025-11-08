@@ -7,7 +7,6 @@ const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
   const { showPreferences, setShowPreferences } = useCookieConsent();
 
-  // Cookie functions (mantenha as mesmas funções do código anterior)
   const setCookie = (name: string, value: string, days: number) => {
     let expires = "";
     if (days) {

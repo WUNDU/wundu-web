@@ -1,4 +1,3 @@
-// src/components/templates/AboutTemplate/index.tsx (Adaptado para usar FeaturesSection no lugar da seção hardcoded de valores)
 "use client";
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";
@@ -8,7 +7,6 @@ import TextSection from "@/src/components/molecules/TextSection";
 import TechnologySection from "@/src/components/molecules/TechnologySection";
 import FeaturesSection from "@/src/components/organisms/FeaturesSection";
 
-// Import ícones para os valores
 import { Shield, Zap, Lightbulb, Eye } from "lucide-react";
 
 const AboutLandingPage: React.FC = () => {
@@ -31,7 +29,6 @@ const AboutLandingPage: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Dados para a seção de valores
   const values = [
     {
       icon: <Shield className="w-10 h-10 text-orange-600" />,

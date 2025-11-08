@@ -30,13 +30,11 @@ const PersonalData = () => {
     let valid = true;
     const newErrors = { email: "", phone: "" };
 
-    // Validar email
     if (!validateEmail(form.email)) {
       newErrors.email = "Por favor, insira um email válido";
       valid = false;
     }
 
-    // Validar telefone
     if (!validatePhoneNumber(form.phone)) {
       newErrors.phone = "O número de telefone deve conter apenas dígitos";
       valid = false;

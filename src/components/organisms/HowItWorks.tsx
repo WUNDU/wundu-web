@@ -4,7 +4,6 @@ import {
   RobotIcon,
 } from "@/src/constants/icons";
 
-// src/components/organisms/HowItWorks/index.tsx
 const HowItWorks: React.FC = () => {
   const steps = [
     {

@@ -7,7 +7,7 @@ interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   isError?: boolean;
   maxLength?: number;
-  showSendButton?: boolean; // ativa o botão de enviar (caso estilo chat)
+  showSendButton?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, BaseInputProps>(

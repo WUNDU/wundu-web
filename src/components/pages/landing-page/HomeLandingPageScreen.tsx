@@ -1,4 +1,3 @@
-// src/components/templates/LandingTemplate/index.tsx (WunduLanding - Home Landing Page atualizada com FeaturesSection populada)
 "use client";
 import React, { useEffect } from "react";
 import LandingHeader from "@/src/components/organisms/LandingHeader";

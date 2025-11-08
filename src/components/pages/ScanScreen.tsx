@@ -14,7 +14,6 @@ import {
 import CategoryScreen from "./CategoryScreen";
 import DetailsModal from "../organisms/DetailsModal";
 
-// Tipagem para o componente principal
 const ScanScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
@@ -92,7 +91,6 @@ const ScanScreen = () => {
   );
 };
 
-// Tipagem para o componente auxiliar
 interface ScanMainContentProps {
   documents: Document[];
   showUploadOptions: boolean;
@@ -102,7 +100,6 @@ interface ScanMainContentProps {
   onCategoryCloseOrSuccess: () => void;
 }
 
-// Componente auxiliar para o conteúdo principal, separado como organism/template
 const ScanMainContent: React.FC<ScanMainContentProps> = ({
   documents,
   showUploadOptions,

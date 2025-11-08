@@ -1,4 +1,3 @@
-// src/components/organisms/AddTransactionModal/AddTransactionModal.tsx
 import { useEffect, useState } from "react";
 import Button from "@/src/components/atoms/Button";
 import type { TransactionFormData } from "@/src/types/transaction/transaction_type";
@@ -13,7 +12,7 @@ interface AddTransactionModalProps {
   errors: Record<string, string>;
   isLoading: boolean;
   submitError: string;
-  onFormChange: (field: string, value: string) => void; // Mantém como string para flexibilidade
+  onFormChange: (field: string, value: string) => void;
 }
 
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({

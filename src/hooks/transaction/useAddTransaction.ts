@@ -1,4 +1,3 @@
-// src/hooks/useAddTransactionModal.ts
 import { useState } from "react";
 import { useTransactionForm } from "./useTransactionForm";
 import { TransactionService } from "@/src/services/TransactionService";
@@ -10,7 +9,7 @@ export const useAddTransactionModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string>("");
 
-  console.log("Hook state - isOpen:", isOpen); // Debug
+  console.log("Hook state - isOpen:", isOpen);
 
   const { user } = useRegisterContext();
 
@@ -18,13 +17,13 @@ export const useAddTransactionModal = () => {
     useTransactionForm();
 
   const openModal = () => {
-    console.log("Opening modal..."); // Debug
+    console.log("Opening modal...");
     setIsOpen(true);
     setSubmitError("");
   };
 
   const closeModal = () => {
-    console.log("Closing modal..."); // Debug
+    console.log("Closing modal...");
     setIsOpen(false);
     resetForm();
     setSubmitError("");
@@ -65,22 +64,16 @@ export const useAddTransactionModal = () => {
     }
   };
 
-  // Função wrapper para compatibilidade com o modal
   const handleFormChange = (field: string, value: string) => {
     handleChange(field as TransactionFormField, value);
   };
 
   return {
-    // State
     isOpen,
     isLoading,
     submitError,
-
-    // Form
     formData,
     errors,
-
-    // Actions
     openModal,
     closeModal,
     handleChange: handleFormChange,

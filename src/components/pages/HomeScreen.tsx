@@ -1,99 +1,237 @@
 "use client";
-import React from "react";
+
+import React, { useState } from "react";
+import GreetingHeader from "../molecules/GreetingHeader";
+import UploadSection from "../organisms/UploadSection";
+import BottomNavigation from "../organisms/BottomNavigation";
+import SentDocumentsSection from "../organisms/SendDocumentSection";
+import { Document } from "@/src/types/button";
 import LoadingSpinner from "../atoms/LoadingSpinner";
-import { CategoryProvider } from "@/src/contexts/CategoryContext";
-import { NotificationToast } from "../organisms/NotificationToast";
+import Sidebar from "../molecules/Sidebar";
+import StatsSection from "../molecules/StatsSection";
+import SidebarRight from "../molecules/SideBarRight";
+import { ArrowsLeftIcon } from "@/src/constants/icons";
+import {
+  CategoryProvider,
+  useCategoryContext,
+} from "@/src/contexts/CategoryContext";
+import CategoryScreen from "./CategoryScreen";
+import MovementSection from "../molecules/MovimentSection";
+import DetailsModal from "../organisms/DetailsModal";
 import AddTransactionModal from "../molecules/AddTransactionModal";
 import { useAddTransactionModal } from "@/src/hooks/transaction/useAddTransaction";
-import { HomeContent } from "../organisms/HomeContent";
-import { useHomeScreen } from "@/src/hooks/home/useHomeScreen";
-import { HomeScreenLayout } from "../organisms/HomeScreenLayout";
+import { NotificationToast } from "../organisms/NotificationToast";
 
-/**
- * HomeScreen - Tela principal da aplicação
- *
- * Responsabilidades:
- * - Gerenciar estado global da tela (sidebars, modais, documentos)
- * - Coordenar interações entre componentes filhos
- * - Prover contexto de categorias para componentes aninhados
- */
-const HomeScreen: React.FC = () => {
-  // Custom hooks para gerenciamento de estado
-  const {
-    documents,
-    isLoading,
-    modals,
-    sidebars,
-    toggleModal,
-    toggleSidebar,
-    closeModal,
-    handleFileSelect,
-    handleCategorySuccess,
-  } = useHomeScreen();
-
+const HomeScreen = () => {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
+  const [setIsTransactionModalOpen] = useState(false);
   const {
     isOpen: isTransactionModalOpen,
     submitError,
     formData,
     isLoading: isTransactionLoading,
     errors,
-    openModal: openTransactionModal,
-    closeModal: closeTransactionModal,
-    handleChange: handleTransactionChange,
-    handleSubmit: handleTransactionSubmit,
+    openModal,
+    closeModal,
+    handleChange,
+    handleSubmit,
   } = useAddTransactionModal();
 
-  // Renderização condicional de loading
-  if (isLoading) {
-    return (
-      <HomeScreenLayout
-        isSidebarOpen={sidebars.left}
-        isSidebarRightOpen={sidebars.right}
-        onToggleSidebar={() => toggleSidebar("left")}
-        onToggleSidebarRight={() => toggleSidebar("right")}
-      >
-        <div className="flex flex-1 items-center justify-center h-full">
-          <LoadingSpinner />
-        </div>
-      </HomeScreenLayout>
-    );
-  }
+  const handleOpenTransactionModal = () => {
+    openModal();
+  };
+
+  const toggleUploadOptions = () => {
+    setShowUploadOptions(!showUploadOptions);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleSidebarRight = () => {
+    setIsSidebarRightOpen(!isSidebarRightOpen);
+  };
+
+  const handleFileSelect = async (file: File, type: "image" | "document") => {
+    setIsLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setDocuments((prevDocs) => [...prevDocs, { name: file.name, type }]);
+    } catch (error) {
+      console.log("Erro ao fazer upload do arquivo:", error);
+    } finally {
+      setIsLoading(false);
+      setShowModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleCategoryCloseOrSuccess = () => {
+    setShowUploadOptions(false);
+  };
 
   return (
-    <HomeScreenLayout
-      isSidebarOpen={sidebars.left}
-      isSidebarRightOpen={sidebars.right}
-      onToggleSidebar={() => toggleSidebar("left")}
-      onToggleSidebarRight={() => toggleSidebar("right")}
-    >
-      <CategoryProvider onClose={() => closeModal("details")}>
-        <HomeContent
-          documents={documents}
-          showUploadOptions={modals.uploadOptions}
-          showDetailsModal={modals.details}
-          onUploadClick={() => toggleModal("uploadOptions")}
-          onCloseDetails={() => closeModal("details")}
-          onFileSelect={handleFileSelect}
-          onManualClick={openTransactionModal}
-          onCategorySuccess={handleCategorySuccess}
-        />
-      </CategoryProvider>
+    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800">
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300  h-full`}
+      >
+        <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
-      {/* Notificações Globais */}
+        {/* Container principal com padding para BottomNavigation no mobile */}
+        <main className="flex-1 mb-0 px-4 pb-20 md:pb-0 flex flex-col h-full overflow-y-auto">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center h-full">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              {/* Seção Superior */}
+              <div className="md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0 h-auto">
+                <div className="md:hidden flex flex-col flex-1">
+                  <StatsSection
+                    totalFiles={0}
+                    totalProofs={0}
+                    totalImages={0}
+                  />
+                </div>
+                <div className="hidden md:flex flex-col flex-1">
+                  <UploadSection onUploadClick={toggleUploadOptions} />
+                </div>
+                <div className="hidden md:flex flex-1 items-center justify-center md:col-span-2">
+                  <StatsSection
+                    totalFiles={0}
+                    totalProofs={0}
+                    totalImages={0}
+                  />
+                </div>
+              </div>
+
+              {/* Seção Principal */}
+              <CategoryProvider onClose={handleCloseModal}>
+                <MainContent
+                  documents={documents}
+                  showUploadOptions={showUploadOptions}
+                  showModal={showModal}
+                  handleCloseModal={handleCloseModal}
+                  handleFileSelect={handleFileSelect}
+                  onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
+                  onManualClick={handleOpenTransactionModal}
+                />
+              </CategoryProvider>
+            </>
+          )}
+        </main>
+
+        {/* BottomNavigation - apenas no mobile */}
+        <BottomNavigation />
+      </div>
+
+      {/* Sidebar Direito */}
+      <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
       <NotificationToast />
-
-      {/* Modal de Adicionar Transação */}
       <AddTransactionModal
         isOpen={isTransactionModalOpen}
-        onClose={closeTransactionModal}
-        onSubmit={handleTransactionSubmit}
+        onClose={closeModal}
+        onSubmit={handleSubmit}
         formData={formData}
         errors={errors}
-        isLoading={isTransactionLoading}
+        isLoading={isLoading}
         submitError={submitError}
-        onFormChange={handleTransactionChange}
+        onFormChange={handleChange} // Tipos compatíveis agora
       />
-    </HomeScreenLayout>
+    </div>
+  );
+};
+
+const MainContent = ({
+  documents,
+  showUploadOptions,
+  showModal,
+  handleCloseModal,
+  handleFileSelect,
+  onCategoryCloseOrSuccess,
+  onManualClick,
+}: {
+  documents: Document[];
+  showUploadOptions: boolean;
+  showModal: boolean;
+  handleCloseModal: () => void;
+  handleFileSelect: (file: File, type: "image" | "document") => void;
+  onCategoryCloseOrSuccess: () => void;
+  onManualClick: () => void;
+}) => {
+  const { isCategoryModalOpen } = useCategoryContext();
+
+  const rightContentDesktop = showModal ? (
+    <DetailsModal onClose={handleCloseModal} />
+  ) : isCategoryModalOpen ? (
+    <CategoryScreen />
+  ) : (
+    <MovementSection documents={documents} />
+  );
+
+  return (
+    <>
+      <div
+        className={`flex flex-col flex-1  ${
+          showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
+        }`}
+      >
+        {!showUploadOptions ? (
+          <div className="flex flex-col flex-1 h-full">
+            {/* Mobile: Sempre MovementSection ou modais como overlay */}
+            <div className="md:hidden flex flex-1 flex-col">
+              <MovementSection documents={documents} />
+            </div>
+            {/* Desktop: Substitui por modais se ativos, full width quando !showUploadOptions */}
+            <div className="hidden md:block flex-col flex-1 h-full">
+              {rightContentDesktop}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: SentDocumentsSection full */}
+            <div className="flex flex-col flex-1 h-full md:hidden">
+              <SentDocumentsSection
+                documents={[]}
+                showOptions={true}
+                onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
+              />
+            </div>
+            {/* Desktop: SentDocumentsSection sempre visível à esquerda */}
+            <div className="md:flex items-start mt-2 h-full hidden">
+              <SentDocumentsSection
+                documents={[]}
+                showOptions={true}
+                onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
+              />
+            </div>
+            {/* Desktop: Área direita (substituição da MovementSection) */}
+            <div className="sm:flex flex-col flex-1 h-full hidden col-span-3 md:block">
+              {rightContentDesktop}
+            </div>
+          </>
+        )}
+      </div>
+      {/* Mobile: Modais como overlay */}
+      <div className="md:hidden">
+        {showModal && <DetailsModal onClose={handleCloseModal} />}
+        {isCategoryModalOpen && (
+          <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />
+        )}
+      </div>
+    </>
   );
 };
 

@@ -1,4 +1,3 @@
-// src/components/molecules/TextSection/index.tsx
 interface TextSectionProps {
   title: string;
   content: string;

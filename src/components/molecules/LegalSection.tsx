@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-// src/components/molecules/LegalSection/index.tsx
 interface LegalSectionProps {
   icon: ReactNode;
   title: string;

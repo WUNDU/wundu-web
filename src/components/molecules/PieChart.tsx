@@ -28,7 +28,6 @@ const PieChart: React.FC<PieChartProps> = ({
       chartRef.current.destroy();
     }
 
-    // Only create chart if there are transactions
     if (transactions.length === 0) {
       return;
     }
@@ -38,7 +37,6 @@ const PieChart: React.FC<PieChartProps> = ({
       afterDatasetsDraw(chart: Chart) {
         const { ctx, chartArea } = chart;
         ctx.save();
-        // Calculate the center using chartArea for accurate positioning
         const x = (chartArea.left + chartArea.right) / 2;
         const y = (chartArea.top + chartArea.bottom) / 2;
         ctx.textAlign = "center";
@@ -49,7 +47,6 @@ const PieChart: React.FC<PieChartProps> = ({
         ctx.font = "24px sans-serif";
         ctx.fillText(`KZ ${totalAmount.toLocaleString("pt-AO")}`, x, y);
         ctx.font = "14px sans-serif";
-        // Use the dynamic time range text
         const displayText = timeRangeText
           .replace("Gastos ", "")
           .replace("Créditos ", "");
@@ -118,7 +115,6 @@ const PieChart: React.FC<PieChartProps> = ({
     };
   }, [transactions, totalAmount, timeRangeText]);
 
-  // Show empty state if no transactions
   if (transactions.length === 0) {
     return (
       <div className="flex justify-center items-center w-full h-64">
@@ -130,7 +126,6 @@ const PieChart: React.FC<PieChartProps> = ({
     );
   }
 
-  // Ensure the container is centered and responsive
   return (
     <div
       className={`flex justify-center items-center w-full h-64 ${className}`}

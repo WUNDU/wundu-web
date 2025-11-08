@@ -1,4 +1,3 @@
-// src/components/organisms/LandingFooter/index.tsx
 "use client";
 import React, { useState } from "react";
 import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react";

@@ -1,4 +1,3 @@
-// src/components/organisms/LandingHeader/index.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";

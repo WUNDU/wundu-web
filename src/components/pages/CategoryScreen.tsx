@@ -29,11 +29,9 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
     if (selectedCategory && transactionDescription.trim()) {
       try {
         saveCategory();
-        // Mostra a tela de sucesso para desktop e o modal para mobile
         setShowSuccessScreen(true);
         console.log("Success state activated");
 
-        // Remove a tela de sucesso, a tela de categoria e o modal de detalhes após 2 segundos
         setTimeout(() => {
           setShowSuccessScreen(false);
           setIsCategoryModalOpen(false);
@@ -164,7 +162,6 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
       <div className="hidden md:block mt-2 w-full h-full overflow-y-auto">
         {/* Condicional para renderização de sucesso vs. formulário */}
         {showSuccessScreen ? (
-          // Conteúdo de sucesso para desktop
           <div className="bg-white rounded-2xl shadow-lg w-full p-8 text-center flex flex-col items-center justify-center h-full">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
@@ -189,7 +186,6 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
             </p>
           </div>
         ) : (
-          // Conteúdo do formulário de categoria para desktop
           <div className="bg-white rounded-2xl p-4">
             <div className="mb-8">
               <h3 className="text-base font-medium text-gray-700 mb-6">
@@ -263,7 +259,7 @@ const CategoryScreen = ({ onCloseOrSuccess }: CategoryScreenProps) => {
       </div>
 
       {/* Modal de sucesso (overlay) */}
-      {showSuccessScreen && ( // Apenas o modal para mobile
+      {showSuccessScreen && (
         <div className="md:hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

@@ -1,4 +1,3 @@
-// src/components/organisms/PageHero/index.tsx
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,7 +27,6 @@ const PageHero: React.FC<PageHeroProps> = ({
     router.push(ROUTES.LOGIN);
   };
 
-  // Renderizar título com gradiente
   const renderTitle = () => {
     if (typeof title === "string") {
       return (

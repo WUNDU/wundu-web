@@ -1,4 +1,3 @@
-// src/components/organisms/ContactFormSection/index.tsx
 import ContactForm from "@/src/components/molecules/ContactForm";
 import FAQSection from "@/src/components/molecules/FAQSection";
 

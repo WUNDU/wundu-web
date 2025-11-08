@@ -1,4 +1,3 @@
-// src/components/organisms/CTASection/index.tsx
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/src/constants/routes";

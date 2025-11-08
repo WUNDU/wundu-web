@@ -20,12 +20,10 @@ const ProfileScreen: React.FC = () => {
   const { user, logoutUser } = useRegisterContext();
   const router = useRouter();
 
-  // Função para logout (exemplo)
   const handleLogout = async () => {
     await logoutUser();
   };
 
-  // Lista de itens do menu com rotas ou funções
   const menuItems = [
     { icon: <ProfileIcon />, text: "Meus dados" },
     { icon: <HelpIcon />, text: "Suporte e Feedback" },
@@ -43,13 +41,12 @@ const ProfileScreen: React.FC = () => {
     router.push(ROUTES.CONTROL_PANEL);
   };
 
-  // Função para lidar com o clique em cada item
   const handleMenuClick = (item: (typeof menuItems)[0]) => {
     // if (item.route) {
     //   router.push(item.route); // Navega para a rota especificada
     // } else
     if (item.action) {
-      item.action(); // Executa a função especificada
+      item.action();
     }
   };
 
@@ -131,7 +128,7 @@ const ProfileScreen: React.FC = () => {
               <div
                 key={index}
                 className="flex items-center justify-between p-4 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                onClick={() => handleMenuClick(item)} // Adiciona o evento onClick
+                onClick={() => handleMenuClick(item)} 
               >
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl">{item.icon}</div>

@@ -1,4 +1,3 @@
-// components/organisms/NotificationToast.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -25,7 +24,7 @@ export function NotificationToast() {
     } else {
       timeout = setTimeout(() => {
         setIsAnimating(false);
-      }, 500); // Duração da animação de saída
+      }, 500);
     }
 
     return () => clearTimeout(timeout);

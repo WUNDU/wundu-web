@@ -1,4 +1,3 @@
-// src/components/molecules/FAQSection/index.tsx
 const FAQSection: React.FC = () => {
   const faqs = [
     {

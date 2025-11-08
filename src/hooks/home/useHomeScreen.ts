@@ -1,4 +1,3 @@
-// src/hooks/useHomeScreen.ts
 import { useState, useEffect } from "react";
 import { Document } from "@/src/types/button";
 import { useUiStore } from "@/src/store/uiStore";
@@ -15,7 +14,6 @@ export const useHomeScreen = () => {
     right: false,
   });
 
-  // Toggle functions
   const toggleModal = (modal: keyof typeof modals) => {
     setModals((prev) => ({ ...prev, [modal]: !prev[modal] }));
   };
@@ -28,7 +26,6 @@ export const useHomeScreen = () => {
     setModals((prev) => ({ ...prev, [modal]: false }));
   };
 
-  // Handlers
   const handleFileSelect = async (file: File, type: "image" | "document") => {
     setIsLoading(true);
     try {

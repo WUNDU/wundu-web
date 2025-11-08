@@ -19,7 +19,6 @@ export const CategoryProvider = ({
   const [transactionDescription, setTransactionDescription] = useState("");
 
   const saveCategory = () => {
-    // Implement save logic (e.g., API call or local storage)
     console.log("Category saved:", selectedCategory, transactionDescription);
   };
 
@@ -33,7 +32,7 @@ export const CategoryProvider = ({
         transactionDescription,
         setTransactionDescription,
         saveCategory,
-        onCloseDetailsModal: onClose, // Provide onClose from HomeScreen
+        onCloseDetailsModal: onClose,
       }}
     >
       {children}

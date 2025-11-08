@@ -53,7 +53,6 @@ const ChatOptions: React.FC<{ onOptionSelect: () => void }> = ({
             <button
               key={index}
               onClick={onOptionSelect}
-              // Removendo 'w-full' para que os botões se ajustem ao conteúdo
               className={`flex items-center justify-center p-3 rounded-xl ${option.color} transition-all hover:scale-105`}
             >
               <span className="mr-2">{option.icon}</span>

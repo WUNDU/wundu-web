@@ -33,11 +33,9 @@ const LibraryScreen = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Implement search logic here
   };
 
   const handleFilterClick = () => {
-    // Implement filter modal logic here
     console.log("Filter clicked");
   };
 
@@ -49,15 +47,12 @@ const LibraryScreen = () => {
     const article = mockArticles.find((a) => a.id === articleId);
     if (article) {
       setSelectedArticle(article);
-      // No mobile, navega para a página de detalhes
-      // No desktop, mostra o conteúdo na sidebar direita
       router.push(ROUTES.ARTICLE);
     }
   };
 
   const handleLoadMore = () => {
     setIsLoading(true);
-    // Simulate loading
     setTimeout(() => {
       setShowArticles(true);
       setIsLoading(false);
@@ -72,7 +67,6 @@ const LibraryScreen = () => {
     setIsSidebarRightOpen(!isSidebarRightOpen);
   };
 
-  // Componente para o conteúdo da área direita no desktop
   const RightSideContent = () => {
     return (
       <div className="h-full flex flex-col">

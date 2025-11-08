@@ -5,7 +5,6 @@ import {
   UploadIcon,
 } from "@/src/constants/icons";
 
-// src/components/organisms/MainFeatures/index.tsx
 const MainFeatures: React.FC = () => {
   const features = [
     {
