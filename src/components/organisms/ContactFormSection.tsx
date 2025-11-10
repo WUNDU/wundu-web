@@ -20,8 +20,6 @@ const ContactFormSection: React.FC = () => {
 
           {/* Coluna da FAQ e Horário */}
           <div className="space-y-8 fade-in-section">
-            <FAQSection />
-
             {/* Horário de Atendimento */}
             <div className="bg-white rounded-2xl p-6 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -43,6 +41,7 @@ const ContactFormSection: React.FC = () => {
                 </div>
               </div>
             </div>
+            <FAQSection />
           </div>
         </div>
       </div>
