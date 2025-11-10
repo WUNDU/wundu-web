@@ -140,7 +140,7 @@ const LandingFooter: React.FC = () => {
                   <span className="text-yellow-700">
                     <EmailIcon />
                   </span>
-                  <span>suporte@wundu.tech</span>
+                  <span>Support@wundu.tech</span>
                 </li>
                 <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
                   <span className="text-yellow-700">
@@ -257,7 +257,7 @@ const LandingFooter: React.FC = () => {
                 <span className="text-gray-200">
                   <EmailIcon />
                 </span>
-                <span>suporte@wundu.tech</span>
+                <span>Support@wundu.tech</span>
               </li>
               <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
                 <span className="text-gray-200">
