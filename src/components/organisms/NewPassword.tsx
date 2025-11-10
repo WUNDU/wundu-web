@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Input from "../atoms/Input";
@@ -42,7 +42,10 @@ const NewPassword = () => {
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6"
+      >
         <Input
           id="password"
           label="Crie uma senha"
@@ -58,16 +61,21 @@ const NewPassword = () => {
           label="Repita a senha"
           type="password"
           value={form.confirmPassword}
-          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, confirmPassword: e.target.value })
+          }
           placeholder="************"
           required
           isError={!passwordsMatch}
         />
         {!passwordsMatch && (
-          <p className="text-sm text-red-500 text-center">As senhas não correspondem.</p>
+          <p className="text-sm text-red-500 text-center">
+            As senhas não correspondem.
+          </p>
         )}
-        <Button onClick={() => { }} type="submit">Continuar</Button>
-
+        <Button onClick={() => {}} type="submit">
+          Continuar
+        </Button>
       </form>
 
       {/* Spacer apenas para mobile */}

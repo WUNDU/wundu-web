@@ -32,9 +32,17 @@ export interface FinancialProgressCardProps {
   valorPoupado: string;
   percentage: number;
   iconColor?: string
+  onEdit?: () => void
 }
 
 export interface ArticleCardProps {
   article: Article;
   onReadMore: (articleId: string) => void;
+}
+
+export interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay?: string;
 }

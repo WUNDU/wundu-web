@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import CtaSectionLogin from "../molecules/CtaSectionLogin";
 import Input from "../atoms/Input";
@@ -29,8 +29,8 @@ const EmailPhone = () => {
     }
   };
   const handBackClick = () => {
-    history.back()
-  }
+    history.back();
+  };
 
   return (
     <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
@@ -47,7 +47,10 @@ const EmailPhone = () => {
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6"
+      >
         <div className="flex items-center gap-2">
           <select
             name="countryCode"
@@ -78,7 +81,9 @@ const EmailPhone = () => {
             Por favor, insira um número de telefone válido.
           </p>
         )}
-        <Button onClick={() => { }} type="submit">Continuar</Button>
+        <Button onClick={() => {}} type="submit">
+          Continuar
+        </Button>
       </form>
 
       {/* Spacer apenas para mobile */}
@@ -86,6 +91,5 @@ const EmailPhone = () => {
     </div>
   );
 };
-
 
 export default EmailPhone;

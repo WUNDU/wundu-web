@@ -1,27 +1,24 @@
 "use client";
 
-import React from 'react';
-import { ModalIcon } from '../atoms/ModalIcon';
-import { ModalContentProps } from '@/src/types/modal';
+import React from "react";
+import { ModalIcon } from "../atoms/ModalIcon";
+import type { NotificationType } from "@/src/store/uiStore";
+
+interface ModalContentProps {
+  type: NotificationType;
+  title: string;
+  message: string;
+}
 
 export function ModalContent({ type, title, message }: ModalContentProps) {
-  const textColorClass = 'text-white';
-  const titleColorClass = 'text-white';
-
   return (
-    <div className="p-4 sm:p-6 text-center overflow-y-auto flex flex-row items-center space-x-4">
-      {/* Icon */}
-      <div className="flex-shrink-0 flex justify-center mt-5">
-        <ModalIcon type={type} />
-      </div>
-
-      <div className="flex flex-col text-left">
-        <h3 id="modal-title" className={`mb-1 text-xl font-bold ${titleColorClass}`}>
-          {title}
-        </h3>
-        <p className={`text-sm ${textColorClass}`}>
-          {message}
-        </p>
+    <div className="p-6 pt-8">
+      <div className="flex-1 flex flex-col items-center justify-center gap-1 text-center min-w-0">
+        <div className="p-2 m-2">
+          <ModalIcon type={type} variant="toast" />
+        </div>
+        <h3 className="text-xl font-bold mb-2 leading-tight">{title}</h3>
+        <p className="text-sm leading-relaxed opacity-90">{message}</p>
       </div>
     </div>
   );

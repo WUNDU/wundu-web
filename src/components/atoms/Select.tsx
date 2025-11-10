@@ -1,6 +1,13 @@
 import { SelectProps } from "@/src/types/select";
 
-const Select: React.FC<SelectProps> = ({ label, value, onChange, options, required = false, className }) => {
+const Select: React.FC<SelectProps> = ({
+  label,
+  value,
+  onChange,
+  options,
+  required = false,
+  className,
+}) => {
   return (
     <div className={`flex w-full flex-col gap-2 ${className}`}>
       <label className="text-gray-600">{label}</label>
@@ -22,4 +29,4 @@ const Select: React.FC<SelectProps> = ({ label, value, onChange, options, requir
   );
 };
 
-export default Select
+export default Select;

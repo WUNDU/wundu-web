@@ -1,34 +1,39 @@
-'use client'
-import { RegisterProvider } from '@/src/contexts/RegisterContext';
-import { useRegisterContext } from '@/src/hooks/useRegisterContext';
-import { useRouter } from 'next/navigation';
-import { ReactNode, useEffect } from 'react';
-import { ROUTES } from '@/src/constants/routes';
+"use client";
+import { useRegisterContext } from "@/src/hooks/useRegisterContext";
+import { useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { ROUTES } from "@/src/constants/routes";
+import LoadingSpinner from "@/src/components/atoms/LoadingSpinner";
 
-const AuthChecker = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated } = useRegisterContext();
+export default function AuthLayout({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading } = useRegisterContext();
   const router = useRouter();
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      console.log('Usuário autenticado, redirecionando para:', ROUTES.HOME);
-      router.push(ROUTES.HOME);
+    if (!isLoading) {
+      if (isAuthenticated) {
+        console.log(
+          "Usuário já autenticado, redirecionando para:",
+          ROUTES.HOME
+        );
+        router.push(ROUTES.HOME);
+      }
+      setChecked(true);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading || !checked) {
+    return (
+      <div className="flex flex-1 justify-center h-screen items-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
-    return null; // Ou um loading spinner
+    return null;
   }
 
   return <>{children}</>;
-};
-
-export default function AuthLayout({ children }: { children: ReactNode }) {
-  return (
-    <RegisterProvider>
-      <AuthChecker>
-        {children}
-      </AuthChecker>
-    </RegisterProvider>
-  );
 }

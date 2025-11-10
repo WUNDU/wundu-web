@@ -1,6 +1,5 @@
 import { SendIcon } from "@/src/constants/icons";
 
-
 const InitialInputArea: React.FC<{ onFocus: () => void }> = ({ onFocus }) => {
   return (
     <div className="p-4">
@@ -19,4 +18,4 @@ const InitialInputArea: React.FC<{ onFocus: () => void }> = ({ onFocus }) => {
   );
 };
 
-export default InitialInputArea
+export default InitialInputArea;

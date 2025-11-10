@@ -1,0 +1,22 @@
+const ChartDesktop = (props: React.SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <g fill="none" stroke="currentColor" strokeWidth={1.5}>
+        <rect width={18.5} height={18.5} x={2.75} y={2.75} rx={6}></rect>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m7 15l2.45-3.26a1 1 0 0 1 1.33-.25L13.17 13a1 1 0 0 0 1.37-.29L17 9"
+        ></path>
+      </g>
+    </svg>
+  );
+};
+
+export default ChartDesktop;

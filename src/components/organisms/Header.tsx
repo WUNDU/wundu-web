@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import IconButton from "../atoms/IconButton";
 import { logo } from "@/src/constants/images";
 import { BackArrowIcon } from "@/src/constants/icons";
+import Button from "../atoms/Button";
 
 interface HeaderProps {
   title: string;
@@ -25,9 +25,14 @@ const Header: React.FC<HeaderProps> = ({ title, onBack }) => {
   return (
     <div className="flex flex-col gap-4 w-full justify-between">
       {onBack && (
-        <IconButton onClick={handleBack} aria-label="Voltar" className="w-7 h-7 flex items-center justify-center">
+        <Button
+          variant="icon"
+          onClick={handleBack}
+          aria-label="Voltar"
+          className="w-7 h-7 flex items-center justify-center"
+        >
           <BackArrowIcon />
-        </IconButton>
+        </Button>
       )}
       <div className="flex-1 flex ">
         <Image src={logo} alt="Logo" className="w-12 h-12" />

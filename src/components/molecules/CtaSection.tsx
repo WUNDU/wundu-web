@@ -6,11 +6,11 @@ const CtaSection: React.FC = () => {
         <span className="inline-block w-5 h-5 bg-yellow-400 align-middle ml-2"></span>
       </h1>
       <p className="mt-6 text-lg text-gray-600 md:text-xl">
-        Gerencie suas finanças facilmente usando nossa interface intuitiva e amigável, defina
-        metas financeiras e monitore seu progresso.
+        Gerencie suas finanças facilmente usando nossa interface intuitiva e
+        amigável, defina metas financeiras e monitore seu progresso.
       </p>
     </div>
   );
 };
 
-export default CtaSection
+export default CtaSection;

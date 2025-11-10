@@ -1,8 +1,8 @@
-'use client'
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BottomNavItemProps } from '@/src/types/bottom';
+"use client";
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { BottomNavItemProps } from "@/src/types/bottom";
 
 const BottomNavItem = ({ icon, label, href }: BottomNavItemProps) => {
   const pathname = usePathname();
@@ -11,10 +11,15 @@ const BottomNavItem = ({ icon, label, href }: BottomNavItemProps) => {
   return (
     <Link href={href}>
       <div
-        className={`flex flex-col items-center transition-all duration-200 ${isActive ? 'text-gray-600' : 'text-gray-600'
-          } hover:text-yellow-400 hover:scale-105`}
+        className={`flex flex-col items-center transition-all duration-200 ${
+          isActive ? "text-gray-600" : "text-gray-600"
+        } hover:text-yellow-400 hover:scale-105`}
       >
-        <div className={`${isActive ? 'text-yellow-400' : 'text-gray-600'} w-6 h-6`}>
+        <div
+          className={`${
+            isActive ? "text-yellow-400" : "text-gray-600"
+          } w-6 h-6`}
+        >
           {/* O ícone agora recebe a classe CSS que define a cor */}
           {React.cloneElement(icon as React.ReactElement)}
         </div>

@@ -1,7 +1,7 @@
-export type ModalType = 'success' | 'error' | 'info';
+export type ModalType = "success" | "error" | "info" | null;
 
 export type ModalIconProps = {
-  type: 'success' | 'error' | 'info';
+  type: "success" | "error" | "info" | null;
 };
 
 export type ModalContentProps = {
@@ -10,14 +10,18 @@ export type ModalContentProps = {
   message: string;
 };
 
-
 export interface ModalState {
   isOpen: boolean;
   type: ModalType | null;
   title: string;
   message: string;
   onClose: () => void;
-  openModal: (type: ModalType, title: string, message: string, onClose?: () => void) => void;
+  openModal: (
+    type: ModalType,
+    title: string,
+    message: string,
+    onClose?: () => void
+  ) => void;
   closeModal: () => void;
 }
 
@@ -42,4 +46,31 @@ export interface ModalProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm?: () => void;
+}
+
+export interface EditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  objective: {
+    id: number;
+    title: string;
+    valorAlvo: string;
+    valorPoupado: string;
+    percentage: number;
+    categoria?: string;
+    prioridade?: string;
+    dataLimite?: string;
+  } | null;
+}
+
+export interface AddTransactionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave?: (transaction: {
+    type: string;
+    amount: number;
+    description: string;
+    transactionDate: string;
+    category_id: string;
+  }) => void;
 }

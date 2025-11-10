@@ -15,7 +15,7 @@ const ArrowLeft = (props: React.SVGProps<SVGSVGElement>) => {
         strokeLinejoin="round"
       />
     </svg>
-  )
-}
+  );
+};
 
-export default ArrowLeft
+export default ArrowLeft;

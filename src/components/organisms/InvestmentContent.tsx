@@ -1,18 +1,16 @@
-import React from 'react';
-import InvestmentTypeCard from '../molecules/InvestmentTypeCard';
-import MoreButton from '../atoms/MoreButton';
-import { InvestmentContentProps } from '@/src/types/article';
-import { DownloadIcon } from '@/src/constants/icons';
+import React from "react";
+import InvestmentTypeCard from "../molecules/InvestmentTypeCard";
+import { InvestmentContentProps } from "@/src/types/article";
+import { DownloadIcon } from "@/src/constants/icons";
+import Button from "../atoms/Button";
 
-const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }> = ({
-  types,
-  imageUrl
-}) => {
+const InvestmentContent: React.FC<
+  InvestmentContentProps & { imageUrl?: string }
+> = ({ types, imageUrl }) => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleLoadMore = () => {
     setIsLoading(true);
-    // Simulate loading more content
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -27,17 +25,18 @@ const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }
           <h2 className="text-lg font-bold text-gray-900">
             O que é investimento?
           </h2>
-          <div className='flex flex-col flex-1 items-end justify-end md:items-end-safe md:justify-end-safe'>
-            <div className='rounded-full  p-2 border-2 border-gray-300 hover:border-gray-100 transition-colors md:fixed md:bottom-1 md:right-15 md:p-3 md:bg-gray-200 md:hover:bg-gray-400 md:rounded-full md:text-white md:transition-colors md:shadow-lg md:z-20 lg:block'>
+          <div className="flex flex-col flex-1 items-end justify-end md:items-end-safe md:justify-end-safe">
+            <div className="rounded-full  p-2 border-2 border-gray-300 hover:border-gray-100 transition-colors md:fixed md:bottom-1 md:right-15 md:p-3 md:bg-gray-200 md:hover:bg-gray-400 md:rounded-full md:text-white md:transition-colors md:shadow-lg md:z-20 lg:block">
               <DownloadIcon className="h-5 w-5 text-gray-600" />
             </div>
           </div>
         </div>
 
         <p className="text-gray-600 text-sm leading-relaxed">
-          Investir é colocar o teu dinheiro a trabalhar por ti, com o objetivo de
-          multiplicá-lo ao longo do tempo. Em vez de deixá-lo parado (como debaixo do
-          colchão ou numa conta sem juros), tu aplicas em algo que pode gerar retorno.
+          Investir é colocar o teu dinheiro a trabalhar por ti, com o objetivo
+          de multiplicá-lo ao longo do tempo. Em vez de deixá-lo parado (como
+          debaixo do colchão ou numa conta sem juros), tu aplicas em algo que
+          pode gerar retorno.
         </p>
       </div>
 
@@ -70,10 +69,11 @@ const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }
 
       {/* Load more button */}
       <div className="flex justify-center">
-        <MoreButton
-          label='Ler mais'
+        <Button
+          variant="more"
+          label="Ler mais"
           onClick={handleLoadMore}
-          isLoading={isLoading}
+          loading={isLoading}
           color="bg-gray-100 hover:bg-gray-200"
         />
       </div>

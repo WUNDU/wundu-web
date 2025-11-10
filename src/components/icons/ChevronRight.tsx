@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 const ChevronRight: React.FC = () => (
   <svg
@@ -9,8 +9,13 @@ const ChevronRight: React.FC = () => (
     stroke="currentColor"
     viewBox="0 0 24 24"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M9 5l7 7-7 7"
+    />
   </svg>
 );
 
-export default ChevronRight
+export default ChevronRight;

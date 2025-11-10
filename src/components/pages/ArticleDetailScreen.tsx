@@ -1,42 +1,14 @@
-'use client'
+"use client";
 
-import { InvestmentType } from '@/src/types/article';
-import React, { useState } from 'react';
-import ArticleHeader from '../organisms/ArticleHeader';
-import InvestmentContent from '../organisms/InvestmentContent';
-import Modal from '../organisms/LibraryModal';
-import BottomNavigation from '../organisms/BottomNavigation';
+import React, { useState } from "react";
+import ArticleHeader from "../organisms/ArticleHeader";
+import InvestmentContent from "../organisms/InvestmentContent";
+import Modal from "../organisms/LibraryModal";
+import BottomNavigation from "../organisms/BottomNavigation";
+import { investmentTypes } from "@/src/constants/mockData";
 
 const ArticleDetailScreen: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-
-  const investmentTypes: InvestmentType[] = [
-    {
-      id: '1',
-      name: '1-Poupança (Baixo risco, baixo retorno)',
-      description: 'Exemplos: contas poupança, depósitos a prazo.',
-      riskLevel: 'baixo',
-      examples: [
-        'Ideal para emergências, mas rendem pouco.'
-      ]
-    },
-    {
-      id: '2',
-      name: '2-Títulos Públicos e Obrigações (Baixa a médio risco)',
-      description: 'Tu emprestas dinheiro ao governo ou a empresas e recebes com juros.',
-      riskLevel: 'baixo',
-      examples: [
-        'Mais seguro que ações, mas menos rentável.'
-      ]
-    },
-    {
-      id: '3',
-      name: '3-Ações (Médio a alto risco)',
-      description: 'Tu compras uma parte de uma empresa.',
-      riskLevel: 'alto',
-      examples: []
-    }
-  ];
 
   const handleBack = () => {
     window.history.back();
@@ -47,7 +19,7 @@ const ArticleDetailScreen: React.FC = () => {
   };
 
   const handleConfirmDownload = () => {
-    console.log('Download confirmed');
+    console.log("Download confirmed");
     setShowModal(false);
   };
 
@@ -55,7 +27,9 @@ const ArticleDetailScreen: React.FC = () => {
     <>
       <div className="flex flex-col p-2 min-h-screen bg-gray-200 rounded-2xl md:hidden">
         {/* Conteúdo principal com padding bottom para o nav */}
-        <div className="flex-1 pb-20"> {/* Adicionado pb-20 aqui */}
+        <div className="flex-1 pb-20">
+          {" "}
+          {/* Adicionado pb-20 aqui */}
           <ArticleHeader
             onBack={handleBack}
             onDownload={handleDownload}

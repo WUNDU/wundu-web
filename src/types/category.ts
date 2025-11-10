@@ -12,7 +12,7 @@ export interface CategoryContextType {
   transactionDescription: string;
   setTransactionDescription: (description: string) => void;
   saveCategory: () => void;
-  onCloseDetailsModal: () => void; // Added to close DetailsModal
+  onCloseDetailsModal: () => void;
 }
 
 export interface CategoryFilterProps {

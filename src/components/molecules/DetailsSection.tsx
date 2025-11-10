@@ -10,4 +10,4 @@ const DetailsSection = ({ icon, label, children }: DetailsSectionProps) => (
   </div>
 );
 
-export default DetailsSection
+export default DetailsSection;

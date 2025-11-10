@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { SearchBarProps } from '@/src/types/input';
-import { SearchIcon, SettingsIcon } from '@/src/constants/icons';
+import React, { useState } from "react";
+import { SearchBarProps } from "@/src/types/input";
+import { SearchIcon, SettingsIcon } from "@/src/constants/icons";
 
-
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearch, onFilterClick }) => {
-  const [query, setQuery] = useState('');
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder,
+  onSearch,
+  onFilterClick,
+}) => {
+  const [query, setQuery] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearch, onFilterCl
           className="flex-1 bg-transparent text-red-700 placeholder-gray-400 outline-none"
         />
       </div>
-      <div className='flex flex-col flex-1 items-start justify-center'>
+      <div className="flex flex-col flex-1 items-start justify-center">
         <button
           type="button"
           onClick={onFilterClick}
@@ -32,7 +35,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, onSearch, onFilterCl
           <SettingsIcon className="h-5 w-5 text-gray-400" />
         </button>
       </div>
-
     </form>
   );
 };

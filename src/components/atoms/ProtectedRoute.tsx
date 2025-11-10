@@ -1,24 +1,43 @@
-'use client'
-import { ROUTES } from '@/src/constants/routes';
-import { useRegisterContext } from '@/src/hooks/useRegisterContext';
-import { ProtectedRouteProps } from '@/src/types/route';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+"use client";
+import { useRegisterContext } from "@/src/hooks/useRegisterContext";
+import { useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { ROUTES } from "@/src/constants/routes";
+import LoadingSpinner from "./LoadingSpinner";
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useRegisterContext();
+export default function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, user, isLoading } = useRegisterContext();
+  const [checked, setChecked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push(ROUTES.LOGIN);
+    console.log(
+      "AuthChecker - isAuthenticated:",
+      isAuthenticated,
+      "user:",
+      user,
+      "AuthChecker - isLoading:",
+      isLoading
+    );
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push(ROUTES.LOGIN);
+      }
+      setChecked(true);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router, user]);
 
   if (!isAuthenticated) {
     return null;
   }
-  return <>{children}</>;
-};
 
-export default ProtectedRoute;
+  if (isLoading || !checked) {
+    return (
+      <div className="flex flex-1 justify-center h-screen items-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

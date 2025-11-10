@@ -1,20 +1,22 @@
-import { InvestmentType } from '@/src/types/article';
-import React from 'react';
-
+import { InvestmentType } from "@/src/types/article";
+import React from "react";
 
 interface InvestmentTypeCardProps {
   investmentType: InvestmentType;
 }
 
-const InvestmentTypeCard: React.FC<InvestmentTypeCardProps> = ({ investmentType }) => {
-
-
+const InvestmentTypeCard: React.FC<InvestmentTypeCardProps> = ({
+  investmentType,
+}) => {
   return (
     <div className="mb-6">
       <div className="flex items-center mb-2">
-        <span className="font-semibold text-gray-900 mr-2">{investmentType.name}</span>
-        <span className={`text-xs px-2 py-1 rounded-full ${(investmentType.riskLevel)}`}>
+        <span className="font-semibold text-gray-900 mr-2">
+          {investmentType.name}
         </span>
+        <span
+          className={`text-xs px-2 py-1 rounded-full ${investmentType.riskLevel}`}
+        ></span>
       </div>
       <p className="text-gray-600 text-sm mb-3">{investmentType.description}</p>
       <ul className="space-y-1">

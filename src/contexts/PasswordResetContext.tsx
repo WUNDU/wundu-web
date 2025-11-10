@@ -1,20 +1,26 @@
-'use client'
+"use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { PasswordResetContextType, PasswordResetData } from "../types/password";
 
-
-const PasswordResetContext = createContext<PasswordResetContextType | undefined>(undefined);
+const PasswordResetContext = createContext<
+  PasswordResetContextType | undefined
+>(undefined);
 
 export const usePasswordResetContext = () => {
   const context = useContext(PasswordResetContext);
   if (!context) {
-    throw new Error("usePasswordResetContext must be used within a PasswordResetProvider");
+    throw new Error(
+      "usePasswordResetContext must be used within a PasswordResetProvider"
+    );
   }
   return context;
 };
 
-// Provedor do Contexto
-export const PasswordResetProvider = ({ children }: { children: React.ReactNode }) => {
+export const PasswordResetProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<PasswordResetData>({});
   const [timer, setTimer] = useState(120);
@@ -43,7 +49,20 @@ export const PasswordResetProvider = ({ children }: { children: React.ReactNode 
   }, [currentStep, timer]);
 
   return (
-    <PasswordResetContext.Provider value={{ data, setResetData, currentStep, nextStep, prevStep, timer, setTimer, resetTimer, isCodeIncorrect, setIsCodeIncorrect }}>
+    <PasswordResetContext.Provider
+      value={{
+        data,
+        setResetData,
+        currentStep,
+        nextStep,
+        prevStep,
+        timer,
+        setTimer,
+        resetTimer,
+        isCodeIncorrect,
+        setIsCodeIncorrect,
+      }}
+    >
       {children}
     </PasswordResetContext.Provider>
   );
