@@ -28,9 +28,6 @@ const EmailPhone = () => {
       setIsError(true);
     }
   };
-  const handBackClick = () => {
-    history.back();
-  };
 
   return (
     <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
@@ -72,7 +69,7 @@ const EmailPhone = () => {
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="Digite seu nº de telefone"
             isError={isError}
-            maxLenght={9}
+            maxLength={9}
             required
           />
         </div>
