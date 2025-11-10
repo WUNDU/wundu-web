@@ -1,9 +1,9 @@
-import "../../src/styles/landing.css";
+
 
 export default function LandingLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return <div>{children}</div>;
 }
