@@ -1,4 +1,4 @@
-import ScanScreen from "@/src/components/pages/ScanScreen";
+import ScanScreen from "@/screens/ScanScreen";
 
 const Scan = () => {
   return <ScanScreen />;

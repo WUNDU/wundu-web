@@ -7,9 +7,9 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { RegisterContextType, RegisterData } from "@/src/types/register";
+import { RegisterContextType, RegisterData } from "@/types/register";
 import { AxiosError } from "axios";
-import { ApiErrorResponse } from "@/src/types/api";
+import { ApiErrorResponse } from "@/types/api";
 import { UserService } from "../services/UserServices";
 import type { User } from "../types/user";
 

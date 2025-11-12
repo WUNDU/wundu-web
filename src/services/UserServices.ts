@@ -1,5 +1,5 @@
-import api from '@/src/lib/api';
-import { RegisterData } from '@/src/types/register';
+import api from '@/lib/api';
+import { RegisterData } from '@/types/register';
 import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '../types/api';
 

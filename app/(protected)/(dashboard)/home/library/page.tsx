@@ -1,4 +1,4 @@
-import LibraryScreen from "@/src/components/pages/LibraryScreen";
+import LibraryScreen from "@/screens/LibraryScreen";
 
 export default function Library() {
   return <LibraryScreen />;

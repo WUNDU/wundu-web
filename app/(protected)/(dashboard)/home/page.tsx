@@ -1,4 +1,4 @@
-import HomeScreen from "@/src/components/pages/HomeScreen";
+import HomeScreen from "@/screens/HomeScreen";
 
 export default async function Home() {
   return <HomeScreen />;

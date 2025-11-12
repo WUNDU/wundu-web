@@ -1,5 +1,7 @@
 "use client";
-import ProtectedRoute from "@/src/components/atoms/ProtectedRoute";
+
+import ProtectedRoute from "@/ui/atoms/ProtectedRoute";
+
 
 export default function ProtectedLayout({
   children,

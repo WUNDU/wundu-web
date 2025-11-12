@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Category, CategoryContextType } from "@/src/types/category";
+import { Category, CategoryContextType } from "@/types/category";
 
 const CategoryContext = createContext<CategoryContextType | undefined>(
   undefined
