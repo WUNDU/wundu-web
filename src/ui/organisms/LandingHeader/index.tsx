@@ -1,26 +1,34 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Menu, X } from "lucide-react";
 import { LogoType } from "@/ui/atoms";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { Button } from "@/ui/atoms";
 
-const LandingHeader: React.FC = () => {
+interface LandingHeaderProps {
+  isLaunched?: boolean;
+}
+
+const LandingHeader: React.FC<LandingHeaderProps> = ({ isLaunched = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  const handleScroll = useCallback(() => {
+    const currentScrollY = window.scrollY;
+    setScrollY(currentScrollY);
+    setIsScrolled(currentScrollY > 50);
   }, []);
+
+  useEffect(() => {
+    // Chama uma vez para definir o estado inicial
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   const navItems = [
     { href: ROUTES.FEATURES, label: "Funcionalidades" },
@@ -34,10 +42,12 @@ const LandingHeader: React.FC = () => {
   };
 
   const handleLogin = () => {
+    setIsMenuOpen(false);
     router.push(ROUTES.LOGIN);
   };
 
   const handleRegister = () => {
+    setIsMenuOpen(false);
     router.push(ROUTES.REGISTER);
   };
   return (
@@ -49,7 +59,7 @@ const LandingHeader: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div onClick={handleHome} className="flex items-center space-x-2">
+          <div onClick={handleHome} className="flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform duration-200">
             <LogoType />
           </div>
 
@@ -68,20 +78,51 @@ const LandingHeader: React.FC = () => {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              onClick={handleLogin}
-              variant="secondary"
-              className="hover:scale-105 transition-all duration-300"
-            >
-              Entrar
-            </Button>
-            <Button
-              onClick={handleRegister}
-              variant="landing"
-              className="hover:scale-105 transition-all duration-300"
-            >
-              Criar Conta
-            </Button>
+            {isLaunched ? (
+              <>
+                <Button
+                  onClick={handleLogin}
+                  variant="secondary"
+                  className="hover:scale-105 transition-all duration-300"
+                >
+                  Entrar
+                </Button>
+                <Button
+                  onClick={handleRegister}
+                  variant="landing"
+                  className="hover:scale-105 transition-all duration-300"
+                >
+                  Criar Conta
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="relative group">
+                  <Button
+                    disabled
+                    variant="secondary"
+                    className="bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 hover:scale-100"
+                  >
+                    Entrar
+                  </Button>
+                  <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    Disponível em 19/11/2025
+                  </div>
+                </div>
+                <div className="relative group">
+                  <Button
+                    disabled
+                    variant="landing"
+                    className="bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 hover:scale-100"
+                  >
+                    Criar Conta
+                  </Button>
+                  <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    Disponível em 19/11/2025
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,18 +154,41 @@ const LandingHeader: React.FC = () => {
               </a>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-200">
-              <Button
-                variant="landing"
-                className="w-full justify-center hover:scale-105 transition-all duration-300"
-              >
-                Entrar
-              </Button>
-              <Button
-                variant="landing"
-                className="w-full justify-center hover:scale-105 transition-all duration-300"
-              >
-                Criar Conta
-              </Button>
+              {isLaunched ? (
+                <>
+                  <Button
+                    onClick={handleLogin}
+                    variant="landing"
+                    className="w-full justify-center hover:scale-105 transition-all duration-300"
+                  >
+                    Entrar
+                  </Button>
+                  <Button
+                    onClick={handleRegister}
+                    variant="landing"
+                    className="w-full justify-center hover:scale-105 transition-all duration-300"
+                  >
+                    Criar Conta
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    disabled
+                    variant="landing"
+                    className="w-full justify-center bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                  >
+                    Entrar - Disponível em 19/11/2025
+                  </Button>
+                  <Button
+                    disabled
+                    variant="landing"
+                    className="w-full justify-center bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                  >
+                    Criar Conta - Disponível em 19/11/2025
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

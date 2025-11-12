@@ -7,10 +7,11 @@ import { Button } from "@/ui/atoms";
 import { CTA } from "@/ui/molecules";
 import { NavigationBack } from "@/ui/atoms";
 import { useSecurityData } from "@/hooks/auth/useSecurityData";
+import PasswordValidationFeedback from "@/ui/molecules/PasswordValidation";
 
 const SecurityData = () => {
   const { prevStep, error } = useRegisterContext();
-  const { form, setField, submit, passwordError, contextError } =
+  const { form, setField, submit, passwordError, passwordValidation, contextError } =
     useSecurityData();
 
   const handleSubmit = submit;
@@ -33,16 +34,22 @@ const SecurityData = () => {
         onSubmit={handleSubmit}
         className="flex w-full flex-col gap-8 py-10 px-6 md:px-0 md:w-2/3"
       >
-        <PasswordInput
-          id="password"
-          label="Crie uma senha"
-          type="password"
-          value={form.password}
-          onChange={(e) => setField("password", e.target.value)}
-          placeholder="Digite sua senha"
-          required
-          isError={!!passwordError || !!contextError}
-        />
+        <div>
+          <PasswordInput
+            id="password"
+            label="Crie uma senha"
+            type="password"
+            value={form.password}
+            onChange={(e) => setField("password", e.target.value)}
+            placeholder="Digite sua senha"
+            required
+            isError={!!passwordError || !!contextError}
+          />
+          <PasswordValidationFeedback 
+            validation={passwordValidation}
+            showCriteria={form.password.length > 0}
+          />
+        </div>
         <PasswordInput
           id="confirmPassword"
           label="Repita a senha"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRegisterContext } from "@/contexts/useRegisterContext";
-import { validatePassword } from "@/utils/validation";
+import { validatePassword, validatePasswordDetailed, type PasswordValidation } from "@/utils/validation";
 
 export interface SecurityFormState {
   password: string;
@@ -22,18 +22,26 @@ export const useSecurityData = () => {
     confirmPassword: "",
   });
   const [passwordError, setPasswordError] = useState<string>("");
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>(
+    validatePasswordDetailed("")
+  );
 
   const setField = (field: keyof SecurityFormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    
+    // Update password validation in real-time
+    if (field === "password") {
+      setPasswordValidation(validatePasswordDetailed(value));
+      setPasswordError(""); // Clear error when user types
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validatePassword(form.password)) {
-      setPasswordError(
-        `Senha deve ter no mínimo 8 caracteres e no máximo 12 (valor rejeitado: '${form.password}')`
-      );
+    const validation = validatePasswordDetailed(form.password);
+    if (!validation.isValid) {
+      setPasswordError("Por favor, atenda todos os requisitos da senha.");
       return;
     }
 
@@ -56,6 +64,7 @@ export const useSecurityData = () => {
     setField,
     submit,
     passwordError,
+    passwordValidation,
     contextError: error,
   };
 };

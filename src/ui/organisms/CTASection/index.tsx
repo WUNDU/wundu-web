@@ -7,12 +7,14 @@ interface CTASectionProps {
   title?: string;
   subtitle?: string;
   buttonText?: string;
+  isLaunched?: boolean;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({
   title = "Pronto para simplificar as suas finanças?",
   subtitle = "Junte-se a milhares de usuários que já controlam melhor seu dinheiro com o WUNDU.",
   buttonText = "Experimente agora - É grátis",
+  isLaunched = false,
 }) => {
   const router = useRouter();
   const handleLogin = () => {
@@ -36,13 +38,24 @@ const CTASection: React.FC<CTASectionProps> = ({
           {subtitle}
         </p>
         <div className="fade-in-section delay-4">
-          <Button
-            onClick={handleLogin}
-            variant="landing"
-          >
-            <span>{buttonText}</span>
-            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-          </Button>
+          {isLaunched ? (
+            <Button
+              onClick={handleLogin}
+              variant="landing"
+            >
+              <span>{buttonText}</span>
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+          ) : (
+            <Button
+              disabled
+              variant="landing"
+              className="bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+            >
+              <span>Disponível em 19/11/2025</span>
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
     </section>

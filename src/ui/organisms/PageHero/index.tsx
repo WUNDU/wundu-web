@@ -11,6 +11,7 @@ interface PageHeroProps {
   buttonText?: string;
   gradientColors?: string;
   centered?: boolean;
+  isLaunched?: boolean;
 }
 
 const PageHero: React.FC<PageHeroProps> = ({
@@ -20,6 +21,7 @@ const PageHero: React.FC<PageHeroProps> = ({
   buttonText = "Experimente agora - É grátis",
   gradientColors = "from-yellow-400 to-orange-500",
   centered = true,
+  isLaunched = false,
 }) => {
   const router = useRouter();
 
@@ -61,14 +63,27 @@ const PageHero: React.FC<PageHeroProps> = ({
 
         {showButton && (
           <div className="mt-12 fade-in-section animate-in delay-4">
-            <Button
-              variant="landing"
-              onClick={handleLogin}
-              className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl"
-            >
-              <span>{buttonText}</span>
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </Button>
+            {isLaunched ? (
+              <Button
+                variant="landing"
+                onClick={handleLogin}
+                className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl"
+              >
+                <span>{buttonText}</span>
+                <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Button>
+            ) : (
+              <div className="relative group">
+                <Button
+                  disabled
+                  variant="landing"
+                  className="py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                >
+                  <span>Disponível em 19/11/2025</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

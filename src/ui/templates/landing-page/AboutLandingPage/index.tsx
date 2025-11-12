@@ -6,10 +6,13 @@ import { PageHero } from "@/ui/organisms";
 import TextSection from "@/ui/molecules/TextSection";
 import TechnologySection from "@/ui/molecules/TechnologySection";
 import FeaturesSection from "@/ui/organisms/FeaturesSection";
+import { useLaunchStatus } from "@/hooks/useLaunchStatus";
 
 import { Shield, Zap, Lightbulb, Eye } from "lucide-react";
 
 const AboutLandingPage: React.FC = () => {
+  const { isLaunched } = useLaunchStatus();
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -58,10 +61,11 @@ const AboutLandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <LandingHeader />
+      <LandingHeader isLaunched={isLaunched} />
       <PageHero
         title="Sobre a WUNDU"
         description="Transformamos a forma como geris as tuas finanças pessoais, criando uma experiência simples, segura e intuitiva."
+        isLaunched={isLaunched}
       />
       <div className="text-center px-4 sm:px-6 lg:px-8 py-12 border-2 mx-2 p-10 my-5 shadow-2xs border-gray-100">
         <TextSection

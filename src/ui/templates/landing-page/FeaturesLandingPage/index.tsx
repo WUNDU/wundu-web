@@ -7,8 +7,11 @@ import MoreFeatures from "@/ui/organisms/MoreFeatures";
 import HowItWorks from "@/ui/organisms/HowItWorks";
 import CTASection from "@/ui/organisms/CTASection";
 import { PageHero } from "@/ui/organisms";
+import { useLaunchStatus } from "@/hooks/useLaunchStatus";
 
 const FeaturesLandingPage: React.FC = () => {
+  const { isLaunched } = useLaunchStatus();
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -30,7 +33,7 @@ const FeaturesLandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <LandingHeader />
+      <LandingHeader isLaunched={isLaunched} />
       <PageHero
         title={
           <>
@@ -42,6 +45,7 @@ const FeaturesLandingPage: React.FC = () => {
           </>
         }
         description="Descobre como o WUNDU pode revolucionar a forma como gere o seu dinheiro, com tecnologia de ponta e design intuitivo."
+        isLaunched={isLaunched}
       />
       <MainFeatures />
       <MoreFeatures />
@@ -50,6 +54,7 @@ const FeaturesLandingPage: React.FC = () => {
         title="Pronto para simplificar as suas finanças?"
         subtitle="Junte-se a milhares de usuários que já controlam melhor seu dinheiro com o WUNDU."
         buttonText="Experimente agora - É grátis"
+        isLaunched={isLaunched}
       />
       <LandingFooter />
     </div>
