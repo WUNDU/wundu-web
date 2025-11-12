@@ -60,7 +60,9 @@ const AboutLandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white font-inter">
+      {/* Header Space Reservation */}
+      <div className="h-24 bg-white"></div>
       <LandingHeader isLaunched={isLaunched} />
       <PageHero
         title="Sobre a WUNDU"

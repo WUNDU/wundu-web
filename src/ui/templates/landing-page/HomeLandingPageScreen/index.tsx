@@ -55,6 +55,8 @@ const WunduLanding: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white font-inter">
+      {/* Header Space Reservation */}
+      <div className="h-24 bg-white"></div>
       <LandingHeader isLaunched={isLaunched} />
       <PageHero
         title={
@@ -71,14 +73,25 @@ const WunduLanding: React.FC = () => {
         isLaunched={isLaunched}
       />
       
-      {/* Countdown Section - Adicionado sem alterar o resto */}
+      {/* Countdown Section - Modernized */}
       {!isLaunched && (
-        <section className="py-12 bg-gradient-to-br from-blue-50 to-yellow-50">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-              🚀 Lançamento Oficial
+        <section className="relative py-20 bg-gradient-to-br from-gray-50 via-white to-primary/5 overflow-hidden">
+          {/* Parallax Background Elements */}
+          <div className="absolute top-10 left-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float"></div>
+          <div className="absolute bottom-10 right-10 w-24 h-24 bg-secondary/10 rounded-full blur-xl animate-float-delayed"></div>
+          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-dark/5 rounded-full blur-lg animate-bounce-soft"></div>
+          
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div className="mb-4 animate-fade-in">
+              <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 text-secondary font-semibold rounded-full text-sm border border-secondary/20">
+                <span className="mr-2 animate-bounce-soft">🚀</span>
+                Lançamento Oficial
+              </span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 animate-slide-up">
+              Em Breve Disponível
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '200ms' }}>
               Estamos nos preparativos finais para revolucionar sua gestão financeira
             </p>
             <LaunchCountdown targetDate={launchDate} />

@@ -4,7 +4,6 @@ import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react";
 import { LogoType } from "@/ui/atoms";
 import {
   EmailIcon,
-  GithubIcon,
   LocationIcon,
   MirantesIcon,
   XIcon,
@@ -16,11 +15,6 @@ const LandingFooter: React.FC = () => {
   const { openCookiePreferences } = useCookieConsent();
 
   const socialLinks = [
-    {
-      href: "https://github.com/wundu",
-      icon: GithubIcon,
-      name: "GitHub",
-    },
     {
       href: "https://x.com/onewundu",
       icon: XIcon,
@@ -39,7 +33,7 @@ const LandingFooter: React.FC = () => {
     {
       href: "https://web.facebook.com/people/Wundu/61574847264364/",
       icon: Facebook,
-      name: "Instagram",
+      name: "Facebook",
     },
     {
       href: "https://mirantes.io/profile/pt/wundu-6af8c1ba",
@@ -51,7 +45,6 @@ const LandingFooter: React.FC = () => {
   const recursosLinks = [
     { href: "#", label: "Blog" },
     { href: "#", label: "Documentação" },
-    { href: "#", label: "GitHub" },
     { href: "#", label: "FAQs" },
   ];
 
@@ -147,12 +140,6 @@ const LandingFooter: React.FC = () => {
                     <LocationIcon />
                   </span>
                   <span>Angola, Luanda</span>
-                </li>
-                <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className="text-yellow-700">
-                    <GithubIcon />
-                  </span>
-                  <span>github.com/wundu</span>
                 </li>
               </ul>
             </div>
@@ -264,12 +251,6 @@ const LandingFooter: React.FC = () => {
                   <LocationIcon />
                 </span>
                 <span>Angola, Luanda</span>
-              </li>
-              <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className="text-gray-200">
-                  <GithubIcon />
-                </span>
-                <span>github.com/wundu</span>
               </li>
             </ul>
           </div>
