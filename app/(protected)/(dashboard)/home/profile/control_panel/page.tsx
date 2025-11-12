@@ -1,4 +1,4 @@
-import ControlPanelDashboardScreen from "@/src/components/pages/ControlPanelDashboardScreen";
+import ControlPanelDashboardScreen from "@/screens/ControlPanelDashboardScreen";
 
 const ControlPanel = () => {
   return <ControlPanelDashboardScreen />;

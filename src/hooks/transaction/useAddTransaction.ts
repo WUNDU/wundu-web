@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTransactionForm } from "./useTransactionForm";
-import { TransactionService } from "@/src/services/TransactionService";
-import type { TransactionFormField } from "@/src/types/transaction/transaction_type";
-import useRegisterContext from "../useRegisterContext";
+import { TransactionService } from "@/services/TransactionService";
+import type { TransactionFormField } from "@/types/transaction/transaction_type";
+import useRegisterContext from "@/contexts/useRegisterContext";
 
 export const useAddTransactionModal = () => {
   const [isOpen, setIsOpen] = useState(false);

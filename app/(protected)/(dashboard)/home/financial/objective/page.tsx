@@ -1,4 +1,4 @@
-import FinancialProgressScreen from "@/src/components/pages/FinancialProgressScreen";
+import FinancialProgressScreen from "@/screens/FinancialProgressScreen";
 
 export default function Financial() {
   return <FinancialProgressScreen />;

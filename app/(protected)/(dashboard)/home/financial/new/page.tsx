@@ -1,4 +1,4 @@
-import NewFinancialObjectiveScreen from "@/src/components/pages/NewFinancialObjectiveScreen";
+import NewFinancialObjectiveScreen from "@/screens/NewFinancialObjectiveScreen";
 
 export default function Financial() {
   return <NewFinancialObjectiveScreen />;

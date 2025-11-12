@@ -1,7 +1,7 @@
 import type {
   TransactionFormData,
   TransactionFormField,
-} from "@/src/types/transaction/transaction_type";
+} from "@/types/transaction/transaction_type";
 import { useState } from "react";
 
 export const useTransactionForm = (

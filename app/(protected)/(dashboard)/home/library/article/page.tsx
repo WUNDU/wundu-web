@@ -1,4 +1,4 @@
-import ArticleDetailScreen from "@/src/components/pages/ArticleDetailScreen";
+import ArticleDetailScreen from "@/screens/ArticleDetailScreen";
 
 export default function Library() {
   return <ArticleDetailScreen />;

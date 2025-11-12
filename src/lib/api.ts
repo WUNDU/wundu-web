@@ -3,7 +3,7 @@ import axios, {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
-import { ApiErrorResponse } from "@/src/types/api";
+import { ApiErrorResponse } from "@/types/api";
 
 const api: AxiosInstance = axios.create({
   baseURL: "/api/v1",
