@@ -42,6 +42,7 @@ const ContactLandingPage: React.FC = () => {
 
       <ContactMethods />
       <ContactFormSection />
+      <div className="py-8"></div>
       <LandingFooter />
     </div>
   );

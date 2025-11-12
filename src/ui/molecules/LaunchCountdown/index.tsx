@@ -46,7 +46,7 @@ const LaunchCountdown: React.FC<LaunchCountdownProps> = ({ targetDate }) => {
         Lançamento em
       </h3>
       
-      <div className="flex justify-center items-center space-x-6 mb-8">
+      <div className="flex justify-center items-center space-x-3 sm:space-x-6 mb-8 px-4">
         {timeUnits.map((unit, index) => (
           <div 
             key={unit.label} 
@@ -54,12 +54,12 @@ const LaunchCountdown: React.FC<LaunchCountdownProps> = ({ targetDate }) => {
             style={{ animationDelay: `${index * 150}ms` }}
           >
             <div 
-              className="relative text-white rounded-2xl p-6 min-w-[80px] shadow-soft-lg hover:shadow-glow-primary transition-all duration-500 hover:scale-110 group-hover:-translate-y-2 overflow-hidden"
+              className="relative text-white rounded-2xl p-3 sm:p-6 min-w-[60px] sm:min-w-[80px] shadow-soft-lg hover:shadow-glow-primary transition-all duration-500 hover:scale-110 group-hover:-translate-y-2 overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, #00216b 0%, #003cc3 50%, #ffd400 100%)'
               }}
             >
-              <div className="text-3xl font-bold relative z-10">
+              <div className="text-2xl sm:text-3xl font-bold relative z-10">
                 {unit.value.toString().padStart(2, '0')}
               </div>
               {/* Floating elements inside cards */}

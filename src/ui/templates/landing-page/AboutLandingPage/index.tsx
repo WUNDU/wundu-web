@@ -99,6 +99,7 @@ const AboutLandingPage: React.FC = () => {
         <TechnologySection />
       </div>
 
+      <div className="py-8"></div>
       <LandingFooter />
     </div>
   );
