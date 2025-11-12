@@ -55,7 +55,7 @@ const WunduLanding: React.FC = () => {
       <PageHero
         title={
           <>
-            O futuro das tuas
+            O futuro das tuas...
             <br />
             <span className="text-gradient bg-gradient-to-r from-yellow-400 to-orange-500">
               Finanças começa aqui
