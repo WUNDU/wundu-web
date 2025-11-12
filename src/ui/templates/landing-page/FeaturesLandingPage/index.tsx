@@ -58,6 +58,7 @@ const FeaturesLandingPage: React.FC = () => {
         buttonText="Experimente agora - É grátis"
         isLaunched={isLaunched}
       />
+      <div className="py-8"></div>
       <LandingFooter />
     </div>
   );

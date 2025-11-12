@@ -107,6 +107,7 @@ const WunduLanding: React.FC = () => {
       />
       <AISection />
       <CTASection isLaunched={isLaunched} />
+      <div className="py-8"></div>
       <LandingFooter />
     </div>
   );
