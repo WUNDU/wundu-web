@@ -120,15 +120,6 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
           </div>
         ))}
       </div>
-      <div className="flex justify-center items-center mt-4 p-4">
-        <Button
-          label="Ver mais"
-          variant="more"
-          rightIcon={<ArrowRotateIcon />}
-          onClick={handleLoadMore}
-          loading={isLoading}
-        />
-      </div>
     </section>
   );
 };

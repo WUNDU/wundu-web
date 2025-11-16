@@ -6,8 +6,6 @@
   --font-open-sans: "Open Sans", sans-serif;
 }
 
-
-
 html,
 body {
   max-width: 100vw;
@@ -25,36 +23,36 @@ body {
     background-size: 200% 200%;
     display: inline-block;
   }
-  
+
   .bg-size-200 {
     background-size: 200% 200%;
   }
-  
+
   .bg-pos-0 {
     background-position: 0% 50%;
   }
-  
+
   .animate-in {
     animation-fill-mode: both;
   }
-  
+
   .delay-2 {
     animation-delay: 0.2s;
   }
-  
+
   .delay-4 {
     animation-delay: 0.4s;
   }
-  
+
   .gradient-border {
-    background: linear-gradient(white, white) padding-box, 
-                linear-gradient(45deg, #ffd400, #003cc3) border-box;
+    background: linear-gradient(white, white) padding-box,
+      linear-gradient(45deg, #ffd400, #003cc3) border-box;
     border: 2px solid transparent;
   }
-  
+
   .gradient-border-dark {
-    background: linear-gradient(transparent, transparent) padding-box, 
-                linear-gradient(45deg, #ffd400, #003cc3) border-box;
+    background: linear-gradient(transparent, transparent) padding-box,
+      linear-gradient(45deg, #ffd400, #003cc3) border-box;
     border: 2px solid transparent;
   }
 }

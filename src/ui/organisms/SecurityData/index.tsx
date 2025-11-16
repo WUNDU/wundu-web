@@ -67,19 +67,6 @@ const SecurityData = () => {
           Finalizar cadastro
         </Button>
       </form>
-      <div className="flex flex-col items-center mt-auto w-full md:w-2/3">
-        <p className="mt-4 text-center text-xs text-gray-500">
-          Ao entrar, você concorda com nossos{" "}
-          <a href="#" className="underline">
-            termos de uso
-          </a>{" "}
-          e nossa{" "}
-          <a href="#" className="underline">
-            política de privacidade
-          </a>
-          .
-        </p>
-      </div>
     </div>
   );
 };

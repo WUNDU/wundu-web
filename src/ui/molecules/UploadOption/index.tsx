@@ -48,12 +48,12 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
         variant="option"
         onClick={handleButtonClick}
       />
-      <Button
+      {/* <Button
         leftIcon={<ImageIcon />}
         label="Imagem"
         variant="option"
         onClick={handleButtonClick}
-      />
+      /> */}
       <Button
         leftIcon={<ReceiptIcon />}
         variant="option"
@@ -67,11 +67,6 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
         onChange={(e) => handleFileChange(e, "document")}
         style={{ display: "none" }}
       />
-      <div className="text-center">
-        <div className="flex justify-center items-center p-4">
-          <Button variant="more" label="Ver mais" color="bg-yellow-400" />
-        </div>
-      </div>
     </div>
   );
 };

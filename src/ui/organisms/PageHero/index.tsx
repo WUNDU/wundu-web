@@ -77,7 +77,7 @@ const PageHero: React.FC<PageHeroProps> = ({
             {isLaunched ? (
               <button
                 onClick={handleLogin}
-                className="relative group px-8 md:px-12 py-4 md:py-5 font-bold text-lg md:text-xl text-white bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-primary active:scale-95 overflow-hidden"
+                className="relative group px-8 md:px-12 py-4 md:py-5 font-bold text-lg md:text-xl text-white bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-primary active:scale-95 overflow-hidden animate-bounce-gentle md:animate-none"
               >
                 <span className="relative z-10 flex items-center space-x-3">
                   <span>{buttonText}</span>

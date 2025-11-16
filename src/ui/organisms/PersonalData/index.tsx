@@ -4,6 +4,7 @@ import Image from "next/image";
 import { logo } from "@/constants/images";
 import { TextInput } from "@/ui/atoms";
 import { Button } from "@/ui/atoms";
+import PhoneInput from "@/ui/atoms/PhoneInput";
 import { CTA } from "@/ui/molecules";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
@@ -54,12 +55,11 @@ const PersonalData = () => {
         {errors.email && (
           <p className="text-red-500 text-sm mt-2">{errors.email}</p>
         )}
-        <TextInput
+        <PhoneInput
           id="phone"
           label="Nº Telefone"
-          type="tel"
           value={form.phone}
-          onChange={(e) => setField("phone", e.target.value)}
+          onChange={(value) => setField("phone", value)}
           placeholder="Digite seu nº de telefone"
           required
           isError={!!errors.phone}
@@ -87,17 +87,6 @@ const PersonalData = () => {
         <Link href={ROUTES.LOGIN} className="text-center text-sm text-gray-600">
           Já tem conta? <strong>Entrar</strong>
         </Link>
-        <p className="mt-4 text-center text-xs text-gray-500">
-          Ao entrar, você concorda com nossos{" "}
-          <a href="#" className="underline">
-            termos de uso
-          </a>{" "}
-          e nossa{" "}
-          <a href="#" className="underline">
-            política de privacidade
-          </a>
-          .
-        </p>
       </div>
     </div>
   );

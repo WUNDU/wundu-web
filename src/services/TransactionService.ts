@@ -18,4 +18,18 @@ export const TransactionService = {
       return false;
     }
   },
+
+  get: async () => {
+    try {
+      const response = await api.get("/transaction");
+      return response;
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        "Failed to get transaction";
+      return false;
+    }
+  },
 };

@@ -12,7 +12,8 @@ export interface PasswordValidation {
 }
 
 export const validatePassword = (password: string): boolean => {
-  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+  // Simplified validation: minimum 6 characters, at least one letter and one number
+  const re = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
   return re.test(password);
 };
 
@@ -57,8 +58,10 @@ export const validatePasswordDetailed = (password: string): PasswordValidation =
 };
 
 export const validatePhoneNumber = (number: string): boolean => {
-  const re = /^\d+$/;
-  return re.test(number);
+  // Remove spaces and check if it starts with + followed by digits and spaces
+  const cleanNumber = number.replace(/\s/g, '');
+  const re = /^\+\d+$/;
+  return re.test(cleanNumber) && cleanNumber.length >= 8;
 };
 
 export const validateEmail = (email: string): boolean => {

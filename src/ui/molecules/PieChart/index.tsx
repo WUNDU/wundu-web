@@ -75,7 +75,10 @@ const PieChart: React.FC<PieChartProps> = ({
           {
             data: transactions.map((tx) => Math.abs(tx.amount)),
             backgroundColor: colors.slice(0, transactions.length),
-            hoverOffset: 10,
+            hoverOffset: 15,
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverBorderWidth: 3,
           },
         ],
       },
@@ -101,6 +104,8 @@ const PieChart: React.FC<PieChartProps> = ({
           },
         },
         animation: {
+          duration: 2000,
+          easing: 'easeOutQuart',
           animateRotate: true,
           animateScale: true,
         },
@@ -117,8 +122,8 @@ const PieChart: React.FC<PieChartProps> = ({
 
   if (transactions.length === 0) {
     return (
-      <div className="flex justify-center items-center w-full h-64">
-        <div className="text-center text-gray-500">
+      <div className="flex justify-center items-center w-full h-64 animate-fade-in">
+        <div className="text-center text-gray-500 p-8 rounded-2xl bg-gray-50/50 backdrop-blur-sm border border-gray-200/50 transition-all duration-300 ease-out hover:shadow-lg">
           <p className="text-lg font-medium">Nenhuma transação</p>
           <p className="text-sm">encontrada para este período</p>
         </div>
@@ -128,10 +133,13 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div
-      className={`flex justify-center items-center w-full h-64 ${className}`}
+      className={`flex justify-center items-center w-full h-64 transition-all duration-500 ease-out ${className}`}
     >
-      <div className="relative w-full max-w-md h-full">
-        <canvas ref={canvasRef} />
+      <div className="relative w-full max-w-md h-full transition-all duration-500 ease-out hover:scale-[1.02]">
+        <canvas 
+          ref={canvasRef} 
+          className="transition-all duration-300 ease-out"
+        />
       </div>
     </div>
   );

@@ -19,9 +19,9 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="bg-gray-100 p-4 rounded-xl shadow-sm">
-      <div className="flex items-center justify-between">
-        <div className="flex items-start space-x-4">
+    <div className="bg-gray-100/80 backdrop-blur-sm p-4 rounded-xl shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-gray-200/50">
+      <div className="flex items-center justify-between transition-all duration-300 ease-out">
+        <div className="flex items-start space-x-4 transition-all duration-300 ease-out">
           <IconContainer
             icon={ObjectiveIcon}
             bgColor="bg-white"
@@ -29,12 +29,12 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
             className="self-start"
           />
           <div>
-            <h3 className="text-base font-semibold text-violet-400">{title}</h3>
-            <p className="text-xs text-green-400 mt-1">
+            <h3 className="text-base font-semibold text-indigo-600 transition-all duration-300 ease-out">{title}</h3>
+            <p className="text-xs text-green-600 mt-1 transition-all duration-300 ease-out">
               Valor-alvo:{" "}
               <span className="text-gray-800 font-medium">{valorAlvo}</span>
             </p>
-            <p className="text-xs text-orange-400">
+            <p className="text-xs text-amber-600 transition-all duration-300 ease-out">
               Valor poupado:{" "}
               <span className="text-gray-800 font-medium">{valorPoupado}</span>
             </p>
@@ -42,7 +42,7 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
         </div>
         <div className="flex flex-col items-center">
           <div className="relative w-12 h-12">
-            <svg className="w-full h-full transform -rotate-90">
+            <svg className="w-full h-full transform -rotate-90 transition-all duration-500 ease-out">
               <circle
                 className={progressBgColor}
                 strokeWidth="4"
@@ -50,6 +50,7 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
                 r={radius}
                 cx="50%"
                 cy="50%"
+                style={{transition: 'all 0.5s ease-out'}}
               />
               <circle
                 className={progressRingColor}
@@ -58,11 +59,15 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
                 r={radius}
                 cx="50%"
                 cy="50%"
-                style={{ strokeDasharray: circumference, strokeDashoffset }}
+                style={{ 
+                  strokeDasharray: circumference, 
+                  strokeDashoffset,
+                  transition: 'stroke-dashoffset 1s ease-out'
+                }}
               />
             </svg>
             <span
-              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${progressColor}`}
+              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${progressColor} transition-all duration-300 ease-out`}
             >
               {percentage}%
             </span>
@@ -73,7 +78,7 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
               console.log("Botão edit clicado!");
               onEdit?.();
             }}
-            className="hover:bg-gray-200 flex flex-col items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-200"
+            className="hover:bg-gray-200/80 flex flex-col items-center justify-center rounded-full transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
             aria-label="Editar objetivo"
           >
             <IconContainer

@@ -72,6 +72,10 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart',
+        },
         interaction: {
           mode: "nearest",
           axis: "x",
@@ -200,8 +204,11 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
   }, [data, lineColor, dotColor, selectedIndex]);
 
   return (
-    <div className={`relative w-full h-48 overflow-visible ${className}`}>
-      <canvas ref={canvasRef} />
+    <div className={`relative w-full h-48 overflow-visible transition-all duration-500 ease-out ${className}`}>
+      <canvas 
+        ref={canvasRef} 
+        className="transition-all duration-500 ease-out hover:scale-[1.02]"
+      />
     </div>
   );
 };

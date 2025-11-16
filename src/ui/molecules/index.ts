@@ -46,3 +46,4 @@ export { default as TechnologySection } from "./TechnologySection";
 export { default as TextSection } from "./TextSection";
 export { Transaction } from "./Transaction";
 export { default as UploadOption } from "./UploadOption";
+export { default as TransactionHighlight } from "./TransactionHighlight";

@@ -18,57 +18,57 @@ const PasswordValidationFeedback: React.FC<PasswordValidationProps> = ({
   const criteriaList = [
     {
       key: "minLength",
-      label: "Mínimo de 8 caracteres",
+      label: "Min. 8 caracteres",
       isValid: validation.criteria.minLength,
     },
     {
       key: "maxLength", 
-      label: "Máximo de 12 caracteres",
+      label: "Max. 12 caracteres",
       isValid: validation.criteria.maxLength,
     },
     {
       key: "hasLowercase",
-      label: "Pelo menos uma letra minúscula (a-z)",
+      label: "Letra minúscula (a-z)",
       isValid: validation.criteria.hasLowercase,
     },
     {
       key: "hasUppercase",
-      label: "Pelo menos uma letra maiúscula (A-Z)",
+      label: "Letra maiúscula (A-Z)",
       isValid: validation.criteria.hasUppercase,
     },
     {
       key: "hasNumber",
-      label: "Pelo menos um número (0-9)",
+      label: "Número (0-9)",
       isValid: validation.criteria.hasNumber,
     },
     {
       key: "hasSpecialChar",
-      label: "Pelo menos um caractere especial (@$!%*?&)",
+      label: "Caractere especial (@$!%*?&)",
       isValid: validation.criteria.hasSpecialChar,
     },
   ];
 
   return (
-    <div className="mt-3 space-y-2">
-      <p className="text-sm font-medium text-gray-700">Requisitos da senha:</p>
-      <ul className="space-y-1">
+    <div className="mt-2 space-y-1">
+      <p className="text-xs font-medium text-gray-700">Requisitos da senha:</p>
+      <ul className="space-y-0.5">
         {criteriaList.map((criterion) => (
-          <li key={criterion.key} className="flex items-center space-x-2">
+          <li key={criterion.key} className="flex items-center space-x-1.5">
             <div
-              className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+              className={`flex-shrink-0 w-3 h-3 rounded-full flex items-center justify-center ${
                 criterion.isValid
                   ? "bg-green-100 text-green-600"
                   : "bg-gray-100 text-gray-400"
               }`}
             >
               {criterion.isValid ? (
-                <CheckmarkIcon className="w-3 h-3" />
+                <CheckmarkIcon className="w-2 h-2" />
               ) : (
-                <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
               )}
             </div>
             <span
-              className={`text-sm ${
+              className={`text-xs ${
                 criterion.isValid ? "text-green-600" : "text-gray-600"
               }`}
             >
@@ -79,9 +79,9 @@ const PasswordValidationFeedback: React.FC<PasswordValidationProps> = ({
       </ul>
       
       {validation.messages.length > 0 && (
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600 font-medium">Ainda faltam:</p>
-          <ul className="mt-1 text-sm text-red-600">
+        <div className="mt-1.5 p-1.5 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-xs text-red-600 font-medium">Ainda faltam:</p>
+          <ul className="mt-0.5 text-xs text-red-600">
             {validation.messages.map((message, index) => (
               <li key={index}>• {message}</li>
             ))}

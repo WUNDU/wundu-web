@@ -23,7 +23,35 @@ import { useAddTransactionModal } from "@/hooks/transaction/useAddTransaction";
 import { NotificationToast } from "@/ui/organisms/NotificationToast";
 
 const HomeScreen = () => {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([
+    {
+      type: "document",
+      name: "Pagamento da renda - Fevereiro.pdf",
+      amount: -85000,
+      category: "Habitação",
+      description: "Apartamento centro · Fevereiro",
+      isIncome: false,
+      timestamp: new Date().toISOString(),
+    } as Document,
+    {
+      type: "document",
+      name: "Recibo salário Wundu.pdf",
+      amount: 245000,
+      category: "Salário",
+      description: "Depósito mensal",
+      isIncome: true,
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    } as Document,
+    {
+      type: "document",
+      name: "Supermercado Fresco+ - compras semana.pdf",
+      amount: -32500,
+      category: "Alimentação",
+      description: "Compras da semana",
+      isIncome: false,
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    } as Document,
+  ]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -80,9 +108,9 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 relative overflow-hidden font-sans antialiased text-gray-800">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden font-sans antialiased text-gray-800">
       <div
-        className={`flex-1 flex flex-col transition-all duration-300  h-full`}
+        className={`flex-1 flex flex-col transition-all duration-500 ease-out h-full animate-fade-in`}
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
@@ -95,7 +123,7 @@ const HomeScreen = () => {
           ) : (
             <>
               {/* Seção Superior */}
-              <div className="md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0 h-auto">
+              <div className="md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0 h-auto transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5">
                 <div className="md:hidden flex flex-col flex-1">
                   <StatsSection
                     totalFiles={0}
@@ -146,7 +174,7 @@ const HomeScreen = () => {
         errors={errors}
         isLoading={isLoading}
         submitError={submitError}
-        onFormChange={handleChange} // Tipos compatíveis agora
+        onFormChange={handleChange}
       />
     </div>
   );
@@ -182,7 +210,7 @@ const MainContent = ({
   return (
     <>
       <div
-        className={`flex flex-col flex-1  ${
+        className={`flex flex-col flex-1 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${
           showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
         }`}
       >
@@ -233,6 +261,4 @@ const MainContent = ({
       </div>
     </>
   );
-};
-
-export default HomeScreen;
+};export default HomeScreen;
