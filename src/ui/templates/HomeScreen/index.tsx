@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GreetingHeader } from "@/ui/molecules";
 import UploadSection from "@/ui/organisms/UploadSection";
 import { BottomNavigation } from "@/ui/organisms";
@@ -21,43 +21,23 @@ import DetailsModal from "@/ui/organisms/DetailsModal";
 import AddTransactionModal from "@/ui/molecules/AddTransactionModal";
 import { useAddTransactionModal } from "@/hooks/transaction/useAddTransaction";
 import { NotificationToast } from "@/ui/organisms/NotificationToast";
+import { useTransactions } from "@/hooks/transaction/useTransactions";
 
 const HomeScreen = () => {
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      type: "document",
-      name: "Pagamento da renda - Fevereiro.pdf",
-      amount: -85000,
-      category: "Habitação",
-      description: "Apartamento centro · Fevereiro",
-      isIncome: false,
-      timestamp: new Date().toISOString(),
-    } as Document,
-    {
-      type: "document",
-      name: "Recibo salário Wundu.pdf",
-      amount: 245000,
-      category: "Salário",
-      description: "Depósito mensal",
-      isIncome: true,
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    } as Document,
-    {
-      type: "document",
-      name: "Supermercado Fresco+ - compras semana.pdf",
-      amount: -32500,
-      category: "Alimentação",
-      description: "Compras da semana",
-      isIncome: false,
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    } as Document,
-  ]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
   const [setIsTransactionModalOpen] = useState(false);
+  const {
+    transactions,
+    isLoading: isTransactionsLoading,
+    isRefreshing: isTransactionsRefreshing,
+    error: transactionsError,
+    refresh: refreshTransactions,
+  } = useTransactions();
   const {
     isOpen: isTransactionModalOpen,
     submitError,
@@ -69,6 +49,10 @@ const HomeScreen = () => {
     handleChange,
     handleSubmit,
   } = useAddTransactionModal();
+
+  useEffect(() => {
+    setDocuments(transactions);
+  }, [transactions]);
 
   const handleOpenTransactionModal = () => {
     openModal();
@@ -87,14 +71,14 @@ const HomeScreen = () => {
   };
 
   const handleFileSelect = async (file: File, type: "image" | "document") => {
-    setIsLoading(true);
+    setIsUploading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setDocuments((prevDocs) => [...prevDocs, { name: file.name, type }]);
     } catch (error) {
       console.log("Erro ao fazer upload do arquivo:", error);
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
       setShowModal(true);
     }
   };
@@ -115,8 +99,8 @@ const HomeScreen = () => {
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
         {/* Container principal com padding para BottomNavigation no mobile */}
-        <main className="flex-1 mb-0 px-4 pb-20 md:pb-0 flex flex-col h-full overflow-y-auto">
-          {isLoading ? (
+        <main className="flex-1 mb-0 px-4 pb-20 md:pb-0 flex flex-col h-full overflow-hidden">
+          {isUploading ? (
             <div className="flex flex-1 items-center justify-center h-full">
               <LoadingSpinner />
             </div>
@@ -153,6 +137,10 @@ const HomeScreen = () => {
                   handleFileSelect={handleFileSelect}
                   onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
                   onManualClick={handleOpenTransactionModal}
+                  isTransactionsLoading={isTransactionsLoading}
+                  isTransactionsRefreshing={isTransactionsRefreshing}
+                  transactionsError={transactionsError}
+                  onRefreshTransactions={refreshTransactions}
                 />
               </CategoryProvider>
             </>
@@ -172,7 +160,7 @@ const HomeScreen = () => {
         onSubmit={handleSubmit}
         formData={formData}
         errors={errors}
-        isLoading={isLoading}
+        isLoading={isTransactionLoading}
         submitError={submitError}
         onFormChange={handleChange}
       />
@@ -188,6 +176,10 @@ const MainContent = ({
   handleFileSelect,
   onCategoryCloseOrSuccess,
   onManualClick,
+  isTransactionsLoading,
+  isTransactionsRefreshing,
+  transactionsError,
+  onRefreshTransactions,
 }: {
   documents: Document[];
   showUploadOptions: boolean;
@@ -196,6 +188,10 @@ const MainContent = ({
   handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
   onManualClick: () => void;
+  isTransactionsLoading: boolean;
+  isTransactionsRefreshing: boolean;
+  transactionsError: string | null;
+  onRefreshTransactions: () => void;
 }) => {
   const { isCategoryModalOpen } = useCategoryContext();
 
@@ -204,24 +200,36 @@ const MainContent = ({
   ) : isCategoryModalOpen ? (
     <CategoryScreen />
   ) : (
-    <MovementSection documents={documents} />
+    <MovementSection
+      documents={documents}
+      isLoading={isTransactionsLoading}
+      isRefreshing={isTransactionsRefreshing}
+      onRefresh={onRefreshTransactions}
+      error={transactionsError}
+    />
   );
 
   return (
     <>
       <div
-        className={`flex flex-col flex-1 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${
+        className={`flex flex-col flex-1 min-h-0 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${
           showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
         }`}
       >
         {!showUploadOptions ? (
-          <div className="flex flex-col flex-1 h-full">
+          <div className="flex flex-col flex-1 h-full min-h-0">
             {/* Mobile: Sempre MovementSection ou modais como overlay */}
-            <div className="md:hidden flex flex-1 flex-col">
-              <MovementSection documents={documents} />
+            <div className="md:hidden flex flex-1 flex-col min-h-0">
+              <MovementSection
+                documents={documents}
+                isLoading={isTransactionsLoading}
+                isRefreshing={isTransactionsRefreshing}
+                onRefresh={onRefreshTransactions}
+                error={transactionsError}
+              />
             </div>
             {/* Desktop: Substitui por modais se ativos, full width quando !showUploadOptions */}
-            <div className="hidden md:block flex-col flex-1 h-full">
+            <div className="hidden md:block flex-col flex-1 h-full min-h-0">
               {rightContentDesktop}
             </div>
           </div>
@@ -246,7 +254,7 @@ const MainContent = ({
               />
             </div>
             {/* Desktop: Área direita (substituição da MovementSection) */}
-            <div className="sm:flex flex-col flex-1 h-full hidden col-span-3 md:block">
+            <div className="sm:flex flex-col flex-1 h-full min-h-0 hidden col-span-3 md:block">
               {rightContentDesktop}
             </div>
           </>

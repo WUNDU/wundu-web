@@ -1,62 +1,77 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  InternalAxiosRequestConfig,
-} from "axios";
-import { ApiErrorResponse } from "@/types/api";
+const API_BASE_URL = "/api/v1";
 
-const api: AxiosInstance = axios.create({
-  baseURL: "/api/v1",
-  headers: {
+type RequestOptions = {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: any;
+};
+
+async function request<T = any>(
+  path: string,
+  options: RequestOptions = {}
+): Promise<{ data: T }> {
+  const url = `${API_BASE_URL}${path}`;
+
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-  },
-});
+    ...(options.headers || {}),
+  };
 
-api.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token && !headers["Authorization"]) {
+      headers["Authorization"] = token.startsWith("Bearer ")
+        ? token
+        : `Bearer ${token}`;
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
   }
-);
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    if (!config.headers) {
-      config.headers = {} as any;
-    }
-    const publicEndpoints = ["/users", "/auth/login"];
-    if (!publicEndpoints.some((endpoint) => config.url?.includes(endpoint))) {
-      const token = localStorage.getItem("token") || "";
-      if (token) {
-        config.headers.Authorization = token;
-      }
-    }
-    return config;
-  },
-  (error: AxiosError) => {
-    console.log("Request error:", error.message);
-    return Promise.reject(error);
-  }
-);
 
-api.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<ApiErrorResponse>) => {
+  const response = await fetch(url, {
+    method: options.method || "GET",
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  const text = await response.text();
+  let data: any;
+
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!response.ok) {
     const message =
-      error.response?.data?.message || error.message || "API error";
-    console.log("Response error:", error);
-    if (error.response?.status === 401) {
-      return Promise.reject(new Error(message));
-    }
-    return Promise.reject(new Error(message));
+      (data && (data as any).message) || response.statusText || "API error";
+    throw new Error(message);
   }
-);
+
+  return { data };
+}
+
+const api = {
+  get<T = any>(
+    path: string,
+    config?: {
+      headers?: Record<string, string>;
+    }
+  ) {
+    return request<T>(path, { method: "GET", headers: config?.headers });
+  },
+  post<T = any>(
+    path: string,
+    body?: any,
+    config?: {
+      headers?: Record<string, string>;
+    }
+  ) {
+    return request<T>(path, {
+      method: "POST",
+      body,
+      headers: config?.headers,
+    });
+  },
+};
 
 export default api;

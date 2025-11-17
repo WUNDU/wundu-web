@@ -58,10 +58,29 @@ const LoginScreen: React.FC = () => {
       <div className="hidden md:block absolute bottom-20 right-10 w-32 h-32 rounded-full blur-2xl animate-float-delayed opacity-20" style={{ backgroundColor: 'rgba(0, 60, 195, 0.2)' }}></div>
       <div className="hidden md:block absolute top-1/2 right-20 w-16 h-16 rounded-full blur-lg animate-bounce-soft opacity-25" style={{ backgroundColor: 'rgba(202, 111, 5, 0.4)' }}></div>
 
-      {/* Logo Wundu - visível para todas as telas, mas posicionado de forma diferente */}
-      <Link href={ROUTES.LANDINGPAGE} className="hidden md:absolute top-8 left-8 md:flex items-center gap-2 fade-in-section animate-in z-10 cursor-pointer">
-        <Image src={logoLogin} alt="Logo Wundu" className="h-12 w-auto transition-transform duration-300 hover:scale-110" priority />
-     </Link>
+      {/* Logo Wundu */}
+      <Link
+        href={ROUTES.LANDINGPAGE}
+        className="absolute top-4 left-4 flex items-center gap-2 md:hidden z-10 cursor-pointer"
+      >
+        <Image
+          src={logoLogin}
+          alt="Logo Wundu"
+          className="h-10 w-auto transition-transform duration-300 hover:scale-110"
+          priority
+        />
+      </Link>
+      <Link
+        href={ROUTES.LANDINGPAGE}
+        className="hidden md:absolute top-8 left-8 md:flex items-center gap-2 fade-in-section animate-in z-10 cursor-pointer"
+      >
+        <Image
+          src={logoLogin}
+          alt="Logo Wundu"
+          className="h-12 w-auto transition-transform duration-300 hover:scale-110"
+          priority
+        />
+      </Link>
 
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="flex w-full flex-col items-center md:bg-white/95 md:backdrop-blur-xl md:rounded-3xl md:shadow-2xl md:border md:border-white/20 overflow-hidden fade-in-section animate-in delay-2 transform-gpu">
@@ -91,14 +110,9 @@ const LoginScreen: React.FC = () => {
             </div>
 
             {/* Seção do formulário */}
-            <div className="flex flex-1 flex-col justify-center p-6 sm:p-8 lg:w-1/2 lg:p-12 fade-in-section animate-in delay-4">
-              {/* Logo para telas pequenas, dentro do contêiner */}
-              <Link href={ROUTES.LANDINGPAGE} className="self-start mb-auto md:hidden cursor-pointer">
-                <Image src={logoLogin} alt="Logo Wundu" className="h-12 w-auto transition-transform duration-300 hover:scale-110" priority />
-              </Link>
-
+            <div className="flex flex-1 flex-col justify-start gap-6 p-5 sm:p-8 lg:w-1/2 lg:p-12 fade-in-section animate-in delay-4">
               {/* Textos para mobile - ocultos em desktop */}
-              <div className="md:hidden">
+              <div className="md:hidden -mt-2">
                 <CTA
                   title="FAÇA SEU LOGIN"
                   subtitle="Faça login e melhore a tua vida financeira"
@@ -106,7 +120,7 @@ const LoginScreen: React.FC = () => {
                 />
               </div>
 
-              <div className="mt-8 flex w-full flex-col space-y-6">
+              <div className="mt-2 md:mt-8 flex w-full flex-col space-y-6">
                 <div className="fade-in-section animate-in delay-5">
                   <FormSection
                     onErrorChange={handleErrorChange} onLogin={function (): void {

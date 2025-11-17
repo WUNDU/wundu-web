@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   NoMovementIcon,
   SettingsIcon,
@@ -13,6 +13,10 @@ import TransactionHighlight from "@/ui/molecules/TransactionHighlight";
 
 interface MovementSectionProps {
   documents: Document[];
+  isLoading?: boolean;
+  isRefreshing?: boolean;
+  onRefresh?: () => void;
+  error?: string | null;
 }
 
 type PaletteStyle = {
@@ -74,40 +78,14 @@ const getPalette = (category: string | undefined, isIncome: boolean): PaletteSty
   return palette[category ?? ""] ?? palette.default;
 };
 
-// Array estático de transações de exemplo
-const MOCK_TRANSACTIONS: Document[] = [
-  {
-    type: "transaction",
-    name: "Pagamento da renda",
-    description: "Apartamento centro · Fevereiro",
-    amount: -85000,
-    category: "Habitação",
-    timestamp: new Date().toISOString(),
-    isIncome: false,
-  },
-  {
-    type: "transaction",
-    name: "Salário Wundu",
-    description: "Depósito mensal",
-    amount: 245000,
-    category: "Salário",
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    isIncome: true,
-  },
-  {
-    type: "transaction",
-    name: "Supermercado Fresco+",
-    description: "Compras da semana",
-    amount: -32500,
-    category: "Alimentação",
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    isIncome: false,
-  },
-];
-
-
-const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
+const MovementSection: React.FC<MovementSectionProps> = ({
+  documents,
+  isLoading,
+  isRefreshing,
+  onRefresh,
+  error,
+}) => {
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
 
   const transactionDocuments = useMemo(() => {
     return documents.map((doc, index) => {
@@ -128,9 +106,22 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
     });
   }, [documents]);
 
+  useEffect(() => {
+    setShowAllTransactions(false);
+  }, [transactionDocuments]);
+
+  const totalTransactions = transactionDocuments.length;
+  const visibleDocuments = useMemo(() => {
+    if (showAllTransactions) {
+      return transactionDocuments;
+    }
+    return transactionDocuments.slice(0, 5);
+  }, [transactionDocuments, showAllTransactions]);
+
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1200);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   const groupedTransactions = useMemo(() => {
@@ -141,7 +132,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
     const todayKey = normalize(today).getTime();
     const yesterdayKey = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1).getTime();
 
-    transactionDocuments.forEach((doc) => {
+    visibleDocuments.forEach((doc) => {
       const ts = doc.timestamp ? new Date(doc.timestamp) : new Date();
       const keyDate = normalize(ts).getTime();
 
@@ -164,7 +155,28 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
     });
 
     return groups;
-  }, [transactionDocuments]);
+  }, [visibleDocuments]);
+
+  if (isLoading) {
+    return (
+      <section className="flex flex-col flex-1 min-h-0 pb-5 overflow-hidden">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-sm font-bold uppercase text-gray-900">
+              Últimas transações
+            </h2>
+            <p className="text-xs text-gray-500">Carregando transações...</p>
+          </div>
+          <div className="border-2 rounded-full border-gray-200 bg-gray-100 p-1">
+            <SettingsIcon className="text-gray-500" />
+          </div>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-sm text-gray-500">Buscando dados...</div>
+        </div>
+      </section>
+    );
+  }
 
   const renderHighlight = (doc: Document, index: number) => {
     const isIncome = Boolean(doc.isIncome ?? (doc.amount ?? 0) > 0);
@@ -209,16 +221,17 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
           </div>
         </div>
 
-        <div className="flex flex-1">
-          <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 shadow-sm flex flex-col flex-1 min-h-full items-center justify-center text-center">
+        <div className="flex flex-1 min-h-0">
+          <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 shadow-sm flex flex-col flex-1 min-h-0 items-center justify-center text-center overflow-hidden">
             <div className="flex flex-col items-center gap-2 mb-4">
               <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
               <p className="text-lg font-semibold text-gray-900">
                 Nenhum movimento registrado.
               </p>
               <p className="text-sm text-gray-500">
-                Faça upload de um comprovativo ou registre manualmente para visualizar
-                aqui.
+                {error
+                  ? error
+                  : "Faça upload de um comprovativo ou registre manualmente para visualizar aqui."}
               </p>
             </div>
           </div>
@@ -229,7 +242,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
 
   // ESTADO COM MOVIMENTOS: lista de cards dentro do MovementSection
   return (
-    <section className="flex flex-col flex-1 min-h-full pb-5">
+    <section className="flex flex-col flex-1 h-full min-h-0 overflow-hidden">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-sm font-bold uppercase text-gray-900">
@@ -242,31 +255,36 @@ const MovementSection: React.FC<MovementSectionProps> = ({ documents }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-        {Object.entries(groupedTransactions).map(([label, items]) => (
-          <div key={label} className="space-y-1">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 px-1">
-              <CalendarIcon className="w-3 h-3" />
-              <span>{label}</span>
-            </div>
-            <div className="mt-1 space-y-2 border-t border-gray-100 pt-1">
-              {items.map((doc, index) => renderHighlight(doc, index))}
-            </div>
+      <div className="flex flex-1 min-h-0">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto pr-1 space-y-4 py-4">
+            {Object.entries(groupedTransactions).map(([label, items]) => (
+              <div key={label} className="space-y-1 px-4">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500">
+                  <CalendarIcon className="w-3 h-3" />
+                  <span>{label}</span>
+                </div>
+                <div className="mt-1 space-y-2 border-t border-gray-100 pt-1">
+                  {items.map((doc, index) => renderHighlight(doc, index))}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="text-center mt-6">
-        <Button
-          variant="more"
-          rightIcon={<ArrowRotateIcon />}
-          onClick={handleRefresh}
-          loading={isRefreshing}
-          label={isRefreshing ? "Atualizando" : "Ver todos os movimentos"}
-        />
+          {totalTransactions > 5 && (
+            <div className="border-t border-gray-100 p-4 flex justify-center">
+              <Button
+                variant="secondary"
+                onClick={() => setShowAllTransactions((prev) => !prev)}
+                label={showAllTransactions ? "Mostrar menos" : "Ver todos os movimentos"}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
-};
+}
+;
 
 export default MovementSection;

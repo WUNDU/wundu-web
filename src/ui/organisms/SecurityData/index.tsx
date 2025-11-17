@@ -17,22 +17,22 @@ const SecurityData = () => {
   const handleSubmit = submit;
 
   return (
-    <div className="flex flex-col h-full justify-between items-center p-4 md:p-8">
+    <div className="flex flex-col h-full items-center p-4 md:p-8 md:justify-between">
       <div className="w-full flex-col flex md:flex-row md:items-center md:justify-between">
         <NavigationBack prev={prevStep} />
         <div className="w-6 h-6 md:hidden" />
         <Image src={logo} alt="Logo" className="w-12 h-12 md:hidden" />
       </div>
-      <div className="w-full text-left md:w-2/3">
+      <div className="w-full text-left md:w-2/3 mb-2 md:mb-0">
         <CTA
-          title={"Segurança"}
-          subtitle={"Crie uma senha e mantenha seus dados seguros."}
+          title="Segurança"
+          subtitle="Crie uma senha e mantenha seus dados seguros."
           variant="default"
         />
       </div>
       <form
         onSubmit={handleSubmit}
-        className="flex w-full flex-col gap-8 py-10 px-6 md:px-0 md:w-2/3"
+        className="flex w-full flex-col gap-6 md:gap-8 py-6 md:py-10 px-6 md:px-0 md:w-2/3"
       >
         <div>
           <PasswordInput
@@ -45,7 +45,7 @@ const SecurityData = () => {
             required
             isError={!!passwordError || !!contextError}
           />
-          <PasswordValidationFeedback 
+          <PasswordValidationFeedback
             validation={passwordValidation}
             showCriteria={form.password.length > 0}
           />

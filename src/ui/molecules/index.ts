@@ -33,6 +33,7 @@ export { default as LineChart } from "./LineChart";
 export { ModalContent } from "./ModalConten";
 export { default as ModalHeader } from "./ModalHeader";
 export { default as MovimentSection } from "./MovimentSection";
+export { default as NotificationCenterModal } from "./NotificationCenterModal";
 export { default as PasswordValidation } from "./PasswordValidation";
 export { default as PasswordStrength } from "./PasswordStrength";
 export { default as PieChart } from "./PieChart";

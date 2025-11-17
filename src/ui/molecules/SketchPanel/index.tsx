@@ -3,14 +3,14 @@ import React from "react";
 
 const SketchPanel: React.FC = () => {
   return (
-    <div className="bg-gray-50 rounded-xl p-4 h-full flex items-center justify-center">
-      <div className="text-center">
-        <NoMovementIcon className="mx-auto mb-1 text-gray-600" />
-        <h3 className="text-lg font-semibold text-gray-700 mb-1">
-          Sem Rascunhos
-        </h3>
-        <div className="text-gray-600 text-sm">
-          <p className="text-gray-600">
+    <div className="flex h-full w-full items-center justify-center rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
+      <div className="w-full text-center space-y-4">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
+          <NoMovementIcon className="h-8 w-8" />
+        </div>
+        <div>
+          <h3 className="text-base font-semibold text-gray-700">Sem rascunhos.</h3>
+          <p className="text-sm text-gray-500">
             Todos os seus rascunhos irão aparecer aqui.
           </p>
         </div>

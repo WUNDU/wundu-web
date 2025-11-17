@@ -13,10 +13,13 @@ import { ROUTES } from "@/constants/routes";
 import useRegisterContext from "@/contexts/useRegisterContext";
 import { LoadingSpinner } from "@/ui/atoms";
 import type { GreetingHeaderProps } from "@/types/header";
+import { useUiStore } from "@/store/uiStore";
+import NotificationCenterModal from "@/ui/molecules/NotificationCenterModal";
 
 const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
   const route = useRouter();
   const { user, isAuthenticated } = useRegisterContext();
+  const { openNotificationCenter } = useUiStore();
 
   const handleChatIa = () => {
     route.push(ROUTES.CHAT_IA);
@@ -33,9 +36,14 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
     <header className="bg-white/80 px-4 py-3 flex items-center justify-between md:justify-end border-b border-slate-200/60 transition-all duration-300 ease-out animate-fade-in">
       <div className="flex justify-start items-center md:justify-end transition-all duration-300 ease-out">
         <div className="flex items-center space-x-2">
-          <div className="hidden md:flex pr-10 transition-all duration-300 ease-out hover:scale-110">
+          <button
+            type="button"
+            className="hidden md:flex pr-10 transition-all duration-300 ease-out hover:scale-110 focus-visible:outline-none"
+            onClick={openNotificationCenter}
+            aria-label="Abrir notificações"
+          >
             <NotificationDeskIcon />
-          </div>
+          </button>
 
           <div
             className="md:p-[2px] md:rounded-full transition-all duration-500 ease-out hover:scale-110 hover:rotate-3
@@ -51,8 +59,7 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
               <Image
                 src={avatar}
                 alt={user?.name || "Usuário"}
-                className="hidden md:block w-6 h-6 rounded-full transition-all duration-300 ease-out hover:scale-110 cursor-pointer"
-                onClick={handleProfile}
+                className="hidden md:block w-6 h-6 rounded-full transition-all duration-300 ease-out"
               />
             </div>
           </div>
@@ -76,11 +83,17 @@ const GreetingHeader: React.FC<GreetingHeaderProps> = ({ onToggleSidebar }) => {
         {/* Ícone IA */}
         {/* <IAIcon />
         </button> */}
-        <div className="border border-slate-300 bg-white/80 rounded-full px-2 py-2 transition-all duration-300 ease-out hover:scale-110 hover:border-blue-400 hover:bg-blue-50 cursor-pointer">
+        <button
+          type="button"
+          onClick={openNotificationCenter}
+          className="border border-slate-300 bg-white/80 rounded-full px-2 py-2 transition-all duração-300 ease-out hover:scale-110 hover:border-blue-400 hover:bg-blue-50"
+          aria-label="Abrir notificações"
+        >
           {/* Ícone de notificação */}
           <NotificationIcon />
-        </div>
+        </button>
       </div>
+      <NotificationCenterModal />
     </header>
   );
 };

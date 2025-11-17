@@ -277,7 +277,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="flex-1 flex flex-col">
+                  <div className="flex-1 flex flex-col gap-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
                       {viewMode === "pie"
                         ? "Distribuição por Categoria"
@@ -309,7 +309,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
                   </div>
 
                   {/* Time Range Tabs */}
-                  <div className="flex justify-center">
+                  <div className="flex justify-center pt-4">
                     <div className="flex bg-gray-100 p-1 rounded-full">
                       {tabRanges.map((range) => (
                         <Tab

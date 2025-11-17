@@ -1,6 +1,4 @@
-import { TextInput } from "@/ui/atoms";
-import { Button } from "@/ui/atoms";
-import { Select } from "@/ui/atoms";
+import { TextInput, Button, Select } from "@/ui/atoms";
 import { useObjectiveForm } from "@/hooks/objective/useObjectiveForm";
 
 const ObjectiveForm: React.FC = () => {
@@ -23,58 +21,84 @@ const ObjectiveForm: React.FC = () => {
     { value: "education", label: "Educação" },
     { value: "other", label: "Outro" },
   ];
-  const isDateInput = !!form.dueDate;
 
   return (
-    <div className="flex flex-col gap-6 h-full min-h-0">
-      {/* Adicione min-h-0 e flex-1 para controlar o overflow */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0 overflow-auto">
-        <TextInput
-          label="Nome do objetivo"
-          placeholder="Digite o nome do objectivo"
-          value={form.objectiveName}
-          onChange={(e) => setField("objectiveName", e.target.value)}
-          required
-          type="text"
-        />
-        <TextInput
-          label="Valor necessário"
-          type="text"
-          placeholder="Digite o valor"
-          value={form.targetValue}
-          onChange={(e) => setField("targetValue", e.target.value)}
-          required
-        />
-
-        <div className="relative flex w-full flex-col gap-2">
-          <label className="text-gray-600">Data limite</label>
-          <input
-            type={isDateInput ? "date" : "text"}
-            placeholder="Selecione a data"
-            value={form.dueDate}
-            onChange={(e) => setField("dueDate", e.target.value)}
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-full flex-col rounded-3xl bg-white p-6 shadow-lg border border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
+          <TextInput
+            label="Nome do objetivo"
+            placeholder="Digite o nome do objectivo"
+            value={form.objectiveName}
+            onChange={(e) => setField("objectiveName", e.target.value)}
             required
+            type="text"
+          />
+          <TextInput
+            label="Valor necessário"
+            type="number"
+            placeholder="Digite o valor"
+            value={form.targetValue}
+            onChange={(e) => setField("targetValue", e.target.value)}
+            required
+          />
+
+          <div className="flex w-full flex-col gap-2">
+            <label className="text-gray-600 text-sm font-medium">
+              Data limite
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                value={form.dueDate}
+                onChange={(e) => setField("dueDate", e.target.value)}
+                placeholder="Selecione a data"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 pr-10"
+                required
+              />
+              <svg
+                className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <Select
+            label="Prioridade"
+            value={form.priority}
+            onChange={(e) => setField("priority", e.target.value)}
+            options={priorityOptions}
+            required
+          />
+
+          <Select
+            label="Categoria"
+            value={form.category}
+            onChange={(e) => setField("category", e.target.value)}
+            options={categoryOptions}
+            required
+            className="md:col-start-1"
           />
         </div>
 
-        <Select
-          label="Prioridade"
-          value={form.priority}
-          onChange={(e) => setField("priority", e.target.value)}
-          options={priorityOptions}
-          required
-        />
-        <Select
-          label="Categoria"
-          value={form.category}
-          onChange={(e) => setField("category", e.target.value)}
-          options={categoryOptions}
-          required
-        />
+        <Button
+          onClick={save}
+          variant="warning"
+          fullWidth
+          className="mt-6 rounded-2xl py-4 text-base"
+        >
+          Salvar Objectivo
+        </Button>
       </div>
-
-      <Button onClick={save}>Salvar Objectivo</Button>
     </div>
   );
 };

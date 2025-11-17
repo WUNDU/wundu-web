@@ -13,14 +13,12 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { SidebarRightProps } from "@/types/sidebar";
 import useRegisterContext from "@/contexts/useRegisterContext";
+import { useUiStore } from "@/store/uiStore";
 
 const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const route = useRouter();
   const { logoutUser, user } = useRegisterContext();
-
-  const handleControlPanel = () => {
-    route.push(ROUTES.CONTROL_PANEL);
-  };
+  const { openNotificationCenter } = useUiStore();
 
   const handleLogout = async () => {
     await logoutUser();
@@ -28,19 +26,26 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-black/20 backdrop-blur-xl z-50 transition-all duration-500 ease-out ${
+      className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-white/5 backdrop-blur-xl z-50 transition-all duration-500 ease-out ${
         isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       }`}
       onClick={onClose}
     >
       {/* Conteúdo com rolagem */}
       <div
-        className="flex flex-col h-full max-h-screen overflow-y-auto bg-white/95 backdrop-blur-xl shadow-2xl border-l border-gray-200/50 transition-all duration-500 ease-out"
+        className="flex flex-col h-full max-h-screen overflow-y-auto bg-white/5 backdrop-blur-xl shadow-2xl border-l border-gray-200/50 transition-all duration-500 ease-out"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header com notificação e botão de fechar */}
         <div className="flex flex-row justify-between items-center px-4 sm:px-6 py-4 animate-slide-up">
-          <NotificationDeskIcon className="w-8 h-8 text-black transition-all duration-300 ease-out hover:scale-110" />
+          <button
+            type="button"
+            onClick={openNotificationCenter}
+            className="p-2 rounded-2xl transition-all duration-300 ease-out hover:scale-105 hover:bg-white/60"
+            aria-label="Abrir notificações"
+          >
+            <NotificationDeskIcon className="w-8 h-8 text-black" />
+          </button>
           <button onClick={onClose} className="p-2 transition-all duration-300 ease-out hover:scale-110 hover:bg-gray-100 rounded-full">
             <DownArrowIcon className="w-6 h-6 text-black rotate-90" />
           </button>
@@ -69,17 +74,20 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                   {
                     icon: <HelpIcon className="w-6 h-6 text-gray-600" />,
                     text: "Suporte e Feedback",
+                    action: () => {},
                   },
                   {
                     icon: (
                       <NotificationRightBarIcon className="w-6 h-6 text-gray-600" />
                     ),
                     text: "Notificações",
+                    action: openNotificationCenter,
                   },
                 ].map((item, index) => (
                   <li
                     key={index}
                     className="flex justify-between items-center p-4 hover:bg-white/50 transition-all duration-300 ease-out hover:scale-[1.02] cursor-pointer"
+                    onClick={item.action}
                   >
                     <div className="flex items-center space-x-4">
                       {item.icon}

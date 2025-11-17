@@ -34,7 +34,7 @@ const FinancialObjectiveScreen: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden font-sans antialiased text-gray-800 min-h-0">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-x-hidden overflow-y-auto font-sans antialiased text-gray-800 min-h-0">
       {/* Sidebar positioned absolutely */}
 
       {/* Main content with conditional margin for sidebar */}
@@ -45,46 +45,46 @@ const FinancialObjectiveScreen: React.FC = () => {
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
-        <main className="p-4 space-y-6 flex-1 overflow-y-auto min-h-0 animate-slide-up">
+        <main className="p-4 space-y-6 flex-1 min-h-0 md:overflow-hidden animate-slide-up">
           <div className="md:hidden">
             <NavigationBack />
           </div>
 
-          <div className="flex flex-col flex-1 bg-white/95 backdrop-blur-xl md:bg-transparent rounded-2xl p-5 space-y-10 shadow-lg border border-white/20 transition-all duration-500 ease-out hover:shadow-xl">
+          <div className="flex flex-col flex-1 min-h-0 rounded-2xl p-5 space-y-10">
             <h2 className="text-lg font-semibold text-gray-800 md:hidden animate-slide-up" style={{animationDelay: '0.2s'}}>
               Objectivos financeiros
             </h2>
-            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-2 gap-4 md:bg-white/95 md:backdrop-blur-xl md:p-2 md:px-5 rounded-2xl shadow-lg border border-white/20 transition-all duration-500 ease-out animate-slide-up" style={{animationDelay: '0.3s'}}>
+            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-2 gap-3 animate-slide-up" style={{animationDelay: '0.3s'}}>
               <div
-                className={`rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:-translate-y-1`}
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+                  showForm ? "ring-1 ring-yellow-200 bg-yellow-50/60" : ""
+                }`}
                 onClick={handleFinancialNewObjective}
               >
                 <FinancialObjectiveCard
                   icon={PlusIcon}
-                  title="Crie um objecto financeiro"
-                  description="são metas específicas relacionadas ao dinheiro."
+                  title="Crie um objectivo financeiro"
+                  description="São metas específicas relacionadas ao dinheiro."
                   borderColor="border-l-yellow-400"
-                  bgColor={`bg-yellow-100 ${
-                    showForm ? "md:bg-yellow-50 md:bg-blue-50" : "md:bg-white"
-                  }`}
-                  iconBgColor="bg-white md:bg-yellow-100"
-                  iconColor="text-yellow-300"
+                  bgColor="bg-yellow-50"
+                  iconBgColor="bg-white"
+                  iconColor="text-yellow-400"
                 />
               </div>
               <div
-                className={`rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:-translate-y-1`}
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+                  !showForm ? "ring-1 ring-rose-200 bg-rose-50/60" : ""
+                }`}
                 onClick={handleFinancialObjective}
               >
                 <FinancialObjectiveCard
                   icon={HistoryIcon}
                   title="Meus objectivos"
-                  description="Visualizar todos os meus objectivos já criados aqui."
-                  borderColor="border-l-red-400"
-                  bgColor={`bg-red-100 ${
-                    !showForm ? "md:bg-red-50 md:bg-blue-50" : "md:bg-white"
-                  }`}
-                  iconBgColor="bg-white md:bg-red-100"
-                  iconColor="text-red-600"
+                  description="Visualize todos os seus objectivos criados."
+                  borderColor="border-l-rose-400"
+                  bgColor="bg-rose-50"
+                  iconBgColor="bg-white"
+                  iconColor="text-rose-500"
                 />
               </div>
               {/* <div
@@ -120,100 +120,111 @@ const FinancialObjectiveScreen: React.FC = () => {
                 />
               </div>
             </div> */}
-            <div className="hidden md:block mt-8 md:mt-0 rounded-2xl h-full bg-white/95 backdrop-blur-xl p-6 md:min-w-full shadow-lg border border-white/20 transition-all duration-500 ease-out hover:shadow-xl animate-slide-up" style={{animationDelay: '0.4s'}}>
+            <div className="hidden md:flex mt-8 md:mt-0 rounded-2xl h-full min-h-[520px] p-2 pb-6 md:min-w-full animate-slide-up" style={{animationDelay: '0.4s'}}>
               {showForm ? (
-                <div className="flex gap-4 min-h-0 animate-fade-in">
-                  <div className="w-2/3 h-full min-h-0">
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-md border border-white/10 transition-all duration-500 ease-out hover:shadow-lg hover:-translate-y-1">
-                      <ObjectiveForm />
-                    </div>
+                <div className="flex flex-1 gap-6 min-h-0 w-full animate-fade-in">
+                  <div className="flex flex-[1.5] min-h-0 w-full">
+                    <ObjectiveForm />
                   </div>
-                  <div className="w-1/3 h-full min-h-0">
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-md border border-white/10 transition-all duration-500 ease-out hover:shadow-lg hover:-translate-y-1">
-                      <SketchPanel />
-                    </div>
+                  <div className="flex flex-1 min-h-0 w-full">
+                    <SketchPanel />
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
-                  {/* Meus objetivos financeiros */}
-                  <div className="space-y-4 flex-1 animate-slide-up" style={{animationDelay: '0.5s'}}>
-                    <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
-                      Meus objectivos financeiros
-                    </h3>
-                    <div className="flex flex-col gap-3 flex-1">
-                      {unfulfilledObjectives.map((obj, index) => (
+                <div className="flex flex-1 w-full min-h-0">
+                  <div className="flex flex-1 flex-col rounded-3xl bg-white p-6 mb-5 pb-8 shadow-lg border border-gray-100 min-h-0 max-h-[calc(100vh-220px)] overflow-hidden">
+                    <div className="flex-1 pr-2 min-h-0">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-0">
+                        {/* Meus objetivos financeiros */}
                         <div
-                          key={obj.id}
-                          className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                          style={{animationDelay: `${0.6 + index * 0.1}s`}}
+                          className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
+                          style={{ animationDelay: "0.5s" }}
                         >
-                          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-3 shadow-md border border-white/10 transition-all duration-300 ease-out hover:shadow-lg">
-                            <FinancialProgressCard
-                              title={obj.title}
-                              valorAlvo={obj.valorAlvo}
-                              valorPoupado={obj.valorPoupado}
-                              percentage={obj.percentage}
-                              iconColor="text-indigo-600"
-                              onEdit={() => handleEdit(obj)}
-                            />
+                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
+                            Meus objectivos financeiros
+                          </h3>
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
+                            {unfulfilledObjectives.map((obj, index) => (
+                              <div
+                                key={obj.id}
+                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                style={{animationDelay: `${0.6 + index * 0.1}s`}}
+                              >
+                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                  <FinancialProgressCard
+                                    title={obj.title}
+                                    valorAlvo={obj.valorAlvo}
+                                    valorPoupado={obj.valorPoupado}
+                                    percentage={obj.percentage}
+                                    iconColor="text-indigo-600"
+                                    onEdit={() => handleEdit(obj)}
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Objectivos cumpridos */}
-                  <div className="space-y-4 flex-1 animate-slide-up" style={{animationDelay: '0.7s'}}>
-                    <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
-                      Objectivos cumpridos
-                    </h3>
-                    <div className="flex flex-col gap-3 flex-1">
-                      {fulfilledObjectives.map((obj, index) => (
+                        {/* Objectivos cumpridos */}
                         <div
-                          key={obj.id}
-                          className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                          style={{animationDelay: `${0.8 + index * 0.1}s`}}
+                          className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
+                          style={{ animationDelay: "0.7s" }}
                         >
-                          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-3 shadow-md border border-white/10 transition-all duration-300 ease-out hover:shadow-lg">
-                            <FinancialProgressCard
-                              title={obj.title}
-                              valorAlvo={obj.valorAlvo}
-                              valorPoupado={obj.valorPoupado}
-                              percentage={obj.percentage}
-                              iconColor="text-green-600"
-                              onEdit={() => handleEdit(obj)}
-                            />
+                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
+                            Objectivos cumpridos
+                          </h3>
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
+                            {fulfilledObjectives.map((obj, index) => (
+                              <div
+                                key={obj.id}
+                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                style={{animationDelay: `${0.8 + index * 0.1}s`}}
+                              >
+                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                  <FinancialProgressCard
+                                    title={obj.title}
+                                    valorAlvo={obj.valorAlvo}
+                                    valorPoupado={obj.valorPoupado}
+                                    percentage={obj.percentage}
+                                    iconColor="text-green-600"
+                                    onEdit={() => handleEdit(obj)}
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Objectivos por cumprir */}
-                  <div className="space-y-4 flex-1 animate-slide-up" style={{animationDelay: '0.9s'}}>
-                    <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
-                      Objectivos por cumprir
-                    </h3>
-                    <div className="flex flex-col gap-3 flex-1">
-                      {unfulfilledObjectives.map((obj, index) => (
+                        {/* Objectivos por cumprir */}
                         <div
-                          key={obj.id}
-                          className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                          style={{animationDelay: `${1.0 + index * 0.1}s`}}
+                          className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
+                          style={{ animationDelay: "0.9s" }}
                         >
-                          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-3 shadow-md border border-white/10 transition-all duration-300 ease-out hover:shadow-lg">
-                            <FinancialProgressCard
-                              title={obj.title}
-                              valorAlvo={obj.valorAlvo}
-                              valorPoupado={obj.valorPoupado}
-                              percentage={obj.percentage}
-                              iconColor="text-red-600"
-                              onEdit={() => handleEdit(obj)}
-                            />
+                          <h3 className="text-lg font-semibold text-gray-800 transition-all duração-300 ease-out">
+                            Objectivos por cumprir
+                          </h3>
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
+                            {unfulfilledObjectives.map((obj, index) => (
+                              <div
+                                key={obj.id}
+                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                style={{animationDelay: `${1.0 + index * 0.1}s`}}
+                              >
+                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                  <FinancialProgressCard
+                                    title={obj.title}
+                                    valorAlvo={obj.valorAlvo}
+                                    valorPoupado={obj.valorPoupado}
+                                    percentage={obj.percentage}
+                                    iconColor="text-red-600"
+                                    onEdit={() => handleEdit(obj)}
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
                 </div>

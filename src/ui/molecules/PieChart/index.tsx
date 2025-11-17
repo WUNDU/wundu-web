@@ -41,31 +41,29 @@ const PieChart: React.FC<PieChartProps> = ({
         const y = (chartArea.top + chartArea.bottom) / 2;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#000000";
-        ctx.font = "16px sans-serif";
-        ctx.fillText("Gastos", x, y - 25);
-        ctx.font = "24px sans-serif";
-        ctx.fillText(`KZ ${totalAmount.toLocaleString("pt-AO")}`, x, y);
-        ctx.font = "14px sans-serif";
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "12px 'Inter', sans-serif";
+        const prefix = timeRangeText.includes("Créditos") ? "Créditos" : "Gastos";
+        ctx.fillText(prefix.toUpperCase(), x, y - 26);
+        ctx.font = "600 22px 'Inter', sans-serif";
+        ctx.fillText(
+          `KZ ${totalAmount.toLocaleString("pt-AO")}`,
+          x,
+          y - 2
+        );
+        ctx.font = "12px 'Inter', sans-serif";
+        ctx.fillStyle = "#475569";
         const displayText = timeRangeText
           .replace("Gastos ", "")
           .replace("Créditos ", "");
-        ctx.fillText(displayText, x, y + 25);
+        ctx.fillText(displayText, x, y + 18);
         ctx.restore();
       },
     };
 
     Chart.register(centerText);
 
-    const colors = [
-      "#60A5FA",
-      "#2DD4BF",
-      "#A78BFA",
-      "#F87171",
-      "#FBBF24",
-      "#8B5CF6",
-      "#F97316",
-    ];
+    const palette = ["#7C96FF", "#22D3B6", "#A855F7", "#2B50CF", "#F97316"];
 
     chartRef.current = new Chart(ctx, {
       type: "doughnut",
@@ -74,25 +72,32 @@ const PieChart: React.FC<PieChartProps> = ({
         datasets: [
           {
             data: transactions.map((tx) => Math.abs(tx.amount)),
-            backgroundColor: colors.slice(0, transactions.length),
-            hoverOffset: 15,
+            backgroundColor: palette.slice(0, transactions.length),
+            hoverOffset: 6,
             borderWidth: 2,
-            borderColor: '#ffffff',
-            hoverBorderWidth: 3,
+            borderColor: "#e2e8f0",
+            hoverBorderWidth: 2,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "60%",
-        rotation: -135,
+        cutout: "70%",
+        rotation: -90,
+        layout: {
+          padding: 32,
+        },
         plugins: {
           legend: {
             display: false,
           },
           tooltip: {
             enabled: true,
+            backgroundColor: "#0f172a",
+            padding: 12,
+            titleFont: { size: 12, family: "Inter" },
+            bodyFont: { size: 12, family: "Inter" },
             callbacks: {
               label: function (context) {
                 const transaction = transactions[context.dataIndex];
@@ -123,7 +128,7 @@ const PieChart: React.FC<PieChartProps> = ({
   if (transactions.length === 0) {
     return (
       <div className="flex justify-center items-center w-full h-64 animate-fade-in">
-        <div className="text-center text-gray-500 p-8 rounded-2xl bg-gray-50/50 backdrop-blur-sm border border-gray-200/50 transition-all duration-300 ease-out hover:shadow-lg">
+        <div className="text-center text-slate-500 p-8 rounded-[32px] bg-white border border-indigo-100">
           <p className="text-lg font-medium">Nenhuma transação</p>
           <p className="text-sm">encontrada para este período</p>
         </div>
@@ -133,7 +138,12 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div
-      className={`flex justify-center items-center w-full h-64 transition-all duration-500 ease-out ${className}`}
+      className={`flex justify-center items-center w-full h-64 transition-all duration-500 ease-out rounded-[32px] bg-white border border-indigo-100 ${className}`}
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(124,150,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(124,150,255,0.12) 1px, transparent 1px)",
+        backgroundSize: "48px 48px",
+      }}
     >
       <div className="relative w-full max-w-md h-full transition-all duration-500 ease-out hover:scale-[1.02]">
         <canvas 
