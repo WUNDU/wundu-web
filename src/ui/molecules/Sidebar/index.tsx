@@ -2,11 +2,7 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  ChartDesktopIcon,
-  HomeDeskIcon,
-  ImageIcon,
-} from "@/constants/icons";
+import { ChartDesktopIcon, GoalsIcon, HomeDeskIcon } from "@/constants/icons";
 import Link from "next/link";
 import { logo } from "@/constants/images";
 import { TrashIcon } from "lucide-react";
@@ -29,7 +25,7 @@ const Sidebar = () => {
       {
         name: "Objetivos Financeiros",
         path: ROUTES.FINANCIAL,
-        icon: ImageIcon,
+        icon: GoalsIcon,
       },
     ],
     []

@@ -4,11 +4,24 @@ import { Input as PasswordInput } from "@/ui/molecules";
 import { FormSectionProps } from "@/types/form";
 import { Button } from "@/ui/atoms";
 import { useLoginForm } from "@/hooks/auth/useLoginForm";
+import LoadingSpinner from "@/ui/atoms/LoadingSpinner";
 
 const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
-  const { form, errors, setField, submit, contextError } = useLoginForm(
+  const { form, errors, setField, submit, contextError, isSubmitting, isLoading } = useLoginForm(
     onErrorChange
   );
+  
+  // Show loading spinner during authentication
+  if (isLoading || isSubmitting) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <LoadingSpinner 
+          size="md" 
+          message={isSubmitting ? "Fazendo login..." : "Carregando..."} 
+        />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={submit} className="flex w-full flex-col gap-4 px-4">
@@ -38,8 +51,13 @@ const FormSection: React.FC<FormSectionProps> = ({ onErrorChange }) => {
           {errors.password || contextError}
         </p>
       )}
-      <Button variant="warning" onClick={() => {}} type="submit">
-        Entrar
+      <Button 
+        variant="warning" 
+        type="submit"
+        disabled={isSubmitting || isLoading}
+        className={isSubmitting ? "opacity-75 cursor-not-allowed" : ""}
+      >
+        {isSubmitting ? "Entrando..." : "Entrar"}
       </Button>
     </form>
   );

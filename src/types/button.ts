@@ -33,9 +33,17 @@ export interface UploadProps {
   onUploadClick: () => void;
 }
 
+export type DocumentType = "image" | "document" | "transaction";
+
 export interface Document {
-  type: "image" | "document";
+  type: DocumentType;
   name: string;
+  description?: string;
+  amount?: number;
+  category?: string;
+  timestamp?: string;
+  isIncome?: boolean;
+  color?: string;
 }
 
 export interface SentDocumentsSectionProps {

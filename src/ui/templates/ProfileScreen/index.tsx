@@ -15,26 +15,36 @@ import { BottomNavigation } from "@/ui/organisms";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import useRegisterContext from "@/contexts/useRegisterContext";
+import { useUiStore } from "@/store/uiStore";
 
 const ProfileScreen: React.FC = () => {
   const { user, logoutUser } = useRegisterContext();
   const router = useRouter();
+  const { openNotificationCenter } = useUiStore();
 
   const handleLogout = async () => {
     await logoutUser();
   };
 
   const menuItems = [
-    { icon: <ProfileIcon />, text: "Meus dados" },
-    { icon: <HelpIcon />, text: "Suporte e Feedback" },
-    { icon: <NotificationRightBarIcon />, text: "Notificações" },
-    { icon: <PaymentIcon />, text: "Meus plano" },
-    { icon: <SettingsRightBarIcon />, text: "Configurações" },
+    {
+      icon: <HelpIcon className="text-gray-600" />,
+      text: "Suporte e Feedback",
+      action: () => {},
+    },
+    {
+      icon: <NotificationRightBarIcon className="text-gray-600" />,
+      text: "Notificações",
+      action: openNotificationCenter,
+    },
     {
       icon: <LogoutIcon className="text-red-500" />,
       text: "Sair",
       action: handleLogout,
     },
+    // { icon: <ProfileIcon />, text: "Meus dados" },
+    // { icon: <PaymentIcon />, text: "Meu plano" },
+    // { icon: <SettingsRightBarIcon />, text: "Configurações" },
   ];
 
   const handleControlPanel = () => {
@@ -140,9 +150,7 @@ const ProfileScreen: React.FC = () => {
                     {item.text}
                   </span>
                 </div>
-                {item.text === "Sair" ? (
-                  ""
-                ) : (
+                {item.text === "Sair" ? null : (
                   <svg
                     className="w-4 h-4 text-gray-400"
                     fill="none"

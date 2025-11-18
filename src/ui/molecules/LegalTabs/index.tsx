@@ -16,7 +16,7 @@ const LegalTabs: React.FC<LegalTabsProps> = ({ activeTab, onTabChange }) => {
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`text-lg px-8 py-4 font-medium transition-all duration-300 relative ${
+          className={`text-lg px-8 py-4 font-medium transition-all duration-500 ease-out relative transform hover:scale-105 ${
             activeTab === tab.id
               ? "text-blue-900 border-b-2 border-blue-900 font-semibold"
               : "text-gray-500 hover:text-blue-700"

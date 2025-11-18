@@ -3,6 +3,10 @@ import { RegisterData } from '@/types/register';
 import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '../types/api';
 
+let cachedUser: any | null = null;
+let cachedUserTimestamp: number | null = null;
+const USER_CACHE_TTL_MS = 60 * 1000;
+
 export const UserService = {
   register: async (data: RegisterData) => {
     const payload = {
@@ -30,6 +34,8 @@ export const UserService = {
   login: async (email: string, password: string) => {
     try {
       const response = await api.post('/auth', { email, password });
+      cachedUser = null;
+      cachedUserTimestamp = null;
       return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
@@ -43,6 +49,12 @@ export const UserService = {
   },
 
   getUser: async () => {
+    if (cachedUser && cachedUserTimestamp) {
+      const now = Date.now();
+      if (now - cachedUserTimestamp < USER_CACHE_TTL_MS) {
+        return cachedUser;
+      }
+    }
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Token não encontrado')
@@ -54,6 +66,8 @@ export const UserService = {
     }
     try {
       const response = await api.get('/users/me', config);
+      cachedUser = response.data;
+      cachedUserTimestamp = Date.now();
       return response.data
     } catch (error) {
       const axiosError = error as AxiosError<ApiErrorResponse>

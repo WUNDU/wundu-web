@@ -56,13 +56,13 @@ const LegalPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="#policy-content"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-full font-medium text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-full font-medium text-center shadow-lg hover:shadow-xl transition-all duration-500 ease-out hover:scale-105 transform hover:-translate-y-1 animate-fade-in"
               >
                 Ler a Política <span className="ml-2">↓</span>
               </a>
               <a
                 href="/contacts"
-                className="bg-white/20 flex backdrop-blur-sm text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-300 hover:scale-105"
+                className="bg-white/20 flex backdrop-blur-sm text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-500 ease-out hover:scale-105 transform hover:-translate-y-1 animate-fade-in"
               >
                 Fale Conosco{" "}
                 <span className="ml-2">

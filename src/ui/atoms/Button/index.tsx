@@ -5,20 +5,24 @@ import { Loader2 } from "lucide-react";
 import { CloseIcon, PlusIcon } from "@/constants/icons";
 
 const buttonVariants = cva(
-  "inline-flex rounded-lg items-center justify-center  font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
-          "bg-gray-800 text-white hover:bg-gray-700 hover:scale-[1.02] shadow-lg",
+          "rounded-xl bg-slate-900 text-white border border-slate-900 hover:bg-white hover:text-slate-900 hover:shadow-lg",
         secondary:
-          "bg-white border border-gray-300 text-gray-800 hover:bg-gray-100",
+          "rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50",
         google:
-          "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50",
-        destructive: "bg-red-500 text-white hover:bg-red-600",
-        success: "bg-green-400 text-white hover:bg-green-600",
-        warning: "bg-yellow-400 text-gray-800 hover:bg-yellow-500 shadow-lg",
-        fab: "bg-yellow-400 rounded-full py-6 shadow-lg hover:scale-110 transition-transform duration-200 active:scale-95",
+          "rounded-xl bg-white border border-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 hover:border-blue-300 hover:shadow-lg",
+        destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600",
+        success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600",
+        warning:
+          "rounded-xl bg-yellow-400 text-white hover:bg-white hover:text-yellow-500 hover:border hover:border-yellow-400 hover:shadow-lg",
+        fab:
+          "rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-yellow-300 p-0",
+        fabCircle:
+          "rounded-full w-16 h-16 p-0 flex items-center justify-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 shadow-xl border border-white/60 hover:scale-105 active:scale-95 focus-visible:ring-yellow-300",
         chip: "px-3 py-1.5 text-sm",
         tab: "px-4 py-2 text-sm border",
         option:
@@ -30,6 +34,7 @@ const buttonVariants = cva(
         more: "px-4 py-2 text-sm shadow-sm",
       },
       size: {
+        none: "p-0 h-auto",
         sm: "px-3 py-1.5 text-sm h-9",
         md: "px-6 py-2 text-base h-11",
         lg: "px-8 py-3 text-lg h-14",
@@ -91,12 +96,17 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const tabActive =
       active && variant === "tab" ? "bg-black text-white border-black" : "";
 
+    const shouldForceNoneSize = variant === "fab" || variant === "fabCircle";
+    const resolvedSize = size ?? (shouldForceNoneSize ? "none" : undefined);
+    const shouldRenderFabIcon =
+      (variant === "fab" || variant === "fabCircle") && !children;
+
     return (
       <button
         ref={ref}
         className={buttonVariants({
           variant,
-          size,
+          size: resolvedSize,
           fullWidth,
           className: [className, chipColor, tabActive].join(" "),
         })}
@@ -108,9 +118,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
         {rightIcon && !loading && <span className="ml-2">{rightIcon}</span>}
         {variant === "close" && !children && <CloseIcon className="h-4 w-4" />}
-        {variant === "fab" && !children && (
-          <PlusIcon className="text-white w-10 h-10" />
-        )}{" "}
+        {shouldRenderFabIcon && (
+          <PlusIcon
+            className={`text-white ${variant === "fabCircle" ? "w-8 h-8" : "w-10 h-10"}`}
+          />
+        )}
       </button>
     );
   }

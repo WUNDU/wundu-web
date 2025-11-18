@@ -1,9 +1,15 @@
 import { ChartProps } from "@/types/panel";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import Chart from "chart.js/auto";
 import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(annotationPlugin);
+
+const EMPTY_STATE = (
+  <div className="flex flex-1 items-center justify-center w-full h-48 rounded-3xl border border-dashed border-orange-200/80 text-sm text-orange-400 bg-orange-50/60">
+    Sem dados suficientes para este período
+  </div>
+);
 
 const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
   data,
@@ -13,17 +19,35 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(
-    Math.floor(data.length / 2)
+  const gradientRef = useRef<CanvasGradient | null>(null);
+
+  const labels = useMemo(() => data.map((d) => d.month), [data]);
+  const values = useMemo(() => data.map((d) => d.value), [data]);
+  const maxValue = useMemo(() => (values.length ? Math.max(...values) : 0), [values]);
+  const minValue = useMemo(() => (values.length ? Math.min(...values) : 0), [values]);
+
+  const [selectedIndex, setSelectedIndex] = useState(() =>
+    data.length ? Math.floor(data.length / 2) : 0
   );
 
+  const selectedPoint = data[selectedIndex];
+  const formattedValue = selectedPoint
+    ? new Intl.NumberFormat("pt-AO", {
+        style: "currency",
+        currency: "AOA",
+        maximumFractionDigits: 0,
+      }).format(selectedPoint.value)
+    : null;
+
   useEffect(() => {
-    setSelectedIndex(Math.floor(data.length / 2));
-  }, [data]);
+    setSelectedIndex(data.length ? Math.floor(data.length / 2) : 0);
+  }, [data.length]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !data.length) {
+      return;
+    }
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -31,97 +55,122 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
       chartRef.current.destroy();
     }
 
-    const values = data.map((d) => d.value);
-    const maxVal = Math.max(...values);
-    const minVal = 0;
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, `${lineColor}26`);
+    gradient.addColorStop(1, `${lineColor}03`);
+    gradientRef.current = gradient;
 
     if (selectedIndex < 0 || selectedIndex >= data.length) return;
 
-    const selectedMonth = data[selectedIndex].month;
-    const selectedValue = data[selectedIndex].value;
-    const selectedLabel = `${selectedValue}K`;
-
+    const selectedPoint = data[selectedIndex];
     const pointRadii = data.map((_, i) => (i === selectedIndex ? 6 : 0));
-    const pointBackgroundColors = data.map((_, i) =>
-      i === selectedIndex ? "white" : "transparent"
-    );
-    const pointBorderColors = data.map((_, i) =>
-      i === selectedIndex ? lineColor : "transparent"
-    );
-    const pointBorderWidths = data.map((_, i) => (i === selectedIndex ? 2 : 0));
+    const selectedNumericValue = selectedIndex;
+
+    const highlightPlugin = {
+      id: "selectedBand",
+      beforeDatasetsDraw(chart: Chart) {
+        if (!selectedPoint) return;
+        const {
+          ctx,
+          chartArea,
+          scales: { x },
+        } = chart;
+        const columnWidth = chartArea.width / Math.max(data.length, 1);
+        const xPos = x.getPixelForValue(selectedNumericValue);
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+        ctx.fillRect(
+          xPos - columnWidth / 2,
+          chartArea.top,
+          columnWidth,
+          chartArea.bottom - chartArea.top
+        );
+        ctx.restore();
+      },
+    };
+
+    Chart.register(highlightPlugin);
 
     chartRef.current = new Chart(ctx, {
       type: "line",
       data: {
-        labels: data.map((d) => d.month),
+        labels,
         datasets: [
           {
             data: values,
             borderColor: lineColor,
             borderWidth: 2,
-            backgroundColor: `${lineColor}22`,
+            backgroundColor: gradientRef.current ?? `${lineColor}18`,
             fill: true,
-            tension: 0.3,
+            tension: 0.35,
             pointRadius: pointRadii,
-            pointBackgroundColor: pointBackgroundColors,
-            pointBorderColor: pointBorderColors,
-            pointBorderWidth: pointBorderWidths,
+            pointHoverRadius: 6,
+            pointBackgroundColor: "white",
+            pointBorderColor: lineColor,
+            pointBorderWidth: 2,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 24,
+            bottom: 12,
+            left: 16,
+            right: 16,
+          },
+        },
+        animation: {
+          duration: 900,
+          easing: "easeOutQuart",
+        },
         interaction: {
           mode: "nearest",
           axis: "x",
           intersect: false,
         },
-        onClick: (event, elements) => {
+        onClick: (_, elements) => {
           if (elements.length > 0) {
-            const index = elements[0].index;
-            setSelectedIndex(index);
+            setSelectedIndex(elements[0].index);
           }
         },
         plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            enabled: false,
-          },
+          legend: { display: false },
+          tooltip: { enabled: false },
           annotation: {
             clip: false,
             annotations: {
-              verticalLine: {
+              marker: {
                 type: "line",
-                xMin: selectedMonth,
-                xMax: selectedMonth,
-                yMin: minVal,
-                borderColor: lineColor,
+                xMin: selectedNumericValue,
+                xMax: selectedNumericValue,
+                yMin: 0,
+                borderColor: `${lineColor}40`,
                 borderWidth: 1,
-                borderDash: [5, 5],
+                borderDash: [2, 6],
               },
-              valueLabel: {
+              markerCircle: {
+                type: "point",
+                xValue: selectedNumericValue,
+                yValue: selectedPoint.value,
+                radius: 8,
+                backgroundColor: "#fff",
+                borderColor: lineColor,
+                borderWidth: 3,
+              },
+              label: {
                 type: "label",
-                xValue: selectedMonth,
-                yValue: selectedValue,
-                xAdjust: 30,
-                yAdjust: -25,
-                backgroundColor: dotColor,
-                borderWidth: 0,
-                borderRadius: 3,
-                content: selectedLabel,
-                color: "white",
-                font: {
-                  size: 14,
-                },
-                padding: {
-                  top: 5,
-                  bottom: 5,
-                  left: 10,
-                  right: 10,
-                },
+                xValue: selectedNumericValue,
+                yValue: selectedPoint.value,
+                backgroundColor: "#ffede5",
+                color: "#ff5c35",
+                borderRadius: 10,
+                padding: { top: 6, bottom: 6, left: 12, right: 12 },
+                font: { family: "Inter", weight: 600, size: 12 },
+                content: `${selectedPoint.value.toLocaleString("pt-AO")} kz`,
+                yAdjust: -28,
               },
             },
           },
@@ -129,79 +178,58 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
         scales: {
           x: {
             grid: {
-              display: false,
+              color: "rgba(148, 163, 184, 0.15)",
+              lineWidth: 1,
             },
             ticks: {
-              color: "#6b7280",
-              font: {
-                size: 12,
-              },
+              color: "#94a3b8",
+              font: { size: 11 },
+              padding: 8,
             },
             offset: true,
           },
           y: {
             display: false,
-            min: minVal,
-            max: maxVal,
+            suggestedMin: Math.min(0, minValue * 0.9),
+            suggestedMax: maxValue > 0 ? maxValue * 1.15 : undefined,
           },
         },
         elements: {
           point: {
-            hitRadius: 10,
+            hoverBorderWidth: 2,
+            hoverBorderColor: dotColor,
           },
         },
       },
     });
 
-    if (chartRef.current) {
-      const chart = chartRef.current;
-      const yScale = chart.scales["y"];
-      const xScale = chart.scales["x"];
-      const pixelY = yScale.getPixelForValue(selectedValue);
-      const pixelX = xScale.getPixelForValue(selectedIndex);
-      const labelHeightApprox = 30; 
-      const labelWidthApprox = 60; 
-
-      let yAdj = -35; 
-      if (pixelY + yAdj < yScale.top + labelHeightApprox / 2) {
-        yAdj = 35; 
-      }
-
-      let xAdj = 30;
-      if (pixelX + xAdj + labelWidthApprox > xScale.right) {
-        xAdj = -30 - labelWidthApprox; 
-      } else if (pixelX + xAdj < xScale.left) {
-        xAdj = 0; 
-      }
-
-      const annotationPluginOptions = chart.options.plugins?.annotation;
-      if (annotationPluginOptions) {
-        const annotations = annotationPluginOptions.annotations as Record<
-          string,
-          any
-        >;
-        if (
-          annotations &&
-          !Array.isArray(annotations) &&
-          "valueLabel" in annotations
-        ) {
-          annotations["valueLabel"].yAdjust = yAdj;
-          annotations["valueLabel"].xAdjust = xAdj;
-          chart.update();
-        }
-      }
-    }
-
     return () => {
-      if (chartRef.current) {
-        chartRef.current.destroy();
-      }
+      chartRef.current?.destroy();
+      Chart.unregister(highlightPlugin);
     };
-  }, [data, lineColor, dotColor, selectedIndex]);
+  }, [data, labels, values, lineColor, dotColor, selectedIndex]);
+
+  if (!data.length) {
+    return EMPTY_STATE;
+  }
 
   return (
-    <div className={`relative w-full h-48 overflow-visible ${className}`}>
-      <canvas ref={canvasRef} />
+    <div
+      className={`relative w-full h-48 overflow-hidden rounded-[32px] bg-white border border-orange-100 shadow-[0_15px_45px_rgba(15,23,42,0.08)] ${className}`}
+      style={{ backgroundImage: "linear-gradient(rgba(15,23,42,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.02) 1px, transparent 1px)", backgroundSize: "40px 40px" }}
+    >
+      {selectedPoint && formattedValue && (
+        <div className="absolute z-10 top-4 left-4 bg-white text-[#ff5c35] rounded-2xl px-4 py-2 shadow-lg text-xs border border-orange-100">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-orange-400">
+            {selectedPoint.month}
+          </p>
+          <p className="text-base font-semibold">{formattedValue}</p>
+        </div>
+      )}
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full transition-transform duration-700 ease-out hover:scale-[1.01]"
+      />
     </div>
   );
 };

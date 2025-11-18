@@ -18,10 +18,14 @@ interface UiStore {
     options?: { duration?: number; onClose?: () => void }
   ) => void;
   closeNotification: () => void;
+  isNotificationCenterOpen: boolean;
+  openNotificationCenter: () => void;
+  closeNotificationCenter: () => void;
 }
 
 export const useUiStore = create<UiStore>((set, get) => ({
   notification: null,
+  isNotificationCenterOpen: false,
   showNotification: (
     type,
     title,
@@ -43,4 +47,6 @@ export const useUiStore = create<UiStore>((set, get) => ({
     notification?.onClose?.();
     set({ notification: null });
   },
+  openNotificationCenter: () => set({ isNotificationCenterOpen: true }),
+  closeNotificationCenter: () => set({ isNotificationCenterOpen: false }),
 }));

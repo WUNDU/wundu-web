@@ -3,6 +3,7 @@ import { Button } from "@/ui/atoms";
 import type { TransactionFormData } from "@/types/transaction/transaction_type";
 import TextInput from "@/ui/atoms/TextInput";
 import { useUiStore } from "@/store/uiStore";
+import { formatDateTimeLocal } from "@/utils/dateTime";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -35,6 +36,12 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen && formData.type !== "expense") {
+      onFormChange("type", "expense");
+    }
+  }, [formData.type, isOpen, onFormChange]);
+
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
@@ -58,15 +65,38 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   if (!isOpen && !isVisible) return null;
 
   const categories = [
-    { id: "1", name: "Alimentação" },
-    { id: "2", name: "Transporte" },
-    { id: "3", name: "Moradia" },
-    { id: "4", name: "Saúde" },
-    { id: "5", name: "Educação" },
-    { id: "6", name: "Lazer" },
-    { id: "7", name: "Salário" },
-    { id: "8", name: "Investimentos" },
+    { id: "food", name: "Alimentação" },
+    { id: "transport", name: "Transporte" },
+    { id: "housing", name: "Moradia" },
+    { id: "health", name: "Saúde" },
+    { id: "education", name: "Educação" },
+    { id: "leisure", name: "Lazer" },
+    { id: "services", name: "Serviços" },
+    { id: "others", name: "Outros" },
   ];
+
+  const maxTransactionDate = formatDateTimeLocal();
+  const maxTransactionDateLabel = new Date(maxTransactionDate).toLocaleString(
+    "pt-AO",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }
+  );
+
+  const handleDateInvalid = (event: React.InvalidEvent<HTMLInputElement>) => {
+    event.currentTarget.setCustomValidity(
+      `Use uma data e hora iguais ou anteriores a ${maxTransactionDateLabel}.`
+    );
+  };
+
+  const handleDateInput = (event: React.FormEvent<HTMLInputElement>) => {
+    event.currentTarget.setCustomValidity("");
+  };
 
   return (
     <div
@@ -84,12 +114,22 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Adicionar Transação
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Preencha os dados da transação
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-5 border-b border-gray-900/20">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+                Nova transação
+              </p>
+              <h2 className="text-lg font-semibold text-white">
+                Adicionar despesa
+              </h2>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+              Despesa
+            </span>
+          </div>
+          <p className="text-sm text-white/70 mt-2">
+            Registre gastos e acompanhe o impacto no seu orçamento.
           </p>
         </div>
 
@@ -103,60 +143,71 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-5">
-              {/* Transaction Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tipo de Transação
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => onFormChange("type", "income")}
-                    className={`p-4 rounded-lg border transition-all duration-200 ${
-                      formData.type === "income"
-                        ? "border-green-500 bg-green-500 text-white shadow-sm"
-                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="font-medium text-sm">Receita</div>
-                    <div className="text-xs opacity-90 mt-1">
-                      Entrada de valor
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onFormChange("type", "expense")}
-                    className={`p-4 rounded-lg border transition-all duration-200 ${
-                      formData.type === "expense"
-                        ? "border-red-500 bg-red-500 text-white shadow-sm"
-                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="font-medium text-sm">Despesa</div>
-                    <div className="text-xs opacity-90 mt-1">
-                      Saída de valor
-                    </div>
-                  </button>
+              {/* Transaction Summary */}
+              <div className="rounded-2xl border border-gray-200 bg-gray-50/60 px-4 py-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                      Tipo selecionado
+                    </p>
+                    <p className="text-base font-semibold text-gray-900">
+                      Despesa
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Todas as transações registradas serão classificadas
+                      automaticamente como saída de valores.
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-600">
+                    Bloqueado
+                  </span>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 my-2"></div>
-
               {/* Amount */}
-              <TextInput
-                label="Montante"
-                type="number"
-                placeholder="0,00"
-                value={formData.amount}
-                onChange={(e) => onFormChange("amount", e.target.value)}
-                isError={!!errors.amount}
-                required={true}
-              />
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-              )}
-              <div className="flex justify-end -mt-4">
-                <span className="text-sm text-gray-500">kz</span>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <div className="relative">
+                    <TextInput
+                      label="Montante"
+                      type="number"
+                      placeholder="0,00"
+                      value={formData.amount}
+                      onChange={(e) => onFormChange("amount", e.target.value)}
+                      isError={!!errors.amount}
+                      required={true}
+                      className="pr-1"
+                    />
+                    <span className="pointer-events-none absolute right-6 top-2/3 -translate-y-1/2 text-sm font-semibold uppercase text-gray-600">
+                      kz
+                    </span>
+                  </div>
+                  {errors.amount && (
+                    <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
+                  )}
+                </div>
+
+                {/* Date */}
+                <div>
+                  <TextInput
+                    label="Data e hora"
+                    type="datetime-local"
+                    step={1}
+                    max={maxTransactionDate}
+                    value={formData.transactionDate}
+                    onChange={(e) =>
+                      onFormChange("transactionDate", e.target.value)
+                    }
+                    onInvalid={handleDateInvalid}
+                    onInput={handleDateInput}
+                    required={true}
+                  />
+                  {errors.transactionDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.transactionDate}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Description */}
@@ -175,18 +226,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </p>
               )}
 
-              {/* Date */}
-              <TextInput
-                label="Data e Hora"
-                type="date"
-                value={formData.transactionDate}
-                onChange={(e) =>
-                  onFormChange("transactionDate", e.target.value)
-                }
-                required={true}
-                placeholder={""}
-              />
-
               {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -197,13 +236,15 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     value={formData.category}
                     onChange={(e) => onFormChange("category", e.target.value)}
                     className={`w-full rounded-xl border px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 bg-white transition-colors appearance-none ${
-                      errors.category ? "border-red-500" : "border-gray-300"
+                      errors.category_id
+                        ? "border-red-500"
+                        : "border-gray-300"
                     }`}
                     required
                   >
                     <option value="">Selecione uma categoria</option>
                     {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
+                      <option key={category.id} value={category.name}>
                         {category.name}
                       </option>
                     ))}
@@ -244,11 +285,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`flex-1 rounded-lg px-6 py-3 text-white font-semibold shadow-lg transition-colors hover:scale-101 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  formData.type === "income"
-                    ? "bg-green-500 hover:bg-green-600"
-                    : "bg-red-500 hover:bg-red-600"
-                }`}
+                className="flex-1 rounded-lg bg-red-500 px-6 py-3 text-white font-semibold shadow-lg transition-transform hover:scale-[1.01] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? "Adicionando..." : "Adicionar"}
               </button>

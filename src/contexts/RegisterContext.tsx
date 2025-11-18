@@ -96,7 +96,7 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginUser = async (email: string, password: string) => {
-    setError(null);
+    // Don't clear error immediately - let the UI handle it
     setIsLoading(true);
     try {
       const result = await UserService.login(email, password);
@@ -107,6 +107,9 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
       const userData = await UserService.getUser();
       console.log("Dados do usuário:", userData);
       setUser(userData);
+      
+      // Clear error only on successful login
+      setError(null);
 
       return result;
     } catch (err: unknown) {
@@ -121,6 +124,10 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   const logoutUser = () => {
@@ -151,6 +158,7 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
         registerUser,
         loginUser,
         logoutUser,
+        clearError,
         token,
         user,
         isAuthenticated,

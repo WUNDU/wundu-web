@@ -41,7 +41,7 @@ export const usePersonalData = () => {
     }
 
     if (!validatePhoneNumber(form.phone)) {
-      nextErrors.phone = "O número de telefone deve conter apenas dígitos";
+      nextErrors.phone = "Por favor, insira um número de telefone válido";
       valid = false;
     }
 
