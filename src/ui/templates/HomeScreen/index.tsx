@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { GreetingHeader } from "@/ui/molecules";
 import UploadSection from "@/ui/organisms/UploadSection";
 import { BottomNavigation } from "@/ui/organisms";
@@ -28,9 +28,7 @@ const HomeScreen = () => {
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
-  const [setIsTransactionModalOpen] = useState(false);
   const {
     transactions,
     isLoading: isTransactionsLoading,
@@ -50,8 +48,17 @@ const HomeScreen = () => {
     handleSubmit,
   } = useAddTransactionModal();
 
+  const handleTransactionSubmit = useCallback(async () => {
+    const success = await handleSubmit();
+    if (success) {
+      await refreshTransactions();
+    }
+    return success;
+  }, [handleSubmit, refreshTransactions]);
+
   useEffect(() => {
     setDocuments(transactions);
+    console.log(transactions);
   }, [transactions]);
 
   const handleOpenTransactionModal = () => {
@@ -60,10 +67,6 @@ const HomeScreen = () => {
 
   const toggleUploadOptions = () => {
     setShowUploadOptions(!showUploadOptions);
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const toggleSidebarRight = () => {
@@ -157,7 +160,7 @@ const HomeScreen = () => {
       <AddTransactionModal
         isOpen={isTransactionModalOpen}
         onClose={closeModal}
-        onSubmit={handleSubmit}
+        onSubmit={handleTransactionSubmit}
         formData={formData}
         errors={errors}
         isLoading={isTransactionLoading}
@@ -269,4 +272,5 @@ const MainContent = ({
       </div>
     </>
   );
-};export default HomeScreen;
+};
+export default HomeScreen;

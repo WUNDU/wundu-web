@@ -3,6 +3,7 @@ import { Button } from "@/ui/atoms";
 import type { TransactionFormData } from "@/types/transaction/transaction_type";
 import TextInput from "@/ui/atoms/TextInput";
 import { useUiStore } from "@/store/uiStore";
+import { formatDateTimeLocal } from "@/utils/dateTime";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -73,6 +74,29 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     { id: "services", name: "Serviços" },
     { id: "others", name: "Outros" },
   ];
+
+  const maxTransactionDate = formatDateTimeLocal();
+  const maxTransactionDateLabel = new Date(maxTransactionDate).toLocaleString(
+    "pt-AO",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }
+  );
+
+  const handleDateInvalid = (event: React.InvalidEvent<HTMLInputElement>) => {
+    event.currentTarget.setCustomValidity(
+      `Use uma data e hora iguais ou anteriores a ${maxTransactionDateLabel}.`
+    );
+  };
+
+  const handleDateInput = (event: React.FormEvent<HTMLInputElement>) => {
+    event.currentTarget.setCustomValidity("");
+  };
 
   return (
     <div
@@ -166,15 +190,23 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 {/* Date */}
                 <div>
                   <TextInput
-                    label="Data"
-                    type="date"
+                    label="Data e hora"
+                    type="datetime-local"
+                    step={1}
+                    max={maxTransactionDate}
                     value={formData.transactionDate}
                     onChange={(e) =>
                       onFormChange("transactionDate", e.target.value)
                     }
+                    onInvalid={handleDateInvalid}
+                    onInput={handleDateInput}
                     required={true}
-                    placeholder={""}
                   />
+                  {errors.transactionDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.transactionDate}
+                    </p>
+                  )}
                 </div>
               </div>
 

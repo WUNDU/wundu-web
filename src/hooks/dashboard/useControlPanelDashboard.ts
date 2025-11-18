@@ -12,14 +12,16 @@ type NormalizedTransaction = {
 };
 
 const CATEGORY_COLORS = [
-  { bgColor: "bg-blue-950", color: "white" },
-  { bgColor: "bg-emerald-500", color: "white" },
-  { bgColor: "bg-amber-500", color: "black" },
-  { bgColor: "bg-indigo-500", color: "white" },
-  { bgColor: "bg-rose-500", color: "white" },
-  { bgColor: "bg-purple-500", color: "white" },
-  { bgColor: "bg-slate-900", color: "white" },
-  { bgColor: "bg-cyan-500", color: "black" },
+  { bgColor: "bg-blue-950", color: "white", chartColor: "#1d4ed8" },
+  { bgColor: "bg-emerald-500", color: "white", chartColor: "#10b981" },
+  { bgColor: "bg-amber-500", color: "black", chartColor: "#f59e0b" },
+  { bgColor: "bg-indigo-500", color: "white", chartColor: "#6366f1" },
+  { bgColor: "bg-rose-500", color: "white", chartColor: "#f43f5e" },
+  { bgColor: "bg-purple-500", color: "white", chartColor: "#a855f7" },
+  { bgColor: "bg-slate-900", color: "white", chartColor: "#0f172a" },
+  { bgColor: "bg-cyan-500", color: "black", chartColor: "#06b6d4" },
+  { bgColor: "bg-lime-500", color: "black", chartColor: "#84cc16" },
+  { bgColor: "bg-pink-500", color: "white", chartColor: "#ec4899" },
 ];
 
 const WEEK_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -99,6 +101,10 @@ export const useControlPanelDashboard = () => {
     return Array.from(groupMap.values()).map(({ rawAmount, ...item }) => ({
       ...item,
       percentage: total ? Math.round((rawAmount / total) * 100) : 0,
+      icon: {
+        ...item.icon,
+        chartColor: item.icon.chartColor,
+      },
     }));
   }, [filteredTransactionsRaw]);
 
@@ -179,11 +185,12 @@ function hashString(value: string) {
 function getCategoryIcon(category: string) {
   const palette = CATEGORY_COLORS;
   const index = Math.abs(hashString(category)) % palette.length;
-  const { bgColor, color } = palette[index];
+  const { bgColor, color, chartColor } = palette[index];
   return {
     initials: category.slice(0, 2).toUpperCase(),
     color,
     bgColor,
+    chartColor,
   };
 }
 

@@ -15,6 +15,56 @@ export interface TransactionHighlightProps {
   iconAccentClass?: string;
 }
 
+const formatTimestampLabel = (timestamp?: string) => {
+  if (!timestamp) return "Agora mesmo";
+
+  let dateLabel: string | null = null;
+  let timeLabel: string | null = null;
+
+  const isoMatch = timestamp.match(
+    /^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2})(?::\d{2})?)?/
+  );
+
+  if (isoMatch) {
+    const [, datePart, timePart] = isoMatch;
+    const dateOnly = new Date(`${datePart}T00:00:00`);
+    dateLabel = Number.isNaN(dateOnly.getTime())
+      ? datePart
+      : dateOnly.toLocaleDateString("pt-AO", {
+          day: "2-digit",
+          month: "short",
+        });
+
+    if (timePart) {
+      timeLabel = timePart;
+    }
+  }
+
+  if (!dateLabel || !timeLabel) {
+    const parsedDate = new Date(timestamp);
+    if (!Number.isNaN(parsedDate.getTime())) {
+      dateLabel = parsedDate.toLocaleDateString("pt-AO", {
+        day: "2-digit",
+        month: "short",
+      });
+      timeLabel = parsedDate.toLocaleTimeString("pt-AO", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  }
+
+  if (dateLabel && timeLabel) {
+    return `${dateLabel}, ${timeLabel}`;
+  }
+
+  if (dateLabel) {
+    return dateLabel;
+  }
+
+  return timestamp;
+};
+
 const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
   title,
   description,
@@ -33,17 +83,7 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
     minimumFractionDigits: 2,
   }).format(Math.abs(amount));
 
-  const formattedTimestamp = (() => {
-    if (!timestamp) return "Agora mesmo";
-    const parsedDate = new Date(timestamp);
-    if (Number.isNaN(parsedDate.getTime())) return timestamp;
-    return parsedDate.toLocaleString("pt-AO", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  })();
+  const formattedTimestamp = formatTimestampLabel(timestamp);
 
   return (
     <article className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white px-3 py-2 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">

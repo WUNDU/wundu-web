@@ -8,9 +8,9 @@ import React from "react";
 import FinancialProgressCard from "@/ui/molecules/FinancialProgressCard";
 import { ObjectiveForm } from "@/ui/organisms";
 import SketchPanel from "@/ui/molecules/SketchPanel";
-import { objectives } from "@/constants/mockData";
 import EditModal from "@/ui/molecules/EditModal";
 import { useFinancialObjectiveScreen } from "@/hooks/objective/useFinancialObjectiveScreen";
+import { NotificationToast } from "@/ui/organisms/NotificationToast";
 
 const FinancialObjectiveScreen: React.FC = () => {
   const {
@@ -24,14 +24,17 @@ const FinancialObjectiveScreen: React.FC = () => {
     handleEdit,
     handleFinancialNewObjective,
     handleFinancialObjective,
+    fulfilledObjectives,
+    unfulfilledObjectives,
+    goalsStatus,
+    goalsError,
+    refreshGoals,
+    hasDraft,
+    handleDraftContinue,
+    handleDraftDiscard,
   } = useFinancialObjectiveScreen();
 
-  const fulfilledObjectives = objectives.filter(
-    (obj) => obj.percentage === 100
-  );
-  const unfulfilledObjectives = objectives.filter(
-    (obj) => obj.percentage < 100
-  );
+  const isLoadingGoals = goalsStatus === "loading";
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-x-hidden overflow-y-auto font-sans antialiased text-gray-800 min-h-0">
@@ -45,7 +48,7 @@ const FinancialObjectiveScreen: React.FC = () => {
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
-        <main className="p-4 space-y-6 flex-1 min-h-0 md:overflow-hidden animate-slide-up">
+        <main className="p-4 space-y-6 flex-1 min-h-0 animate-slide-up">
           <div className="md:hidden">
             <NavigationBack />
           </div>
@@ -124,16 +127,32 @@ const FinancialObjectiveScreen: React.FC = () => {
               {showForm ? (
                 <div className="flex flex-1 gap-6 min-h-0 w-full animate-fade-in">
                   <div className="flex flex-[1.5] min-h-0 w-full">
-                    <ObjectiveForm />
+                    <ObjectiveForm onSuccess={refreshGoals} />
                   </div>
                   <div className="flex flex-1 min-h-0 w-full">
-                    <SketchPanel />
+                    <SketchPanel
+                      hasDraft={hasDraft}
+                      onContinueDraft={handleDraftContinue}
+                      onDiscardDraft={handleDraftDiscard}
+                    />
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-1 w-full min-h-0">
                   <div className="flex flex-1 flex-col rounded-3xl bg-white p-6 mb-5 pb-8 shadow-lg border border-gray-100 min-h-0 max-h-[calc(100vh-220px)] overflow-hidden">
                     <div className="flex-1 pr-2 min-h-0">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            Objectivos
+                          </h3>
+                          {goalsError && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {goalsError}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full min-h-0">
                         {/* Meus objetivos financeiros */}
                         <div
@@ -143,25 +162,31 @@ const FinancialObjectiveScreen: React.FC = () => {
                           <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
                             Meus objectivos financeiros
                           </h3>
-                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
-                            {unfulfilledObjectives.map((obj, index) => (
-                              <div
-                                key={obj.id}
-                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                style={{animationDelay: `${0.6 + index * 0.1}s`}}
-                              >
-                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
-                                  <FinancialProgressCard
-                                    title={obj.title}
-                                    valorAlvo={obj.valorAlvo}
-                                    valorPoupado={obj.valorPoupado}
-                                    percentage={obj.percentage}
-                                    iconColor="text-indigo-600"
-                                    onEdit={() => handleEdit(obj)}
-                                  />
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
+                            {isLoadingGoals && unfulfilledObjectives.length === 0 ? (
+                              <p className="text-sm text-gray-500">Carregando objetivos...</p>
+                            ) : unfulfilledObjectives.length ? (
+                              unfulfilledObjectives.map((obj, index) => (
+                                <div
+                                  key={obj.id}
+                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  style={{animationDelay: `${0.6 + index * 0.1}s`}}
+                                >
+                                  <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                    <FinancialProgressCard
+                                      title={obj.title}
+                                      valorAlvo={obj.valorAlvo}
+                                      valorPoupado={obj.valorPoupado}
+                                      percentage={obj.percentage}
+                                      iconColor="text-indigo-600"
+                                      onEdit={() => handleEdit(obj.goal)}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">Nenhum objetivo em andamento.</p>
+                            )}
                           </div>
                         </div>
 
@@ -173,25 +198,31 @@ const FinancialObjectiveScreen: React.FC = () => {
                           <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
                             Objectivos cumpridos
                           </h3>
-                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
-                            {fulfilledObjectives.map((obj, index) => (
-                              <div
-                                key={obj.id}
-                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                style={{animationDelay: `${0.8 + index * 0.1}s`}}
-                              >
-                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
-                                  <FinancialProgressCard
-                                    title={obj.title}
-                                    valorAlvo={obj.valorAlvo}
-                                    valorPoupado={obj.valorPoupado}
-                                    percentage={obj.percentage}
-                                    iconColor="text-green-600"
-                                    onEdit={() => handleEdit(obj)}
-                                  />
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
+                            {isLoadingGoals && fulfilledObjectives.length === 0 ? (
+                              <p className="text-sm text-gray-500">Carregando objetivos...</p>
+                            ) : fulfilledObjectives.length ? (
+                              fulfilledObjectives.map((obj, index) => (
+                                <div
+                                  key={obj.id}
+                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  style={{animationDelay: `${0.8 + index * 0.1}s`}}
+                                >
+                                  <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                    <FinancialProgressCard
+                                      title={obj.title}
+                                      valorAlvo={obj.valorAlvo}
+                                      valorPoupado={obj.valorPoupado}
+                                      percentage={obj.percentage}
+                                      iconColor="text-green-600"
+                                      onEdit={() => handleEdit(obj.goal)}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">Nenhum objetivo cumprido.</p>
+                            )}
                           </div>
                         </div>
 
@@ -200,28 +231,34 @@ const FinancialObjectiveScreen: React.FC = () => {
                           className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
                           style={{ animationDelay: "0.9s" }}
                         >
-                          <h3 className="text-lg font-semibold text-gray-800 transition-all duração-300 ease-out">
+                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
                             Objectivos por cumprir
                           </h3>
-                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2">
-                            {unfulfilledObjectives.map((obj, index) => (
-                              <div
-                                key={obj.id}
-                                className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                style={{animationDelay: `${1.0 + index * 0.1}s`}}
-                              >
-                                <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
-                                  <FinancialProgressCard
-                                    title={obj.title}
-                                    valorAlvo={obj.valorAlvo}
-                                    valorPoupado={obj.valorPoupado}
-                                    percentage={obj.percentage}
-                                    iconColor="text-red-600"
-                                    onEdit={() => handleEdit(obj)}
-                                  />
+                          <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
+                            {isLoadingGoals && unfulfilledObjectives.length === 0 ? (
+                              <p className="text-sm text-gray-500">Carregando objetivos...</p>
+                            ) : unfulfilledObjectives.length ? (
+                              unfulfilledObjectives.map((obj, index) => (
+                                <div
+                                  key={obj.id}
+                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  style={{animationDelay: `${1.0 + index * 0.1}s`}}
+                                >
+                                  <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
+                                    <FinancialProgressCard
+                                      title={obj.title}
+                                      valorAlvo={obj.valorAlvo}
+                                      valorPoupado={obj.valorPoupado}
+                                      percentage={obj.percentage}
+                                      iconColor="text-red-600"
+                                      onEdit={() => handleEdit(obj.goal)}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">Nenhum objetivo pendente.</p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -240,6 +277,7 @@ const FinancialObjectiveScreen: React.FC = () => {
       />
       {/* Right Sidebar */}
       <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
+      <NotificationToast />
     </div>
   );
 };

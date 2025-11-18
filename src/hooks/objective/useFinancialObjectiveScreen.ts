@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { objectives } from "@/constants/mockData";
+import { useGoals } from "@/hooks/objective/useGoals";
+import {
+  clearGoalDraftStorage,
+  getGoalDraft,
+  GOAL_DRAFT_COMMIT_EVENT,
+  GOAL_DRAFT_CONTINUE_EVENT,
+  GOAL_DRAFT_EVENT,
+} from "@/hooks/objective/useObjectiveForm";
 
 export const useFinancialObjectiveScreen = () => {
   const router = useRouter();
@@ -12,6 +19,14 @@ export const useFinancialObjectiveScreen = () => {
   const [showForm, setShowForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<any>(null);
+  const [hasDraft, setHasDraft] = useState(() => Boolean(getGoalDraft()));
+  const {
+    fulfilledGoalCards,
+    unfulfilledGoalCards,
+    status,
+    error,
+    refreshGoals,
+  } = useGoals();
 
   const handleEdit = (obj: any) => {
     setSelectedObjective({
@@ -26,24 +41,64 @@ export const useFinancialObjectiveScreen = () => {
   const toggleSidebar = () => setIsSidebarOpen((v) => !v);
   const toggleSidebarRight = () => setIsSidebarRightOpen((v) => !v);
 
+  const dispatchDraftCommit = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(GOAL_DRAFT_COMMIT_EVENT));
+    }
+  };
+
   const handleFinancialNewObjective = () => {
     if (typeof window !== "undefined" && window.innerWidth >= 768) {
       setShowForm(true);
+      refreshGoals();
     } else {
+      dispatchDraftCommit();
       router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
     }
   };
 
   const handleFinancialObjective = () => {
     if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      if (showForm) {
+        dispatchDraftCommit();
+      }
       setShowForm(false);
+      refreshGoals();
     } else {
+      dispatchDraftCommit();
       router.push(ROUTES.FINANCIAL_OBJECTIVE);
     }
   };
 
-  const fulfilledObjectives = objectives.filter((obj) => obj.percentage === 100);
-  const unfulfilledObjectives = objectives.filter((obj) => obj.percentage < 100);
+  useEffect(() => {
+    const listener = () => setHasDraft(Boolean(getGoalDraft()));
+    if (typeof window !== "undefined") {
+      window.addEventListener(GOAL_DRAFT_EVENT, listener);
+      setHasDraft(Boolean(getGoalDraft()));
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener(GOAL_DRAFT_EVENT, listener);
+      }
+    };
+  }, []);
+
+  const handleDraftContinue = () => {
+    setShowForm(true);
+    if (typeof window !== "undefined") {
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event(GOAL_DRAFT_CONTINUE_EVENT));
+      });
+    }
+  };
+
+  const handleDraftDiscard = () => {
+    clearGoalDraftStorage();
+    setHasDraft(false);
+    if (typeof window !== "undefined") {
+      dispatchDraftCommit();
+    }
+  };
 
   return {
     isSidebarOpen,
@@ -58,7 +113,13 @@ export const useFinancialObjectiveScreen = () => {
     handleEdit,
     handleFinancialNewObjective,
     handleFinancialObjective,
-    fulfilledObjectives,
-    unfulfilledObjectives,
+    fulfilledObjectives: fulfilledGoalCards,
+    unfulfilledObjectives: unfulfilledGoalCards,
+    goalsStatus: status,
+    goalsError: error,
+    refreshGoals,
+    hasDraft,
+    handleDraftContinue,
+    handleDraftDiscard,
   };
 };

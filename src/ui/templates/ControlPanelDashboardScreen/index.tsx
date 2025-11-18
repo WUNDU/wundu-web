@@ -10,7 +10,7 @@ import {
   ChartDataIcon,
   DonutChartIcon,
 } from "@/constants/icons";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import HeaderSection from "@/ui/organisms/HeaderSection";
 import { GreetingHeader } from "@/ui/molecules";
 import SidebarRight from "@/ui/molecules/SideBarRight";
@@ -191,7 +191,6 @@ const ControlPanelDashboardScreen: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-800">
                     Categorias ({headerText.toLowerCase()})
                   </h3>
-                  <ChevronDown />
                 </div>
                 <div className="space-y-4">
                   {transactions.length > 0 ? (

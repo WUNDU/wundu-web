@@ -37,7 +37,12 @@ export const useTransactions = () => {
 
       try {
         const data = await TransactionService.get();
-        const mapped = data.map(mapTransactionToDocument);
+        const sorted = [...data].sort((a, b) => {
+          const dateA = a.transactionDate ? new Date(a.transactionDate).getTime() : 0;
+          const dateB = b.transactionDate ? new Date(b.transactionDate).getTime() : 0;
+          return dateB - dateA;
+        });
+        const mapped = sorted.map(mapTransactionToDocument);
         setTransactions(mapped);
       } catch (err) {
         const message =

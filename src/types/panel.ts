@@ -2,6 +2,7 @@ export interface IconProps {
   initials: string;
   color: string;
   bgColor: string;
+  chartColor?: string;
 }
 
 export interface ChartDataPoint {

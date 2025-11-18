@@ -3,6 +3,11 @@ import type {
   TransactionFormField,
 } from "@/types/transaction/transaction_type";
 import { useState } from "react";
+import {
+  formatDateTimeLocal,
+  isFutureDateTime,
+  normalizeDateTimePayload,
+} from "@/utils/dateTime";
 
 export const useTransactionForm = (
   initialData?: Partial<TransactionFormData>
@@ -12,7 +17,7 @@ export const useTransactionForm = (
     userId: "",
     amount: "",
     description: "",
-    transactionDate: new Date().toISOString().split("T")[0],
+    transactionDate: formatDateTimeLocal(),
     category: "",
     ...initialData,
   });
@@ -20,7 +25,12 @@ export const useTransactionForm = (
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (field: TransactionFormField, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const normalizedValue =
+      field === "transactionDate"
+        ? normalizeDateTimePayload(value)
+        : value;
+
+    setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -41,6 +51,12 @@ export const useTransactionForm = (
       newErrors.category_id = "Categoria é obrigatória";
     }
 
+    if (!formData.transactionDate) {
+      newErrors.transactionDate = "Data e hora são obrigatórias";
+    } else if (isFutureDateTime(formData.transactionDate)) {
+      newErrors.transactionDate = "Data/hora não pode estar no futuro";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -51,7 +67,7 @@ export const useTransactionForm = (
       amount: "",
       userId: "",
       description: "",
-      transactionDate: new Date().toISOString().split("T")[0],
+      transactionDate: formatDateTimeLocal(),
       category: "",
     });
     setErrors({});

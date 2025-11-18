@@ -1,21 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { EditModalProps } from "@/types/modal";
+
+const sanitizeCurrencyInput = (value?: string | number | null) => {
+  if (value === undefined || value === null) return "";
+  if (typeof value === "number") return value.toString();
+  return value.replace(/[^\\d]/g, "");
+};
+
+const formatDateDisplay = (value?: string) => {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString("pt-AO");
+  }
+  return value;
+};
+
+const buildInitialFormData = (objective?: any) => ({
+  nome: objective?.title || "",
+  valorNecessario: sanitizeCurrencyInput(
+    objective?.valorAlvo ?? objective?.targetAmount ?? ""
+  ),
+  valorArrecadado: sanitizeCurrencyInput(
+    objective?.valorPoupado ?? objective?.currentAmount ?? ""
+  ),
+  dataLimite: formatDateDisplay(objective?.dataLimite ?? objective?.endDate ?? ""),
+  categoria: objective?.categoria ?? objective?.categoryId ?? "",
+  prioridade: objective?.prioridade ?? "Alta",
+});
 
 const EditModal: React.FC<EditModalProps> = ({
   isOpen,
   onClose,
   objective,
 }) => {
-  const [formData, setFormData] = useState({
-    nome: objective?.title || "",
-    valorNecessario: objective?.valorAlvo.replace(/[^\d]/g, "") || "",
-    valorArrecadado: objective?.valorPoupado.replace(/[^\d]/g, "") || "",
-    dataLimite: objective?.dataLimite || "01/01/2026",
-    categoria: objective?.categoria || "Viagem",
-    prioridade: objective?.prioridade || "Alta",
-  });
+  const [formData, setFormData] = useState(() => buildInitialFormData(objective));
+
+  useEffect(() => {
+    setFormData(buildInitialFormData(objective));
+  }, [objective]);
 
   if (!isOpen || !objective) return null;
+
+  const categoryOptions = [
+    { value: "", label: "Selecione a categoria" },
+    { value: "travel", label: "Viagem" },
+    { value: "car", label: "Carro" },
+    { value: "house", label: "Casa" },
+    { value: "education", label: "Educação" },
+    { value: "other", label: "Outro" },
+  ];
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -123,11 +157,11 @@ const EditModal: React.FC<EditModalProps> = ({
                   onChange={(e) => handleChange("categoria", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
                 >
-                  <option value="Viagem">Viagem</option>
-                  <option value="Casa">Casa</option>
-                  <option value="Educação">Educação</option>
-                  <option value="Veículo">Veículo</option>
-                  <option value="Investimento">Investimento</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <svg
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"

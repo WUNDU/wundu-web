@@ -42,8 +42,13 @@ async function request<T = any>(
   }
 
   if (!response.ok) {
+    const fallbackMessage =
+      "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
+    const rawMessage = (data && (data as any).message) || response.statusText;
     const message =
-      (data && (data as any).message) || response.statusText || "API error";
+      rawMessage && rawMessage !== "Internal Server Error"
+        ? rawMessage
+        : fallbackMessage;
     throw new Error(message);
   }
 
