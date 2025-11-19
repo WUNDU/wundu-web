@@ -67,7 +67,8 @@ export function NotificationToast() {
         <button
           onClick={handleClose}
           aria-label="Fechar notificação"
-          className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200"
+          className="absolute top-3 right-3 grid place-items-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
+          style={{ width: 40, height: 40 }}
         >
           <CloseIcon className="w-4 h-4" />
         </button>

@@ -13,17 +13,21 @@ import { useScanScreen } from "@/hooks/home/useScanScreen";
 import { useAddTransactionModal } from "@/hooks/transaction/useAddTransaction";
 import AddTransactionModal from "@/ui/molecules/AddTransactionModal";
 import { NotificationToast } from "@/ui/organisms/NotificationToast";
+import ManualTransactionModal from "@/ui/molecules/ManualTransactionModal";
 
 const ScanScreen = () => {
   const {
     documents,
     showUploadOptions,
     isLoading,
-    showModal,
+    showManualModal,
+    isManualSubmitting,
+    manualFormDefaults,
     toggleUploadOptions,
     handleFileSelect,
-    handleCloseModal,
     handleCategoryCloseOrSuccess,
+    handleManualModalClose,
+    handleManualModalSubmit,
   } = useScanScreen();
 
   const {
@@ -95,12 +99,10 @@ const ScanScreen = () => {
               {/* Seção Principal */}
               {showUploadOptions && (
                 <div className={`mt-6 flex-1 w-full ${transitionBase}`}>
-                  <CategoryProvider onClose={handleCloseModal}>
+                  <CategoryProvider onClose={() => {}}>
                     <ScanMainContent
                       documents={documents}
                       showUploadOptions={showUploadOptions}
-                      showModal={showModal}
-                      handleCloseModal={handleCloseModal}
                       handleFileSelect={handleFileSelect}
                       onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
                       onManualClick={handleManualTransaction}
@@ -115,6 +117,13 @@ const ScanScreen = () => {
         {/* BottomNavigation - Apenas no mobile */}
         <BottomNavigation />
         <NotificationToast />
+        <ManualTransactionModal
+          isOpen={showManualModal}
+          defaults={manualFormDefaults}
+          isSubmitting={isManualSubmitting}
+          onClose={handleManualModalClose}
+          onSubmit={handleManualModalSubmit}
+        />
         <AddTransactionModal
           isOpen={isTransactionModalOpen}
           onClose={closeModal}

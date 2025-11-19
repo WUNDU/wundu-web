@@ -48,7 +48,7 @@ const SupportScreen: React.FC = () => {
       icon: <EmailIcon className="w-5 h-5 text-blue-500" />,
       title: "Email",
       description: "Envie-nos um email detalhando a sua questão",
-      actionLabel: "support@wundu.com",
+      actionLabel: "Support@wundu.tech",
     },
     {
       icon: <PhoneIcon className="w-5 h-5 text-emerald-500" />,

@@ -1,22 +1,53 @@
 import { useState } from "react";
 import { Document } from "@/types/button";
+import {
+  ManualCompletionRequiredError,
+  TransactionService,
+} from "@/services/TransactionService";
+import { useUiStore } from "@/store/uiStore";
 
 export type UseScanScreenReturn = {
   documents: Document[];
   showUploadOptions: boolean;
   isLoading: boolean;
-  showModal: boolean;
+  showManualModal: boolean;
+  isManualSubmitting: boolean;
+  manualFormDefaults:
+    | {
+        description: string;
+        amount: number | null;
+        transactionDate: string;
+      }
+    | null;
   toggleUploadOptions: () => void;
   handleFileSelect: (file: File, type: "image" | "document") => Promise<void>;
-  handleCloseModal: () => void;
   handleCategoryCloseOrSuccess: () => void;
+  handleManualModalClose: () => void;
+  handleManualModalSubmit: (values: {
+    description: string;
+    amount: number;
+    transactionDate: string;
+  }) => Promise<void>;
 };
 
 export const useScanScreen = (): UseScanScreenReturn => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [manualData, setManualData] = useState<
+    | {
+        transactionId: string;
+        defaults: {
+          description?: string;
+          amount?: number;
+          transactionDate?: string;
+          operationNumber?: string;
+        };
+      }
+    | null
+  >(null);
+  const [isManualSubmitting, setIsManualSubmitting] = useState(false);
+  const { showNotification } = useUiStore();
 
   const toggleUploadOptions = () => {
     setShowUploadOptions((prev) => !prev);
@@ -25,32 +56,115 @@ export const useScanScreen = (): UseScanScreenReturn => {
   const handleFileSelect = async (file: File, type: "image" | "document") => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setDocuments((prevDocs) => [...prevDocs, { name: file.name, type }]);
+      const result = await TransactionService.processDocumentTransaction(file, {
+        documentType: type === "image" ? "IMAGE" : "DOCUMENT",
+      });
+
+      const extracted = result.ocr.extractedData ?? {};
+      setDocuments((prevDocs) => [
+        {
+          type: "transaction",
+          name: extracted.description ?? file.name,
+          description: extracted.description,
+          amount: extracted.amount,
+          timestamp: extracted.transactionDate,
+        },
+        ...prevDocs,
+      ]);
+
+      showNotification(
+        "success",
+        "Comprovativo processado",
+        "Transação criada automaticamente a partir do OCR."
+      );
     } catch (error) {
-      console.log("Erro ao fazer upload do arquivo:", error);
+      if (error instanceof ManualCompletionRequiredError) {
+        setManualData({
+          transactionId: error.transactionId,
+          defaults: error.defaults,
+        });
+      } else {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Não foi possível processar o comprovativo.";
+        showNotification("error", "Falha no processamento", message);
+        console.log("Erro ao fazer upload do arquivo:", error);
+      }
     } finally {
       setIsLoading(false);
-      setShowModal(true);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
   };
 
   const handleCategoryCloseOrSuccess = () => {
     setShowUploadOptions(false);
   };
 
+  const handleManualModalClose = () => {
+    setManualData(null);
+  };
+
+  const handleManualModalSubmit = async (values: {
+    description: string;
+    amount: number;
+    transactionDate: string;
+  }) => {
+    if (!manualData) return;
+    setIsManualSubmitting(true);
+    try {
+      await TransactionService.finalizeManualTransaction(manualData.transactionId, {
+        description: values.description,
+        amount: values.amount,
+        transactionDate: values.transactionDate,
+        operationNumber: manualData.defaults.operationNumber,
+        type: "expense",
+      });
+
+      setDocuments((prevDocs) => [
+        {
+          type: "transaction",
+          name: values.description,
+          description: values.description,
+          amount: values.amount,
+          timestamp: values.transactionDate,
+        },
+        ...prevDocs,
+      ]);
+
+      showNotification(
+        "success",
+        "Transação completada",
+        "Os dados foram registados manualmente."
+      );
+      setManualData(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Não foi possível concluir a transação.";
+      showNotification("error", "Erro ao salvar", message);
+    } finally {
+      setIsManualSubmitting(false);
+    }
+  };
+
+  const manualFormDefaults = manualData
+    ? {
+        description: manualData.defaults.description ?? "",
+        amount: manualData.defaults.amount ?? null,
+        transactionDate: manualData.defaults.transactionDate ?? new Date().toISOString(),
+      }
+    : null;
+
   return {
     documents,
     showUploadOptions,
     isLoading,
-    showModal,
+    showManualModal: Boolean(manualData),
+    isManualSubmitting,
+    manualFormDefaults,
     toggleUploadOptions,
     handleFileSelect,
-    handleCloseModal,
     handleCategoryCloseOrSuccess,
+    handleManualModalClose,
+    handleManualModalSubmit,
   };
 };

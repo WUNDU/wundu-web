@@ -4,14 +4,11 @@ import React from "react";
 import { useCategoryContext } from "@/contexts/CategoryContext";
 import SentDocumentsSection from "@/ui/organisms/SendDocumentSection";
 import CategoryScreen from "@/ui/templates/CategoryScreen";
-import DetailsModal from "@/ui/organisms/DetailsModal";
 import { Document } from "@/types/button";
 
 interface ScanMainContentProps {
   documents: Document[];
   showUploadOptions: boolean;
-  showModal: boolean;
-  handleCloseModal: () => void;
   handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
   onManualClick?: () => void;
@@ -20,8 +17,6 @@ interface ScanMainContentProps {
 const ScanMainContent: React.FC<ScanMainContentProps> = ({
   documents,
   showUploadOptions,
-  showModal,
-  handleCloseModal,
   handleFileSelect,
   onCategoryCloseOrSuccess,
   onManualClick,
@@ -53,9 +48,8 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
         )}
       </div>
 
-      {/* Mobile: Modais como overlay */}
+      {/* Mobile: Modal de categoria como overlay */}
       <div>
-        {showModal && <DetailsModal onClose={handleCloseModal} />} 
         {isCategoryModalOpen && (
           <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />
         )}

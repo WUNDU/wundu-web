@@ -6,21 +6,28 @@ import { user as avatar } from "@/constants/images";
 import { HelpIcon, LogoutIcon } from "@/constants/icons";
 import { BottomNavigation } from "@/ui/organisms";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/constants/routes";
 import useRegisterContext from "@/contexts/useRegisterContext";
 const ProfileScreen: React.FC = () => {
   const { user, logoutUser } = useRegisterContext();
-  const router = useRouter();
 
   const handleLogout = async () => {
     await logoutUser();
+  };
+
+  const handleSupportClick = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        "mailto:Support@wundu.tech?subject=Suporte%20e%20feedback",
+        "_blank"
+      );
+    }
   };
 
   const menuItems = [
     {
       icon: <HelpIcon className="text-gray-600" />,
       text: "Suporte e Feedback",
-      action: () => router.push(ROUTES.SUPPORT),
+      action: handleSupportClick,
     },
     {
       icon: <LogoutIcon className="text-red-500" />,

@@ -48,19 +48,6 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
         variant="option"
         onClick={handleButtonClick}
       />
-      {/* <Button
-        leftIcon={<ImageIcon />}
-        label="Imagem"
-        variant="option"
-        onClick={handleButtonClick}
-      /> */}
-      <Button
-        leftIcon={<ReceiptIcon />}
-        variant="option"
-        label="Extrato Bancário"
-        onClick={handleButtonClick}
-      />
-
       <input
         type="file"
         ref={fileInputRef}

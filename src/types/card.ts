@@ -2,11 +2,11 @@ import { Article } from "./article";
 
 export interface StatsCardProps {
   icon: React.ElementType;
-  count: number;
+  count: number | string;
   label: string;
   color: string;
-  iconColor: string
-  border?: string
+  iconColor: string;
+  border?: string;
 }
 
 export interface FinancialObjectiveCardProps {

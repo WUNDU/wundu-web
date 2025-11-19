@@ -10,7 +10,7 @@ const ContactMethods: React.FC = () => {
     {
       icon: <EmailIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: "E-mail",
-      description: "support@wundu.com",
+      description: "Support@wundu.tech",
       subDescription: "Respostas em até 24h",
     },
     {
