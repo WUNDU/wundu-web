@@ -1,4 +1,4 @@
-const API_BASE_URL = "/api/proxy";
+const API_BASE_URL = "https://wundu-api-production.up.railway.app/api/v1";
 
 type RequestOptions = {
   method?: string;
