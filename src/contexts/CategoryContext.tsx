@@ -19,7 +19,7 @@ export const CategoryProvider = ({
   const [transactionDescription, setTransactionDescription] = useState("");
 
   const saveCategory = () => {
-    console.log("Category saved:", selectedCategory, transactionDescription);
+    // Intentionally left empty until persistence is implemented
   };
 
   return (

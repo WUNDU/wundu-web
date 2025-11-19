@@ -14,10 +14,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
-        console.log(
-          "Usuário já autenticado, redirecionando para:",
-          ROUTES.HOME
-        );
         router.push(ROUTES.HOME);
       }
       setChecked(true);

@@ -10,8 +10,6 @@ export const useAddTransactionModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string>("");
 
-  console.log("Hook state - isOpen:", isOpen);
-
   const { user } = useRegisterContext();
   const { showNotification } = useUiStore();
 
@@ -19,13 +17,11 @@ export const useAddTransactionModal = () => {
     useTransactionForm();
 
   const openModal = () => {
-    console.log("Opening modal...");
     setIsOpen(true);
     setSubmitError("");
   };
 
   const closeModal = () => {
-    console.log("Closing modal...");
     setIsOpen(false);
     resetForm();
     setSubmitError("");

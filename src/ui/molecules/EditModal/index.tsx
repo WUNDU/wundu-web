@@ -56,7 +56,6 @@ const EditModal: React.FC<EditModalProps> = ({
   };
 
   const handleSubmit = () => {
-    console.log("Salvando alterações:", formData);
     onClose();
   };
 

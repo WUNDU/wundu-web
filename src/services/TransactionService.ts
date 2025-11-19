@@ -108,7 +108,6 @@ export const TransactionService = {
         ...data,
         type: "expense",
       };
-      console.log(payload);
       const response = await api.post("/transactions", payload);
       cachedTransactions = null;
       cachedTransactionsTimestamp = null;
@@ -120,7 +119,6 @@ export const TransactionService = {
         error instanceof Error && error.message && error.message !== "Internal Server Error"
           ? error.message
           : fallbackMessage;
-      console.log("TransactionService.add error:", message);
       return false;
     }
   },
@@ -181,7 +179,6 @@ export const TransactionService = {
         error instanceof Error && error.message && error.message !== "Internal Server Error"
           ? error.message
           : fallbackMessage;
-      console.log("TransactionService.get error:", message);
       throw new Error(message);
     }
   },

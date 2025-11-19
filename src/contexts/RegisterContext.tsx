@@ -48,7 +48,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
         const userData = await UserService.getUser();
         setUser(userData);
       } catch (error) {
-        console.log("Erro ao carregar usuário", error);
         localStorage.removeItem("token");
         setTokenState(null);
       } finally {
@@ -81,7 +80,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const result = await UserService.register(overrideData || data);
-      console.log("Registro bem-sucedido:", result);
       return result;
     } catch (err: unknown) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
@@ -89,7 +87,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
         axiosError.response?.data?.message ||
         axiosError.message ||
         "Falha no registro";
-      console.log("Erro no registerUser:", message);
       setError(message);
       throw new Error(message);
     }
@@ -100,12 +97,10 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const result = await UserService.login(email, password);
-      console.log("Login bem-sucedido:", result);
 
       setToken(result.token);
 
       const userData = await UserService.getUser();
-      console.log("Dados do usuário:", userData);
       setUser(userData);
       
       // Clear error only on successful login
@@ -118,7 +113,6 @@ export const RegisterProvider = ({ children }: { children: ReactNode }) => {
         axiosError.response?.data?.message ||
         axiosError.message ||
         "Falha no login";
-      console.log("Erro no loginUser:", message);
       setError(message);
       throw new Error(message);
     } finally {

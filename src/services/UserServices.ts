@@ -17,7 +17,6 @@ export const UserService = {
       planType: 'FREE',
     };
     try {
-      console.log('Payload enviado:', payload);
       const response = await api.post('/users', payload);
       return response.data;
     } catch (error: unknown) {
@@ -26,7 +25,6 @@ export const UserService = {
         axiosError.response?.data?.message ||
         axiosError.message ||
         'Failed to register user';
-      console.log('Erro no UserService.register:', message);
       throw new Error(message);
     }
   },
@@ -43,7 +41,6 @@ export const UserService = {
         axiosError.response?.data?.message ||
         axiosError.message ||
         'Failed to login';
-      console.log('Erro no UserService.login:', message);
       throw new Error(message);
     }
   },
@@ -73,7 +70,6 @@ export const UserService = {
       const axiosError = error as AxiosError<ApiErrorResponse>
       const message = axiosError.response?.data?.message || axiosError.message ||
         'Failed to get user';
-      console.log('Error no UserService.getUser:', message)
       throw new Error(message)
     }
   }
