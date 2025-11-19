@@ -69,6 +69,7 @@ const PersonalData = () => {
         )}
         <Button type="submit">Próximo</Button>
       </form>
+      {/*
       <div className="w-full md:w-2/3">
         <div className="relative my-4 flex items-center px-6 md:px-0">
           <div className="flex-grow border-t border-gray-300"></div>
@@ -83,6 +84,7 @@ const PersonalData = () => {
           />
         </div>
       </div>
+      */}
       <div className="flex flex-col items-center mt-auto w-full md:w-2/3">
         <Link href={ROUTES.LOGIN} className="text-center text-sm text-gray-600">
           Já tem conta? <strong>Entrar</strong>

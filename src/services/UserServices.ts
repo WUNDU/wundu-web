@@ -17,7 +17,7 @@ export const UserService = {
       planType: 'FREE',
     };
     try {
-      const response = await api.post('/users', payload);
+      const response = await api.post('/users', payload, { skipAuth: true });
       return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
@@ -31,7 +31,7 @@ export const UserService = {
 
   login: async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth', { email, password });
+      const response = await api.post('/auth', { email, password }, { skipAuth: true });
       cachedUser = null;
       cachedUserTimestamp = null;
       return response.data;
