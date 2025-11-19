@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Tab } from "@/ui/atoms/Tab";
 import LineChart from "@/ui/molecules/LineChart";
 import PieChart from "@/ui/molecules/PieChart";
+import BarChart from "@/ui/molecules/BarChart";
 import { TransactionsList } from "@/ui/organisms/TransactionList";
 import {
   BarChartIcon,
@@ -48,27 +49,11 @@ const ControlPanelDashboardScreen: React.FC = () => {
         </div> */}
         <div className="mx-auto bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden pb-20 transition-all duration-500 ease-out animate-fade-in">
           {/* Top Bar */}
-          <div
-            className={`flex items-center p-4 transition-all duration-300 ease-out ${
-              viewMode === "pie" ? "justify-between" : "justify-end"
-            }`}
-          >
-            <div>
-              <div
-                className={`flex bg-blue-950 text-white space-x-2 p-1 rounded-2xl ${
-                  viewMode === "pie" ? "" : "hidden"
-                }`}
-              >
-                <button className="flex items-center">
-                  <ChevronLeft />
-                </button>
-                <span className="font-semibold text-lg">
-                  {isCredit ? "IMG" : "Todos"}
-                </span>
-                <button className="flex items-center">
-                  <ChevronRight />
-                </button>
-              </div>
+          <div className="flex items-center justify-between p-4 transition-all duration-300 ease-out">
+            <div className="flex bg-blue-950 text-white px-4 py-1 rounded-2xl shadow-lg border border-blue-800/20">
+              <span className="font-semibold text-lg">
+                {isCredit ? "IMG" : "Todos"}
+              </span>
             </div>
             <div className="flex space-x-1 bg-gray-100/80 backdrop-blur-sm p-1 rounded-2xl shadow-lg border border-gray-200/50">
               <button
@@ -98,16 +83,8 @@ const ControlPanelDashboardScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Header Section */}
-          <HeaderSection
-            isCredit={isCredit}
-            headerText={headerText}
-            headerAmount={headerAmount}
-            viewMode={viewMode}
-          />
-
           {/* Chart Section */}
-          <div className="p-4 transition-all duration-500 ease-out">
+          <div className="px-4 pb-4 transition-all duration-500 ease-out">
             <h2 className="text-xl font-bold text-gray-800 mb-4 animate-slide-up">
               {viewMode === "pie"
                 ? "Distribuição por Categoria"
@@ -119,20 +96,29 @@ const ControlPanelDashboardScreen: React.FC = () => {
                       : "Mensais"
                   }`}
             </h2>
-            <div className="w-full h-[300px] bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 transition-all duration-500 ease-out hover:shadow-xl">
-              {viewMode === "line" ? (
+            <div className="w-full h-[360px] bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 transition-all duration-500 ease-out hover:shadow-xl">
+              {viewMode === "line" && (
                 <LineChart
                   className="w-full h-full transition-all duration-500 ease-out"
                   data={chartData}
                   lineColor={isCredit ? "#10B981" : "#E05445"}
                   dotColor={isCredit ? "#10B981" : "#E05445"}
                 />
-              ) : (
+              )}
+              {viewMode === "pie" && (
                 <PieChart
                   className="w-full h-full transition-all duration-500 ease-out"
                   transactions={transactions}
                   totalAmount={totalExpenses}
                   timeRangeText={headerText}
+                />
+              )}
+              {viewMode === "bar" && (
+                <BarChart
+                  className="w-full h-full transition-all duration-500 ease-out"
+                  data={chartData}
+                  primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
+                  accentColor={isCredit ? "#0f172a" : "#7c2d12"}
                 />
               )}
             </div>
@@ -289,19 +275,28 @@ const ControlPanelDashboardScreen: React.FC = () => {
                           }`}
                     </h3>
                     <div className="flex-1 w-full h-full">
-                      {viewMode === "line" ? (
+                      {viewMode === "line" && (
                         <LineChart
                           className="w-full h-full"
                           data={chartData}
                           lineColor={isCredit ? "#10B981" : "#E05445"}
                           dotColor={isCredit ? "#10B981" : "#E05445"}
                         />
-                      ) : (
+                      )}
+                      {viewMode === "pie" && (
                         <PieChart
                           className="w-full h-full"
                           transactions={transactions}
                           totalAmount={totalExpenses}
                           timeRangeText={headerText}
+                        />
+                      )}
+                      {viewMode === "bar" && (
+                        <BarChart
+                          className="w-full h-full"
+                          data={chartData}
+                          primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
+                          accentColor={isCredit ? "#0f172a" : "#7c2d12"}
                         />
                       )}
                     </div>

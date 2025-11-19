@@ -1,11 +1,7 @@
 import React, { useState } from "react";
-import { ImageIcon } from "@/constants/icons";
-import { ChevronRight } from "lucide-react";
 import UploadOptions from "@/ui/molecules/UploadOption";
 import { SentDocumentsSectionProps } from "@/types/button";
-import { NoMovementIcon, SettingsIcon } from "@/constants/icons";
-import { Button } from "@/ui/atoms";
-import { ArrowRotateIcon } from "@/constants/icons";
+import { NoMovementIcon } from "@/constants/icons";
 
 type Item = {
   id: number;
@@ -49,16 +45,13 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
 
   if (showOptions) {
     return (
-      <section className="flex flex-col flex-1 mb-2">
-        <div className="flex justify-between items-center mb-8 border-b-2 py-2 border-gray-200 md:hidden">
+      <section className="flex flex-col flex-1 mb-2 items-center">
+        <div className="flex justify-center mb-6 md:hidden">
           <h2 className="text-sm font-bold uppercase text-gray-900">
-            Documentos Enviados
+            Adicionar Transação
           </h2>
-          <div className="border-2 rounded-full border-gray-300 bg-gray-300">
-            <SettingsIcon className="text-gray-600" />
-          </div>
         </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1">
+        <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1 w-full max-w-md">
           <UploadOptions
             onFileSelect={onFileSelect}
             onManualClick={onManualClick}
@@ -71,13 +64,10 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
   if (documents.length === 0) {
     return (
       <section className="flex flex-col flex-1 mb-2">
-        <div className="flex justify-between items-center mb-1 border-b-2 py-2 border-gray-200">
+        <div className="flex justify-center items-center mb-1 border-b-2 py-2 border-gray-200">
           <h2 className="text-sm font-bold uppercase text-gray-900">
-            Documentos Enviados
+            Adicionar Transação
           </h2>
-          <div className="border-2 rounded-full border-gray-300 bg-gray-300">
-            <SettingsIcon className="text-gray-600" />
-          </div>
         </div>
         <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
           <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
@@ -94,31 +84,13 @@ const SentDocumentsSection: React.FC<SentDocumentsSectionProps> = ({
 
   return (
     <section className="flex flex-col flex-1 mb-2">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-center items-center mb-8">
         <h2 className="text-sm font-bold uppercase text-gray-900">
-          Documentos Enviados
+          Adicionar Transação
         </h2>
-        <div className="border-2 rounded-full border-gray-300 bg-gray-300">
-          <SettingsIcon className="text-gray-600" />
-        </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm flex flex-col flex-1">
-        {documents.map((doc, index) => (
-          <div
-            key={index}
-            className="flex flex-1 items-center p-4 border-b border-gray-200 last:border-b-0"
-          >
-            <div className="flex items-center space-x-4">
-              {doc.type === "image" ? (
-                <ImageIcon className="text-gray-600" />
-              ) : (
-                <NoMovementIcon className="text-gray-600" />
-              )}
-              <p className="text-sm font-semibold text-gray-900">{doc.name}</p>
-            </div>
-            <ChevronRight className="text-gray-400" size={20} />
-          </div>
-        ))}
+      <div className="bg-white rounded-xl shadow-sm flex flex-col flex-1 justify-center">
+        <UploadOptions onFileSelect={onFileSelect} onManualClick={onManualClick} />
       </div>
     </section>
   );

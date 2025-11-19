@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ViewMode } from "@/types/panel";
 
 interface HeaderSectionProps {
@@ -24,16 +23,10 @@ const HeaderSection: React.FC<HeaderSectionProps> = ({
       }`}
     >
       <div className="flex justify-center items-center mb-4">
-        <div className="flex bg-gray-500/45 p-2 space-x-4 rounded-2xl">
-          <button className="flex items-center">
-            <ChevronLeft />
-          </button>
+        <div className="flex bg-gray-500/45 px-4 py-2 rounded-2xl">
           <span className="font-semibold text-lg">
             {isCredit ? "IMG" : "Todos"}
           </span>
-          <button className="flex items-center">
-            <ChevronRight />
-          </button>
         </div>
       </div>
       <p className="text-sm text-center">{headerText}</p>

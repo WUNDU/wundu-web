@@ -10,20 +10,23 @@ const BottomNavItem = ({ icon, label, href }: BottomNavItemProps) => {
 
   return (
     <Link href={href}>
-      <div
-        className={`flex flex-col items-center transition-all duration-200 ${
-          isActive ? "text-gray-600" : "text-gray-600"
-        } hover:text-yellow-400 hover:scale-105`}
-      >
+      <div className="flex min-w-[64px] flex-col items-center gap-1 text-center">
         <div
-          className={`${
-            isActive ? "text-yellow-400" : "text-gray-600"
-          } w-6 h-6`}
+          className={`flex h-10 w-10 items-center justify-center rounded-2xl border transition-all duration-200 ${
+            isActive
+              ? "bg-slate-900 text-white border-slate-900 shadow-lg"
+              : "bg-white/80 text-slate-500 border-transparent"
+          }`}
         >
-          {/* O ícone agora recebe a classe CSS que define a cor */}
           {React.cloneElement(icon as React.ReactElement)}
         </div>
-        <span className="text-xs mt-1">{label}</span>
+        <span
+          className={`text-[11px] font-semibold leading-tight tracking-wide ${
+            isActive ? "text-slate-900" : "text-slate-500"
+          }`}
+        >
+          {label}
+        </span>
       </div>
     </Link>
   );

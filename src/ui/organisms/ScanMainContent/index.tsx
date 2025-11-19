@@ -14,6 +14,7 @@ interface ScanMainContentProps {
   handleCloseModal: () => void;
   handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
+  onManualClick?: () => void;
 }
 
 const ScanMainContent: React.FC<ScanMainContentProps> = ({
@@ -23,6 +24,7 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
   handleCloseModal,
   handleFileSelect,
   onCategoryCloseOrSuccess,
+  onManualClick,
 }) => {
   const { isCategoryModalOpen } = useCategoryContext();
 
@@ -44,6 +46,7 @@ const ScanMainContent: React.FC<ScanMainContentProps> = ({
                 documents={[]}
                 showOptions={true}
                 onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
               />
             </div>
           </>

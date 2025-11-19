@@ -139,19 +139,7 @@ const PieChart: React.FC<PieChartProps> = ({
             display: false,
           },
           tooltip: {
-            enabled: true,
-            backgroundColor: "#0f172a",
-            padding: 12,
-            titleFont: { size: 12, family: "Inter" },
-            bodyFont: { size: 12, family: "Inter" },
-            callbacks: {
-              label: function (context) {
-                const transaction = transactions[context.dataIndex];
-                return `${transaction.title}: KZ ${Math.abs(
-                  transaction.amount
-                ).toLocaleString("pt-AO")} (${transaction.percentage}%)`;
-              },
-            },
+            enabled: false,
           },
         },
         animation: {

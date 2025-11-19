@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useGoals } from "@/hooks/objective/useGoals";
 
 export const useFinancialProgressScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<any>(null);
+  const { unfulfilledGoalCards, fulfilledGoalCards, status, error } = useGoals();
 
   const handleEdit = (obj: any) => {
     setSelectedObjective({
@@ -22,5 +24,9 @@ export const useFinancialProgressScreen = () => {
     selectedObjective,
     setSelectedObjective,
     handleEdit,
+    unfulfilledObjectives: unfulfilledGoalCards,
+    fulfilledObjectives: fulfilledGoalCards,
+    goalsStatus: status,
+    goalsError: error,
   };
 };

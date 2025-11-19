@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Button } from "@/ui/atoms";
 import { useUiStore } from "@/store/uiStore";
 import { ModalContent } from "@/ui/molecules/ModalConten";
+import { CloseIcon } from "@/constants/icons";
 
 export function NotificationToast() {
   const { notification, closeNotification } = useUiStore();
@@ -63,13 +64,13 @@ export function NotificationToast() {
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute top-4 right-4">
-          <Button
-            variant="close"
-            onClick={handleClose}
-            className="hover:bg-white rounded-full p-1"
-          />
-        </div>
+        <button
+          onClick={handleClose}
+          aria-label="Fechar notificação"
+          className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200"
+        >
+          <CloseIcon className="w-4 h-4" />
+        </button>
         <ModalContent
           type={notification.type}
           title={notification.title}

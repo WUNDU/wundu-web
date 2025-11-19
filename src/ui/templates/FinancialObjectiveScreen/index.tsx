@@ -1,6 +1,5 @@
 "use client";
 import { HistoryIcon, IAIcon, PlusIcon } from "@/constants/icons";
-import { NavigationBack } from "@/ui/atoms";
 import FinancialObjectiveCard from "@/ui/molecules/FinancialObjectiveCard";
 import { GreetingHeader } from "@/ui/molecules";
 import SidebarRight from "@/ui/molecules/SideBarRight";
@@ -11,6 +10,7 @@ import SketchPanel from "@/ui/molecules/SketchPanel";
 import EditModal from "@/ui/molecules/EditModal";
 import { useFinancialObjectiveScreen } from "@/hooks/objective/useFinancialObjectiveScreen";
 import { NotificationToast } from "@/ui/organisms/NotificationToast";
+import { BottomNavigation } from "@/ui/organisms";
 
 const FinancialObjectiveScreen: React.FC = () => {
   const {
@@ -48,11 +48,7 @@ const FinancialObjectiveScreen: React.FC = () => {
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
-        <main className="p-4 space-y-6 flex-1 min-h-0 animate-slide-up">
-          <div className="md:hidden">
-            <NavigationBack />
-          </div>
-
+        <main className="p-4 pb-28 md:pb-6 space-y-6 flex-1 min-h-0 animate-slide-up">
           <div className="flex flex-col flex-1 min-h-0 rounded-2xl p-5 space-y-10">
             <h2 className="text-lg font-semibold text-gray-800 md:hidden animate-slide-up" style={{animationDelay: '0.2s'}}>
               Objectivos financeiros
@@ -278,6 +274,9 @@ const FinancialObjectiveScreen: React.FC = () => {
       {/* Right Sidebar */}
       <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
       <NotificationToast />
+      <div className="md:hidden">
+        <BottomNavigation />
+      </div>
     </div>
   );
 };
