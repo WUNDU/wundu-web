@@ -4,6 +4,7 @@ type RequestOptions = {
   method?: string;
   headers?: Record<string, string>;
   body?: any;
+  skipAuth?: boolean;
 };
 
 const isFormData = (body: unknown): body is FormData => {
@@ -22,7 +23,7 @@ async function request<T = any>(
     ...(options.headers || {}),
   };
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && !options.skipAuth) {
     const token = localStorage.getItem("token");
     if (token && !headers["Authorization"]) {
       headers["Authorization"] = token.startsWith("Bearer ")
@@ -69,21 +70,28 @@ const api = {
     path: string,
     config?: {
       headers?: Record<string, string>;
+      skipAuth?: boolean;
     }
   ) {
-    return request<T>(path, { method: "GET", headers: config?.headers });
+    return request<T>(path, {
+      method: "GET",
+      headers: config?.headers,
+      skipAuth: config?.skipAuth,
+    });
   },
   post<T = any>(
     path: string,
     body?: any,
     config?: {
       headers?: Record<string, string>;
+      skipAuth?: boolean;
     }
   ) {
     return request<T>(path, {
       method: "POST",
       body,
       headers: config?.headers,
+      skipAuth: config?.skipAuth,
     });
   },
   patch<T = any>(
@@ -91,12 +99,14 @@ const api = {
     body?: any,
     config?: {
       headers?: Record<string, string>;
+      skipAuth?: boolean;
     }
   ) {
     return request<T>(path, {
       method: "PATCH",
       body,
       headers: config?.headers,
+      skipAuth: config?.skipAuth,
     });
   },
 };

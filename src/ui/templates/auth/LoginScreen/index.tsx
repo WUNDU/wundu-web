@@ -128,6 +128,7 @@ const LoginScreen: React.FC = () => {
                     } }                  />
                 </div>
 
+                {/*
                 <div className="relative my-6 flex items-center fade-in-section animate-in delay-6">
                   <div className="flex-grow border-t border-gray-300"></div>
                   <span className="mx-4 shrink text-sm text-gray-500 bg-white px-2">Ou</span>
@@ -141,6 +142,7 @@ const LoginScreen: React.FC = () => {
                     label="Entrar com Google"
                   />
                 </div>
+                */}
 
                 {/* Link de registro para mobile - oculto em desktop */}
                 <div className="mt-4 text-center md:hidden fade-in-section animate-in delay-8">
