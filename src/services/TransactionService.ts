@@ -26,7 +26,7 @@ export type TransactionCompletionPayload = {
   amount?: number;
   transactionDate?: string;
   operationNumber?: string;
-  type?: "income" | "expense";
+  type?: "expense";
 };
 
 type CategorizationResponse = {
@@ -104,8 +104,12 @@ const TRANSACTION_CACHE_TTL_MS = 60 * 1000;
 export const TransactionService = {
   add: async (data: TransactionDTO) => {
     try {
-      console.log(data);
-      const response = await api.post("/transactions", data);
+      const payload: TransactionDTO = {
+        ...data,
+        type: "expense",
+      };
+      console.log(payload);
+      const response = await api.post("/transactions", payload);
       cachedTransactions = null;
       cachedTransactionsTimestamp = null;
       return true;
@@ -202,7 +206,10 @@ export const TransactionService = {
     transactionId: string,
     payload: TransactionCompletionPayload
   ) => {
-    const { data } = await api.patch(`/transactions/${transactionId}/complete`, payload);
+    const { data } = await api.patch(`/transactions/${transactionId}/complete`, {
+      ...payload,
+      type: "expense",
+    });
     return data;
   },
 
