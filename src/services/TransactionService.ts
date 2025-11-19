@@ -121,8 +121,10 @@ export const TransactionService = {
     }
   },
 
-  get: async (): Promise<TransactionDTO[]> => {
-    if (cachedTransactions && cachedTransactionsTimestamp) {
+  get: async (options?: { bypassCache?: boolean }): Promise<TransactionDTO[]> => {
+    const bypassCache = options?.bypassCache ?? false;
+
+    if (!bypassCache && cachedTransactions && cachedTransactionsTimestamp) {
       const now = Date.now();
       if (now - cachedTransactionsTimestamp < TRANSACTION_CACHE_TTL_MS) {
         return cachedTransactions;
@@ -230,7 +232,7 @@ export const TransactionService = {
       const isDuplicate = message.toLowerCase().includes("documento duplicado");
 
       if (isDuplicate) {
-        const transactions = await TransactionService.get();
+        const transactions = await TransactionService.get({ bypassCache: true });
         const duplicated = transactions.find((transaction) =>
           transaction.source?.includes(uploadResult.documentId)
         );
@@ -245,7 +247,7 @@ export const TransactionService = {
     let relatedTransaction: TransactionDTO | undefined;
 
     if (!ocrResult.transactionId) {
-      const transactions = await TransactionService.get();
+      const transactions = await TransactionService.get({ bypassCache: true });
       const pendingTransaction = transactions.find((transaction) =>
         transaction.source?.includes(uploadResult.documentId)
       );
@@ -262,7 +264,7 @@ export const TransactionService = {
     }
 
     if (!relatedTransaction) {
-      const transactions = await TransactionService.get();
+      const transactions = await TransactionService.get({ bypassCache: true });
       relatedTransaction = transactions.find(
         (transaction) => transaction.id === ocrResult.transactionId
       );

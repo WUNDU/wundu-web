@@ -162,11 +162,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
                 viewMode={viewMode}
               />
               <div className="flex col-span-2">
-                <StatsSection
-                  totalFiles={transactions.length}
-                  totalProofs={0}
-                  totalImages={0}
-                />
+                <StatsSection />
               </div>
             </div>
 
