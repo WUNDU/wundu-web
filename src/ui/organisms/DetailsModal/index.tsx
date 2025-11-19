@@ -14,7 +14,7 @@ const DetailsModal = ({ onClose }: DetailsModalProps) => {
   const { setIsCategoryModalOpen } = useCategoryContext();
 
   const handleDownload = () => {
-    console.log("Download iniciado!");
+    // TODO: implement download action
   };
 
   const handleDefineCategory = () => {

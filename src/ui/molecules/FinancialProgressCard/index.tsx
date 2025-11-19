@@ -75,7 +75,6 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log("Botão edit clicado!");
               onEdit?.();
             }}
             className="hover:bg-gray-200/80 flex flex-col items-center justify-center rounded-full transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"

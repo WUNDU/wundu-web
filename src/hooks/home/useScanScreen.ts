@@ -89,7 +89,6 @@ export const useScanScreen = (): UseScanScreenReturn => {
             ? error.message
             : "Não foi possível processar o comprovativo.";
         showNotification("error", "Falha no processamento", message);
-        console.log("Erro ao fazer upload do arquivo:", error);
       }
     } finally {
       setIsLoading(false);
