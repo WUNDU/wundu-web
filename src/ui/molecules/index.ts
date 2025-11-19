@@ -1,4 +1,5 @@
 export { default as AddTransactionModal } from "./AddTransactionModal";
+export { default as ManualTransactionModal } from "./ManualTransactionModal";
 export { default as ArticleCard } from "./ArticleCard";
 export { default as BottomNavItem } from "./BottomNavItem";
 export { default as CTA } from "./CTA";

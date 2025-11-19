@@ -1,55 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
-import { backgroundPanel, user as avatar } from "@/constants/images";
-import {
-  ProfileIcon,
-  HelpIcon,
-  NotificationRightBarIcon,
-  PaymentIcon,
-  SettingsRightBarIcon,
-  LogoutIcon,
-} from "@/constants/icons";
+import { user as avatar } from "@/constants/images";
+import { HelpIcon, LogoutIcon } from "@/constants/icons";
 import { BottomNavigation } from "@/ui/organisms";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/constants/routes";
 import useRegisterContext from "@/contexts/useRegisterContext";
-import { useUiStore } from "@/store/uiStore";
-
 const ProfileScreen: React.FC = () => {
   const { user, logoutUser } = useRegisterContext();
-  const router = useRouter();
-  const { openNotificationCenter } = useUiStore();
 
   const handleLogout = async () => {
     await logoutUser();
+  };
+
+  const handleSupportClick = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        "mailto:Support@wundu.tech?subject=Suporte%20e%20feedback",
+        "_blank"
+      );
+    }
   };
 
   const menuItems = [
     {
       icon: <HelpIcon className="text-gray-600" />,
       text: "Suporte e Feedback",
-      action: () => {},
-    },
-    {
-      icon: <NotificationRightBarIcon className="text-gray-600" />,
-      text: "Notificações",
-      action: openNotificationCenter,
+      action: handleSupportClick,
     },
     {
       icon: <LogoutIcon className="text-red-500" />,
       text: "Sair",
       action: handleLogout,
     },
-    // { icon: <ProfileIcon />, text: "Meus dados" },
-    // { icon: <PaymentIcon />, text: "Meu plano" },
-    // { icon: <SettingsRightBarIcon />, text: "Configurações" },
   ];
-
-  const handleControlPanel = () => {
-    router.push(ROUTES.CONTROL_PANEL);
-  };
 
   const handleMenuClick = (item: (typeof menuItems)[0]) => {
     // if (item.route) {
@@ -103,42 +88,14 @@ const ProfileScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Painel de controle */}
+        {/* Opções */}
         <div className="p-4">
-          <div
-            className="rounded-xl p-4 shadow-md text-white font-medium flex items-center justify-between mb-4"
-            style={{
-              backgroundImage: `url(${backgroundPanel.src})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <span>Painel de controle</span>
-            <button onClick={handleControlPanel}>
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-
-          {/* Lista de menu */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             {menuItems.map((item, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                onClick={() => handleMenuClick(item)} 
+                onClick={() => handleMenuClick(item)}
               >
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl">{item.icon}</div>

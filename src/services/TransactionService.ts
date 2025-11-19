@@ -1,6 +1,58 @@
 import api from "../lib/api";
 import type { TransactionDTO } from "../types/transaction/transaction_dto";
 
+type DocumentUploadResponse = {
+  documentId: string;
+  status: string;
+  message?: string;
+};
+
+type OcrExtractedData = {
+  description?: string;
+  amount?: number;
+  transactionDate?: string;
+  operationNumber?: string;
+};
+
+type OcrProcessResponse = {
+  documentId: string;
+  status: string;
+  transactionId?: string;
+  extractedData?: OcrExtractedData;
+};
+
+export type TransactionCompletionPayload = {
+  description?: string;
+  amount?: number;
+  transactionDate?: string;
+  operationNumber?: string;
+  type?: "expense";
+};
+
+type CategorizationResponse = {
+  transactionId: string;
+  category?: string;
+  confidence?: number;
+  status: string;
+};
+
+export class ManualCompletionRequiredError extends Error {
+  constructor(
+    public readonly transactionId: string,
+    public readonly defaults: TransactionCompletionPayload
+  ) {
+    super("Manual completion required");
+    this.name = "ManualCompletionRequiredError";
+  }
+}
+
+export class DuplicateDocumentError extends Error {
+  constructor(public readonly transaction: TransactionDTO, message?: string) {
+    super(message ?? "Documento já registrado");
+    this.name = "DuplicateDocumentError";
+  }
+}
+
 type PaginationMeta = {
   isPaginated: boolean;
   last?: boolean;
@@ -52,8 +104,12 @@ const TRANSACTION_CACHE_TTL_MS = 60 * 1000;
 export const TransactionService = {
   add: async (data: TransactionDTO) => {
     try {
-      console.log(data);
-      const response = await api.post("/transactions", data);
+      const payload: TransactionDTO = {
+        ...data,
+        type: "expense",
+      };
+      console.log(payload);
+      const response = await api.post("/transactions", payload);
       cachedTransactions = null;
       cachedTransactionsTimestamp = null;
       return true;
@@ -69,8 +125,10 @@ export const TransactionService = {
     }
   },
 
-  get: async (): Promise<TransactionDTO[]> => {
-    if (cachedTransactions && cachedTransactionsTimestamp) {
+  get: async (options?: { bypassCache?: boolean }): Promise<TransactionDTO[]> => {
+    const bypassCache = options?.bypassCache ?? false;
+
+    if (!bypassCache && cachedTransactions && cachedTransactionsTimestamp) {
       const now = Date.now();
       if (now - cachedTransactionsTimestamp < TRANSACTION_CACHE_TTL_MS) {
         return cachedTransactions;
@@ -126,5 +184,156 @@ export const TransactionService = {
       console.log("TransactionService.get error:", message);
       throw new Error(message);
     }
+  },
+
+  uploadDocument: async (file: File, options?: { documentType?: string }) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (options?.documentType) {
+      formData.append("type", options.documentType);
+    }
+
+    const { data } = await api.post<DocumentUploadResponse>("/documents/upload", formData);
+    return data;
+  },
+
+  processDocumentOcr: async (documentId: string) => {
+    const { data } = await api.post<OcrProcessResponse>(`/ocr/process/${documentId}`);
+    return data;
+  },
+
+  completeTransaction: async (
+    transactionId: string,
+    payload: TransactionCompletionPayload
+  ) => {
+    const { data } = await api.patch(`/transactions/${transactionId}/complete`, {
+      ...payload,
+      type: "expense",
+    });
+    return data;
+  },
+
+  categorizeTransaction: async (transactionId: string) => {
+    const { data } = await api.post<CategorizationResponse>(
+      `/nlp/categorize/${transactionId}`
+    );
+    return data;
+  },
+
+  processDocumentTransaction: async (
+    file: File,
+    options: {
+      documentType?: string;
+      completionOverrides?: TransactionCompletionPayload;
+    } = {}
+  ) => {
+    const uploadResult = await TransactionService.uploadDocument(file, {
+      documentType: options.documentType,
+    });
+
+    let ocrResult: OcrProcessResponse;
+    try {
+      ocrResult = await TransactionService.processDocumentOcr(uploadResult.documentId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const isDuplicate = message.toLowerCase().includes("documento duplicado");
+
+      if (isDuplicate) {
+        const transactions = await TransactionService.get({ bypassCache: true });
+        const duplicated = transactions.find((transaction) =>
+          transaction.source?.includes(uploadResult.documentId)
+        );
+
+        if (duplicated) {
+          throw new DuplicateDocumentError(duplicated, message);
+        }
+      }
+
+      throw error;
+    }
+    let relatedTransaction: TransactionDTO | undefined;
+
+    if (!ocrResult.transactionId) {
+      const transactions = await TransactionService.get({ bypassCache: true });
+      const pendingTransaction = transactions.find((transaction) =>
+        transaction.source?.includes(uploadResult.documentId)
+      );
+
+      if (!pendingTransaction?.id) {
+        throw new Error(
+          "Não foi possível obter o identificador da transação após o processamento OCR."
+        );
+      }
+
+      ocrResult.transactionId = pendingTransaction.id;
+      ocrResult.status = pendingTransaction.status ?? ocrResult.status;
+      relatedTransaction = pendingTransaction;
+    }
+
+    if (!relatedTransaction) {
+      const transactions = await TransactionService.get({ bypassCache: true });
+      relatedTransaction = transactions.find(
+        (transaction) => transaction.id === ocrResult.transactionId
+      );
+    }
+
+    const extracted = ocrResult.extractedData ?? {};
+    const completionPayload: TransactionCompletionPayload = {
+      description:
+        options.completionOverrides?.description ??
+        extracted.description ??
+        relatedTransaction?.description ??
+        relatedTransaction?.category?.name ??
+        undefined,
+      amount:
+        options.completionOverrides?.amount ??
+        extracted.amount ??
+        relatedTransaction?.amount ??
+        undefined,
+      transactionDate:
+        options.completionOverrides?.transactionDate ??
+        extracted.transactionDate ??
+        relatedTransaction?.transactionDate ??
+        undefined,
+      operationNumber:
+        options.completionOverrides?.operationNumber ??
+        extracted.operationNumber ??
+        relatedTransaction?.operationNumber ??
+        undefined,
+      type: "expense",
+    };
+
+    if (
+      completionPayload.description === undefined ||
+      completionPayload.amount === undefined ||
+      completionPayload.transactionDate === undefined
+    ) {
+      throw new ManualCompletionRequiredError(ocrResult.transactionId, completionPayload);
+    }
+
+    await TransactionService.completeTransaction(ocrResult.transactionId, completionPayload);
+
+    const categorization = await TransactionService.categorizeTransaction(
+      ocrResult.transactionId
+    );
+
+    return {
+      upload: uploadResult,
+      ocr: ocrResult,
+      categorization,
+    };
+  },
+
+  finalizeManualTransaction: async (
+    transactionId: string,
+    payload: TransactionCompletionPayload
+  ) => {
+    await TransactionService.completeTransaction(transactionId, {
+      ...payload,
+      type: "expense",
+    });
+
+    const categorization = await TransactionService.categorizeTransaction(transactionId);
+    return categorization;
   },
 };

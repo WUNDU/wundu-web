@@ -17,18 +17,35 @@ import {
 } from "@/contexts/CategoryContext";
 import CategoryScreen from "@/ui/templates/CategoryScreen";
 import MovementSection from "@/ui/molecules/MovimentSection";
-import DetailsModal from "@/ui/organisms/DetailsModal";
 import AddTransactionModal from "@/ui/molecules/AddTransactionModal";
 import { useAddTransactionModal } from "@/hooks/transaction/useAddTransaction";
 import { NotificationToast } from "@/ui/organisms/NotificationToast";
 import { useTransactions } from "@/hooks/transaction/useTransactions";
+import {
+  ManualCompletionRequiredError,
+  TransactionService,
+} from "@/services/TransactionService";
+import { useUiStore } from "@/store/uiStore";
+import ManualTransactionModal from "@/ui/molecules/ManualTransactionModal";
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
+  const [manualData, setManualData] = useState<
+    | {
+        transactionId: string;
+        defaults: {
+          description?: string;
+          amount?: number;
+          transactionDate?: string;
+          operationNumber?: string;
+        };
+      }
+    | null
+  >(null);
+  const [isManualSubmitting, setIsManualSubmitting] = useState(false);
   const {
     transactions,
     isLoading: isTransactionsLoading,
@@ -36,6 +53,7 @@ const HomeScreen = () => {
     error: transactionsError,
     refresh: refreshTransactions,
   } = useTransactions();
+  const { showNotification } = useUiStore();
   const {
     isOpen: isTransactionModalOpen,
     submitError,
@@ -76,22 +94,99 @@ const HomeScreen = () => {
   const handleFileSelect = async (file: File, type: "image" | "document") => {
     setIsUploading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setDocuments((prevDocs) => [...prevDocs, { name: file.name, type }]);
+      const result = await TransactionService.processDocumentTransaction(file, {
+        documentType: type === "image" ? "IMAGE" : "DOCUMENT",
+      });
+
+      const extracted = result.ocr.extractedData ?? {};
+      setDocuments((prevDocs) => [
+        {
+          type: "transaction",
+          name: extracted.description ?? file.name,
+          description: extracted.description,
+          amount: extracted.amount,
+          timestamp: extracted.transactionDate,
+        },
+        ...prevDocs,
+      ]);
+      showNotification(
+        "success",
+        "Comprovativo processado",
+        "Transação criada automaticamente a partir do OCR."
+      );
+
+      await refreshTransactions();
     } catch (error) {
-      console.log("Erro ao fazer upload do arquivo:", error);
+      if (error instanceof ManualCompletionRequiredError) {
+        setManualData({ transactionId: error.transactionId, defaults: error.defaults });
+        showNotification(
+          "info",
+          "Dados incompletos",
+          "Revise descrição, montante e data para concluir o comprovativo."
+        );
+      } else {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Não foi possível processar o comprovativo.";
+        showNotification("error", "Falha no processamento", message);
+        console.log("Erro ao fazer upload do arquivo:", error);
+      }
     } finally {
       setIsUploading(false);
-      setShowModal(true);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
   };
 
   const handleCategoryCloseOrSuccess = () => {
     setShowUploadOptions(false);
+  };
+
+  const manualFormDefaults = manualData
+    ? {
+        description: manualData.defaults.description ?? "",
+        amount: manualData.defaults.amount ?? null,
+        transactionDate: manualData.defaults.transactionDate ?? new Date().toISOString(),
+      }
+    : null;
+
+  const handleManualModalClose = () => {
+    setManualData(null);
+  };
+
+  const handleManualModalSubmit = async ({
+    description,
+    amount,
+    transactionDate,
+  }: {
+    description: string;
+    amount: number;
+    transactionDate: string;
+  }) => {
+    if (!manualData) return;
+    setIsManualSubmitting(true);
+    try {
+      await TransactionService.finalizeManualTransaction(manualData.transactionId, {
+        description,
+        amount,
+        transactionDate,
+        operationNumber: manualData.defaults.operationNumber,
+        type: "expense",
+      });
+
+      await refreshTransactions();
+      showNotification(
+        "success",
+        "Transação completada",
+        "Os dados foram registados manualmente."
+      );
+      setManualData(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Não foi possível concluir a transação.";
+      showNotification("error", "Erro ao salvar", message);
+    } finally {
+      setIsManualSubmitting(false);
+    }
   };
 
   return (
@@ -110,33 +205,23 @@ const HomeScreen = () => {
           ) : (
             <>
               {/* Seção Superior */}
-              <div className="md:grid md:grid-cols-3 md:gap-2 flex items-center justify-between m-0 h-auto transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-stretch m-0 h-auto transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5">
                 <div className="md:hidden flex flex-col flex-1">
-                  <StatsSection
-                    totalFiles={0}
-                    totalProofs={0}
-                    totalImages={0}
-                  />
+                  <StatsSection />
                 </div>
                 <div className="hidden md:flex flex-col flex-1">
                   <UploadSection onUploadClick={toggleUploadOptions} />
                 </div>
                 <div className="hidden md:flex flex-1 items-center justify-center md:col-span-2">
-                  <StatsSection
-                    totalFiles={0}
-                    totalProofs={0}
-                    totalImages={0}
-                  />
+                  <StatsSection />
                 </div>
               </div>
 
               {/* Seção Principal */}
-              <CategoryProvider onClose={handleCloseModal}>
+              <CategoryProvider onClose={() => {}}>
                 <MainContent
                   documents={documents}
                   showUploadOptions={showUploadOptions}
-                  showModal={showModal}
-                  handleCloseModal={handleCloseModal}
                   handleFileSelect={handleFileSelect}
                   onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
                   onManualClick={handleOpenTransactionModal}
@@ -157,6 +242,13 @@ const HomeScreen = () => {
       {/* Sidebar Direito */}
       <SidebarRight isOpen={isSidebarRightOpen} onClose={toggleSidebarRight} />
       <NotificationToast />
+      <ManualTransactionModal
+        isOpen={Boolean(manualData)}
+        defaults={manualFormDefaults}
+        isSubmitting={isManualSubmitting}
+        onClose={handleManualModalClose}
+        onSubmit={handleManualModalSubmit}
+      />
       <AddTransactionModal
         isOpen={isTransactionModalOpen}
         onClose={closeModal}
@@ -174,8 +266,6 @@ const HomeScreen = () => {
 const MainContent = ({
   documents,
   showUploadOptions,
-  showModal,
-  handleCloseModal,
   handleFileSelect,
   onCategoryCloseOrSuccess,
   onManualClick,
@@ -186,8 +276,6 @@ const MainContent = ({
 }: {
   documents: Document[];
   showUploadOptions: boolean;
-  showModal: boolean;
-  handleCloseModal: () => void;
   handleFileSelect: (file: File, type: "image" | "document") => void;
   onCategoryCloseOrSuccess: () => void;
   onManualClick: () => void;
@@ -198,9 +286,7 @@ const MainContent = ({
 }) => {
   const { isCategoryModalOpen } = useCategoryContext();
 
-  const rightContentDesktop = showModal ? (
-    <DetailsModal onClose={handleCloseModal} />
-  ) : isCategoryModalOpen ? (
+  const rightContentDesktop = isCategoryModalOpen ? (
     <CategoryScreen />
   ) : (
     <MovementSection
@@ -265,7 +351,6 @@ const MainContent = ({
       </div>
       {/* Mobile: Modais como overlay */}
       <div className="md:hidden">
-        {showModal && <DetailsModal onClose={handleCloseModal} />}
         {isCategoryModalOpen && (
           <CategoryScreen onCloseOrSuccess={onCategoryCloseOrSuccess} />
         )}

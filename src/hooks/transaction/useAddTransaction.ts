@@ -3,6 +3,7 @@ import { useTransactionForm } from "./useTransactionForm";
 import { TransactionService } from "@/services/TransactionService";
 import type { TransactionFormField } from "@/types/transaction/transaction_type";
 import useRegisterContext from "@/contexts/useRegisterContext";
+import { useUiStore } from "@/store/uiStore";
 
 export const useAddTransactionModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,7 @@ export const useAddTransactionModal = () => {
   console.log("Hook state - isOpen:", isOpen);
 
   const { user } = useRegisterContext();
+  const { showNotification } = useUiStore();
 
   const { formData, errors, handleChange, validateForm, resetForm } =
     useTransactionForm();
@@ -54,11 +56,21 @@ export const useAddTransactionModal = () => {
       });
 
       closeModal();
+      showNotification(
+        "success",
+        "Transação adicionada",
+        "O movimento foi registado com sucesso."
+      );
       return true;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erro desconhecido";
       setSubmitError(message);
+      showNotification(
+        "error",
+        "Erro ao adicionar",
+        message || "Não foi possível concluir o registo."
+      );
       return false;
     } finally {
       setIsLoading(false);

@@ -1,4 +1,4 @@
-const API_BASE_URL = "/api/v1";
+const API_BASE_URL = "/api/proxy";
 
 type RequestOptions = {
   method?: string;
@@ -6,14 +6,19 @@ type RequestOptions = {
   body?: any;
 };
 
+const isFormData = (body: unknown): body is FormData => {
+  return typeof FormData !== "undefined" && body instanceof FormData;
+};
+
 async function request<T = any>(
   path: string,
   options: RequestOptions = {}
 ): Promise<{ data: T }> {
   const url = `${API_BASE_URL}${path}`;
+  const isMultipartBody = isFormData(options.body);
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isMultipartBody ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {}),
   };
 
@@ -29,7 +34,11 @@ async function request<T = any>(
   const response = await fetch(url, {
     method: options.method || "GET",
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: isMultipartBody
+      ? options.body
+      : options.body !== undefined
+        ? JSON.stringify(options.body)
+        : undefined,
   });
 
   const text = await response.text();
@@ -73,6 +82,19 @@ const api = {
   ) {
     return request<T>(path, {
       method: "POST",
+      body,
+      headers: config?.headers,
+    });
+  },
+  patch<T = any>(
+    path: string,
+    body?: any,
+    config?: {
+      headers?: Record<string, string>;
+    }
+  ) {
+    return request<T>(path, {
+      method: "PATCH",
       body,
       headers: config?.headers,
     });

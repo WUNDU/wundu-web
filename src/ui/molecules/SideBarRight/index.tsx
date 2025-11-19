@@ -24,6 +24,15 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
     await logoutUser();
   };
 
+  const handleSupportClick = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        "mailto:Support@wundu.tech?subject=Suporte%20e%20feedback",
+        "_blank"
+      );
+    }
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-white/5 backdrop-blur-xl z-50 transition-all duration-500 ease-out ${
@@ -74,7 +83,7 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                   {
                     icon: <HelpIcon className="w-6 h-6 text-gray-600" />,
                     text: "Suporte e Feedback",
-                    action: () => {},
+                    action: handleSupportClick,
                   },
                   {
                     icon: (

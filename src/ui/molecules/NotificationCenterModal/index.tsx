@@ -2,32 +2,20 @@
 
 import React from "react";
 import { useUiStore } from "@/store/uiStore";
-import { NotificationDeskIcon, HelpIcon, CalendarIcon } from "@/constants/icons";
+import { NotificationDeskIcon, HelpIcon } from "@/constants/icons";
 import { Button } from "@/ui/atoms";
-
-const mockNotifications = [
-  {
-    id: 1,
-    title: "Transação aprovada",
-    description: "O recibo enviado foi validado e adicionado às suas despesas.",
-    timeAgo: "Há 2 min",
-  },
-  {
-    id: 2,
-    title: "Objetivo atualizado",
-    description: "O objetivo " + "Viagem 2025" + " atingiu 60% do valor necessário.",
-    timeAgo: "Há 1 h",
-  },
-  {
-    id: 3,
-    title: "Sugestão da IA",
-    description: "Temos novas dicas para economizar 5% nos gastos com transporte.",
-    timeAgo: "Ontem",
-  },
-];
 
 const NotificationCenterModal: React.FC = () => {
   const { isNotificationCenterOpen, closeNotificationCenter } = useUiStore();
+
+  const handleSupportClick = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        "mailto:Support@wundu.tech?subject=Ajuda%20com%20notificações",
+        "_blank"
+      );
+    }
+  };
 
   if (!isNotificationCenterOpen) return null;
 
@@ -56,39 +44,21 @@ const NotificationCenterModal: React.FC = () => {
           </div>
           <button
             onClick={closeNotificationCenter}
-            className="rounded-full border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+            className="grid place-items-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
             aria-label="Fechar notificações"
+            style={{ width: 40, height: 40 }}
           >
             ✕
           </button>
         </div>
 
         <div className="max-h-[60vh] overflow-y-auto px-6 py-4 space-y-4">
-          {mockNotifications.map((notification) => (
-            <div
-              key={notification.id}
-              className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 hover:bg-white transition-colors"
-            >
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-white p-2 text-gray-500 shadow-sm">
-                  <CalendarIcon className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      {notification.title}
-                    </h4>
-                    <span className="text-xs text-gray-500">
-                      {notification.timeAgo}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {notification.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+          <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 bg-gray-50">
+            <p className="font-medium text-gray-700 mb-1">Sem notificações por enquanto</p>
+            <p className="text-gray-500">
+              Quando houver novidades sobre os seus comprovativos, elas aparecerão aqui.
+            </p>
+          </div>
 
           <div className="rounded-2xl border border-dashed border-gray-200 p-4 text-center text-sm text-gray-500">
             <p>
@@ -98,9 +68,7 @@ const NotificationCenterModal: React.FC = () => {
             <Button
               variant="secondary"
               className="mt-3 text-sm"
-              onClick={() => {
-                /* Placeholder para ação futura */
-              }}
+              onClick={handleSupportClick}
               leftIcon={<HelpIcon className="w-4 h-4" />}
             >
               Falar com suporte

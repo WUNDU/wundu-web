@@ -93,7 +93,7 @@ const AboutLandingPage: React.FC = () => {
       <div className="border-2 mx-2 p-10 my-5 shadow-2xs border-gray-100">
         <TextSection
           title="A Nossa História"
-          content="A WUNDU nasceu da necessidade de simplificar a gestão financeira pessoal. Percebemos que muitas pessoas têm dificuldade em acompanhar os seus gastos e atingir as suas metas financeiras. Criamos uma solução que combina inteligência artificial com design intuitivo, permitindo que qualquer pessoa possa ter controlo total sobre as suas finanças de forma simples e eficaz. Hoje, ajudamos milhares de utilizadores a alcançar a liberdade financeira através de ferramentas inteligentes e educação financeira de qualidade."
+          content="Somos uma startup em fase inicial que nasceu durante o desafio Codepoint, promovido pela Mirantes.io. Percebemos que muitas pessoas têm dificuldade em acompanhar os seus gastos e atingir metas financeiras, por isso começámos a construir o WUNDU: uma solução que combina inteligência artificial com design intuitivo para simplificar o controlo do dinheiro. Ainda estamos a dar os primeiros passos, aprendendo com cada teste e feedback para entregar uma plataforma segura, transparente e realmente útil para quem quer organizar as finanças."
         />
 
         <TechnologySection />

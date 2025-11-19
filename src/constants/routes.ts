@@ -18,5 +18,6 @@ export const ROUTES = {
   PROFILE: "/home/profile",
   CHAT_IA: "/home/chat",
   CONTROL_PANEL: "/home/profile/control_panel",
+  SUPPORT: "/home/profile/support",
   SCAN: "/home/scan",
 } as const;

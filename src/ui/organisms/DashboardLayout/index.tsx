@@ -3,6 +3,7 @@
 import { Sidebar } from "@/ui/molecules";
 import { useState } from "react";
 import { ArrowsLeftIcon } from "@/constants/icons";
+import { BottomNavigation } from "@/ui/organisms";
 
 export default function DashboardLayout({
   children,
@@ -47,7 +48,12 @@ export default function DashboardLayout({
         </button>
 
         {/* Children - conteúdo das páginas */}
-        <div className="h-full overflow-auto">{children}</div>
+        <div className="h-full overflow-auto pb-24 md:pb-0">{children}</div>
+      </div>
+
+      {/* Bottom Navigation fixo no mobile */}
+      <div className="md:hidden">
+        <BottomNavigation />
       </div>
     </div>
   );

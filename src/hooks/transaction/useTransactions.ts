@@ -11,9 +11,9 @@ const mapTransactionToDocument = (
   return {
     type: "transaction",
     name: transaction.description || transaction.category?.name || fallbackName,
-    description: transaction.description,
+    description: transaction.description ?? undefined,
     amount: transaction.amount,
-    category: transaction.category?.name,
+    category: transaction.category?.name ?? undefined,
     timestamp: transaction.transactionDate,
     isIncome: transaction.type === "income",
   };
