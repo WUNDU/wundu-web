@@ -1,5 +1,6 @@
 import { TextInput, Button, Select } from "@/ui/atoms";
 import { useObjectiveForm } from "@/hooks/objective/useObjectiveForm";
+import { useCategories } from "@/hooks/category/useCategories";
 
 interface ObjectiveFormProps {
   onSuccess?: () => void;
@@ -7,6 +8,11 @@ interface ObjectiveFormProps {
 
 const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
   const { form, setField, save, status, errorMessage } = useObjectiveForm({ onSuccess });
+  const {
+    categories,
+    status: categoriesStatus,
+    error: categoriesError,
+  } = useCategories();
   const today = new Date().toISOString().split("T")[0];
 
   const typeOptions = [
@@ -14,13 +20,17 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
     { value: "LONG_TERM", label: "Longo prazo" },
   ];
 
+  const isLoadingCategories = categoriesStatus === "loading";
+
   const categoryOptions = [
-    { value: "", label: "Selecione a categoria" },
-    { value: "travel", label: "Viagem" },
-    { value: "car", label: "Carro" },
-    { value: "house", label: "Casa" },
-    { value: "education", label: "Educação" },
-    { value: "other", label: "Outro" },
+    {
+      value: "",
+      label: isLoadingCategories ? "Carregando categorias..." : "Selecione a categoria",
+    },
+    ...categories.map((category) => ({
+      value: category.id,
+      label: category.name,
+    })),
   ];
 
   const isSubmitting = status === "loading";
@@ -131,6 +141,9 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
               options={categoryOptions}
               required
             />
+            {categoriesStatus === "error" && categoriesError && (
+              <p className="text-xs text-red-500">{categoriesError}</p>
+            )}
           </div>
 
           {errorMessage && (

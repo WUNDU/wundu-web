@@ -5,6 +5,10 @@ type DocumentCountResponse = {
   total?: number;
 };
 
+const DOCUMENT_COUNT_TTL_MS = 60 * 1000;
+let cachedDocumentCount: number | null = null;
+let cachedDocumentCountTimestamp: number | null = null;
+
 const normalizeCount = (payload: number | DocumentCountResponse | unknown): number => {
   if (typeof payload === "number") {
     return payload;
@@ -21,10 +25,32 @@ const normalizeCount = (payload: number | DocumentCountResponse | unknown): numb
   return 0;
 };
 
+const shouldUseCache = () => {
+  if (cachedDocumentCount === null || cachedDocumentCountTimestamp === null) {
+    return false;
+  }
+  const now = Date.now();
+  return now - cachedDocumentCountTimestamp < DOCUMENT_COUNT_TTL_MS;
+};
+
 export const DocumentService = {
-  getTotalDocuments: async (): Promise<number> => {
+  getTotalDocuments: async (options?: { bypassCache?: boolean }): Promise<number> => {
+    if (!options?.bypassCache && shouldUseCache()) {
+      return cachedDocumentCount ?? 0;
+    }
+
     const { data } = await api.get<number | DocumentCountResponse>("/documents/count");
-    return normalizeCount(data);
+    const normalized = normalizeCount(data);
+
+    cachedDocumentCount = normalized;
+    cachedDocumentCountTimestamp = Date.now();
+
+    return normalized;
+  },
+
+  clearCache: () => {
+    cachedDocumentCount = null;
+    cachedDocumentCountTimestamp = null;
   },
 };
 

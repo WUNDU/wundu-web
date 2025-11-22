@@ -32,6 +32,8 @@ const FinancialObjectiveScreen: React.FC = () => {
     hasDraft,
     handleDraftContinue,
     handleDraftDiscard,
+    handleModalClose,
+    handleModalUpdated,
   } = useFinancialObjectiveScreen();
 
   const isLoadingGoals = goalsStatus === "loading";
@@ -42,22 +44,20 @@ const FinancialObjectiveScreen: React.FC = () => {
 
       {/* Main content with conditional margin for sidebar */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-500 ease-out ml-0 animate-fade-in ${
-          isSidebarOpen ? "" : "md:ml-0"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-500 ease-out ml-0 animate-fade-in ${isSidebarOpen ? "" : "md:ml-0"
+          }`}
       >
         <GreetingHeader onToggleSidebar={toggleSidebarRight} />
 
         <main className="p-4 pb-28 md:pb-6 space-y-6 flex-1 min-h-0 animate-slide-up">
           <div className="flex flex-col flex-1 min-h-0 rounded-2xl p-5 space-y-10">
-            <h2 className="text-lg font-semibold text-gray-800 md:hidden animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <h2 className="text-lg font-semibold text-gray-800 md:hidden animate-slide-up" style={{ animationDelay: '0.2s' }}>
               Objectivos financeiros
             </h2>
-            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-2 gap-3 animate-slide-up" style={{animationDelay: '0.3s'}}>
+            <div className="space-y-4 md:space-y-0 md:space-x-0 grid grid-cols-1 md:grid-cols-2 gap-3 animate-slide-up" style={{ animationDelay: '0.3s' }}>
               <div
-                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
-                  showForm ? "ring-1 ring-yellow-200 bg-yellow-50/60" : ""
-                }`}
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${showForm ? "ring-1 ring-yellow-200 bg-yellow-50/60" : ""
+                  }`}
                 onClick={handleFinancialNewObjective}
               >
                 <FinancialObjectiveCard
@@ -71,9 +71,8 @@ const FinancialObjectiveScreen: React.FC = () => {
                 />
               </div>
               <div
-                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
-                  !showForm ? "ring-1 ring-rose-200 bg-rose-50/60" : ""
-                }`}
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${!showForm ? "ring-1 ring-rose-200 bg-rose-50/60" : ""
+                  }`}
                 onClick={handleFinancialObjective}
               >
                 <FinancialObjectiveCard
@@ -119,7 +118,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                 />
               </div>
             </div> */}
-            <div className="hidden md:flex mt-8 md:mt-0 rounded-2xl h-full min-h-[520px] p-2 pb-6 md:min-w-full animate-slide-up" style={{animationDelay: '0.4s'}}>
+            <div className="hidden md:flex mt-8 md:mt-0 rounded-2xl h-full min-h-[520px] p-2 pb-6 md:min-w-full animate-slide-up" style={{ animationDelay: '0.4s' }}>
               {showForm ? (
                 <div className="flex flex-1 gap-6 min-h-0 w-full animate-fade-in">
                   <div className="flex flex-[1.5] min-h-0 w-full">
@@ -166,7 +165,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 <div
                                   key={obj.id}
                                   className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                  style={{animationDelay: `${0.6 + index * 0.1}s`}}
+                                  style={{ animationDelay: `${0.6 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
                                     <FinancialProgressCard
@@ -202,7 +201,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 <div
                                   key={obj.id}
                                   className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                  style={{animationDelay: `${0.8 + index * 0.1}s`}}
+                                  style={{ animationDelay: `${0.8 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
                                     <FinancialProgressCard
@@ -238,7 +237,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 <div
                                   key={obj.id}
                                   className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
-                                  style={{animationDelay: `${1.0 + index * 0.1}s`}}
+                                  style={{ animationDelay: `${1.0 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
                                     <FinancialProgressCard
@@ -268,7 +267,8 @@ const FinancialObjectiveScreen: React.FC = () => {
       </div>
       <EditModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
+        onUpdated={handleModalUpdated}
         objective={selectedObjective}
       />
       {/* Right Sidebar */}

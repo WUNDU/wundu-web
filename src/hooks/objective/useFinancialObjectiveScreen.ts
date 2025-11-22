@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useGoals } from "@/hooks/objective/useGoals";
+import type { Goal } from "@/services/GoalsService";
 import {
   clearGoalDraftStorage,
   getGoalDraft,
@@ -18,7 +19,7 @@ export const useFinancialObjectiveScreen = () => {
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedObjective, setSelectedObjective] = useState<any>(null);
+  const [selectedObjective, setSelectedObjective] = useState<Goal | null>(null);
   const [hasDraft, setHasDraft] = useState(() => Boolean(getGoalDraft()));
   const {
     fulfilledGoalCards,
@@ -28,14 +29,21 @@ export const useFinancialObjectiveScreen = () => {
     refreshGoals,
   } = useGoals();
 
-  const handleEdit = (obj: any) => {
-    setSelectedObjective({
-      ...obj,
-      categoria: "Viagem",
-      prioridade: "Alta",
-      dataLimite: "01/01/2026",
-    });
+  const handleEdit = (goal: Goal) => {
+    if (!goal) {
+      return;
+    }
+    setSelectedObjective(goal);
     setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedObjective(null);
+  };
+
+  const handleModalUpdated = () => {
+    refreshGoals();
   };
 
   const toggleSidebar = () => setIsSidebarOpen((v) => !v);
@@ -121,5 +129,7 @@ export const useFinancialObjectiveScreen = () => {
     hasDraft,
     handleDraftContinue,
     handleDraftDiscard,
+    handleModalClose,
+    handleModalUpdated,
   };
 };

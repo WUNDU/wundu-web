@@ -12,14 +12,19 @@ interface ModalContentProps {
 
 export function ModalContent({ type, title, message }: ModalContentProps) {
   return (
-    <div className="p-6 pt-8">
-      <div className="flex-1 flex flex-col items-center justify-center gap-1 text-center min-w-0">
-        <div className="p-2 m-2">
-          <ModalIcon type={type} variant="toast" />
-        </div>
-        <h3 className="text-xl font-bold mb-2 leading-tight">{title}</h3>
-        <p className="text-sm leading-relaxed opacity-90">{message}</p>
-      </div>
+    <div className="flex flex-col items-center justify-center">
+      {/* Icon */}
+      <ModalIcon type={type} variant="toast" />
+
+      {/* Title */}
+      <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 leading-tight px-2">
+        {title}
+      </h3>
+
+      {/* Message */}
+      <p className="text-sm sm:text-base text-gray-600 leading-relaxed px-2 max-w-sm">
+        {message}
+      </p>
     </div>
   );
 }

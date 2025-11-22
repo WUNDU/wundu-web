@@ -93,32 +93,20 @@ const Sidebar = () => {
         <ul className="space-y-1">
           {menuItems.map((item) => {
             const isActive = activeItem === item.name;
-            const isDisabled = item.name === "Objetivos Financeiros";
             return (
               <li key={item.name}>
-                {isDisabled ? (
-                  <div
-                    className={`flex items-center space-x-3 p-3 rounded-xl font-semibold text-sm transition-all duration-200 ease-out cursor-not-allowed opacity-60 ${
-                      isActive ? "bg-yellow-300 text-white shadow-sm" : "text-gray-500"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.name}</span>
-                  </div>
-                ) : (
-                  <Link
-                    href={item.path}
-                    prefetch={true}
-                    className={`flex items-center space-x-3 p-3 rounded-xl font-semibold text-sm transition-all duration-200 ease-out ${
-                      isActive
-                        ? "bg-yellow-300 text-white shadow-sm"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.name}</span>
-                  </Link>
-                )}
+                <Link
+                  href={item.path}
+                  prefetch={true}
+                  className={`flex items-center space-x-3 p-3 rounded-xl font-semibold text-sm transition-all duration-200 ease-out ${
+                    isActive
+                      ? "bg-yellow-300 text-white shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
               </li>
             );
           })}

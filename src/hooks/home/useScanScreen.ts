@@ -5,6 +5,11 @@ import {
   TransactionService,
 } from "@/services/TransactionService";
 import { useUiStore } from "@/store/uiStore";
+import {
+  ALLOWED_UPLOAD_MIME,
+  MAX_UPLOAD_FILE_SIZE_BYTES,
+  MAX_UPLOAD_FILE_SIZE_MB,
+} from "@/constants/upload";
 
 export type UseScanScreenReturn = {
   documents: Document[];
@@ -54,6 +59,24 @@ export const useScanScreen = (): UseScanScreenReturn => {
   };
 
   const handleFileSelect = async (file: File, type: "image" | "document") => {
+    if (file.type !== ALLOWED_UPLOAD_MIME) {
+      showNotification(
+        "error",
+        "Formato inválido",
+        "Envie apenas comprovativos em PDF."
+      );
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+      showNotification(
+        "error",
+        "Arquivo muito grande",
+        `O PDF deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await TransactionService.processDocumentTransaction(file, {

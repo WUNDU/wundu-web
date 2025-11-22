@@ -59,9 +59,8 @@ const ScanScreen = () => {
     ? `flex flex-col items-center ${transitionBase} flex-none pt-4`
     : `flex flex-col items-center justify-center ${transitionBase} flex-1`;
 
-  const mainClasses = `flex-1 mb-0 px-4 pb-20 flex flex-col h-full overflow-y-auto ${
-    showUploadOptions ? "" : "justify-center"
-  } ${transitionBase}`;
+  const mainClasses = `flex-1 mb-0 px-4 pb-20 flex flex-col h-full overflow-y-auto ${showUploadOptions ? "" : "justify-center"
+    } ${transitionBase}`;
 
   const contentWrapperClasses = showUploadOptions
     ? "flex flex-col flex-1"
@@ -88,9 +87,8 @@ const ScanScreen = () => {
               {/* UploadSection */}
               <div className={uploadContainerClasses}>
                 <div
-                  className={`w-full ${transitionBase} ${
-                    showUploadOptions ? "scale-95" : "scale-100"
-                  }`}
+                  className={`w-full ${transitionBase} ${showUploadOptions ? "scale-95" : "scale-100"
+                    }`}
                 >
                   <UploadSection onUploadClick={toggleUploadOptions} />
                 </div>
@@ -99,7 +97,7 @@ const ScanScreen = () => {
               {/* Seção Principal */}
               {showUploadOptions && (
                 <div className={`mt-6 flex-1 w-full ${transitionBase}`}>
-                  <CategoryProvider onClose={() => {}}>
+                  <CategoryProvider onClose={() => { }}>
                     <ScanMainContent
                       documents={documents}
                       showUploadOptions={showUploadOptions}

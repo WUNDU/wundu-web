@@ -9,86 +9,94 @@ const FinancialProgressCard: React.FC<FinancialProgressCardProps> = ({
   percentage,
   onEdit,
   iconColor = "text-indigo-600",
+  isCompleted = false,
 }) => {
-  const progressColor = percentage < 100 ? "text-red-500" : "text-green-500";
-  const progressRingColor =
-    percentage < 100 ? "stroke-red-500" : "stroke-green-500";
-  const progressBgColor = "stroke-gray-300";
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+  const isGoalComplete = percentage >= 100 || isCompleted;
+  const ringColor = isGoalComplete ? "stroke-emerald-500" : "stroke-rose-400";
+  const progressTextColor = isGoalComplete ? "text-emerald-600" : "text-rose-500";
+
   return (
-    <div className="bg-gray-100/80 backdrop-blur-sm p-4 rounded-xl shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-1 border border-gray-200/50">
-      <div className="flex items-center justify-between transition-all duration-300 ease-out">
-        <div className="flex items-start space-x-4 transition-all duration-300 ease-out">
-          <IconContainer
-            icon={ObjectiveIcon}
-            bgColor="bg-white"
-            iconColor={iconColor}
-            className="self-start"
-          />
-          <div>
-            <h3 className="text-base font-semibold text-indigo-600 transition-all duration-300 ease-out">{title}</h3>
-            <p className="text-xs text-green-600 mt-1 transition-all duration-300 ease-out">
-              Valor-alvo:{" "}
-              <span className="text-gray-800 font-medium">{valorAlvo}</span>
-            </p>
-            <p className="text-xs text-amber-600 transition-all duration-300 ease-out">
-              Valor poupado:{" "}
-              <span className="text-gray-800 font-medium">{valorPoupado}</span>
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="relative w-12 h-12">
-            <svg className="w-full h-full transform -rotate-90 transition-all duration-500 ease-out">
-              <circle
-                className={progressBgColor}
-                strokeWidth="4"
-                fill="transparent"
-                r={radius}
-                cx="50%"
-                cy="50%"
-                style={{transition: 'all 0.5s ease-out'}}
-              />
-              <circle
-                className={progressRingColor}
-                strokeWidth="4"
-                fill="transparent"
-                r={radius}
-                cx="50%"
-                cy="50%"
-                style={{ 
-                  strokeDasharray: circumference, 
-                  strokeDashoffset,
-                  transition: 'stroke-dashoffset 1s ease-out'
-                }}
-              />
-            </svg>
-            <span
-              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${progressColor} transition-all duration-300 ease-out`}
-            >
-              {percentage}%
-            </span>
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.();
-            }}
-            className="hover:bg-gray-200/80 flex flex-col items-center justify-center rounded-full transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
-            aria-label="Editar objetivo"
-          >
-            <IconContainer
-              icon={EditIcon}
-              bgColor="bg-white"
-              iconColor="text-indigo-600"
-              className="m-1"
-            />
-          </button>
+    <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#f5f6fb] p-4 shadow-sm border border-white/80 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-center gap-4">
+        <IconContainer
+          icon={ObjectiveIcon}
+          bgColor="bg-white"
+          iconColor={iconColor}
+          className="shadow-sm ring-1 ring-slate-100"
+        />
+
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold text-[#675af5] leading-tight">
+            {title}
+          </h3>
+          <p className="text-sm font-medium text-[#4caf50]">
+            Valor-alvo:
+            <span className="ml-2 font-semibold text-slate-700">{valorAlvo}</span>
+          </p>
+          <p className="text-sm font-medium text-[#ff8a65]">
+            Valor poupado:
+            <span className="ml-2 font-semibold text-slate-700">{valorPoupado}</span>
+          </p>
         </div>
       </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isGoalComplete) {
+            onEdit?.();
+          }
+        }}
+        aria-label={isGoalComplete ? "Objetivo concluído" : "Editar objetivo"}
+        className={`relative flex flex-col items-center gap-1 rounded-full p-1 transition-opacity duration-200 ${
+          isGoalComplete ? "cursor-default opacity-80" : "hover:opacity-80"
+        }`}
+        disabled={isGoalComplete}
+      >
+        <div className="relative w-12 h-12">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48" fill="none">
+            <circle
+              strokeWidth="4"
+              stroke="rgba(148, 163, 184, 0.4)"
+              fill="transparent"
+              r={radius}
+              cx="24"
+              cy="24"
+            />
+            <circle
+              className={ringColor}
+              strokeWidth="4"
+              strokeLinecap="round"
+              fill="transparent"
+              r={radius}
+              cx="24"
+              cy="24"
+              style={{
+                strokeDasharray: circumference,
+                strokeDashoffset,
+                transition: "stroke-dashoffset 0.8s ease-out",
+              }}
+            />
+          </svg>
+          <span
+            className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${progressTextColor}`}
+          >
+            {percentage}%
+          </span>
+        </div>
+        {!isGoalComplete && (
+          <IconContainer
+            icon={EditIcon}
+            bgColor="bg-white"
+            iconColor="text-slate-500"
+            className="scale-90"
+          />
+        )}
+      </button>
     </div>
   );
 };

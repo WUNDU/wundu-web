@@ -6,9 +6,11 @@ import useRegisterContext from "@/contexts/useRegisterContext";
 import { useEffect, useState } from "react";
 
 const Success = () => {
-  const { data } = useRegisterContext();
+  const { data, loginUser } = useRegisterContext();
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [autoLoginError, setAutoLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     // Trigger animations after component mounts
@@ -18,8 +20,34 @@ const Success = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleContinue = () => {
-    router.push(ROUTES.LOGIN);
+  const handleContinue = async () => {
+    if (isLoggingIn) return;
+
+    const email = data.email;
+    const password = data.password;
+
+    if (!email || !password) {
+      setAutoLoginError(
+        "Não conseguimos recuperar suas credenciais. Faça login manualmente."
+      );
+      return;
+    }
+
+    setAutoLoginError(null);
+    setIsLoggingIn(true);
+
+    try {
+      await loginUser(email, password);
+      router.replace(ROUTES.HOME);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível entrar automaticamente. Faça login manualmente.";
+      setAutoLoginError(message);
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
   return (
     <div className="flex m-4 flex-col h-full justify-center items-center text-center p-8 md:p-0 md:gap-6 relative overflow-hidden">
@@ -87,6 +115,13 @@ const Success = () => {
       }`} style={{ transitionDelay: '0.8s' }}>
         Bem-vindo, <span className="font-semibold text-green-600">{data.name}</span>! O caminho para a liberdade financeira começa agora.
       </p>
+      <p className="mt-4 text-sm text-gray-500">
+        {autoLoginError
+          ? autoLoginError
+          : isLoggingIn
+          ? "Entrando..."
+          : "Clique no botão abaixo para acessar sua conta."}
+      </p>
 
       {/* Financial Icons */}
       <div className={`flex space-x-4 mt-4 transition-all duration-800 ease-out ${
@@ -116,9 +151,10 @@ const Success = () => {
         <Button 
           onClick={handleContinue} 
           type="button"
-          className="hover:scale-105 transition-transform duration-300 ease-out"
+          disabled={isLoggingIn}
+          className="hover:scale-105 transition-transform duration-300 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Continuar
+          {isLoggingIn ? "Entrando..." : "Ir para o app"}
         </Button>
       </div>
     </div>

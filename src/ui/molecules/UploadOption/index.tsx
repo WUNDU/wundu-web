@@ -51,6 +51,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({
       <input
         type="file"
         ref={fileInputRef}
+        accept="application/pdf"
         onChange={(e) => handleFileChange(e, "document")}
         style={{ display: "none" }}
       />
