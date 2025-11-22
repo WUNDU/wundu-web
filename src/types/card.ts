@@ -31,8 +31,9 @@ export interface FinancialProgressCardProps {
   valorAlvo: string;
   valorPoupado: string;
   percentage: number;
-  iconColor?: string
-  onEdit?: () => void
+  iconColor?: string;
+  onEdit?: () => void;
+  isCompleted?: boolean;
 }
 
 export interface ArticleCardProps {

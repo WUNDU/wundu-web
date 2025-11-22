@@ -1,3 +1,5 @@
+import type { Goal } from "@/services/GoalsService";
+
 export type ModalType = "success" | "error" | "info" | null;
 
 export type ModalIconProps = {
@@ -51,16 +53,8 @@ export interface ModalProps {
 export interface EditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  objective: {
-    id: number;
-    title: string;
-    valorAlvo: string;
-    valorPoupado: string;
-    percentage: number;
-    categoria?: string;
-    prioridade?: string;
-    dataLimite?: string;
-  } | null;
+  objective: Goal | null;
+  onUpdated?: () => void;
 }
 
 export interface AddTransactionModalProps {

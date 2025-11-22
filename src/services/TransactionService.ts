@@ -1,5 +1,6 @@
 import api from "../lib/api";
 import type { TransactionDTO } from "../types/transaction/transaction_dto";
+import { cache, CACHE_TAGS } from "../lib/cache";
 
 type DocumentUploadResponse = {
   documentId: string;
@@ -97,9 +98,8 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
   return { isPaginated: false };
 };
 
-let cachedTransactions: TransactionDTO[] | null = null;
-let cachedTransactionsTimestamp: number | null = null;
-const TRANSACTION_CACHE_TTL_MS = 60 * 1000;
+const TRANSACTION_CACHE_KEY = `${CACHE_TAGS.TRANSACTIONS}:list`;
+const TRANSACTION_CACHE_TTL = 60000; // 60 seconds
 
 export const TransactionService = {
   add: async (data: TransactionDTO) => {
@@ -109,8 +109,8 @@ export const TransactionService = {
         type: "expense",
       };
       const response = await api.post("/transactions", payload);
-      cachedTransactions = null;
-      cachedTransactionsTimestamp = null;
+      // Invalidate transactions cache
+      cache.invalidateByTag(CACHE_TAGS.TRANSACTIONS);
       return true;
     } catch (error) {
       const fallbackMessage =
@@ -126,12 +126,14 @@ export const TransactionService = {
   get: async (options?: { bypassCache?: boolean }): Promise<TransactionDTO[]> => {
     const bypassCache = options?.bypassCache ?? false;
 
-    if (!bypassCache && cachedTransactions && cachedTransactionsTimestamp) {
-      const now = Date.now();
-      if (now - cachedTransactionsTimestamp < TRANSACTION_CACHE_TTL_MS) {
-        return cachedTransactions;
+    // Check cache first (unless bypassing)
+    if (!bypassCache) {
+      const cached = cache.get<TransactionDTO[]>(TRANSACTION_CACHE_KEY, TRANSACTION_CACHE_TTL);
+      if (cached !== null) {
+        return cached;
       }
     }
+
     try {
       const aggregated: TransactionDTO[] = [];
       let page = 0;
@@ -142,11 +144,11 @@ export const TransactionService = {
         const { data } = await api.get<
           | TransactionDTO[]
           | {
-              data?: TransactionDTO[];
-              content?: TransactionDTO[];
-              last?: boolean;
-              totalPages?: number;
-            }
+            data?: TransactionDTO[];
+            content?: TransactionDTO[];
+            last?: boolean;
+            totalPages?: number;
+          }
         >(`/transactions${pageSuffix}`);
 
         const items = normalizeTransactionsResponse(data);
@@ -169,9 +171,9 @@ export const TransactionService = {
         }
       }
 
-      cachedTransactions = aggregated;
-      cachedTransactionsTimestamp = Date.now();
-      return cachedTransactions;
+      // Store in cache
+      cache.set(TRANSACTION_CACHE_KEY, aggregated);
+      return aggregated;
     } catch (error) {
       const fallbackMessage =
         "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";

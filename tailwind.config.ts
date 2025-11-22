@@ -54,6 +54,12 @@ const config: Config = {
         'scale-in': 'scale-in 0.3s ease-out forwards',
         'shimmer': 'shimmer 2s linear infinite',
         'float-particle': 'float-particle 4s ease-in-out infinite',
+        'sweetalert-show': 'sweetalert-show 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        'sweetalert-hide': 'sweetalert-hide 0.15s ease-in forwards',
+        'backdrop-in': 'backdrop-in 0.3s ease-out',
+        'backdrop-out': 'backdrop-out 0.15s ease-in forwards',
+        'icon-pop': 'icon-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        'pulse-ring': 'pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
       },
       keyframes: {
         float: {
@@ -89,6 +95,34 @@ const config: Config = {
           '10%': { opacity: '1', transform: 'translateY(0px) scale(1)' },
           '90%': { opacity: '1', transform: 'translateY(-20px) scale(1)' },
           '100%': { opacity: '0', transform: 'translateY(-40px) scale(0)' },
+        },
+        'sweetalert-show': {
+          '0%': { opacity: '0', transform: 'scale(0.7)' },
+          '45%': { opacity: '1', transform: 'scale(1.05)' },
+          '80%': { transform: 'scale(0.95)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'sweetalert-hide': {
+          '0%': { opacity: '1', transform: 'scale(1)' },
+          '100%': { opacity: '0', transform: 'scale(0.5)' },
+        },
+        'backdrop-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'backdrop-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        'icon-pop': {
+          '0%': { opacity: '0', transform: 'scale(0) rotate(-45deg)' },
+          '50%': { opacity: '1', transform: 'scale(1.2) rotate(10deg)' },
+          '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
+        },
+        'pulse-ring': {
+          '0%': { boxShadow: '0 0 0 0 currentColor' },
+          '70%': { boxShadow: '0 0 0 10px rgba(0, 0, 0, 0)' },
+          '100%': { boxShadow: '0 0 0 0 rgba(0, 0, 0, 0)' },
         },
       },
       backdropBlur: {

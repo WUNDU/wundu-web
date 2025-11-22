@@ -27,6 +27,11 @@ import {
 } from "@/services/TransactionService";
 import { useUiStore } from "@/store/uiStore";
 import ManualTransactionModal from "@/ui/molecules/ManualTransactionModal";
+import {
+  ALLOWED_UPLOAD_MIME,
+  MAX_UPLOAD_FILE_SIZE_BYTES,
+  MAX_UPLOAD_FILE_SIZE_MB,
+} from "@/constants/upload";
 
 const HomeScreen = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -35,14 +40,14 @@ const HomeScreen = () => {
   const [isSidebarRightOpen, setIsSidebarRightOpen] = useState<boolean>(false);
   const [manualData, setManualData] = useState<
     | {
-        transactionId: string;
-        defaults: {
-          description?: string;
-          amount?: number;
-          transactionDate?: string;
-          operationNumber?: string;
-        };
-      }
+      transactionId: string;
+      defaults: {
+        description?: string;
+        amount?: number;
+        transactionDate?: string;
+        operationNumber?: string;
+      };
+    }
     | null
   >(null);
   const [isManualSubmitting, setIsManualSubmitting] = useState(false);
@@ -91,6 +96,24 @@ const HomeScreen = () => {
   };
 
   const handleFileSelect = async (file: File, type: "image" | "document") => {
+    if (file.type !== ALLOWED_UPLOAD_MIME) {
+      showNotification(
+        "error",
+        "Formato inválido",
+        "Envie apenas comprovativos em PDF."
+      );
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+      showNotification(
+        "error",
+        "Arquivo muito grande",
+        `O PDF deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`
+      );
+      return;
+    }
+
     setIsUploading(true);
     try {
       const result = await TransactionService.processDocumentTransaction(file, {
@@ -141,10 +164,10 @@ const HomeScreen = () => {
 
   const manualFormDefaults = manualData
     ? {
-        description: manualData.defaults.description ?? "",
-        amount: manualData.defaults.amount ?? null,
-        transactionDate: manualData.defaults.transactionDate ?? new Date().toISOString(),
-      }
+      description: manualData.defaults.description ?? "",
+      amount: manualData.defaults.amount ?? null,
+      transactionDate: manualData.defaults.transactionDate ?? new Date().toISOString(),
+    }
     : null;
 
   const handleManualModalClose = () => {
@@ -216,7 +239,7 @@ const HomeScreen = () => {
               </div>
 
               {/* Seção Principal */}
-              <CategoryProvider onClose={() => {}}>
+              <CategoryProvider onClose={() => { }}>
                 <MainContent
                   documents={documents}
                   showUploadOptions={showUploadOptions}
@@ -299,9 +322,8 @@ const MainContent = ({
   return (
     <>
       <div
-        className={`flex flex-col flex-1 min-h-0 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${
-          showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
-        }`}
+        className={`flex flex-col flex-1 min-h-0 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
+          }`}
       >
         {!showUploadOptions ? (
           <div className="flex flex-col flex-1 h-full min-h-0">

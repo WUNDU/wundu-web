@@ -12,13 +12,27 @@ const currencyFormatter = new Intl.NumberFormat("pt-AO", {
 export const formatGoalCurrency = (value?: number) =>
   currencyFormatter.format(value ?? 0);
 
+const clampProgress = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
+
 export const getGoalProgress = (goal: Goal): number => {
+  const backendProgress =
+    typeof goal.progressPercentage === "number"
+      ? goal.progressPercentage
+      : typeof goal.progress_percentage === "number"
+        ? goal.progress_percentage
+        : undefined;
+
+  if (typeof backendProgress === "number") {
+    return clampProgress(backendProgress);
+  }
+
   const target = goal.targetAmount ?? 0;
   if (!target) {
     return 0;
   }
   const current = goal.currentAmount ?? 0;
-  return Math.min(Math.round((current / target) * 100), 100);
+  const calculated = (current / target) * 100;
+  return clampProgress(calculated);
 };
 
 export interface GoalCardData {
@@ -27,6 +41,8 @@ export interface GoalCardData {
   valorAlvo: string;
   valorPoupado: string;
   percentage: number;
+  isCompleted: boolean;
+  canEdit: boolean;
   goal: Goal;
 }
 
@@ -36,6 +52,8 @@ export const buildGoalCardData = (goal: Goal): GoalCardData => ({
   valorAlvo: formatGoalCurrency(goal.targetAmount),
   valorPoupado: formatGoalCurrency(goal.currentAmount),
   percentage: getGoalProgress(goal),
+  isCompleted: getGoalProgress(goal) >= 100,
+  canEdit: getGoalProgress(goal) < 100,
   goal,
 });
 

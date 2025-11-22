@@ -2,17 +2,19 @@ import api from '@/lib/api';
 import { RegisterData } from '@/types/register';
 import { AxiosError } from 'axios';
 import { ApiErrorResponse } from '../types/api';
+import { cache, CACHE_TAGS } from '@/lib/cache';
 
-let cachedUser: any | null = null;
-let cachedUserTimestamp: number | null = null;
-const USER_CACHE_TTL_MS = 60 * 1000;
+const USER_CACHE_KEY = `${CACHE_TAGS.USER}:me`;
+const USER_CACHE_TTL = 60000; // 60 seconds
 
 export const UserService = {
   register: async (data: RegisterData) => {
+    const sanitizedPhone = data.phone?.replace(/\s+/g, "");
+
     const payload = {
       name: data.name,
       email: data.email,
-      phoneNumber: data.phone,
+      phoneNumber: sanitizedPhone,
       password: data.password,
       planType: 'FREE',
     };
@@ -32,8 +34,8 @@ export const UserService = {
   login: async (email: string, password: string) => {
     try {
       const response = await api.post('/auth', { email, password }, { skipAuth: true });
-      cachedUser = null;
-      cachedUserTimestamp = null;
+      // Invalidate user cache on login
+      cache.invalidateByTag(CACHE_TAGS.USER);
       return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
@@ -46,12 +48,12 @@ export const UserService = {
   },
 
   getUser: async () => {
-    if (cachedUser && cachedUserTimestamp) {
-      const now = Date.now();
-      if (now - cachedUserTimestamp < USER_CACHE_TTL_MS) {
-        return cachedUser;
-      }
+    // Check cache first
+    const cached = cache.get(USER_CACHE_KEY, USER_CACHE_TTL);
+    if (cached !== null) {
+      return cached;
     }
+
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('Token não encontrado')
@@ -63,8 +65,8 @@ export const UserService = {
     }
     try {
       const response = await api.get('/users/me', config);
-      cachedUser = response.data;
-      cachedUserTimestamp = Date.now();
+      // Store in cache
+      cache.set(USER_CACHE_KEY, response.data);
       return response.data
     } catch (error) {
       const axiosError = error as AxiosError<ApiErrorResponse>

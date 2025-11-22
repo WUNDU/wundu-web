@@ -25,7 +25,7 @@ export function NotificationToast() {
     } else {
       timeout = setTimeout(() => {
         setIsAnimating(false);
-      }, 500);
+      }, 150); // Match sweetalert-hide duration
     }
 
     return () => clearTimeout(timeout);
@@ -39,44 +39,44 @@ export function NotificationToast() {
     closeNotification();
   };
 
-  if (!notification) return null;
+  // Don't render if no notification (fixes empty toast bug)
+  if (!notification) {
+    return null;
+  }
 
   return createPortal(
     <div
       className={`
-        fixed inset-0 z-50 flex items-center justify-center p-4
-        transition-all duration-500 ease-in-out
-        ${notification ? "bg-black/50" : "bg-transparent"}
-        ${!notification && "pointer-events-none"}
+        fixed inset-0 z-[9999] flex items-center justify-center p-4
+        bg-black/40 backdrop-blur-sm
+        ${notification ? "animate-backdrop-in" : "animate-backdrop-out pointer-events-none"}
       `}
       onClick={handleClose}
     >
       <div
         className={`
-          relative flex items-center justify-center flex-col w-full max-w-lg h-1/4 shadow-2xl rounded-2xl
-          transition-all duration-500 ease-out transform
-          bg-white text-gray-500
-          ${
-            notification
-              ? "translate-y-0 opacity-100 scale-100"
-              : "translate-y-4 opacity-0 scale-95"
-          }
+          relative w-full max-w-md bg-white rounded-3xl shadow-2xl
+          ${notification ? "animate-sweetalert-show" : "animate-sweetalert-hide"}
         `}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
         <button
           onClick={handleClose}
           aria-label="Fechar notificação"
-          className="absolute top-3 right-3 grid place-items-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
-          style={{ width: 40, height: 40 }}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200"
         >
           <CloseIcon className="w-4 h-4" />
         </button>
-        <ModalContent
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-        />
+
+        {/* Content */}
+        <div className="px-6 py-8 sm:px-8 sm:py-10 text-center">
+          <ModalContent
+            type={notification.type}
+            title={notification.title}
+            message={notification.message}
+          />
+        </div>
       </div>
     </div>,
     document.body

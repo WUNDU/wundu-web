@@ -5,17 +5,19 @@ import EditModal from "@/ui/molecules/EditModal";
 import { useFinancialProgressScreen } from "@/hooks/objective/useFinancialProgressScreen";
 import { BottomNavigation } from "@/ui/organisms";
 import { LoadingSpinner } from "@/ui/atoms";
+import { NotificationToast } from "@/ui/organisms/NotificationToast";
 
 const FinancialProgressScreen: React.FC = () => {
   const {
     isModalOpen,
-    setIsModalOpen,
     selectedObjective,
     handleEdit,
     unfulfilledObjectives,
     fulfilledObjectives,
     goalsStatus,
     goalsError,
+    handleModalClose,
+    handleModalUpdated,
   } =
     useFinancialProgressScreen();
 
@@ -89,9 +91,11 @@ const FinancialProgressScreen: React.FC = () => {
       </main>
       <EditModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
+        onUpdated={handleModalUpdated}
         objective={selectedObjective}
       />
+      <NotificationToast />
       <div className="md:hidden">
         <BottomNavigation />
       </div>

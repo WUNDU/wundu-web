@@ -14,7 +14,6 @@ const navItems = [
     icon: <GoalsIcon className="w-5 h-5" />,
     label: "Objectivos",
     href: ROUTES.FINANCIAL,
-    disabled: true,
   },
   {
     icon: <ChartIcon className="w-4 h-4" />,

@@ -94,6 +94,21 @@ const api = {
       skipAuth: config?.skipAuth,
     });
   },
+  put<T = any>(
+    path: string,
+    body?: any,
+    config?: {
+      headers?: Record<string, string>;
+      skipAuth?: boolean;
+    }
+  ) {
+    return request<T>(path, {
+      method: "PUT",
+      body,
+      headers: config?.headers,
+      skipAuth: config?.skipAuth,
+    });
+  },
   patch<T = any>(
     path: string,
     body?: any,
