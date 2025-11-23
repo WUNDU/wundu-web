@@ -11,7 +11,6 @@ interface PageHeroProps {
   buttonText?: string;
   gradientColors?: string;
   centered?: boolean;
-  isLaunched?: boolean;
 }
 
 const PageHero: React.FC<PageHeroProps> = ({
@@ -21,7 +20,6 @@ const PageHero: React.FC<PageHeroProps> = ({
   buttonText = "Experimente agora - É grátis",
   gradientColors = "from-yellow-400 to-blue-500",
   centered = true,
-  isLaunched = false,
 }) => {
   const router = useRouter();
 
@@ -74,29 +72,17 @@ const PageHero: React.FC<PageHeroProps> = ({
 
         {showButton && (
           <div className="mt-12 fade-in-section animate-in delay-4">
-            {isLaunched ? (
-              <button
-                onClick={handleLogin}
-                className="relative group px-8 md:px-12 py-4 md:py-5 font-bold text-lg md:text-xl text-white bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-primary active:scale-95 overflow-hidden animate-bounce-gentle md:animate-none"
-              >
-                <span className="relative z-10 flex items-center space-x-3">
-                  <span>{buttonText}</span>
-                  <ArrowRight className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/50 to-primary/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
-            ) : (
-              <div className="relative group">
-                <button
-                  disabled
-                  className="px-8 md:px-12 py-4 md:py-5 font-bold text-lg md:text-xl text-gray-400 bg-gray-100/80 rounded-2xl cursor-not-allowed opacity-60 inline-flex items-center space-x-3"
-                >
-                  <span>Disponível em 19/11/2025</span>
-                  <ArrowRight className="w-6 h-6" />
-                </button>
-              </div>
-            )}
+            <button
+              onClick={handleLogin}
+              className="relative group px-8 md:px-12 py-4 md:py-5 font-bold text-lg md:text-xl text-white bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-primary active:scale-95 overflow-hidden animate-bounce-gentle md:animate-none"
+            >
+              <span className="relative z-10 flex items-center space-x-3">
+                <span>{buttonText}</span>
+                <ArrowRight className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/50 to-primary/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
           </div>
         )}
       </div>

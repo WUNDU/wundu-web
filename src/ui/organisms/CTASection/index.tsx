@@ -1,20 +1,17 @@
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { Button } from "@/ui/atoms";
 
 interface CTASectionProps {
   title?: string;
   subtitle?: string;
   buttonText?: string;
-  isLaunched?: boolean;
 }
 
 const CTASection: React.FC<CTASectionProps> = ({
   title = "Pronto para simplificar as suas finanças?",
   subtitle = "Junte-se a milhares de usuários que já controlam melhor seu dinheiro com o WUNDU.",
   buttonText = "Experimente agora - É grátis",
-  isLaunched = false,
 }) => {
   const router = useRouter();
   const handleLogin = () => {
@@ -45,27 +42,17 @@ const CTASection: React.FC<CTASectionProps> = ({
           {subtitle}
         </p>
         <div className="fade-in-section delay-4">
-          {isLaunched ? (
-            <button
-              onClick={handleLogin}
-              className="relative group px-10 py-5 font-bold text-xl text-secondary bg-white hover:bg-gray-50 rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-secondary active:scale-95 overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center space-x-3">
-                <span>{buttonText}</span>
-                <ArrowRight className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-          ) : (
-            <button
-              disabled
-              className="px-10 py-5 font-bold text-xl text-gray-400 bg-gray-100/80 rounded-2xl cursor-not-allowed opacity-60 inline-flex items-center space-x-3"
-            >
-              <span>Disponível em 19/11/2025</span>
-              <ArrowRight className="w-6 h-6" />
-            </button>
-          )}
+          <button
+            onClick={handleLogin}
+            className="relative group px-10 py-5 font-bold text-xl text-secondary bg-white hover:bg-gray-50 rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:shadow-glow-secondary active:scale-95 overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center space-x-3">
+              <span>{buttonText}</span>
+              <ArrowRight className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </button>
         </div>
       </div>
     </section>
