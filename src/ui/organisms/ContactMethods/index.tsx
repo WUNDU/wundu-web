@@ -16,13 +16,13 @@ const ContactMethods: React.FC = () => {
     {
       icon: <PhoneIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: "Telefone",
-      description: "+244 923 123 456",
+      description: "+244 943 336 417",
       subDescription: "Seg-Sex 08AM-10PM",
     },
     {
       icon: <MessageIcon className="w-10 h-10 text-[#CA6F06]" />,
       title: "Whatsapp",
-      description: "+244 923 123 456",
+      description: "+244 943 336 417",
       subDescription: "Seg-Sex 08AM-10PM",
     },
     // {
