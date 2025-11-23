@@ -4,13 +4,8 @@ import { Menu, X } from "lucide-react";
 import { LogoType } from "@/ui/atoms";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { Button } from "@/ui/atoms";
 
-interface LandingHeaderProps {
-  isLaunched?: boolean;
-}
-
-const LandingHeader: React.FC<LandingHeaderProps> = ({ isLaunched = false }) => {
+const LandingHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -86,51 +81,19 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({ isLaunched = false }) => 
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-3">
-            {isLaunched ? (
-              <>
-                <button
-                  onClick={handleLogin}
-                  className="relative px-6 py-2.5 text-secondary font-semibold rounded-xl gradient-border hover:bg-secondary hover:text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-secondary group overflow-hidden"
-                >
-                  <span className="relative z-10">Entrar</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-secondary/0 via-secondary/10 to-secondary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </button>
-                <button
-                  onClick={handleRegister}
-                  className="relative px-6 py-2.5 text-white font-semibold rounded-xl bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-primary group overflow-hidden"
-                >
-                  <span className="relative z-10">Criar Conta</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="relative group">
-                  <button
-                    disabled
-                    className="px-6 py-2.5 text-gray-400 font-semibold rounded-xl border-2 border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                  >
-                    Entrar
-                  </button>
-                  <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-soft-lg">
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
-                    Disponível em 19/11/2025
-                  </div>
-                </div>
-                <div className="relative group">
-                  <button
-                    disabled
-                    className="px-6 py-2.5 text-gray-400 font-semibold rounded-xl bg-gray-50 cursor-not-allowed opacity-60"
-                  >
-                    Criar Conta
-                  </button>
-                  <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-soft-lg">
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
-                    Disponível em 19/11/2025
-                  </div>
-                </div>
-              </>
-            )}
+            <button
+              onClick={handleLogin}
+              className="relative px-6 py-2.5 text-secondary font-semibold rounded-xl gradient-border hover:bg-secondary hover:text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-secondary group overflow-hidden"
+            >
+              <span className="relative z-10">Entrar</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary/0 via-secondary/10 to-secondary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            </button>
+            <button
+              onClick={handleRegister}
+              className="relative px-6 py-2.5 text-white font-semibold rounded-xl bg-gradient-to-r from-[#ffd400] via-[#ffb100] to-[#003cc3] transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-primary"
+            >
+              Criar Conta
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -166,37 +129,18 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({ isLaunched = false }) => 
               </a>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-200/50">
-              {isLaunched ? (
-                <>
-                  <button
-                    onClick={handleLogin}
-                    className="w-full px-6 py-3 text-secondary font-semibold rounded-xl gradient-border hover:bg-secondary hover:text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
-                  >
-                    Entrar
-                  </button>
-                  <button
-                    onClick={handleRegister}
-                    className="w-full px-6 py-3 text-white font-semibold rounded-xl bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-primary"
-                  >
-                    Criar Conta
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    disabled
-                    className="w-full px-6 py-3 text-gray-400 font-semibold rounded-xl border-2 border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                  >
-                    Entrar - Disponível em 19/11/2025
-                  </button>
-                  <button
-                    disabled
-                    className="w-full px-6 py-3 text-gray-400 font-semibold rounded-xl bg-gray-50 cursor-not-allowed opacity-60"
-                  >
-                    Criar Conta - Disponível em 19/11/2025
-                  </button>
-                </>
-              )}
+              <button
+                onClick={handleLogin}
+                className="w-full px-6 py-3 text-secondary font-semibold rounded-xl gradient-border hover:bg-secondary hover:text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+              >
+                Entrar
+              </button>
+              <button
+                onClick={handleRegister}
+                className="w-full px-6 py-3 text-white font-semibold rounded-xl bg-gradient-to-r from-[#ffd400] via-[#ffb100] to-[#003cc3] transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-primary"
+              >
+                Criar Conta
+              </button>
             </div>
           </div>
         </div>
