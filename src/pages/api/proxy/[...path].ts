@@ -2,7 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const TARGET_API_BASE_URL =
-  process.env.BACKEND_API_URL ?? "https://wundu-api-production.up.railway.app/api/v1";
+  process.env.BACKEND_API_BASE_URL ??
+  "https://wundu-api-production.up.railway.app/api/v1";
 
 const proxy = createProxyMiddleware({
   target: TARGET_API_BASE_URL,
