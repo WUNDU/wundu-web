@@ -23,7 +23,7 @@ export { default as GreetingHeader } from "./greeting-header";
 export { default as HeaderChat } from "./header-chat";
 export { default as InfoPoint } from "./info-point";
 export { default as InitializeInputArea } from "./Initialize-input-area";
-export { default as Input } from "./input_";
+export { default as Input } from "./input";
 export { default as InputCode } from "./Input-code";
 export { default as InvestmentTypeCard } from "./investment-type-card";
 export { default as LaunchButtons } from "./launch-buttons";
