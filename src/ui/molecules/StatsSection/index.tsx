@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StatsCard } from "@/ui/atoms";
 import { FileIcon } from "@/constants/icons";
-import { DocumentService } from "@/services/DocumentService";
+import { DocumentService } from "@/services/document-service";
 
 const StatsSection: React.FC = () => {
   const [totalDocuments, setTotalDocuments] = useState<number | null>(null);

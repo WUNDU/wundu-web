@@ -2,14 +2,14 @@
 
 import { CTA } from "@/ui/molecules";
 import { Button } from "@/ui/atoms";
-import { usePasswordResetContext } from "@/contexts/PasswordResetContext";
+import { usePasswordResetContext } from "@/contexts/password-reset-context";
 import { Header } from "@/ui/organisms";
-import CodeInput from "@/ui/molecules/InputCode";
+import CodeInput from "@/ui/molecules/Input-code";
 import { ROUTES } from "@/constants/routes";
 import Link from "next/link";
 import { ClockIcon } from "@/constants/icons";
 import { NavigationBack } from "@/ui/atoms";
-import { useVerification } from "@/hooks/auth/useVerification";
+import { useVerification } from "@/hooks/auth/use-verification";
 
 const Verification = () => {
   const { prevStep } = usePasswordResetContext();
@@ -65,7 +65,9 @@ const Verification = () => {
           >
             Não recebi o código
           </Link>
-          <div className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}>
+          <div
+            className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}
+          >
             <ClockIcon className="mr-1" />
             {minutes.toString().padStart(2, "0")}:
             {seconds.toString().padStart(2, "0")}

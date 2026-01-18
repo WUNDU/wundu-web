@@ -1,4 +1,4 @@
-import type { Goal } from "@/services/GoalsService";
+import type { Goal } from "@/services/goals-service";
 
 export type ModalType = "success" | "error" | "info" | null;
 
@@ -22,7 +22,7 @@ export interface ModalState {
     type: ModalType,
     title: string,
     message: string,
-    onClose?: () => void
+    onClose?: () => void,
   ) => void;
   closeModal: () => void;
 }

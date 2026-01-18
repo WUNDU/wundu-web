@@ -1,4 +1,4 @@
-import ScanScreen from "@/screens/ScanScreen";
+import ScanScreen from "@/ui/templates/scan-screen";
 
 const Scan = () => {
   return <ScanScreen />;

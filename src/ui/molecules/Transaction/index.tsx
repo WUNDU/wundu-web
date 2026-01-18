@@ -1,6 +1,6 @@
 import { TransactionProps } from "@/types/panel";
 import React from "react";
-import { Icon } from "@/ui/atoms/Icon";
+import { Icon } from "@/ui/atoms/icon";
 
 export const Transaction: React.FC<TransactionProps> = ({
   icon,

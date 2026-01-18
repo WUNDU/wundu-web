@@ -1,5 +1,4 @@
-import DashboardLayout from "@/ui/organisms/DashboardLayout";
-
+import DashboardLayout from "@/ui/organisms/dashboard-layout";
 
 export default function HomeDashboardLayout({
   children,

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
 import "@/public/styles/landing.css";
-import { RegisterProvider } from "@/contexts/RegisterContext";
-import { CookieConsentProvider } from "@/contexts/CookieConsetContext";
-import CookieConsent from "@/ui/molecules/CookieConsent";
+import { RegisterProvider } from "@/contexts/register-context";
+import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
+import CookieConsent from "@/ui/molecules/cookie-consent";
 
 const inter = Inter({
   subsets: ["latin"],

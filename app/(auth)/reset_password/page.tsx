@@ -1,5 +1,5 @@
-import PasswordResetScreen from "@/screens/auth/PasswordScreen";
-import { PasswordResetProvider } from "@/contexts/PasswordResetContext";
+import PasswordResetScreen from "@/ui/templates/auth/password-screen";
+import { PasswordResetProvider } from "@/contexts/password-reset-context";
 
 export default function PasswordReset() {
   return (

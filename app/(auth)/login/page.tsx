@@ -1,7 +1,7 @@
 "use client";
-import LoginScreen from "@/screens/auth/LoginScreen";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { RegisterProvider } from "@/contexts/RegisterContext";
+import LoginScreen from "@/ui/templates/auth/login-screen";
+import { AuthProvider } from "@/contexts/auth-context";
+import { RegisterProvider } from "@/contexts/register-context";
 
 export default function Login() {
   return <LoginScreen />;

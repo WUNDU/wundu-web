@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
-import LandingHeader from "@/ui/organisms/LandingHeader";
-import LandingFooter from "@/ui/organisms/LandingFooter";
+import LandingHeader from "@/ui/organisms/landing-header";
+import LandingFooter from "@/ui/organisms/landing-footer";
 
 interface LegalTemplateProps {
   title: string;
@@ -25,7 +25,7 @@ const LegalTemplate: React.FC<LegalTemplateProps> = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     document.querySelectorAll(".fade-in-section").forEach((el) => {

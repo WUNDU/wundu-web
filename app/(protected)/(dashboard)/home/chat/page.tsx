@@ -1,4 +1,4 @@
-import ChatScreen from "@/screens/ChatScreen";
+import ChatScreen from "@/ui/templates/chat-screen";
 
 const Chat = () => {
   return <ChatScreen />;

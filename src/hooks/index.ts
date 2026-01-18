@@ -1,4 +1,3 @@
-export * from "./useRoutes";
-export * from "./useCountdown";
-export { default as useRegisterContext } from "@/contexts/useRegisterContext";
-
+export * from "./use-routes";
+export * from "./use-countdown";
+export { default as useRegisterContext } from "@/contexts/use-register-context";

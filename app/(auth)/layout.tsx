@@ -1,10 +1,9 @@
 "use client";
-import { useRegisterContext } from "@/contexts/useRegisterContext";
+import { useRegisterContext } from "@/contexts/use-register-context";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
-import LoadingSpinner from "@/ui/atoms/LoadingSpinner";
-
+import LoadingSpinner from "@/ui/atoms/loading-spinner";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useRegisterContext();

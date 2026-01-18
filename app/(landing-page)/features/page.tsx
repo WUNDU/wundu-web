@@ -1,4 +1,4 @@
-import FeaturesLandingPage from "@/screens/landing-page/FeaturesLandingPage";
+import FeaturesLandingPage from "@/ui/templates/landing-page/features-landing-page";
 
 export default function Features() {
   return <FeaturesLandingPage />;
