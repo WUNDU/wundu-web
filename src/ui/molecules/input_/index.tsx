@@ -74,7 +74,7 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
           {showSendButton && (
             <button
               type="button"
-              className="bg-gradient-to-b from-blue-600 to-blue-300 p-2 m-1 rounded-full"
+              className="bg-linear-to-b from-blue-600 to-blue-300 p-2 m-1 rounded-full"
             >
               <SendIcon className="w-5 h-5 text-white" />
             </button>
