@@ -1,4 +1,4 @@
-import HomeLandingPage from "@/ui/templates/landing-page/home-landing-page-screen";
+import HomeLandingPage from "@/modules/landing/screens/home-landing-page-screen";
 
 export default function Home() {
   return <HomeLandingPage />;

@@ -1,5 +1,5 @@
 "use client";
-import RegisterScreen from "@/ui/templates/auth/register-screen";
+import RegisterScreen from "@/modules/auth/screens/register-screen";
 
 export default function Register() {
   return <RegisterScreen />;

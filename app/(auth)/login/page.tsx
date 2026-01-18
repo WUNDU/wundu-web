@@ -1,5 +1,5 @@
 "use client";
-import LoginScreen from "@/ui/templates/auth/login-screen";
+import LoginScreen from "@/modules/auth/screens/login-screen";
 import { AuthProvider } from "@/contexts/auth-context";
 import { RegisterProvider } from "@/contexts/register-context";
 

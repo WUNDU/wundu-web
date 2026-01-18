@@ -4,7 +4,7 @@ import "@/public/styles/globals.css";
 import "@/public/styles/landing.css";
 import { RegisterProvider } from "@/contexts/register-context";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-import CookieConsent from "@/ui/molecules/cookie-consent";
+import CookieConsent from "@/shared/components/cookie-consent";
 
 const inter = Inter({
   subsets: ["latin"],

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GoalsService, GoalPayload, GoalType } from "@/services/goals-service";
-import { useUiStore } from "@/store/ui-store";
+import { useUiStore } from "@/shared/store/ui-store";
 
 export interface ObjectiveFormState {
   title: string;

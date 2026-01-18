@@ -1,4 +1,4 @@
-import LoadingSpinner from "@/ui/atoms/loading-spinner";
+import LoadingSpinner from "@/shared/components/loading-spinner";
 
 const Loading = () => {
   return (
