@@ -16,7 +16,7 @@ export default function HeroSection({ backgroundImage = imgMountain }: HeroSecti
       <Image
         src={backgroundImage}
         alt="Hero Background"
-        className="w-full h-[500px] md:h-[650px] lg:h-[750px] object-cover"
+        className="w-full h-125 md:h-162.5 lg:h-187.5 object-cover"
         priority
       />
 
