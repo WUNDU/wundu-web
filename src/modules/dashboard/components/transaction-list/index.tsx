@@ -1,6 +1,6 @@
 import React from "react";
 import { Transaction } from "@/shared/components/transaction";
-import { TransactionsListProps } from "@/types/panel";
+import { TransactionsListProps } from "@/shared/types/panel";
 
 export const TransactionsList: React.FC<TransactionsListProps> = ({
   transactions,

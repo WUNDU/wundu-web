@@ -1,4 +1,4 @@
-import type { FeatureCardProps } from "@/types/card";
+import type { FeatureCardProps } from "@/shared/types/card";
 import React from "react";
 
 const FeatureCard: React.FC<FeatureCardProps> = ({

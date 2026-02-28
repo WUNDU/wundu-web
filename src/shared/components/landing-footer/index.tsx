@@ -124,25 +124,6 @@ const LandingFooter: React.FC = () => {
                 ))}
               </ul>
             </div>
-
-            {/* Contacto */}
-            <div>
-              <h4 className="font-bold text-xl mb-6 text-gray-900">Contacto</h4>
-              <ul className="space-y-4 text-lg text-gray-600">
-                <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className="text-yellow-700">
-                    <EmailIcon />
-                  </span>
-                  <span>Support@wundu.tech</span>
-                </li>
-                <li className="flex items-center space-x-3 hover:text-blue-600 transition-all duration-300">
-                  <span className="text-yellow-700">
-                    <LocationIcon />
-                  </span>
-                  <span>Angola, Luanda</span>
-                </li>
-              </ul>
-            </div>
           </div>
 
           {/* Bottom Section */}
@@ -234,25 +215,6 @@ const LandingFooter: React.FC = () => {
                 ))}
               </ul>
             </div>
-          </div>
-
-          {/* Contacto */}
-          <div className="mb-8">
-            <h4 className="font-bold text-lg mb-4 text-white">Contacto</h4>
-            <ul className="space-y-3 text-blue-100">
-              <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className="text-gray-200">
-                  <EmailIcon />
-                </span>
-                <span>Support@wundu.tech</span>
-              </li>
-              <li className="flex items-center space-x-3 hover:text-white transition-all duration-300">
-                <span className="text-gray-200">
-                  <LocationIcon />
-                </span>
-                <span>Angola, Luanda</span>
-              </li>
-            </ul>
           </div>
 
           {/* Bottom Section */}

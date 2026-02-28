@@ -6,7 +6,7 @@ import {
   validatePassword,
   validatePasswordDetailed,
   type PasswordValidation,
-} from "@/utils/validation";
+} from "@/shared/components/utils/validation";
 
 export interface SecurityFormState {
   password: string;

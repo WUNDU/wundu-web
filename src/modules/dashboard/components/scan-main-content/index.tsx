@@ -4,7 +4,7 @@ import React from "react";
 import { useCategoryContext } from "@/contexts/category-context";
 import SentDocumentsSection from "@/shared/components/send-socument-section";
 import CategoryScreen from "@/modules/other/screens/category-screen";
-import { Document } from "@/types/button";
+import { Document } from "@/shared/types/button";
 
 interface ScanMainContentProps {
   documents: Document[];

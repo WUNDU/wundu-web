@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { TransactionService } from "@/services/transaction-service";
-import type { TransactionDTO } from "@/types/transaction/transaction_dto";
-import type { Document } from "@/types/button";
+import type { TransactionDTO } from "@/shared/types/transaction/transaction_dto";
+import type { Document } from "@/shared/types/button";
 
 const mapTransactionToDocument = (
   transaction: TransactionDTO,

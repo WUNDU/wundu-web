@@ -54,8 +54,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt">
-      <body className={`${inter.variable} ${openSans.variable} antialiased`}>
+    <html lang="pt" suppressHydrationWarning>
+      <body className={`${inter.variable} ${openSans.variable} antialiased`} suppressHydrationWarning>
         <RegisterProvider>
           <CookieConsentProvider>
             {children}

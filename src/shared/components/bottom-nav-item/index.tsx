@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BottomNavItemProps } from "@/types/bottom";
+import { BottomNavItemProps } from "@/shared/types/bottom";
 
 const BottomNavItem = ({ icon, label, href, disabled }: BottomNavItemProps) => {
   const pathname = usePathname();

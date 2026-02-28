@@ -1,6 +1,9 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { PasswordResetContextType, PasswordResetData } from "../types/password";
+import {
+  PasswordResetContextType,
+  PasswordResetData,
+} from "../shared/types/password";
 
 const PasswordResetContext = createContext<
   PasswordResetContextType | undefined
@@ -10,7 +13,7 @@ export const usePasswordResetContext = () => {
   const context = useContext(PasswordResetContext);
   if (!context) {
     throw new Error(
-      "usePasswordResetContext must be used within a PasswordResetProvider"
+      "usePasswordResetContext must be used within a PasswordResetProvider",
     );
   }
   return context;

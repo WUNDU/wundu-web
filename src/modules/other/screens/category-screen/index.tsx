@@ -1,6 +1,6 @@
 import { defaultCategories } from "@/constants/mock-data";
 import { useCategoryContext } from "@/contexts/category-context";
-import { Category } from "@/types/category";
+import { Category } from "@/shared/types/category";
 import React from "react";
 import { useCategoryScreen } from "@/hooks/category/use-category-screen";
 

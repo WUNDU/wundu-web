@@ -7,11 +7,11 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { RegisterContextType, RegisterData } from "@/types/register";
+import { RegisterContextType, RegisterData } from "@/shared/types/register";
 import { AxiosError } from "axios";
-import { ApiErrorResponse } from "@/types/api";
+import { ApiErrorResponse } from "@/shared/types/api";
 import { UserService } from "../services/user-services";
-import type { User } from "../types/user";
+import type { User } from "../shared/types/user";
 
 const RegisterContext = createContext<RegisterContextType | undefined>(
   undefined,

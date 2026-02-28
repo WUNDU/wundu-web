@@ -7,7 +7,7 @@ import {
   MoneyIcon,
   CalendarIcon,
 } from "@/constants/icons";
-import { Document } from "@/types/button";
+import { Document } from "@/shared/types/button";
 import { Button } from "@/shared/components";
 import { Filter, X } from "lucide-react";
 import TransactionHighlight from "@/shared/components/transaction-highlight";

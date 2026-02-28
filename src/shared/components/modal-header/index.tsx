@@ -1,4 +1,4 @@
-import { ModalHeaderProps } from "@/types/modal";
+import { ModalHeaderProps } from "@/shared/types/modal";
 import { CloseIcon } from "@/constants/icons";
 
 const ModalHeader = ({ title, onClose }: ModalHeaderProps) => (

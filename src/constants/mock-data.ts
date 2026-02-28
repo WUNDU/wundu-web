@@ -1,6 +1,6 @@
-import type { Article, InvestmentType } from "../types/article";
-import type { Category } from "../types/category";
-import type { TimeRange } from "../types/panel";
+import type { Article, InvestmentType } from "../shared/types/article";
+import type { Category } from "../shared/types/category";
+import type { TimeRange } from "../shared/types/panel";
 
 export const investmentTypes: InvestmentType[] = [
   {
@@ -26,7 +26,6 @@ export const investmentTypes: InvestmentType[] = [
     examples: [],
   },
 ];
-
 
 export const defaultCategories: Category[] = [
   { id: "transport", name: "Transporte" },
@@ -83,7 +82,6 @@ export const mockDataByTimeRange = {
     { month: "Dez", value: 100 },
   ],
 };
-
 
 export const tabRanges = ["1D", "1S", "1M", "6M", "1A"] as TimeRange[];
 

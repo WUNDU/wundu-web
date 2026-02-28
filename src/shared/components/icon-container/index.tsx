@@ -1,4 +1,4 @@
-import { IconContainerProps } from "@/types/card";
+import { IconContainerProps } from "@/shared/types/card";
 
 const IconContainer: React.FC<IconContainerProps> = ({
   icon: Icon,

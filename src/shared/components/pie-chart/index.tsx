@@ -1,4 +1,4 @@
-import { TransactionProps } from "@/types/panel";
+import { TransactionProps } from "@/shared/types/panel";
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import type { ScriptableContext } from "chart.js";
@@ -60,8 +60,8 @@ const PieChart: React.FC<PieChartProps> = ({
         const prefix = selectedTransaction
           ? selectedTransaction.title
           : timeRangeText.includes("Créditos")
-          ? "Créditos"
-          : "Gastos";
+            ? "Créditos"
+            : "Gastos";
         ctx.fillText(prefix.toUpperCase(), x, y - 26);
         ctx.font = "600 22px 'Inter', sans-serif";
         const primaryValue = selectedTransaction
@@ -144,7 +144,7 @@ const PieChart: React.FC<PieChartProps> = ({
         },
         animation: {
           duration: 2000,
-          easing: 'easeOutQuart',
+          easing: "easeOutQuart",
           animateRotate: true,
           animateScale: true,
         },
@@ -160,7 +160,7 @@ const PieChart: React.FC<PieChartProps> = ({
         event,
         "nearest",
         { intersect: true },
-        false
+        false,
       );
       if (!elements.length) {
         setSelectedIndex(null);
@@ -182,7 +182,9 @@ const PieChart: React.FC<PieChartProps> = ({
   }, [transactions, totalAmount, timeRangeText]);
 
   useEffect(() => {
-    const chart = chartRef.current as (Chart & { $baseColors?: string[]; $selectedIndex?: number | null }) | null;
+    const chart = chartRef.current as
+      | (Chart & { $baseColors?: string[]; $selectedIndex?: number | null })
+      | null;
     if (!chart) return;
     chart.$selectedIndex = selectedIndex;
     const dataset = chart.data.datasets[0];
@@ -215,8 +217,8 @@ const PieChart: React.FC<PieChartProps> = ({
       }}
     >
       <div className="relative w-full max-w-md h-full transition-all duration-500 ease-out hover:scale-[1.02]">
-        <canvas 
-          ref={canvasRef} 
+        <canvas
+          ref={canvasRef}
           className="transition-all duration-300 ease-out"
         />
       </div>

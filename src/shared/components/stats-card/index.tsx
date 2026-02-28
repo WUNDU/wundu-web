@@ -1,4 +1,4 @@
-import { StatsCardProps } from "@/types/card";
+import { StatsCardProps } from "@/shared/types/card";
 import React from "react";
 
 const StatsCard: React.FC<StatsCardProps> = ({

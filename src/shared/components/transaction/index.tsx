@@ -1,4 +1,4 @@
-import { TransactionProps } from "@/types/panel";
+import { TransactionProps } from "@/shared/types/panel";
 import React from "react";
 import { Icon } from "@/shared/components/icon";
 

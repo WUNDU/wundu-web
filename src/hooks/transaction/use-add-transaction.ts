@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTransactionForm } from "./use-transaction-form";
 import { TransactionService } from "@/services/transaction-service";
-import type { TransactionFormField } from "@/types/transaction/transaction_type";
+import type { TransactionFormField } from "@/shared/types/transaction/transaction_type";
 import useRegisterContext from "@/contexts/use-register-context";
 import { useUiStore } from "@/shared/store/ui-store";
 

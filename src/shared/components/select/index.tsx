@@ -1,4 +1,4 @@
-import { SelectProps } from "@/types/select";
+import { SelectProps } from "@/shared/types/select";
 
 const Select: React.FC<SelectProps> = ({
   label,

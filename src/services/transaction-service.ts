@@ -1,5 +1,5 @@
 import api from "../shared/lib/api";
-import type { TransactionDTO } from "../types/transaction/transaction_dto";
+import type { TransactionDTO } from "../shared/types/transaction/transaction_dto";
 import { cache, CACHE_TAGS } from "../shared/lib/cache";
 
 type DocumentUploadResponse = {

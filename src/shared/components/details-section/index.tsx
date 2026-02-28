@@ -1,4 +1,4 @@
-import { DetailsSectionProps } from "@/types/ctaSection";
+import { DetailsSectionProps } from "@/shared/types/ctaSection";
 
 const DetailsSection = ({ icon, label, children }: DetailsSectionProps) => (
   <div className="flex flex-col gap-2 mb-4">

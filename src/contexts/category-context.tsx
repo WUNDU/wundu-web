@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Category, CategoryContextType } from "@/types/category";
+import { Category, CategoryContextType } from "@/shared/types/category";
 
 const CategoryContext = createContext<CategoryContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const CategoryProvider = ({
@@ -13,7 +13,7 @@ export const CategoryProvider = ({
   onClose: () => void;
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
+    null,
   );
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [transactionDescription, setTransactionDescription] = useState("");
@@ -44,7 +44,7 @@ export const useCategoryContext = () => {
   const context = useContext(CategoryContext);
   if (!context) {
     throw new Error(
-      "useCategoryContext must be used within a CategoryProvider"
+      "useCategoryContext must be used within a CategoryProvider",
     );
   }
   return context;

@@ -1,6 +1,6 @@
 import React from "react";
 import { InvestmentTypeCard } from "@/shared/components";
-import { InvestmentContentProps } from "@/types/article";
+import { InvestmentContentProps } from "@/shared/types/article";
 import { DownloadIcon } from "@/constants/icons";
 import { Button } from "@/shared/components";
 

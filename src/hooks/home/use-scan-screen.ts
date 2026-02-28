@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Document } from "@/types/button";
+import { Document } from "@/shared/types/button";
 import {
   ManualCompletionRequiredError,
   TransactionService,

@@ -1,4 +1,4 @@
-import { IconProps } from "@/types/panel";
+import { IconProps } from "@/shared/types/panel";
 import React from "react";
 
 export const Icon: React.FC<IconProps> = ({ initials, bgColor }) => {

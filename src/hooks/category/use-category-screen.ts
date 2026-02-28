@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCategoryContext } from "@/contexts/category-context";
-import { Category } from "@/types/category";
+import { Category } from "@/shared/types/category";
 
 export const useCategoryScreen = (onCloseOrSuccess?: () => void) => {
   const {

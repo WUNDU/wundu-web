@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ViewMode } from "@/types/panel";
+import { ViewMode } from "@/shared/types/panel";
 
 interface HeaderSectionProps {
   isCredit: boolean;

@@ -1,4 +1,4 @@
-import { LogoProps } from "@/types/logo";
+import { LogoProps } from "@/shared/types/logo";
 
 const Logo: React.FC<LogoProps> = ({ src }) => {
   return (

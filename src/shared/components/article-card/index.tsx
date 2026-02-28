@@ -1,4 +1,4 @@
-import { ArticleCardProps } from "@/types/card";
+import { ArticleCardProps } from "@/shared/types/card";
 import React from "react";
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article, onReadMore }) => {

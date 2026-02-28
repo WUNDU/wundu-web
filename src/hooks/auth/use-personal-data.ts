@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { useRegisterContext } from "@/contexts/use-register-context";
-import { validateEmail, validatePhoneNumber } from "@/utils/validation";
+import {
+  validateEmail,
+  validatePhoneNumber,
+} from "@/shared/components/utils/validation";
 
 export interface PersonalFormState {
   name: string;

@@ -3,8 +3,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import UploadSection from "@/shared/components/upload-section";
 import SentDocumentsSection from "@/shared/components/send-socument-section";
-import { Document } from "@/types/button";
-import { BottomNavigation, GreetingHeader, LoadingSpinner, StatsSection } from "@/shared/components";
+import { Document } from "@/shared/types/button";
+import {
+  BottomNavigation,
+  GreetingHeader,
+  LoadingSpinner,
+  StatsSection,
+} from "@/shared/components";
 import SidebarRight from "@/shared/components/side-bar-right";
 import { ArrowsLeftIcon } from "@/constants/icons";
 import {

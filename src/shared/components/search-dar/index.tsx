@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SearchBarProps } from "@/types/input";
+import { SearchBarProps } from "@/shared/types/input";
 import { SearchIcon, SettingsIcon } from "@/constants/icons";
 
 const SearchBar: React.FC<SearchBarProps> = ({

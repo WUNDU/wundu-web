@@ -1,7 +1,7 @@
 import api from "@/shared/lib/api";
-import { RegisterData } from "@/types/register";
+import { RegisterData } from "@/shared/types/register";
 import { AxiosError } from "axios";
-import { ApiErrorResponse } from "../types/api";
+import { ApiErrorResponse } from "../shared/types/api";
 import { cache, CACHE_TAGS } from "@/shared/lib/cache";
 
 const USER_CACHE_KEY = `${CACHE_TAGS.USER}:me`;

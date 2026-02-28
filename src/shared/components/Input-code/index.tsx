@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { CodeInputProps } from "@/types/input";
+import { CodeInputProps } from "@/shared/types/input";
 import TextInput from "@/shared/components/text-input";
 
 const CodeInput: React.FC<CodeInputProps> = ({

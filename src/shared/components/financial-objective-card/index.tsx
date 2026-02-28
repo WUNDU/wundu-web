@@ -1,4 +1,4 @@
-import { FinancialObjectiveCardProps } from "@/types/card";
+import { FinancialObjectiveCardProps } from "@/shared/types/card";
 import { IconContainer } from "@/shared/components";
 
 const FinancialObjectiveCard: React.FC<FinancialObjectiveCardProps> = ({

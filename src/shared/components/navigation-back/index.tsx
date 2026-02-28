@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 
-import { NavigationBackProps } from "@/types/button";
+import { NavigationBackProps } from "@/shared/types/button";
 import { ArrowLeftIcon } from "@/constants/icons";
 
 const NavigationBack: React.FC<NavigationBackProps> = ({ prev, color }) => {

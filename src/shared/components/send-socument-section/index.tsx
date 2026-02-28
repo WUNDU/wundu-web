@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import UploadOptions from "@/shared/components/upload-option";
-import { SentDocumentsSectionProps } from "@/types/button";
+import { SentDocumentsSectionProps } from "@/shared/types/button";
 import { NoMovementIcon } from "@/constants/icons";
 
 type Item = {

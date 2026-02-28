@@ -1,4 +1,4 @@
-import { FinancialProgressCardProps } from "@/types/card";
+import { FinancialProgressCardProps } from "@/shared/types/card";
 import { IconContainer } from "@/shared/components";
 import { EditIcon, ObjectiveIcon } from "@/constants/icons";
 

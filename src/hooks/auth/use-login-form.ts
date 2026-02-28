@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { validateEmail, validatePasswordDetailed } from "@/utils/validation";
+import {
+  validateEmail,
+  validatePasswordDetailed,
+} from "@/shared/components/utils/validation";
 import useRegisterContext from "@/contexts/use-register-context";
 
 export interface LoginFormState {

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { PasswordValidation } from "@/utils/validation";
+import type { PasswordValidation } from "@/shared/components/utils/validation";
 
 interface PasswordStrengthProps {
   validation: PasswordValidation;
@@ -15,18 +15,41 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({
   if (!showStrength) return null;
 
   const getStrengthLevel = () => {
-    const validCriteria = Object.values(validation.criteria).filter(Boolean).length;
+    const validCriteria = Object.values(validation.criteria).filter(
+      Boolean,
+    ).length;
     const totalCriteria = Object.values(validation.criteria).length;
     const percentage = (validCriteria / totalCriteria) * 100;
 
-    if (percentage === 100) return { level: "Forte", color: "bg-green-500", textColor: "text-green-600" };
-    if (percentage >= 66) return { level: "Média", color: "bg-yellow-500", textColor: "text-yellow-600" };
-    if (percentage >= 33) return { level: "Fraca", color: "bg-orange-500", textColor: "text-orange-600" };
-    return { level: "Muito fraca", color: "bg-red-500", textColor: "text-red-600" };
+    if (percentage === 100)
+      return {
+        level: "Forte",
+        color: "bg-green-500",
+        textColor: "text-green-600",
+      };
+    if (percentage >= 66)
+      return {
+        level: "Média",
+        color: "bg-yellow-500",
+        textColor: "text-yellow-600",
+      };
+    if (percentage >= 33)
+      return {
+        level: "Fraca",
+        color: "bg-orange-500",
+        textColor: "text-orange-600",
+      };
+    return {
+      level: "Muito fraca",
+      color: "bg-red-500",
+      textColor: "text-red-600",
+    };
   };
 
   const strength = getStrengthLevel();
-  const validCriteria = Object.values(validation.criteria).filter(Boolean).length;
+  const validCriteria = Object.values(validation.criteria).filter(
+    Boolean,
+  ).length;
   const totalCriteria = Object.values(validation.criteria).length;
   const percentage = (validCriteria / totalCriteria) * 100;
 
@@ -38,20 +61,19 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({
           {strength.level}
         </span>
       </div>
-      
+
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
           className={`h-2 rounded-full transition-all duration-300 ${strength.color}`}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      
+
       {validation.messages.length > 0 && (
         <p className="text-sm text-gray-600">
-          {validation.messages.length === 1 
+          {validation.messages.length === 1
             ? `Falta: ${validation.messages[0].toLowerCase()}`
-            : `Faltam ${validation.messages.length} critérios`
-          }
+            : `Faltam ${validation.messages.length} critérios`}
         </p>
       )}
     </div>

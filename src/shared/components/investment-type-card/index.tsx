@@ -1,4 +1,4 @@
-import { InvestmentType } from "@/types/article";
+import { InvestmentType } from "@/shared/types/article";
 import React from "react";
 
 interface InvestmentTypeCardProps {

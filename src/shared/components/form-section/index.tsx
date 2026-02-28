@@ -1,7 +1,7 @@
 "use client";
 import { TextInput } from "@/shared/components";
 import { Input as PasswordInput } from "@/shared/components";
-import { FormSectionProps } from "@/types/form";
+import { FormSectionProps } from "@/shared/types/form";
 import { Button } from "@/shared/components";
 import { useLoginForm } from "@/hooks/auth/use-login-form";
 import LoadingSpinner from "@/shared/components/loading-spinner";

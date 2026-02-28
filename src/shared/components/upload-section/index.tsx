@@ -1,5 +1,5 @@
 import React from "react";
-import { UploadProps } from "@/types/button";
+import { UploadProps } from "@/shared/types/button";
 import { PlusFileIcon } from "@/constants/icons";
 
 const UploadSection: React.FC<UploadProps> = ({ onUploadClick }) => {

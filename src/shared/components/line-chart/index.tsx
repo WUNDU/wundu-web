@@ -1,4 +1,4 @@
-import { ChartProps } from "@/types/panel";
+import { ChartProps } from "@/shared/types/panel";
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import Chart from "chart.js/auto";
 import annotationPlugin from "chartjs-plugin-annotation";
@@ -23,11 +23,17 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
 
   const labels = useMemo(() => data.map((d) => d.month), [data]);
   const values = useMemo(() => data.map((d) => d.value), [data]);
-  const maxValue = useMemo(() => (values.length ? Math.max(...values) : 0), [values]);
-  const minValue = useMemo(() => (values.length ? Math.min(...values) : 0), [values]);
+  const maxValue = useMemo(
+    () => (values.length ? Math.max(...values) : 0),
+    [values],
+  );
+  const minValue = useMemo(
+    () => (values.length ? Math.min(...values) : 0),
+    [values],
+  );
 
   const [selectedIndex, setSelectedIndex] = useState(() =>
-    data.length ? Math.floor(data.length / 2) : 0
+    data.length ? Math.floor(data.length / 2) : 0,
   );
 
   const selectedPoint = data[selectedIndex];
@@ -83,7 +89,7 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
           xPos - columnWidth / 2,
           chartArea.top,
           columnWidth,
-          chartArea.bottom - chartArea.top
+          chartArea.bottom - chartArea.top,
         );
         ctx.restore();
       },
@@ -216,7 +222,11 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
   return (
     <div
       className={`relative w-full h-48 overflow-hidden rounded-[32px] bg-white border border-orange-100 shadow-[0_15px_45px_rgba(15,23,42,0.08)] ${className}`}
-      style={{ backgroundImage: "linear-gradient(rgba(15,23,42,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.02) 1px, transparent 1px)", backgroundSize: "40px 40px" }}
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(15,23,42,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.02) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
     >
       {selectedPoint && formattedValue && (
         <div className="absolute z-10 top-4 left-4 bg-white text-[#ff5c35] rounded-2xl px-4 py-2 shadow-lg text-xs border border-orange-100">

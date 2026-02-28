@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import useRegisterContext from "@/contexts/use-register-context";
 import { LoadingSpinner } from "@/shared/components";
-import type { GreetingHeaderProps } from "@/types/header";
+import type { GreetingHeaderProps } from "@/shared/types/header";
 import { useUiStore } from "@/shared/store/ui-store";
 import NotificationCenterModal from "@/shared/components/notification-center-modal";
 

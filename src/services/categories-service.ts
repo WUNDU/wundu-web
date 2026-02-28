@@ -1,5 +1,5 @@
 import api from "@/shared/lib/api";
-import type { Category } from "@/types/category";
+import type { Category } from "@/shared/types/category";
 import { withCache, CACHE_TAGS } from "@/shared/lib/cache";
 
 const normalizeCategoriesResponse = (payload: unknown): Category[] => {

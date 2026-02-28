@@ -7,9 +7,18 @@ import {
   investmentTypes,
   mockArticles,
 } from "@/constants/mock-data";
-import { ArticleGrid, BottomNavigation, Button, CategoryFilter, EmptyState, GreetingHeader, InvestmentContent, SearchBar } from "@/shared/components";
+import {
+  ArticleGrid,
+  BottomNavigation,
+  Button,
+  CategoryFilter,
+  EmptyState,
+  GreetingHeader,
+  InvestmentContent,
+  SearchBar,
+} from "@/shared/components";
 import { ArrowRotateIcon } from "@/constants/icons";
-import { Article } from "@/types/article";
+import { Article } from "@/shared/types/article";
 import { useSidebar } from "@/hooks/layout/use-sidebar";
 import { useLibraryScreen } from "@/hooks/library/use-library-screen";
 

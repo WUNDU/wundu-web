@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { Category } from "@/types/category";
+import type { Category } from "@/shared/types/category";
 import { CategoriesService } from "@/services/categories-service";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -23,7 +23,7 @@ export const useCategories = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "Não foi possível carregar as categorias."
+          : "Não foi possível carregar as categorias.",
       );
     }
   }, []);

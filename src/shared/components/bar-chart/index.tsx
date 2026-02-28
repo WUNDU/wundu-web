@@ -1,4 +1,4 @@
-import { ChartDataPoint } from "@/types/panel";
+import { ChartDataPoint } from "@/shared/types/panel";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 
@@ -32,7 +32,12 @@ const formatTick = (value: number) => {
   return value.toString();
 };
 
-const BarChart: React.FC<BarChartProps> = ({ data, primaryColor, accentColor = "#0f172a", className }) => {
+const BarChart: React.FC<BarChartProps> = ({
+  data,
+  primaryColor,
+  accentColor = "#0f172a",
+  className,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const gradientRef = useRef<CanvasGradient | null>(null);
@@ -88,7 +93,7 @@ const BarChart: React.FC<BarChartProps> = ({ data, primaryColor, accentColor = "
         return Array(count).fill(active);
       }
       return Array.from({ length: count }, (_, idx) =>
-        idx === selectedIndex ? active : inactive
+        idx === selectedIndex ? active : inactive,
       );
     };
 
@@ -184,11 +189,12 @@ const BarChart: React.FC<BarChartProps> = ({ data, primaryColor, accentColor = "
       return;
     }
 
-    dataset.backgroundColor = selectedIndex === -1
-      ? Array(count).fill(active)
-      : Array.from({ length: count }, (_, idx) =>
-          idx === selectedIndex ? active : inactive
-        );
+    dataset.backgroundColor =
+      selectedIndex === -1
+        ? Array(count).fill(active)
+        : Array.from({ length: count }, (_, idx) =>
+            idx === selectedIndex ? active : inactive,
+          );
 
     chart.update();
   }, [selectedIndex, primaryColor]);
@@ -198,7 +204,9 @@ const BarChart: React.FC<BarChartProps> = ({ data, primaryColor, accentColor = "
   }
 
   const selectedPoint = selectedIndex >= 0 ? data[selectedIndex] : null;
-  const formattedValue = selectedPoint ? formatCurrency(selectedPoint.value) : null;
+  const formattedValue = selectedPoint
+    ? formatCurrency(selectedPoint.value)
+    : null;
 
   return (
     <div
@@ -217,7 +225,10 @@ const BarChart: React.FC<BarChartProps> = ({ data, primaryColor, accentColor = "
           <p className="text-base font-semibold">{formattedValue}</p>
         </div>
       )}
-      <canvas ref={canvasRef} className="w-full h-full transition-all duration-500 ease-out hover:scale-[1.01]" />
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full transition-all duration-500 ease-out hover:scale-[1.01]"
+      />
     </div>
   );
 };

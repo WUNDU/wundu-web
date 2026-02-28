@@ -1,4 +1,4 @@
-import { TabProps } from "@/types/panel";
+import { TabProps } from "@/shared/types/panel";
 import React from "react";
 
 export const Tab: React.FC<TabProps> = ({

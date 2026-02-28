@@ -1,5 +1,5 @@
 import { useCategoryContext } from "@/contexts/category-context";
-import { Category } from "@/types/category";
+import { Category } from "@/shared/types/category";
 import React, { useState } from "react";
 
 const CategoryModal = () => {

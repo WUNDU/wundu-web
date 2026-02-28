@@ -1,4 +1,4 @@
-import { UploadOptionsProps } from "@/types/button";
+import { UploadOptionsProps } from "@/shared/types/button";
 import { ImageIcon, ReceiptIcon } from "@/constants/icons";
 import { useRef } from "react";
 import { EditIcon } from "@/constants/icons";

@@ -11,7 +11,7 @@ import {
 } from "@/constants/icons";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import { SidebarRightProps } from "@/types/sidebar";
+import { SidebarRightProps } from "@/shared/types/sidebar";
 import useRegisterContext from "@/contexts/use-register-context";
 import { useUiStore } from "@/shared/store/ui-store";
 

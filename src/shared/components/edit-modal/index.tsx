@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { EditModalProps } from "@/types/modal";
+import type { EditModalProps } from "@/shared/types/modal";
 import {
   GoalsService,
   type GoalPayload,

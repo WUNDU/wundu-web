@@ -1,5 +1,5 @@
 import React from "react";
-import { ModalProps } from "@/types/modal";
+import { ModalProps } from "@/shared/types/modal";
 import { DocumentIcon } from "@/constants/icons";
 import { Button } from "@/shared/components";
 

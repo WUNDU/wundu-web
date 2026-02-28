@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CheckmarkIcon } from "@/constants/icons";
-import type { PasswordValidation } from "@/utils/validation";
+import type { PasswordValidation } from "@/shared/components/utils/validation";
 
 interface PasswordValidationProps {
   validation: PasswordValidation;
@@ -22,7 +22,7 @@ const PasswordValidationFeedback: React.FC<PasswordValidationProps> = ({
       isValid: validation.criteria.minLength,
     },
     {
-      key: "maxLength", 
+      key: "maxLength",
       label: "Max. 12 caracteres",
       isValid: validation.criteria.maxLength,
     },
@@ -77,7 +77,7 @@ const PasswordValidationFeedback: React.FC<PasswordValidationProps> = ({
           </li>
         ))}
       </ul>
-      
+
       {validation.messages.length > 0 && (
         <div className="mt-1.5 p-1.5 bg-red-50 border border-red-200 rounded-md">
           <p className="text-xs text-red-600 font-medium">Ainda faltam:</p>

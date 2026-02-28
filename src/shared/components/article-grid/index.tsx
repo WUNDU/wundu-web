@@ -1,6 +1,6 @@
 import React from "react";
 import ArticleCard from "@/shared/components/article-card";
-import { ArticleGridProps } from "@/types/article";
+import { ArticleGridProps } from "@/shared/types/article";
 
 const ArticleGrid: React.FC<ArticleGridProps> = ({ articles, onReadMore }) => {
   return (

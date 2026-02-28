@@ -1,5 +1,5 @@
 import React from "react";
-import { CategoryFilterProps } from "@/types/category";
+import { CategoryFilterProps } from "@/shared/types/category";
 import { Button } from "@/shared/components";
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({

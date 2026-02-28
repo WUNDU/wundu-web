@@ -1,4 +1,4 @@
-import { DetailsModalProps } from "@/types/modal";
+import { DetailsModalProps } from "@/shared/types/modal";
 import {
   CalendarIcon,
   DownloadIcon,
