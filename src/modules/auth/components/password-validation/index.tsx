@@ -1,93 +1,68 @@
 "use client";
 
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { CheckmarkIcon } from "@/constants/icons";
 import type { PasswordValidation } from "@/shared/components/utils/validation";
 
 interface PasswordValidationProps {
   validation: PasswordValidation;
   showCriteria?: boolean;
+  isVisible?: boolean;
 }
 
 const PasswordValidationFeedback: React.FC<PasswordValidationProps> = ({
   validation,
   showCriteria = true,
+  isVisible = true,
 }) => {
-  if (!showCriteria) return null;
+  const active = showCriteria && isVisible;
 
   const criteriaList = [
-    {
-      key: "minLength",
-      label: "Min. 8 caracteres",
-      isValid: validation.criteria.minLength,
-    },
-    {
-      key: "maxLength",
-      label: "Max. 12 caracteres",
-      isValid: validation.criteria.maxLength,
-    },
-    {
-      key: "hasLowercase",
-      label: "Letra minúscula (a-z)",
-      isValid: validation.criteria.hasLowercase,
-    },
-    {
-      key: "hasUppercase",
-      label: "Letra maiúscula (A-Z)",
-      isValid: validation.criteria.hasUppercase,
-    },
-    {
-      key: "hasNumber",
-      label: "Número (0-9)",
-      isValid: validation.criteria.hasNumber,
-    },
-    {
-      key: "hasSpecialChar",
-      label: "Caractere especial (@$!%*?&)",
-      isValid: validation.criteria.hasSpecialChar,
-    },
+    { key: "minLength", label: "8+ chars", isValid: validation.criteria.minLength },
+    { key: "hasLowercase", label: "a-z", isValid: validation.criteria.hasLowercase },
+    { key: "hasUppercase", label: "A-Z", isValid: validation.criteria.hasUppercase },
+    { key: "hasNumber", label: "0-9", isValid: validation.criteria.hasNumber },
+    { key: "hasSpecialChar", label: "!@#", isValid: validation.criteria.hasSpecialChar },
   ];
 
   return (
-    <div className="mt-2 space-y-1">
-      <p className="text-xs font-medium text-gray-700">Requisitos da senha:</p>
-      <ul className="space-y-0.5">
-        {criteriaList.map((criterion) => (
-          <li key={criterion.key} className="flex items-center space-x-1.5">
-            <div
-              className={`flex-shrink-0 w-3 h-3 rounded-full flex items-center justify-center ${
-                criterion.isValid
-                  ? "bg-green-100 text-green-600"
-                  : "bg-gray-100 text-gray-400"
-              }`}
-            >
-              {criterion.isValid ? (
-                <CheckmarkIcon className="w-2 h-2" />
-              ) : (
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-              )}
-            </div>
-            <span
-              className={`text-xs ${
-                criterion.isValid ? "text-green-600" : "text-gray-600"
-              }`}
-            >
-              {criterion.label}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      {validation.messages.length > 0 && (
-        <div className="mt-1.5 p-1.5 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-xs text-red-600 font-medium">Ainda faltam:</p>
-          <ul className="mt-0.5 text-xs text-red-600">
-            {validation.messages.map((message, index) => (
-              <li key={index}>• {message}</li>
+    <div className="mt-2 px-1">
+      <AnimatePresence initial={false}>
+        {active && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="flex flex-wrap gap-x-3 gap-y-1.5"
+          >
+            {criteriaList.map((criterion) => (
+              <div key={criterion.key} className="flex items-center gap-1.5">
+                <div
+                  className={`flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors duration-300 ${
+                    criterion.isValid
+                      ? "bg-green-500 text-white"
+                      : "bg-slate-200 text-slate-400"
+                  }`}
+                >
+                  {criterion.isValid ? (
+                    <CheckmarkIcon className="h-2 w-2" />
+                  ) : (
+                    <div className="h-1 w-1 rounded-full bg-current" />
+                  )}
+                </div>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-tight transition-colors duration-300 ${
+                    criterion.isValid ? "text-green-600" : "text-slate-400"
+                  }`}
+                >
+                  {criterion.label}
+                </span>
+              </div>
             ))}
-          </ul>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

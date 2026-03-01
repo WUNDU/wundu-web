@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { wunduToast } from "@/shared/lib/toast";
-import { logoLogin } from "@/constants/images";
 import { ROUTES } from "@/constants/routes";
 import { Button, Input, LoadingSpinner, LogoType } from "@/shared/components";
 import PhoneInput from "@/shared/components/phone-onput";
@@ -294,7 +292,6 @@ const RegisterPage = () => {
                       />
                       <PasswordValidationFeedback
                         validation={passwordValidation}
-                        showCriteria={securityForm.password.length > 0}
                         isVisible={
                           isPasswordFocused || securityForm.password.length > 0
                         }
