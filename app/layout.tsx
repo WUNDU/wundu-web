@@ -5,6 +5,7 @@ import "@/public/styles/landing.css";
 import { RegisterProvider } from "@/contexts/register-context";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import CookieConsent from "@/shared/components/cookie-consent";
+import AppToaster from "@/shared/components/app-toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,11 +56,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt" suppressHydrationWarning>
-      <body className={`${inter.variable} ${openSans.variable} antialiased`} suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${openSans.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <RegisterProvider>
           <CookieConsentProvider>
             {children}
             <CookieConsent />
+            <AppToaster />
           </CookieConsentProvider>
         </RegisterProvider>
       </body>

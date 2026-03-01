@@ -153,7 +153,7 @@ const LandingFooter: React.FC = () => {
       </footer>
 
       {/* Mobile Footer */}
-      <footer className="md:hidden bg-gradient-to-br from-blue-900 to-blue-800 text-white py-12 px-4">
+      <footer className="md:hidden bg-linear-to-br from-blue-900 to-blue-800 text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Logo and Description */}
           <div className="text-center mb-8">

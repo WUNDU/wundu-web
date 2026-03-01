@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRegisterContext } from "@/contexts/use-register-context";
+import { wunduToast } from "@/shared/lib/toast";
 import {
-  validatePassword,
   validatePasswordDetailed,
   type PasswordValidation,
 } from "@/shared/components/utils/validation";
@@ -18,7 +18,7 @@ export interface SecurityFormErrors {
 }
 
 export const useSecurityData = () => {
-  const { data, setRegisterData, nextStep, registerUser, error } =
+  const { data, setRegisterData, nextStep, registerUser, error, clearError } =
     useRegisterContext();
 
   const [form, setForm] = useState<SecurityFormState>({
@@ -26,8 +26,9 @@ export const useSecurityData = () => {
     confirmPassword: "",
   });
   const [passwordError, setPasswordError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordValidation, setPasswordValidation] =
-    useState<PasswordValidation>(validatePasswordDetailed(""));
+    useState<PasswordValidation>(validatePasswordDetailed(data.password || ""));
 
   const setField = (field: keyof SecurityFormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -35,31 +36,50 @@ export const useSecurityData = () => {
     // Update password validation in real-time
     if (field === "password") {
       setPasswordValidation(validatePasswordDetailed(value));
-      setPasswordError(""); // Clear error when user types
+      if (passwordError) setPasswordError("");
+      if (error) clearError();
+    }
+
+    if (field === "confirmPassword" && passwordError) {
+      setPasswordError("");
+      if (error) clearError();
     }
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
+    clearError();
     const validation = validatePasswordDetailed(form.password);
+
     if (!validation.isValid) {
-      setPasswordError("Por favor, atenda todos os requisitos da senha.");
+      setPasswordError("A senha não cumpre todos os requisitos de segurança.");
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setPasswordError("As senhas não coincidem!");
+      setPasswordError("As senhas digitadas não são iguais.");
       return;
     }
 
     setPasswordError("");
+    setIsSubmitting(true);
 
     try {
+      // We pass the full data including the password from the current form
       await registerUser({ ...data, password: form.password });
+
+      // If registration is successful, update context and move to next step
       setRegisterData({ password: form.password });
       nextStep();
-    } catch (err) {}
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Falha ao concluir o cadastro.";
+      wunduToast.error("Erro no cadastro", { description: message });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {
@@ -68,6 +88,7 @@ export const useSecurityData = () => {
     submit,
     passwordError,
     passwordValidation,
+    isSubmitting,
     contextError: error,
   };
 };

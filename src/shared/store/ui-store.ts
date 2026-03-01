@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { toast } from "sonner";
 
 export type NotificationType = "success" | "error" | "info";
 
@@ -15,7 +16,7 @@ interface UiStore {
     type: NotificationType,
     title: string,
     message: string,
-    options?: { duration?: number; onClose?: () => void }
+    options?: { duration?: number; onClose?: () => void },
   ) => void;
   closeNotification: () => void;
   isNotificationCenterOpen: boolean;
@@ -30,13 +31,21 @@ export const useUiStore = create<UiStore>((set, get) => ({
     type,
     title,
     message,
-    { duration = 4000, onClose } = {}
+    { duration = 4000, onClose } = {},
   ) => {
     get().closeNotification();
 
     const notification: Notification = { type, title, message, onClose };
-
     set({ notification });
+
+    // Also surface via Sonner for consistent global feedback
+    const sonnerFn =
+      type === "success"
+        ? toast.success
+        : type === "error"
+          ? toast.error
+          : toast.info;
+    sonnerFn(title, { description: message, duration });
 
     setTimeout(() => {
       get().closeNotification();

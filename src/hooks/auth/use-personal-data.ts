@@ -14,12 +14,13 @@ export interface PersonalFormState {
 }
 
 export interface PersonalFormErrors {
+  name: string;
   email: string;
   phone: string;
 }
 
 export const usePersonalData = () => {
-  const { data, setRegisterData, nextStep } = useRegisterContext();
+  const { data, setRegisterData, nextStep, clearError } = useRegisterContext();
 
   const [form, setForm] = useState<PersonalFormState>({
     name: data.name || "",
@@ -27,19 +28,30 @@ export const usePersonalData = () => {
     phone: data.phone || "",
   });
   const [errors, setErrors] = useState<PersonalFormErrors>({
+    name: "",
     email: "",
     phone: "",
   });
 
   const setField = (field: keyof PersonalFormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear specific error when typing
+    if (errors[field as keyof PersonalFormErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+    clearError();
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
 
     let valid = true;
-    const nextErrors: PersonalFormErrors = { email: "", phone: "" };
+    const nextErrors: PersonalFormErrors = { name: "", email: "", phone: "" };
+
+    if (!form.name || form.name.trim().length < 3) {
+      nextErrors.name = "Por favor, insira seu nome completo";
+      valid = false;
+    }
 
     if (!validateEmail(form.email)) {
       nextErrors.email = "Por favor, insira um email válido";

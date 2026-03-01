@@ -1,6 +1,7 @@
 import { MirantesIcon, XIcon } from "@/constants/icons";
 import { Instagram, Linkedin, Facebook, Mail } from "lucide-react";
 import React from "react";
+import LogoType from "../logo-type";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,8 +11,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm font-medium text-gray-500">
         {/* Lado Esquerdo: Copyright e Nome */}
         <div className="flex items-center gap-2">
-          <span className="font-black text-gray-900 tracking-tighter">
-            WUNDU
+          <span className="font-black w-20 text-yellow-400 tracking-tighter">
+            <LogoType />
           </span>
           <span className="text-gray-300">|</span>
           <p>© {currentYear} Todos os direitos reservados.</p>
