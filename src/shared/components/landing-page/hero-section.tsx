@@ -28,7 +28,7 @@ export default function HeroSection({
   const count = useCountUp(200);
 
   return (
-    <section className="relative w-full overflow-hidden min-h-[500px] md:min-h-[650px] lg:min-h-[900px]">
+    <section className="relative w-full overflow-hidden min-h-[560px] md:min-h-[650px] lg:min-h-[900px]">
       <Image
         src={backgroundImage}
         alt="Hero Background"
@@ -38,8 +38,8 @@ export default function HeroSection({
       />
 
       <div className="absolute inset-0 bg-black/55 flex flex-col">
-        {/* Main text content — grows to fill space above mockups */}
-        <div className="flex flex-col items-center text-center px-6 pt-36 md:pt-44 pb-8 flex-1 justify-center">
+        {/* Main text content */}
+        <div className="flex flex-col items-center text-center px-6 pt-36 md:pt-44 pb-10 md:pb-8 flex-1 justify-center">
           {/* Social proof badge */}
           <div className="inline-flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs px-3 py-2 rounded-xl mb-8 relative z-20 backdrop-blur-sm animate-in fade-in slide-in-from-top duration-700">
             <div className="flex -space-x-3">
@@ -79,15 +79,15 @@ export default function HeroSection({
             .
           </p>
 
-          <div className="relative z-20 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-            <button className="bg-yellow-400 text-white px-12 py-5 rounded-full font-black text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-yellow-400/20">
+          <div className="relative z-20 animate-in fade-in slide-in-from-bottom duration-700 delay-300 w-full flex justify-center">
+            <button className="bg-yellow-400 text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-yellow-400/20">
               Comece aqui
             </button>
           </div>
         </div>
 
         {/* App mockups — pinned to bottom of hero */}
-        <div className="flex mt-auto items-end justify-center gap-4 lg:gap-10 px-8 pb-0 relative z-20 animate-in fade-in slide-in-from-bottom duration-1000 delay-500">
+        <div className="hidden sm:flex mt-auto items-end justify-center gap-4 lg:gap-10 px-8 pb-0 relative z-20 animate-in fade-in slide-in-from-bottom duration-1000 delay-500">
           {/* Left: AI screen — desktop only */}
           <div className="hidden lg:block w-52 xl:w-64 flex-shrink-0 drop-shadow-2xl self-end -translate-y-8 rotate-[-6deg] origin-bottom opacity-90">
             <Image
@@ -97,7 +97,7 @@ export default function HeroSection({
             />
           </div>
 
-          {/* Center: Home screen — always visible */}
+          {/* Center: Home screen */}
           <div className="w-48 sm:w-60 lg:w-72 xl:w-80 flex-shrink-0 drop-shadow-2xl self-end">
             <Image
               src={imgScreenHome}
