@@ -6,16 +6,16 @@ import { MessageCircle, Mail, ArrowRight } from "lucide-react";
 
 const MaintenanceOverlay: React.FC = () => {
   // LINK DA COMUNIDADE DO WHATSAPP
-  const whatsappLink = "https://chat.whatsapp.com/C0gVUnIB9OaHnAZAiiLJmQ?mode=gi_t"; 
+  const whatsappLink =
+    "https://chat.whatsapp.com/C0gVUnIB9OaHnAZAiiLJmQ?mode=gi_t";
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#003cc3] to-[#00216b] px-6 text-center overflow-hidden">
-      
       {/* Brilho radial sutil para profundidade no azul */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,212,0,0.1)_0%,transparent_60%)] pointer-events-none" />
 
       {/* LOGO: Integrado com o azul (usando invert para garantir branco puro sobre o azul se necessário) */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-12 md:mb-16 shrink-0 z-10"
@@ -38,10 +38,11 @@ const MaintenanceOverlay: React.FC = () => {
           Estamos a <br />
           <span className="text-[#ffd400] drop-shadow-2xl">Evoluir.</span>
         </h1>
-        
+
         <p className="mb-12 text-base sm:text-lg md:text-xl lg:text-2xl text-blue-50/70 font-medium max-w-2xl mx-auto leading-relaxed">
-          A Wundu está a implementar uma infraestrutura financeira de nova geração. 
-          Pausa por tempo indeterminado para garantirmos a excelência técnica.
+          A Wundu está a implementar uma infraestrutura financeira de nova
+          geração. Pausa por tempo indeterminado para garantirmos a excelência
+          técnica.
         </p>
 
         {/* INTERAÇÃO: WhatsApp */}
@@ -69,7 +70,7 @@ const MaintenanceOverlay: React.FC = () => {
 
       {/* FOOTER */}
       <div className="absolute bottom-10 text-[10px] font-bold uppercase tracking-[0.6em] text-white/10 z-10">
-        © {new Date().getFullYear()} WUNDU LAB • ANGOLA & PORTUGAL
+        © {new Date().getFullYear()} ONEWUNDU. Todos os direitos reservados.
       </div>
     </div>
   );
