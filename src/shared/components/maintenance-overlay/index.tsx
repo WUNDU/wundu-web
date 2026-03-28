@@ -11,10 +11,11 @@ const MaintenanceOverlay: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#003cc3] to-[#00216b] px-6 text-center overflow-hidden">
+      
       {/* Brilho radial sutil para profundidade no azul */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,212,0,0.1)_0%,transparent_60%)] pointer-events-none" />
 
-      {/* LOGO: Integrado com o azul (usando invert para garantir branco puro sobre o azul se necessário) */}
+      {/* LOGO: Cores Originais (Sem filtros de brilho ou inversão) */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -23,7 +24,7 @@ const MaintenanceOverlay: React.FC = () => {
         <img
           src="/assets/logotype.svg"
           alt="Wundu"
-          className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto block mx-auto brightness-0 invert"
+          className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto block mx-auto"
         />
       </motion.div>
 
@@ -34,7 +35,7 @@ const MaintenanceOverlay: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="max-w-4xl w-full z-10"
       >
-        <h1 className="mb-6 text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white leading-none uppercase">
+        <h1 className="mb-6 text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white leading-none uppercase text-balance">
           Estamos a <br />
           <span className="text-[#ffd400] drop-shadow-2xl">Evoluir.</span>
         </h1>
@@ -68,7 +69,7 @@ const MaintenanceOverlay: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* FOOTER */}
+      {/* FOOTER: Texto original solicitado */}
       <div className="absolute bottom-10 text-[10px] font-bold uppercase tracking-[0.6em] text-white/10 z-10">
         © {new Date().getFullYear()} ONEWUNDU. Todos os direitos reservados.
       </div>
