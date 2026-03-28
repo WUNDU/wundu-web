@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePasswordResetContext } from "@/contexts/password-reset-context";
-import { validatePhoneNumber } from "@/utils/validation";
+import { validatePhoneNumber } from "@/shared/components/utils/validation";
 import { COUNTRIES } from "@/constants/countries";
 
 export const useEmailPhone = () => {

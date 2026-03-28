@@ -1,7 +1,7 @@
 "use client";
 import { useContext } from "react";
 import { RegisterContext } from "@/contexts/register-context";
-import { RegisterContextType } from "@/types/register";
+import { RegisterContextType } from "@/shared/types/register";
 
 export const useRegisterContext = (): RegisterContextType => {
   const context = useContext(RegisterContext);

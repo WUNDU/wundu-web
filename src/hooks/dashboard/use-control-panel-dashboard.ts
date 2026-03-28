@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TimeRange, TransactionProps, ViewMode } from "@/types/panel";
+import { TimeRange, TransactionProps, ViewMode } from "@/shared/types/panel";
 import { useTransactions as useTransactionDocuments } from "@/hooks/transaction/use-transactions";
 
 type NormalizedTransaction = {

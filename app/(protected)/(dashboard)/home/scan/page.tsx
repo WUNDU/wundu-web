@@ -1,4 +1,4 @@
-import ScanScreen from "@/ui/templates/scan-screen";
+import ScanScreen from "@/modules/chat/screens/scan-screen";
 
 const Scan = () => {
   return <ScanScreen />;

@@ -1,4 +1,4 @@
-import FinancialProgressScreen from "@/ui/templates/financial-progress-screen";
+import FinancialProgressScreen from "@/modules/dashboard/screens/financial-progress-screen";
 
 export default function Financial() {
   return <FinancialProgressScreen />;

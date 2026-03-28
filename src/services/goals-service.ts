@@ -1,5 +1,5 @@
-import api from "../lib/api";
-import { withCache, cache, CACHE_TAGS } from "../lib/cache";
+import api from "../shared/lib/api";
+import { withCache, cache, CACHE_TAGS } from "../shared/lib/cache";
 
 export type GoalType = "SHORT_TERM" | "LONG_TERM";
 
@@ -51,7 +51,8 @@ const extractDataArray = (payload: unknown): Goal[] => {
 };
 
 const normalizeGoal = (goal: Goal): Goal => {
-  const normalizedCategoryId = goal.categoryId ?? goal.category_id ?? goal.category?.id;
+  const normalizedCategoryId =
+    goal.categoryId ?? goal.category_id ?? goal.category?.id;
   const normalizedCategoryName = goal.category?.name ?? goal.categoryName;
 
   return {
@@ -78,7 +79,7 @@ export const GoalsService = {
     return withCache(
       fetchGoalsList,
       `${CACHE_TAGS.GOALS}:list`,
-      { ttl: 30000, tag: CACHE_TAGS.GOALS } // 30 seconds
+      { ttl: 30000, tag: CACHE_TAGS.GOALS }, // 30 seconds
     );
   },
 

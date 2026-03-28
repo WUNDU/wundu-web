@@ -1,6 +1,6 @@
-import api from "../lib/api";
-import type { TransactionDTO } from "../types/transaction/transaction_dto";
-import { cache, CACHE_TAGS } from "../lib/cache";
+import api from "../shared/lib/api";
+import type { TransactionDTO } from "../shared/types/transaction/transaction_dto";
+import { cache, CACHE_TAGS } from "../shared/lib/cache";
 
 type DocumentUploadResponse = {
   documentId: string;
@@ -40,7 +40,7 @@ type CategorizationResponse = {
 export class ManualCompletionRequiredError extends Error {
   constructor(
     public readonly transactionId: string,
-    public readonly defaults: TransactionCompletionPayload
+    public readonly defaults: TransactionCompletionPayload,
   ) {
     super("Manual completion required");
     this.name = "ManualCompletionRequiredError";
@@ -48,7 +48,10 @@ export class ManualCompletionRequiredError extends Error {
 }
 
 export class DuplicateDocumentError extends Error {
-  constructor(public readonly transaction: TransactionDTO, message?: string) {
+  constructor(
+    public readonly transaction: TransactionDTO,
+    message?: string,
+  ) {
     super(message ?? "Documento já registrado");
     this.name = "DuplicateDocumentError";
   }
@@ -90,7 +93,8 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
       return {
         isPaginated: true,
         last: typeof obj.last === "boolean" ? obj.last : undefined,
-        totalPages: typeof obj.totalPages === "number" ? obj.totalPages : undefined,
+        totalPages:
+          typeof obj.totalPages === "number" ? obj.totalPages : undefined,
       };
     }
   }
@@ -116,19 +120,26 @@ export const TransactionService = {
       const fallbackMessage =
         "Serviço temporariamente indisponível. Tente novamente em instantes.";
       const message =
-        error instanceof Error && error.message && error.message !== "Internal Server Error"
+        error instanceof Error &&
+        error.message &&
+        error.message !== "Internal Server Error"
           ? error.message
           : fallbackMessage;
       return false;
     }
   },
 
-  get: async (options?: { bypassCache?: boolean }): Promise<TransactionDTO[]> => {
+  get: async (options?: {
+    bypassCache?: boolean;
+  }): Promise<TransactionDTO[]> => {
     const bypassCache = options?.bypassCache ?? false;
 
     // Check cache first (unless bypassing)
     if (!bypassCache) {
-      const cached = cache.get<TransactionDTO[]>(TRANSACTION_CACHE_KEY, TRANSACTION_CACHE_TTL);
+      const cached = cache.get<TransactionDTO[]>(
+        TRANSACTION_CACHE_KEY,
+        TRANSACTION_CACHE_TTL,
+      );
       if (cached !== null) {
         return cached;
       }
@@ -144,11 +155,11 @@ export const TransactionService = {
         const { data } = await api.get<
           | TransactionDTO[]
           | {
-            data?: TransactionDTO[];
-            content?: TransactionDTO[];
-            last?: boolean;
-            totalPages?: number;
-          }
+              data?: TransactionDTO[];
+              content?: TransactionDTO[];
+              last?: boolean;
+              totalPages?: number;
+            }
         >(`/transactions${pageSuffix}`);
 
         const items = normalizeTransactionsResponse(data);
@@ -161,7 +172,9 @@ export const TransactionService = {
           const noMoreItems = items.length === 0;
           const reachedLastFlag = meta.last === true;
           const reachedTotal =
-            typeof meta.totalPages === "number" ? page + 1 >= meta.totalPages : false;
+            typeof meta.totalPages === "number"
+              ? page + 1 >= meta.totalPages
+              : false;
 
           if (noMoreItems || reachedLastFlag || reachedTotal) {
             shouldContinue = false;
@@ -178,7 +191,9 @@ export const TransactionService = {
       const fallbackMessage =
         "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
       const message =
-        error instanceof Error && error.message && error.message !== "Internal Server Error"
+        error instanceof Error &&
+        error.message &&
+        error.message !== "Internal Server Error"
           ? error.message
           : fallbackMessage;
       throw new Error(message);
@@ -192,29 +207,37 @@ export const TransactionService = {
       formData.append("type", options.documentType);
     }
 
-    const { data } = await api.post<DocumentUploadResponse>("/documents/upload", formData);
+    const { data } = await api.post<DocumentUploadResponse>(
+      "/documents/upload",
+      formData,
+    );
     return data;
   },
 
   processDocumentOcr: async (documentId: string) => {
-    const { data } = await api.post<OcrProcessResponse>(`/ocr/process/${documentId}`);
+    const { data } = await api.post<OcrProcessResponse>(
+      `/ocr/process/${documentId}`,
+    );
     return data;
   },
 
   completeTransaction: async (
     transactionId: string,
-    payload: TransactionCompletionPayload
+    payload: TransactionCompletionPayload,
   ) => {
-    const { data } = await api.patch(`/transactions/${transactionId}/complete`, {
-      ...payload,
-      type: "expense",
-    });
+    const { data } = await api.patch(
+      `/transactions/${transactionId}/complete`,
+      {
+        ...payload,
+        type: "expense",
+      },
+    );
     return data;
   },
 
   categorizeTransaction: async (transactionId: string) => {
     const { data } = await api.post<CategorizationResponse>(
-      `/nlp/categorize/${transactionId}`
+      `/nlp/categorize/${transactionId}`,
     );
     return data;
   },
@@ -224,7 +247,7 @@ export const TransactionService = {
     options: {
       documentType?: string;
       completionOverrides?: TransactionCompletionPayload;
-    } = {}
+    } = {},
   ) => {
     const uploadResult = await TransactionService.uploadDocument(file, {
       documentType: options.documentType,
@@ -232,15 +255,19 @@ export const TransactionService = {
 
     let ocrResult: OcrProcessResponse;
     try {
-      ocrResult = await TransactionService.processDocumentOcr(uploadResult.documentId);
+      ocrResult = await TransactionService.processDocumentOcr(
+        uploadResult.documentId,
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       const isDuplicate = message.toLowerCase().includes("documento duplicado");
 
       if (isDuplicate) {
-        const transactions = await TransactionService.get({ bypassCache: true });
+        const transactions = await TransactionService.get({
+          bypassCache: true,
+        });
         const duplicated = transactions.find((transaction) =>
-          transaction.source?.includes(uploadResult.documentId)
+          transaction.source?.includes(uploadResult.documentId),
         );
 
         if (duplicated) {
@@ -255,12 +282,12 @@ export const TransactionService = {
     if (!ocrResult.transactionId) {
       const transactions = await TransactionService.get({ bypassCache: true });
       const pendingTransaction = transactions.find((transaction) =>
-        transaction.source?.includes(uploadResult.documentId)
+        transaction.source?.includes(uploadResult.documentId),
       );
 
       if (!pendingTransaction?.id) {
         throw new Error(
-          "Não foi possível obter o identificador da transação após o processamento OCR."
+          "Não foi possível obter o identificador da transação após o processamento OCR.",
         );
       }
 
@@ -272,7 +299,7 @@ export const TransactionService = {
     if (!relatedTransaction) {
       const transactions = await TransactionService.get({ bypassCache: true });
       relatedTransaction = transactions.find(
-        (transaction) => transaction.id === ocrResult.transactionId
+        (transaction) => transaction.id === ocrResult.transactionId,
       );
     }
 
@@ -307,13 +334,19 @@ export const TransactionService = {
       completionPayload.amount === undefined ||
       completionPayload.transactionDate === undefined
     ) {
-      throw new ManualCompletionRequiredError(ocrResult.transactionId, completionPayload);
+      throw new ManualCompletionRequiredError(
+        ocrResult.transactionId,
+        completionPayload,
+      );
     }
 
-    await TransactionService.completeTransaction(ocrResult.transactionId, completionPayload);
+    await TransactionService.completeTransaction(
+      ocrResult.transactionId,
+      completionPayload,
+    );
 
     const categorization = await TransactionService.categorizeTransaction(
-      ocrResult.transactionId
+      ocrResult.transactionId,
     );
 
     return {
@@ -325,14 +358,15 @@ export const TransactionService = {
 
   finalizeManualTransaction: async (
     transactionId: string,
-    payload: TransactionCompletionPayload
+    payload: TransactionCompletionPayload,
   ) => {
     await TransactionService.completeTransaction(transactionId, {
       ...payload,
       type: "expense",
     });
 
-    const categorization = await TransactionService.categorizeTransaction(transactionId);
+    const categorization =
+      await TransactionService.categorizeTransaction(transactionId);
     return categorization;
   },
 };

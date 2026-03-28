@@ -1,4 +1,4 @@
-import NewFinancialObjectiveScreen from "@/ui/templates/new-financial-objective-screen";
+import NewFinancialObjectiveScreen from "@/modules/dashboard/screens/new-financial-objective-screen";
 
 export default function Financial() {
   return <NewFinancialObjectiveScreen />;

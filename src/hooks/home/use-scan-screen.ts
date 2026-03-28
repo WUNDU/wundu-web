@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Document } from "@/types/button";
+import { Document } from "@/shared/types/button";
 import {
   ManualCompletionRequiredError,
   TransactionService,
 } from "@/services/transaction-service";
-import { useUiStore } from "@/store/ui-store";
+import { useUiStore } from "@/shared/store/ui-store";
 import {
   ALLOWED_UPLOAD_MIME,
   MAX_UPLOAD_FILE_SIZE_BYTES,

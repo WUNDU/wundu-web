@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api from "@/shared/lib/api";
 
 type DocumentCountResponse = {
   totalDocuments?: number;
@@ -9,7 +9,9 @@ const DOCUMENT_COUNT_TTL_MS = 60 * 1000;
 let cachedDocumentCount: number | null = null;
 let cachedDocumentCountTimestamp: number | null = null;
 
-const normalizeCount = (payload: number | DocumentCountResponse | unknown): number => {
+const normalizeCount = (
+  payload: number | DocumentCountResponse | unknown,
+): number => {
   if (typeof payload === "number") {
     return payload;
   }
@@ -34,12 +36,16 @@ const shouldUseCache = () => {
 };
 
 export const DocumentService = {
-  getTotalDocuments: async (options?: { bypassCache?: boolean }): Promise<number> => {
+  getTotalDocuments: async (options?: {
+    bypassCache?: boolean;
+  }): Promise<number> => {
     if (!options?.bypassCache && shouldUseCache()) {
       return cachedDocumentCount ?? 0;
     }
 
-    const { data } = await api.get<number | DocumentCountResponse>("/documents/count");
+    const { data } = await api.get<number | DocumentCountResponse>(
+      "/documents/count",
+    );
     const normalized = normalizeCount(data);
 
     cachedDocumentCount = normalized;

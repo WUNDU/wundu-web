@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
-import type { Article } from "@/types/article";
+import type { Article } from "@/shared/types/article";
 
 export const useLibraryScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");

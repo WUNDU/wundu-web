@@ -1,4 +1,4 @@
-import LegalPage from "@/ui/templates/legal/legal-screen";
+import LegalPage from "@/modules/legal/screens/legal-screen";
 
 export default function Legal() {
   return <LegalPage />;

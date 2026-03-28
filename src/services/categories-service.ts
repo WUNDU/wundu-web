@@ -1,6 +1,6 @@
-import api from "@/lib/api";
-import type { Category } from "@/types/category";
-import { withCache, CACHE_TAGS } from "@/lib/cache";
+import api from "@/shared/lib/api";
+import type { Category } from "@/shared/types/category";
+import { withCache, CACHE_TAGS } from "@/shared/lib/cache";
 
 const normalizeCategoriesResponse = (payload: unknown): Category[] => {
   if (Array.isArray(payload)) {
@@ -32,7 +32,7 @@ export const CategoriesService = {
     return withCache(
       fetchCategoriesList,
       `${CACHE_TAGS.CATEGORIES}:list`,
-      { ttl: 300000, tag: CACHE_TAGS.CATEGORIES } // 5 minutes
+      { ttl: 300000, tag: CACHE_TAGS.CATEGORIES }, // 5 minutes
     );
   },
 };

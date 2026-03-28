@@ -4,16 +4,19 @@ import "@/public/styles/globals.css";
 import "@/public/styles/landing.css";
 import { RegisterProvider } from "@/contexts/register-context";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-import CookieConsent from "@/ui/molecules/cookie-consent";
+import CookieConsent from "@/shared/components/cookie-consent";
+import AppToaster from "@/shared/components/app-toaster";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  preload: false,
 });
 
 const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -54,12 +57,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt">
-      <body className={`${inter.variable} ${openSans.variable} antialiased`}>
+    <html lang="pt" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${openSans.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <RegisterProvider>
           <CookieConsentProvider>
             {children}
             <CookieConsent />
+            <AppToaster />
           </CookieConsentProvider>
         </RegisterProvider>
       </body>

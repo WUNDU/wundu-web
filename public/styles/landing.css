@@ -233,9 +233,7 @@ html {
 }
 
 /* Backdrop blur melhorado */
-.backdrop-blur-md {
-  backdrop-filter: blur(12px);
-}
+/* Backdrop blur removed for performance */
 
 footer {
   transition: all 0.5s ease-in-out;
@@ -312,13 +310,9 @@ footer {
 }
 
 /* Backdrop blur melhorado */
-.backdrop-blur-sm {
-  backdrop-filter: blur(8px);
-}
+/* Blur classes removed */
 
-.backdrop-blur-md {
-  backdrop-filter: blur(12px);
-}
+/* Backdrop blur removed for performance */
 
 /* Animações personalizadas */
 @keyframes fade-in {

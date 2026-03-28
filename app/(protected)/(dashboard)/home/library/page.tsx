@@ -1,4 +1,4 @@
-import LibraryScreen from "@/ui/templates/library-screen";
+import LibraryScreen from "@/modules/other/screens/library-screen";
 
 export default function Library() {
   return <LibraryScreen />;

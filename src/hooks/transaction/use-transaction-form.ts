@@ -1,16 +1,16 @@
 import type {
   TransactionFormData,
   TransactionFormField,
-} from "@/types/transaction/transaction_type";
+} from "@/shared/types/transaction/transaction_type";
 import { useState } from "react";
 import {
   formatDateTimeLocal,
   isFutureDateTime,
   normalizeDateTimePayload,
-} from "@/utils/dateTime";
+} from "@/shared/components/utils/dateTime";
 
 export const useTransactionForm = (
-  initialData?: Partial<TransactionFormData>
+  initialData?: Partial<TransactionFormData>,
 ) => {
   const [formData, setFormData] = useState<TransactionFormData>({
     type: "expense",
@@ -26,9 +26,7 @@ export const useTransactionForm = (
 
   const handleChange = (field: TransactionFormField, value: string) => {
     const normalizedValue =
-      field === "transactionDate"
-        ? normalizeDateTimePayload(value)
-        : value;
+      field === "transactionDate" ? normalizeDateTimePayload(value) : value;
 
     setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
     if (errors[field]) {
