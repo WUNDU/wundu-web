@@ -10,11 +10,13 @@ import AppToaster from "@/shared/components/app-toaster";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  preload: false,
 });
 
 const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
+  preload: false,
 });
 
 export const metadata: Metadata = {

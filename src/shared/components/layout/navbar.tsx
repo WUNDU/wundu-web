@@ -47,9 +47,13 @@ export default function Navbar() {
         pointer-events-auto
         w-full max-w-6xl flex items-center justify-between 
         px-6 md:px-8 py-3 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] 
-        rounded-full border border-yellow-400/30 shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]
-        backdrop-blur-xl bg-yellow-400/10
-        ${scrolled ? "-translate-y-1 shadow-[0_20px_40px_rgba(0,0,0,0.1)] py-2 scale-[0.98] border-yellow-400/60 bg-white/20" : "py-4"}
+        rounded-full border shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]
+        backdrop-blur-xl
+        ${
+          scrolled
+            ? "-translate-y-1 py-2 scale-[0.98] bg-yellow-400/20 border-yellow-400/70 shadow-[0_20px_40px_rgba(255,199,39,0.15)]"
+            : "py-4 bg-white/10 border-white/20"
+        }
       `}
       >
         {/* Shine effect overlay */}

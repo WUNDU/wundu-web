@@ -1,8 +1,9 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ROUTES } from "@/constants/routes";
-import { Button } from "@/shared/components";
+import { imgScreenHome, imgScreenAI, imgScreenScan } from "@/constants/images";
 
 interface PageHeroProps {
   title: string | React.ReactNode;
@@ -40,17 +41,18 @@ const PageHero: React.FC<PageHeroProps> = ({
 
   return (
     <section
-      className="relative min-h-[80vh] flex items-center justify-center overflow-hidden"
+      className="relative flex flex-col overflow-hidden"
       style={{
         background:
           "linear-gradient(135deg, #00216b 0%, #003cc3 50%, #003cc3 100%)",
+        minHeight: "90vh",
       }}
     >
       {/* Parallax Background Elements */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary-dark/30 via-secondary/20 to-primary/10"></div>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-20 animate-pulse-slow"></div>
 
-      {/* Floating Elements with Parallax */}
+      {/* Floating Elements */}
       <div
         className="absolute top-20 left-20 w-32 h-32 rounded-full blur-xl animate-float transform-gpu"
         style={{ backgroundColor: "rgba(255, 212, 0, 0.2)" }}
@@ -64,13 +66,12 @@ const PageHero: React.FC<PageHeroProps> = ({
         className="absolute top-1/3 right-10 w-20 h-20 rounded-full blur-lg animate-float"
         style={{ backgroundColor: "rgba(255, 212, 0, 0.15)" }}
       ></div>
-
-      {/* Gradient Orbs */}
       <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-r from-primary/30 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
       <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-r from-secondary/20 to-transparent rounded-full blur-2xl animate-float-delayed"></div>
 
+      {/* Text content */}
       <div
-        className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 ${centered ? "text-center" : ""} relative z-10`}
+        className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 ${centered ? "text-center" : ""} relative z-10 pt-20 pb-10 flex-shrink-0`}
       >
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight fade-in-section animate-in mb-6">
           {renderTitle()}
@@ -97,6 +98,39 @@ const PageHero: React.FC<PageHeroProps> = ({
             </button>
           </div>
         )}
+      </div>
+
+      {/* Phone mockups pinned to bottom */}
+      <div className="relative z-10 mt-auto flex items-end justify-center gap-4 sm:gap-6 lg:gap-10 px-4 pb-0 fade-in-section animate-in delay-4">
+        {/* Left phone — Wundu IA */}
+        <div className="hidden sm:block w-32 md:w-44 lg:w-52 xl:w-60 flex-shrink-0 drop-shadow-2xl self-end translate-y-6 rotate-[-6deg] origin-bottom opacity-90">
+          <Image
+            src={imgScreenAI}
+            alt="Wundu IA - Assistente financeiro"
+            className="w-full rounded-[2rem] ring-1 ring-white/20"
+            priority
+          />
+        </div>
+
+        {/* Center phone — Home (main, tallest) */}
+        <div className="w-40 sm:w-52 lg:w-64 xl:w-72 flex-shrink-0 drop-shadow-2xl self-end">
+          <Image
+            src={imgScreenHome}
+            alt="Wundu App - Ecrã principal"
+            className="w-full rounded-[2.5rem] ring-2 ring-white/30"
+            priority
+          />
+        </div>
+
+        {/* Right phone — Scan/Import */}
+        <div className="hidden sm:block w-32 md:w-44 lg:w-52 xl:w-60 flex-shrink-0 drop-shadow-2xl self-end translate-y-6 rotate-[6deg] origin-bottom opacity-90">
+          <Image
+            src={imgScreenScan}
+            alt="Wundu - Importar dados"
+            className="w-full rounded-[2rem] ring-1 ring-white/20"
+            priority
+          />
+        </div>
       </div>
     </section>
   );

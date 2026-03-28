@@ -104,3 +104,4 @@ export { default as TextSection } from "./text-section";
 export { Transaction } from "./transaction";
 export { default as UploadOption } from "./upload-option";
 export { default as TransactionHighlight } from "./transaction-highlight";
+export { default as MaintenanceOverlay } from "./maintenance-overlay";

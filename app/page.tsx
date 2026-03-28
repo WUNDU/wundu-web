@@ -25,6 +25,8 @@ import Footer from "@/shared/components/layout/footer";
 import { useCountUp } from "@/hooks/use-count-up";
 import ScrollAnimationWrapper from "@/shared/components/layout/scroll-animation-wrapper";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { imgDashboard } from "@/constants/images";
 
 const StatCounter = ({ end, label }: { end: string; label: string }) => {
   const [startCount, setStartCount] = useState(false);
@@ -61,7 +63,7 @@ const StatCounter = ({ end, label }: { end: string; label: string }) => {
 const stats = [
   { value: "200", label: "Usuários cadastrados" },
   { value: "193", label: "Usuários activos" },
-  { value: "10", label: "Relatórios recentes" },
+  { value: "10", label: "Utilizadores recorrentes" },
 ];
 
 const features = [
@@ -234,6 +236,44 @@ export default function WunduPage() {
         </ScrollAnimationWrapper>
       </section>
 
+      {/* ── APP PREVIEW ── */}
+      <section className="py-20 md:py-32 px-4 md:px-8 bg-gray-50 text-center relative overflow-hidden">
+        <ScrollAnimationWrapper>
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-600 text-xs px-5 py-2 rounded-full mb-8">
+            <Zap className="w-4 h-4" />
+            <span className="font-black tracking-tight uppercase">wunduApp</span>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 text-gray-900 tracking-tighter max-w-3xl mx-auto">
+            Produto concebido para oferecer a melhor{" "}
+            <span className="text-yellow-400">experiência</span> ao utilizador
+          </h2>
+
+          {/* Subtitle */}
+          <p className="text-gray-500 max-w-2xl mx-auto mb-10 text-base md:text-lg font-medium leading-relaxed">
+            Desenvolvido com foco no utilizador, este produto combina
+            simplicidade, usabilidade e eficiência para proporcionar uma
+            experiência intuitiva, fluida e orientada a resultados.
+          </p>
+
+          {/* CTA */}
+          <button className="bg-yellow-400 text-white px-10 py-4 rounded-full font-black text-lg hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl mb-16 inline-flex items-center gap-2">
+            comece aqui
+          </button>
+
+          {/* Dashboard screenshot */}
+          <div className="relative max-w-5xl mx-auto rounded-2xl overflow-hidden border-2 border-yellow-400 shadow-2xl shadow-yellow-400/10">
+            <Image
+              src={imgDashboard}
+              alt="Wundu Dashboard"
+              className="w-full"
+            />
+          </div>
+        </ScrollAnimationWrapper>
+      </section>
+
       {/* ── NUCLEUS (Advanced Planetary Orbit) ── */}
       <section className="py-20 md:py-32 px-4 md:px-8 text-center bg-white relative overflow-hidden">
         <ScrollAnimationWrapper>
@@ -355,8 +395,8 @@ export default function WunduPage() {
             Pronto para assumir o controle?
           </h2>
           <p className="text-blue-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 md:mb-12 font-medium relative z-10 leading-relaxed">
-            Junte-se a nós e comece hoje a transformar a tua relação com o
-            dinheiro.
+            Junta-te a nós e começa hoje a transformar a tua relação com o
+            dinheiro, com mais controlo, clareza e confiança.
           </p>
           <button className="bg-yellow-400 text-white px-10 md:px-14 py-4 md:py-5 rounded-full font-black text-lg md:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl relative z-10 flex items-center gap-3 mx-auto">
             Começar agora <ArrowRight className="w-6 h-6" />

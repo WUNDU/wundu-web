@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { appScreen } from "@/constants/images";
 import { BookIcon, GroupIcon, SecurityIcon } from "@/constants/icons";
 
 const AISection: React.FC = () => {
@@ -54,7 +53,7 @@ const AISection: React.FC = () => {
           <div className="fade-in-section">
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-yellow-500 to-blue-500 rounded-3xl opacity-20 blur-xl"></div>
-              <Image
+              {/* <Image
                 src={appScreen}
                 alt="App Wundu"
                 className="hidden md:flex rounded-3xl mx-auto max-w-md shadow-2xl relative z-10 float-animation"
@@ -65,7 +64,7 @@ const AISection: React.FC = () => {
                 alt="App Wundu"
                 className="md:hidden rounded-3xl mx-auto max-w-md shadow-2xl relative z-10 float-animation"
                 width={300}
-              />
+              /> */}
             </div>
           </div>
         </div>

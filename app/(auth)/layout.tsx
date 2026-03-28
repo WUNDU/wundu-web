@@ -3,12 +3,15 @@ import { useRegisterContext } from "@/contexts/use-register-context";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
-import LoadingSpinner from "@/shared/components/loading-spinner";
+import { LoadingSpinner, MaintenanceOverlay } from "@/shared/components";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useRegisterContext();
   const router = useRouter();
   const [checked, setChecked] = useState(false);
+
+  // Alterar para false quando os problemas técnicos forem resolvidos
+  const isMaintenance = true;
 
   useEffect(() => {
     if (!isLoading) {
@@ -25,6 +28,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <LoadingSpinner />
       </div>
     );
+  }
+
+  if (isMaintenance) {
+    return <MaintenanceOverlay />;
   }
 
   if (isAuthenticated) {
