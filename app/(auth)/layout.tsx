@@ -71,7 +71,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   // Alterar para false quando os problemas técnicos forem resolvidos
-  const isMaintenance = false;
+  const isMaintenance = true;
 
   useEffect(() => {
     if (!isLoading) {
