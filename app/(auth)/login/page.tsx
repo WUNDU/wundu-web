@@ -1,45 +1,95 @@
 "use client";
 
-import { Input, Button, LoadingSpinner, LogoType } from "@/shared/components";
-import {
-  loginIllustration,
-  errorIllustration,
-  logoLogin,
-} from "@/constants/images";
+import { Input, Button, LoadingSpinner, LogoType } from "@/components/ui";
+import { loginIllustration, errorIllustration } from "@/constants/images";
 import { EmailIcon, SecurityIcon } from "@/constants/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { useState, useEffect } from "react";
-import { useRegisterContext } from "@/contexts/use-register-context";
-import { useLoginForm } from "@/hooks/auth/use-login-form";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/user-store";
+import {
+  validateEmail,
+  validatePasswordDetailed,
+} from "@/utils/validation";
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
+  const {
+    isAuthenticated,
+    clearError,
+    loginUser,
+    error: contextError,
+    isLoading,
+  } = useUserStore();
+
   const [hasError, setHasError] = useState(false);
-  const { isAuthenticated, clearError } = useRegisterContext();
+  const [form, setFormState] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Clear global errors on mount
   useEffect(() => {
     clearError();
   }, [clearError]);
 
-  const handleErrorChange = (error: boolean) => {
-    setHasError(error);
-  };
-
-  const {
-    form,
-    errors,
-    setField,
-    submit,
-    contextError,
-    isSubmitting,
-    isLoading,
-  } = useLoginForm(handleErrorChange);
+  useEffect(() => {
+    if (contextError) setHasError(true);
+  }, [contextError]);
 
   useEffect(() => {
     if (isAuthenticated) setHasError(false);
   }, [isAuthenticated]);
+
+  const setField = (field: "email" | "password", value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+    if (errors[field] || contextError) {
+      clearError();
+      setHasError(false);
+    }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({ email: "", password: "" });
+    clearError();
+    setHasError(false);
+
+    let valid = true;
+    const nextErrors = { email: "", password: "" };
+
+    if (!validateEmail(form.email)) {
+      nextErrors.email = "Por favor, insira um email válido";
+      valid = false;
+    }
+
+    const passwordValidation = validatePasswordDetailed(form.password);
+    if (!passwordValidation.isValid) {
+      nextErrors.password =
+        "Senha deve ter entre 8 e 12 caracteres, com letras maiúsculas, minúsculas, números e caractere especial";
+      valid = false;
+    }
+
+    if (!valid) {
+      setErrors(nextErrors);
+      setHasError(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await loginUser(form.email, form.password);
+      router.push(ROUTES.HOME);
+    } catch {
+      setHasError(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">

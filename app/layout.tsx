@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
 import "@/public/styles/landing.css";
-import { RegisterProvider } from "@/contexts/register-context";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-import CookieConsent from "@/shared/components/cookie-consent";
-import AppToaster from "@/shared/components/app-toaster";
+import { AuthInitializer } from "@/components/auth-initializer";
+import { CookieConsent } from "@/components/layout/cookie-consent";
+import { Toaster } from "sonner";
+import { ToasterComponent } from "@/hooks/use-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,6 +19,7 @@ const openSans = Open_Sans({
   variable: "--font-open-sans",
   preload: false,
 });
+
 
 export const metadata: Metadata = {
   title: "Wundu | O Futuro das Tuas Finanças",
@@ -62,13 +64,13 @@ export default function RootLayout({
         className={`${inter.variable} ${openSans.variable} antialiased`}
         suppressHydrationWarning
       >
-        <RegisterProvider>
-          <CookieConsentProvider>
+        <CookieConsentProvider>
+            <AuthInitializer />
             {children}
             <CookieConsent />
-            <AppToaster />
+            <Toaster position="top-right" closeButton />
+            <ToasterComponent />
           </CookieConsentProvider>
-        </RegisterProvider>
       </body>
     </html>
   );

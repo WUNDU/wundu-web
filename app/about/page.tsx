@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/shared/components/layout/navbar";
+import { Navbar } from "@/components/layout";
 import {
   Star,
   Award,
@@ -10,8 +10,8 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
-import HeroSection from "@/shared/components/landing-page/hero-section";
-import Footer from "@/shared/components/layout/footer";
+import HeroSection from "@/components/ui/hero-section";
+import { Footer } from "@/components/layout";
 import Image from "next/image";
 import {
   img130,

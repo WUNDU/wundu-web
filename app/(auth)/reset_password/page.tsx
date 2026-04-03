@@ -1,10 +1,403 @@
-import PasswordResetScreen from "@/modules/auth/screens/password-screen";
-import { PasswordResetProvider } from "@/contexts/password-reset-context";
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Button, Input, TextInput } from "@/components/ui";
+import { PasswordResetData } from "@/types/ui";
+
+interface CodeInputProps {
+  length: number;
+  value: string;
+  onChange: (value: string) => void;
+  isError?: boolean;
+  isSuccess?: boolean;
+}
+
+const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError = false, isSuccess = false }) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  useEffect(() => { inputRefs.current = inputRefs.current.slice(0, length); }, [length]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const val = e.target.value;
+    if (/[^0-9]/.test(val)) return;
+    const newValue = value.slice(0, index) + val + value.slice(index + 1);
+    onChange(newValue);
+    if (val && index < length - 1) inputRefs.current[index + 1]?.focus();
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace" && !e.currentTarget.value && index > 0) inputRefs.current[index - 1]?.focus();
+  };
+  const borderColorClass = isError ? "border-red-500" : isSuccess ? "border-green-500" : "border-gray-300";
+  return (
+    <div className="flex flex-row gap-2.5 justify-center">
+      {[...Array(length)].map((_, index) => (
+        <TextInput
+          label=""
+          key={index}
+          id={`code-input-${index}`}
+          type="tel"
+          className={`text-center rounded-lg w-12 h-12 text-3xl shadow-sm border ${borderColorClass}`}
+          value={value[index] || ""}
+          onChange={(e) => handleChange(e, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          ref={(el) => { inputRefs.current[index] = el; }}
+          maxLength={1}
+          inputMode="numeric"
+        />
+      ))}
+    </div>
+  );
+};
+import { ROUTES } from "@/constants/routes";
+import { COUNTRIES } from "@/constants/countries";
+import { logo } from "@/constants/images";
+import { ClockIcon, CheckmarkIcon } from "@/constants/icons";
+import { validatePhoneNumber } from "@/utils/validation";
+
+type CTAVariant = "landing" | "login" | "default";
+
+interface CTAProps {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  buttonText?: string;
+  onButtonClick?: () => void;
+  showButton?: boolean;
+  variant?: CTAVariant;
+  className?: string;
+}
+
+const CTA: React.FC<CTAProps> = ({
+  title,
+  subtitle,
+  buttonText = "Continuar",
+  onButtonClick,
+  showButton = false,
+  variant = "default",
+  className,
+}) => {
+  const containerClasses = ["flex flex-col items-center text-center", variant === "landing" ? "gap-6" : "gap-4", className || ""].filter(Boolean).join(" ");
+  const titleClasses = ["font-bold text-gray-900", variant === "landing" ? "text-3xl md:text-4xl" : "text-xl md:text-2xl"].join(" ");
+  const subtitleClasses = ["text-gray-600", variant === "landing" ? "text-base md:text-lg" : "text-sm md:text-base"].join(" ");
+  const buttonVariant = variant === "landing" ? "landing" : "primary";
+  return (
+    <div className={containerClasses}>
+      <h2 className={titleClasses}>{title}</h2>
+      {subtitle && <p className={subtitleClasses}>{subtitle}</p>}
+      {showButton && (
+        <div className="mt-2">
+          <Button variant={buttonVariant as any} onClick={onButtonClick}>{buttonText}</Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({ prev, color }) => {
+  const router = useRouter();
+  return (
+    <button
+      onClick={prev ?? (() => router.back())}
+      className={`p-2 -ml-2 ${color ?? "text-gray-700"} hover:bg-gray-100 rounded-full transition-colors`}
+      aria-label="Voltar"
+    >
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+  );
+};
+
+// ── Step 1: Email / Phone ──
+function StepEmailPhone({ setResetData, nextStep }: { setResetData: (d: PasswordResetData) => void; nextStep: () => void }) {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState(COUNTRIES[0].code);
+  const [isError, setIsError] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validatePhoneNumber(phoneNumber)) {
+      setResetData({ phoneOrEmail: countryCode + phoneNumber });
+      nextStep();
+      setIsError(false);
+    } else {
+      setIsError(true);
+    }
+  };
+
+  return (
+    <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
+      <NavigationBack />
+      <div className="w-full text-left md:text-center">
+        <CTA
+          title="Perdeu a sua senha?"
+          subtitle="Digite seu número telefónico e enviaremos um código de verificação."
+          variant="default"
+        />
+      </div>
+      <form
+        onSubmit={submit}
+        className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6"
+      >
+        <div className="flex items-center gap-2">
+          <select
+            name="countryCode"
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value)}
+            className="w-auto rounded-xl border border-gray-300 px-4 py-3 m-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 md:rounded-lg"
+          >
+            {COUNTRIES.map((country) => (
+              <option key={country.code} value={country.code}>
+                {country.flag} {country.code}
+              </option>
+            ))}
+          </select>
+          <TextInput
+            id="phone-number"
+            label=""
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Digite seu nº de telefone"
+            isError={isError}
+            maxLength={9}
+            required
+          />
+        </div>
+        {isError && (
+          <p className="text-sm text-red-500 -mt-4 md:text-center">
+            Por favor, insira um número de telefone válido.
+          </p>
+        )}
+        <Button onClick={() => {}} type="submit">
+          Continuar
+        </Button>
+      </form>
+      <div className="mt-auto h-1/4 md:hidden"></div>
+    </div>
+  );
+}
+
+// ── Step 2: Verification ──
+function StepVerification({ prevStep, nextStep, timer, resetTimer, isCodeIncorrect, setIsCodeIncorrect }: {
+  prevStep: () => void;
+  nextStep: () => void;
+  timer: number;
+  resetTimer: () => void;
+  isCodeIncorrect: boolean;
+  setIsCodeIncorrect: (v: boolean) => void;
+}) {
+  const [code, setCode] = useState("");
+  const [isCodeCorrect, setIsCodeCorrect] = useState(false);
+
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
+  const isRed = timer <= 30;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code === "123456") {
+      setIsCodeIncorrect(false);
+      setIsCodeCorrect(true);
+      setTimeout(() => {
+        nextStep();
+      }, 500);
+    } else {
+      setIsCodeIncorrect(true);
+      setIsCodeCorrect(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full flex-col gap-y-8 justify-between p-6 md:gap-y-6 md:justify-start md:p-0">
+      <NavigationBack prev={prevStep} />
+      <div className="w-full mt-10 md:mt-0 md:text-center">
+        <CTA
+          title="Verificação do Código"
+          subtitle="Insira o código que foi enviado para o seu nº telefônico nos campos abaixo."
+          variant="default"
+        />
+      </div>
+      <form
+        onSubmit={submit}
+        className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6"
+      >
+        <CodeInput
+          length={6}
+          value={code}
+          onChange={setCode}
+          isError={isCodeIncorrect}
+          isSuccess={isCodeCorrect}
+        />
+        {isCodeIncorrect && (
+          <p className="text-sm text-red-500 text-center">
+            Código incorreto. Tente novamente.
+          </p>
+        )}
+        <div className="flex items-center justify-between">
+          <Link
+            href={ROUTES.RESEND_CODE}
+            className="text-sm text-gray-600"
+            onClick={resetTimer}
+          >
+            Não recebi o código
+          </Link>
+          <div
+            className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}
+          >
+            <ClockIcon className="mr-1" />
+            {minutes.toString().padStart(2, "0")}:
+            {seconds.toString().padStart(2, "0")}
+          </div>
+        </div>
+        <Button onClick={() => {}} type="submit">
+          Confirmar
+        </Button>
+      </form>
+      <div className="mt-auto h-1/4 md:hidden"></div>
+    </div>
+  );
+}
+
+// ── Step 3: New Password ──
+function StepNewPassword({ prevStep, nextStep, setResetData }: { prevStep: () => void; nextStep: () => void; setResetData: (d: PasswordResetData) => void }) {
+  const [form, setFormState] = useState({ password: "", confirmPassword: "" });
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+
+  const setField = (field: "password" | "confirmPassword", value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password === form.confirmPassword && form.password.length > 0) {
+      setResetData({ newPassword: form.password });
+      nextStep();
+      setPasswordsMatch(true);
+    } else {
+      setPasswordsMatch(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full md:max-w-xl flex-col gap-2.5 justify-between md:gap-6 md:justify-start md:p-0">
+      <NavigationBack prev={prevStep} />
+      <div className="w-full text-left md:text-center">
+        <CTA
+          title="Criar uma nova senha"
+          subtitle="Crie uma senha e mantenha seus dados seguros."
+          variant="default"
+        />
+      </div>
+      <form
+        onSubmit={submit}
+        className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6"
+      >
+        <Input
+          id="password"
+          label="Crie uma senha"
+          type="password"
+          value={form.password}
+          onChange={(e) => setField("password", e.target.value)}
+          placeholder="************"
+          required
+          isError={!passwordsMatch}
+        />
+        <Input
+          id="confirmPassword"
+          label="Repita a senha"
+          type="password"
+          value={form.confirmPassword}
+          onChange={(e) => setField("confirmPassword", e.target.value)}
+          placeholder="************"
+          required
+          isError={!passwordsMatch}
+        />
+        {!passwordsMatch && (
+          <p className="text-sm text-red-500 text-center">
+            As senhas não correspondem.
+          </p>
+        )}
+        <Button onClick={() => {}} type="submit">
+          Continuar
+        </Button>
+      </form>
+      <div className="mt-auto h-1/4 md:hidden"></div>
+    </div>
+  );
+}
+
+// ── Step 4: Success ──
+function StepSuccess() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col h-full justify-center items-center text-center p-8 md:p-0 md:gap-6">
+      <div className="w-24 h-24 mb-8 md:mb-4 flex items-center justify-center rounded-full bg-green-100">
+        <CheckmarkIcon className="w-16 h-16 text-green-500" />
+      </div>
+      <h1 className="text-3xl md:text-2xl font-bold text-gray-800">
+        SENHA REDEFINIDA COM SUCESSO!
+      </h1>
+      <p className="mt-2 text-gray-600 max-w-sm mx-auto">
+        Tudo certo! agora podes aceder a sua conta com a tua nova senha.
+      </p>
+      <div className="fixed bottom-0 left-0 right-0 p-4 md:static md:p-0 md:w-full md:max-w-sm">
+        <Button onClick={() => router.push(ROUTES.LOGIN)} type="button">
+          Continuar
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function PasswordReset() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [data, setData] = useState<PasswordResetData>({});
+  const [timer, setTimer] = useState(120);
+  const [isCodeIncorrect, setIsCodeIncorrect] = useState(false);
+
+  const setResetData = (newData: PasswordResetData) =>
+    setData((prev) => ({ ...prev, ...newData }));
+  const nextStep = () => setCurrentStep((prev) => prev + 1);
+  const prevStep = () => setCurrentStep((prev) => prev - 1);
+  const resetTimer = () => setTimer(120);
+
+  useEffect(() => {
+    let countdown: NodeJS.Timeout | null = null;
+    if (currentStep === 2 && timer > 0) {
+      countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    }
+    return () => { if (countdown) clearInterval(countdown); };
+  }, [currentStep, timer]);
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} />;
+      case 2:
+        return <StepVerification prevStep={prevStep} nextStep={nextStep} timer={timer} resetTimer={resetTimer} isCodeIncorrect={isCodeIncorrect} setIsCodeIncorrect={setIsCodeIncorrect} />;
+      case 3:
+        return <StepNewPassword prevStep={prevStep} nextStep={nextStep} setResetData={setResetData} />;
+      case 4:
+        return <StepSuccess />;
+      default:
+        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} />;
+    }
+  };
+
   return (
-    <PasswordResetProvider>
-      <PasswordResetScreen />
-    </PasswordResetProvider>
+    <div className="min-h-screen w-screen bg-white md:bg-gray-100">
+      <div className="block md:hidden h-screen">{renderStep()}</div>
+      <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">
+        <div className="absolute top-8 left-8 flex items-center gap-2">
+          <Image src={logo} alt="Login Illustration" className="w-full" />
+          <span className="text-2xl font-bold text-gray-800">WUNDU</span>
+        </div>
+        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
+          {renderStep()}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { wunduToast } from "@/shared/lib/toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { wunduToast } from "@/utils/toast";
 import { ROUTES } from "@/constants/routes";
-import { Button, Input, LoadingSpinner, LogoType } from "@/shared/components";
-import PhoneInput from "@/shared/components/phone-onput";
-import { useRegisterContext } from "@/contexts/use-register-context";
-import { usePersonalData } from "@/hooks/auth/use-personal-data";
-import { useSecurityData } from "@/hooks/auth/use-security-data";
-import PasswordValidationFeedback from "@/modules/auth/components/password-validation";
+import { Button, Input, LoadingSpinner, LogoType } from "@/components/ui";
+import { useUserStore } from "@/store/user-store";
+import {
+  validateEmail,
+  validatePhoneNumber,
+  validatePasswordDetailed,
+  type PasswordValidation,
+} from "@/utils/validation";
 import {
   CheckmarkIcon,
   MoneyBagIcon,
@@ -22,6 +25,64 @@ import {
   ArrowLeftIcon,
 } from "@/constants/icons";
 
+interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  label?: string;
+  isError?: boolean;
+  onChange?: (value: string) => void;
+}
+
+const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
+  ({ label, placeholder = "Digite seu número de telefone", value = "", onChange, isError = false, required = false, ...props }, ref) => {
+    const [selectedCountry, setSelectedCountry] = useState("+244");
+    const countries = [{ code: "+244", name: "Angola", flag: "🇦🇴" }];
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let phoneNumber = e.target.value.replace(/\D/g, '');
+      if (phoneNumber.length > 9) phoneNumber = phoneNumber.slice(0, 9);
+      onChange?.(`${selectedCountry} ${phoneNumber}`);
+    };
+
+    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newCountryCode = e.target.value;
+      setSelectedCountry(newCountryCode);
+      const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
+      onChange?.(`${newCountryCode} ${phoneOnly}`);
+    };
+
+    const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
+    const borderClass = isError ? "border-red-500" : "border-gray-300";
+    const ringClass = isError ? "focus:ring-red-500" : "focus:ring-blue-500";
+
+    return (
+      <div className="flex w-full flex-col gap-2">
+        {label && <label className="text-gray-600 text-sm font-medium">{label}</label>}
+        <div className="flex">
+          <select
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            className={`rounded-l-xl border ${borderClass} px-3 py-3 text-gray-800 focus:outline-none focus:ring-2 ${ringClass} bg-gray-50 min-w-[100px]`}
+          >
+            {countries.map((country) => (
+              <option key={country.code} value={country.code}>{country.flag} {country.code}</option>
+            ))}
+          </select>
+          <input
+            ref={ref}
+            type="tel"
+            placeholder={placeholder}
+            value={phoneOnly}
+            onChange={handlePhoneChange}
+            required={required}
+            className={`w-full rounded-r-xl border-l-0 border ${borderClass} px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 ${ringClass}`}
+            {...props}
+          />
+        </div>
+      </div>
+    );
+  }
+);
+PhoneInput.displayName = "PhoneInput";
+
 /**
  * RegisterPage - Interface Design Standard
  *
@@ -30,8 +91,17 @@ import {
  * Depth: Fixed 660px height to prevent layout shifts.
  */
 const RegisterPage = () => {
-  const { currentStep, prevStep, data, loginUser, clearError } =
-    useRegisterContext();
+  const {
+    currentStep,
+    prevStep,
+    nextStep,
+    data,
+    loginUser,
+    clearError,
+    setRegisterData,
+    registerUser,
+    error,
+  } = useUserStore();
   const router = useRouter();
 
   // Clear global auth errors on mount
@@ -39,23 +109,112 @@ const RegisterPage = () => {
     clearError();
   }, [clearError]);
 
-  const {
-    form: personalForm,
-    errors: personalErrors,
-    setField: setPersonalField,
-    submit: submitPersonal,
-  } = usePersonalData();
+  // ── Personal Data (Step 1) state ──
+  const [personalForm, setPersonalFormState] = useState({
+    name: data.name || "",
+    email: data.email || "",
+    phone: data.phone || "",
+  });
+  const [personalErrors, setPersonalErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
-  const {
-    form: securityForm,
-    setField: setSecurityField,
-    submit: submitSecurity,
-    passwordError,
-    passwordValidation,
-    isSubmitting,
-    contextError,
-  } = useSecurityData();
+  const setPersonalField = (
+    field: "name" | "email" | "phone",
+    value: string,
+  ) => {
+    setPersonalFormState((prev) => ({ ...prev, [field]: value }));
+    if (personalErrors[field]) {
+      setPersonalErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+    clearError();
+  };
 
+  const submitPersonal = (e: React.FormEvent) => {
+    e.preventDefault();
+    let valid = true;
+    const nextErrors = { name: "", email: "", phone: "" };
+
+    if (!personalForm.name || personalForm.name.trim().length < 3) {
+      nextErrors.name = "Por favor, insira seu nome completo";
+      valid = false;
+    }
+    if (!validateEmail(personalForm.email)) {
+      nextErrors.email = "Por favor, insira um email válido";
+      valid = false;
+    }
+    if (!validatePhoneNumber(personalForm.phone)) {
+      nextErrors.phone = "Por favor, insira um número de telefone válido";
+      valid = false;
+    }
+
+    setPersonalErrors(nextErrors);
+    if (!valid) return;
+
+    setRegisterData(personalForm);
+    nextStep();
+  };
+
+  // ── Security Data (Step 2) state ──
+  const [securityForm, setSecurityFormState] = useState({
+    password: data.password || "",
+    confirmPassword: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordValidation, setPasswordValidation] =
+    useState<PasswordValidation>(
+      validatePasswordDetailed(data.password || ""),
+    );
+  const contextError = error;
+
+  const setSecurityField = (
+    field: "password" | "confirmPassword",
+    value: string,
+  ) => {
+    setSecurityFormState((prev) => ({ ...prev, [field]: value }));
+    if (field === "password") {
+      setPasswordValidation(validatePasswordDetailed(value));
+      if (passwordError) setPasswordError("");
+      if (error) clearError();
+    }
+    if (field === "confirmPassword" && passwordError) {
+      setPasswordError("");
+      if (error) clearError();
+    }
+  };
+
+  const submitSecurity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    clearError();
+    const validation = validatePasswordDetailed(securityForm.password);
+    if (!validation.isValid) {
+      setPasswordError("A senha não cumpre todos os requisitos de segurança.");
+      return;
+    }
+    if (securityForm.password !== securityForm.confirmPassword) {
+      setPasswordError("As senhas digitadas não são iguais.");
+      return;
+    }
+    setPasswordError("");
+    setIsSubmitting(true);
+    try {
+      await registerUser({ ...data, password: securityForm.password });
+      setRegisterData({ password: securityForm.password });
+      nextStep();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Falha ao concluir o cadastro.";
+      wunduToast.error("Erro no cadastro", { description: message });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ── UI state ──
   const [isVisible, setIsVisible] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [autoLoginError, setAutoLoginError] = useState<string | null>(null);
@@ -107,6 +266,37 @@ const RegisterPage = () => {
       setIsLoggingIn(false);
     }
   };
+
+  // ── Inline PasswordValidationFeedback ──
+  const passwordCriteriaList = [
+    {
+      key: "minLength",
+      label: "8+ chars",
+      isValid: passwordValidation.criteria.minLength,
+    },
+    {
+      key: "hasLowercase",
+      label: "a-z",
+      isValid: passwordValidation.criteria.hasLowercase,
+    },
+    {
+      key: "hasUppercase",
+      label: "A-Z",
+      isValid: passwordValidation.criteria.hasUppercase,
+    },
+    {
+      key: "hasNumber",
+      label: "0-9",
+      isValid: passwordValidation.criteria.hasNumber,
+    },
+    {
+      key: "hasSpecialChar",
+      label: "!@#",
+      isValid: passwordValidation.criteria.hasSpecialChar,
+    },
+  ];
+  const showPasswordCriteria =
+    isPasswordFocused || securityForm.password.length > 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
@@ -290,12 +480,49 @@ const RegisterPage = () => {
                         isError={!!passwordError || !!contextError}
                         className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
                       />
-                      <PasswordValidationFeedback
-                        validation={passwordValidation}
-                        isVisible={
-                          isPasswordFocused || securityForm.password.length > 0
-                        }
-                      />
+                      {/* Inline PasswordValidationFeedback */}
+                      <div className="mt-2 px-1">
+                        <AnimatePresence initial={false}>
+                          {showPasswordCriteria && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="flex flex-wrap gap-x-3 gap-y-1.5"
+                            >
+                              {passwordCriteriaList.map((criterion) => (
+                                <div
+                                  key={criterion.key}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  <div
+                                    className={`flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors duration-300 ${
+                                      criterion.isValid
+                                        ? "bg-green-500 text-white"
+                                        : "bg-slate-200 text-slate-400"
+                                    }`}
+                                  >
+                                    {criterion.isValid ? (
+                                      <CheckmarkIcon className="h-2 w-2" />
+                                    ) : (
+                                      <div className="h-1 w-1 rounded-full bg-current" />
+                                    )}
+                                  </div>
+                                  <span
+                                    className={`text-[10px] font-bold uppercase tracking-tight transition-colors duration-300 ${
+                                      criterion.isValid
+                                        ? "text-green-600"
+                                        : "text-slate-400"
+                                    }`}
+                                  >
+                                    {criterion.label}
+                                  </span>
+                                </div>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
 
                     <Input

@@ -1,6 +1,6 @@
-import type { Article, InvestmentType } from "../shared/types/article";
-import type { Category } from "../shared/types/category";
-import type { TimeRange } from "../shared/types/panel";
+import type { Article, InvestmentType } from "../types/ui";
+import type { Category } from "../types/dtos/category.dto";
+import type { TimeRange } from "../types/ui";
 
 export const investmentTypes: InvestmentType[] = [
   {

@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/shared/components/layout/navbar";
+import { Navbar } from "@/components/layout";
 import {
   RefreshCw,
   BarChart3,
@@ -18,12 +18,12 @@ import {
   TrendingDown,
   Coins,
 } from "lucide-react";
-import { LogoType } from "@/shared/components";
+import { LogoType } from "@/components/ui";
 import { SettingsRightBarIcon } from "@/constants/icons";
-import HeroSection from "@/shared/components/landing-page/hero-section";
-import Footer from "@/shared/components/layout/footer";
+import HeroSection from "@/components/ui/hero-section";
+import { Footer } from "@/components/layout";
 import { useCountUp } from "@/hooks/use-count-up";
-import ScrollAnimationWrapper from "@/shared/components/layout/scroll-animation-wrapper";
+import { ScrollAnimationWrapper } from "@/components/layout";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { imgDashboard } from "@/constants/images";
