@@ -136,7 +136,7 @@ export default function Support() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" as const }}
+          transition={{ duration: 0.18, ease: "easeOut" as const }}
           className="pt-4"
         >
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm px-3 sm:px-4 py-3 sm:py-4">
@@ -159,7 +159,7 @@ export default function Support() {
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.26, ease: "easeOut" as const, delay: 0.04 }}
+            transition={{ duration: 0.18, ease: "easeOut" as const, delay: 0.04 }}
             className="bg-white rounded-xl border border-slate-100 shadow-sm p-3 lg:p-4 space-y-3 lg:col-span-2"
           >
             <h2 className="text-sm font-bold text-slate-800">Canais de contacto</h2>
@@ -188,7 +188,7 @@ export default function Support() {
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.28, ease: "easeOut" as const, delay: 0.08 }}
+            transition={{ duration: 0.18, ease: "easeOut" as const, delay: 0.08 }}
             className="bg-white rounded-xl border border-slate-100 shadow-sm p-3 lg:p-4 lg:col-span-3"
           >
             <h2 className="text-sm font-bold text-slate-800">Envie-nos uma mensagem</h2>

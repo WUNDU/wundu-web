@@ -70,11 +70,8 @@ import {
   NoMovementIcon,
   PlusFileIcon,
   EditIcon,
-  ReceiptIcon,
-  SettingsIcon,
+  CardIcon,
   ArrowRotateIcon,
-  PaymentIcon,
-  MoneyIcon,
   CalendarIcon,
 } from "@/constants/icons";
 import TextInput from "@/components/ui/text-input";
@@ -86,9 +83,9 @@ import { TransactionDetailPanel } from "@/components/ui/transaction-detail-panel
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const SECTION_ENTER = {
-  initial: { opacity: 0, y: 16 },
+  initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35, ease: EASE_OUT as [number, number, number, number] },
+  transition: { duration: 0.2, ease: EASE_OUT as [number, number, number, number] },
 };
 
 const UploadSection: React.FC<{ onUploadClick: () => void }> = ({
@@ -147,7 +144,7 @@ const UploadOptions: React.FC<{
         className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 border-dashed border-[rgba(0,60,195,0.15)] bg-[rgba(0,60,195,0.025)] rounded-xl text-left hover:bg-[rgba(0,60,195,0.04)] transition-colors"
       >
         <div className="flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] rounded-[13px] sm:rounded-[15px]">
-          <PlusFileIcon className="w-6 h-6 text-[#ffd400]" />
+          <CardIcon className="w-6 h-6 text-[#ffd400]" />
         </div>
         <div>
           <p className="text-sm font-bold text-slate-900">Enviar Comprovativo</p>
@@ -197,6 +194,24 @@ interface AddTransactionModalProps {
   onFormChange: (field: string, value: string) => void;
 }
 
+const CATEGORIES = [
+  { id: "food",      name: "Alimentação" },
+  { id: "transport", name: "Transporte"  },
+  { id: "housing",   name: "Moradia"     },
+  { id: "health",    name: "Saúde"       },
+  { id: "education", name: "Educação"    },
+  { id: "leisure",   name: "Lazer"       },
+  { id: "services",  name: "Serviços"    },
+  { id: "others",    name: "Outros"      },
+];
+
+const inputCls = (hasError: boolean) =>
+  `w-full rounded-xl border px-4 py-3 text-sm text-[#1e293b] placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
+    hasError
+      ? "border-red-300 focus:border-red-400"
+      : "border-slate-200 focus:border-[#003cc3]/40"
+  }`;
+
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   isOpen,
   onClose,
@@ -207,13 +222,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   submitError,
   onFormChange,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [amountDisplay, setAmountDisplay] = useState("");
   const { showNotification } = useUiStore();
 
   useEffect(() => {
-    if (isOpen) setIsVisible(true);
-    else { setIsVisible(false); setAmountDisplay(""); }
+    if (!isOpen) setAmountDisplay("");
   }, [isOpen]);
 
   useEffect(() => {
@@ -226,230 +239,195 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     onFormChange("amount", parseAOA(masked));
   };
 
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(() => onClose(), 300);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await onSubmit();
     if (success) {
-      showNotification(
-        "success",
-        "Transação Adicionada!",
-        "Sua transação foi registrada com sucesso.",
-      );
+      showNotification("success", "Transação Adicionada!", "Registada com sucesso.");
     }
   };
 
-  if (!isOpen && !isVisible) return null;
-
-  const categories = [
-    { id: "food", name: "Alimentação" },
-    { id: "transport", name: "Transporte" },
-    { id: "housing", name: "Moradia" },
-    { id: "health", name: "Saúde" },
-    { id: "education", name: "Educação" },
-    { id: "leisure", name: "Lazer" },
-    { id: "services", name: "Serviços" },
-    { id: "others", name: "Outros" },
-  ];
-
   const maxTransactionDate = formatDateTimeLocal();
-  const maxTransactionDateLabel = new Date(maxTransactionDate).toLocaleString(
-    "pt-AO",
-    {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    },
-  );
+  const maxLabel = new Date(maxTransactionDate).toLocaleString("pt-AO", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  });
 
-  const handleDateInvalid = (event: React.InvalidEvent<HTMLInputElement>) => {
-    event.currentTarget.setCustomValidity(
-      `Use uma data e hora iguais ou anteriores a ${maxTransactionDateLabel}.`,
-    );
+  const handleDateInvalid = (e: React.InvalidEvent<HTMLInputElement>) => {
+    e.currentTarget.setCustomValidity(`Use uma data e hora iguais ou anteriores a ${maxLabel}.`);
   };
-
-  const handleDateInput = (event: React.FormEvent<HTMLInputElement>) => {
-    event.currentTarget.setCustomValidity("");
+  const handleDateInput = (e: React.FormEvent<HTMLInputElement>) => {
+    e.currentTarget.setCustomValidity("");
   };
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
-      onClick={handleClose}
-    >
-      <div
-        className={`bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-sm transform transition-all duration-300 ${isVisible ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-5 py-4 border-b border-gray-900/20">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-white/60">
-                Nova transação
-              </p>
-              <h2 className="text-sm font-bold text-white">
-                Adicionar despesa
-              </h2>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/40"
+          onClick={onClose}
+        >
+          <motion.div
+            key="panel"
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-white w-full sm:max-w-md max-h-[92dvh] overflow-y-auto rounded-t-[24px] sm:rounded-[20px] shadow-[0_8px_40px_rgba(0,60,195,0.16)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* drag handle – mobile only */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+              <div className="w-10 h-1 rounded-full bg-slate-200" />
             </div>
-            <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-              Despesa
-            </span>
-          </div>
-          <p className="text-sm text-white/70 mt-2">
-            Registre gastos e acompanhe o impacto no seu orçamento.
-          </p>
-        </div>
-        <div className="p-4">
-          {submitError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {submitError}
-            </div>
-          )}
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-500">
-                      Tipo selecionado
-                    </p>
-                    <p className="text-base font-semibold text-gray-900">
-                      Despesa
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Todas as transações registradas serão classificadas
-                      automaticamente como saída de valores.
-                    </p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-600">
-                    Bloqueado
-                  </span>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-4 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
+                  <LucideReceipt className="w-4 h-4 text-[#ffd400]" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#1e293b] leading-tight">Nova Transação</h2>
+                  <p className="text-xs text-slate-400">Registe um novo gasto</p>
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
+                  Despesa
+                </span>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
+                >
+                  <CloseIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="px-5 pt-5 pb-6 space-y-4">
+              {/* Error */}
+              {submitError && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl">
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-600">{submitError}</p>
+                </div>
+              )}
+
+              {/* Amount + Date */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
                   <div className="relative">
-                    <TextInput
-                      label="Montante"
+                    <input
                       type="text"
                       inputMode="decimal"
                       placeholder="0,00"
                       value={amountDisplay}
                       onChange={handleAmountChange}
-                      isError={!!errors.amount}
-                      required={true}
-                      className="pr-1"
+                      required
+                      className={`${inputCls(!!errors.amount)} pr-10`}
                     />
-                    <span className="pointer-events-none absolute right-6 top-2/3 -translate-y-1/2 text-sm font-semibold uppercase text-gray-600">
-                      kz
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                      Kz
                     </span>
                   </div>
-                  {errors.amount && (
-                    <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-                  )}
+                  {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
                 </div>
+
                 <div>
-                  <TextInput
-                    label="Data e hora"
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Data e hora</label>
+                  <input
                     type="datetime-local"
                     step={1}
                     max={maxTransactionDate}
                     value={formData.transactionDate}
-                    onChange={(e) =>
-                      onFormChange("transactionDate", e.target.value)
-                    }
+                    onChange={(e) => onFormChange("transactionDate", e.target.value)}
                     onInvalid={handleDateInvalid}
                     onInput={handleDateInput}
-                    required={true}
+                    required
+                    className={`${inputCls(!!errors.transactionDate)} px-3`}
                   />
                   {errors.transactionDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.transactionDate}
-                    </p>
+                    <p className="text-red-500 text-xs mt-1">{errors.transactionDate}</p>
                   )}
                 </div>
               </div>
-              <TextInput
-                label="Descrição"
-                type="text"
-                placeholder="Ex: Compra no supermercado"
-                value={formData.description}
-                onChange={(e) => onFormChange("description", e.target.value)}
-                isError={!!errors.description}
-                required={true}
-              />
-              {errors.description && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.description}
-                </p>
-              )}
+
+              {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Categoria
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.category}
-                    onChange={(e) => onFormChange("category", e.target.value)}
-                    className={`w-full rounded-xl border px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 bg-white transition-colors appearance-none ${errors.category_id ? "border-red-500" : "border-gray-300"}`}
-                    required
-                  >
-                    <option value="">Selecione uma categoria</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <svg
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-                {errors.category_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.category_id}
-                  </p>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Compra no supermercado"
+                  value={formData.description}
+                  onChange={(e) => onFormChange("description", e.target.value)}
+                  required
+                  className={inputCls(!!errors.description)}
+                />
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1">{errors.description}</p>
                 )}
               </div>
-            </div>
-            <div className="border-t border-gray-200 my-6"></div>
-            <div className="flex flex-col-reverse sm:flex-row gap-3">
-              <Button
-                variant="secondary"
-                onClick={handleClose}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="flex-1 rounded-lg bg-red-500 px-6 py-3 text-white font-semibold shadow-sm transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isLoading ? "Adicionando..." : "Adicionar"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+
+              {/* Category chips */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-2">Categoria</label>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {CATEGORIES.map((cat) => {
+                    const sel = formData.category === cat.name;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => onFormChange("category", cat.name)}
+                        className={`rounded-xl py-2.5 px-1 text-[11px] font-semibold text-center transition-all ${
+                          sel
+                            ? "bg-[rgba(0,60,195,0.08)] border border-[#003cc3]/25 text-[#003cc3]"
+                            : "bg-slate-50 border border-slate-200 text-slate-500 hover:border-[#003cc3]/20 hover:text-[#003cc3]"
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.category_id && (
+                  <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="h-px bg-slate-100" />
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isLoading}
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 rounded-xl bg-gradient-to-br from-[#003cc3] to-[#001a66] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                >
+                  {isLoading ? "A adicionar…" : "Adicionar"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -645,12 +623,12 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 24 }}
+      initial={{ opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
-        duration: 0.3,
+        duration: 0.2,
         ease: "easeOut" as const,
-        delay: index * 0.055,
+        delay: Math.min(index * 0.03, 0.25),
       }}
       className={`flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3${onClick ? " cursor-pointer hover:bg-slate-50/60 transition-colors" : ""}`}
       onClick={onClick}
@@ -897,9 +875,9 @@ const MovementSection: React.FC<MovementSectionProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: EASE_OUT }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
       className="flex flex-col gap-3"
     >
       <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
@@ -1112,9 +1090,6 @@ const CategoryScreen = ({
   transactionDescription,
   setTransactionDescription,
 }: CategoryScreenProps) => {
-  const saveCategory = () => {};
-  const onCloseDetailsModal = () => {};
-
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
 
   const handleCategorySelect = (category: Category) =>
@@ -1122,18 +1097,14 @@ const CategoryScreen = ({
 
   const handleSave = () => {
     if (selectedCategory && transactionDescription.trim()) {
-      try {
-        saveCategory();
-        setShowSuccessScreen(true);
-        setTimeout(() => {
-          setShowSuccessScreen(false);
-          setIsCategoryModalOpen(false);
-          onCloseDetailsModal();
-          setSelectedCategory(null);
-          setTransactionDescription("");
-          onCloseOrSuccess?.();
-        }, 2000);
-      } catch (error) {}
+      setShowSuccessScreen(true);
+      setTimeout(() => {
+        setShowSuccessScreen(false);
+        setIsCategoryModalOpen(false);
+        setSelectedCategory(null);
+        setTransactionDescription("");
+        onCloseOrSuccess?.();
+      }, 2000);
     }
   };
 
@@ -1199,23 +1170,6 @@ const CategoryScreen = ({
                     </button>
                   ))}
                 </div>
-              </div>
-              <div className="flex justify-center mb-8">
-                <button className="w-14 h-14 border-2 border-dashed border-blue-300 rounded-full flex items-center justify-center text-blue-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
-                  <svg
-                    className="w-7 h-7"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
               </div>
               {selectedCategory && (
                 <div className="mb-8">
@@ -1297,23 +1251,6 @@ const CategoryScreen = ({
                       {category.name}
                     </button>
                   ))}
-                </div>
-                <div className="flex justify-end-safe mb-8">
-                  <button className="w-14 h-14 border-2 border-dashed border-blue-300 rounded-full flex items-center justify-center text-blue-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
-                    <svg
-                      className="w-7 h-7"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
@@ -1740,9 +1677,9 @@ const HomeScreen = () => {
     <div className="w-full max-w-[1360px] mx-auto flex flex-col gap-3">
       {/* Header da Página */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: EASE_OUT }}
+        transition={{ duration: 0.2, ease: EASE_OUT }}
         className="flex flex-col gap-1"
       >
         <h2 className="text-sm font-bold text-slate-900 tracking-tight">
@@ -1765,9 +1702,9 @@ const HomeScreen = () => {
               <UploadSection onUploadClick={toggleUploadOptions} />
             </div>
             <motion.div
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.34, ease: EASE_OUT, delay: 0.08 }}
+              transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.08 }}
               className="lg:col-span-8 flex"
             >
               <StatsSection />
@@ -1776,9 +1713,9 @@ const HomeScreen = () => {
 
           {/* Seção de Conteúdo Principal */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.36, ease: EASE_OUT, delay: 0.12 }}
+            transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.12 }}
             className="min-h-[320px] lg:min-h-[360px]"
           >
             <MainContent
@@ -1854,9 +1791,9 @@ const MainContent = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: EASE_OUT }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
       className="flex flex-col xl:flex-row gap-3 items-start h-full"
     >
       <AnimatePresence initial={false}>
@@ -1889,7 +1826,7 @@ const MainContent = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.24, ease: EASE_OUT }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
               className="h-full"
             >
               <CategoryScreen {...categoryProps} />
@@ -1900,7 +1837,7 @@ const MainContent = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.26, ease: EASE_OUT }}
+              transition={{ duration: 0.2, ease: EASE_OUT }}
               className="h-full"
             >
               <MovementSection

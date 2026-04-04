@@ -39,10 +39,10 @@ export default function HomeDashboardLayout({
           onToggleSidebar={handleToggleSidebar}
           onOpenProfile={() => setRightOpen(true)}
         />
-        <main className="relative flex-1 overflow-y-auto bg-[#F1F5FA]">
+        <main className="relative flex-1 overflow-hidden bg-[#F1F5FA]">
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-32 bg-gradient-to-b from-[#003cc3]/[0.02] to-transparent" />
-          <div className="relative mx-auto flex min-h-full w-full max-w-[1280px] flex-col px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-4">
-            <div className="flex-1">{children}</div>
+          <div className="relative mx-auto flex h-full w-full max-w-[1280px] flex-col px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-4">
+            <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
           </div>
         </main>
       </div>

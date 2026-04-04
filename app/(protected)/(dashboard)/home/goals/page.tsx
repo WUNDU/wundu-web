@@ -90,7 +90,7 @@ function Ring({ pct, done }: { pct: number; done: boolean }) {
 interface GoalRowProps {
   data: ReturnType<typeof buildGoalCardData>;
   index: number;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 function GoalRow({ data, index, onEdit }: GoalRowProps) {
@@ -105,9 +105,9 @@ function GoalRow({ data, index, onEdit }: GoalRowProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 24 }}
+      initial={{ opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.28, ease: EASE_OUT, delay: Math.min(index * 0.055, 0.4) }}
+      transition={{ duration: 0.18, ease: EASE_OUT, delay: Math.min(index * 0.03, 0.25) }}
       className={`flex items-center gap-3 px-5 py-3 ${!done ? "cursor-pointer hover:bg-slate-50/60 transition-colors" : ""}`}
       onClick={!done ? onEdit : undefined}
     >
@@ -139,7 +139,7 @@ function GoalRow({ data, index, onEdit }: GoalRowProps) {
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.9, ease: EASE_OUT, delay: index * 0.055 + 0.1 }}
+            transition={{ duration: 0.2, ease: EASE_OUT, delay: Math.min(index * 0.03, 0.25) + 0.1 }}
             className="h-full rounded-full"
             style={{ backgroundColor: done ? "#10b981" : "#003cc3" }}
           />
@@ -327,9 +327,9 @@ export default function GoalsPage() {
 
       {/* Page header — same style as home */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: EASE_OUT }}
+        transition={{ duration: 0.2, ease: EASE_OUT }}
         className="flex items-center justify-between"
       >
         <div>
@@ -353,9 +353,9 @@ export default function GoalsPage() {
 
       {/* Active goals */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: EASE_OUT, delay: 0.08 }}
+        transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.08 }}
       >
         <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
           {/* Section header */}
@@ -401,9 +401,9 @@ export default function GoalsPage() {
       {/* Completed goals */}
       {completed.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: EASE_OUT, delay: 0.14 }}
+          transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.14 }}
         >
           <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
@@ -417,7 +417,7 @@ export default function GoalsPage() {
             <div className="pb-3">
               {completed.map((g, i) => (
                 <React.Fragment key={g.id}>
-                  <GoalRow data={g} index={i} onEdit={() => {}} />
+                  <GoalRow data={g} index={i} />
                   {i < completed.length - 1 && (
                     <div className="h-px mx-5" style={{ backgroundColor: "rgba(0,33,107,0.05)" }} />
                   )}

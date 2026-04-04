@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Tab } from "@/components/ui/tab";
 import Chart from "chart.js/auto";
 import annotationPlugin from "chartjs-plugin-annotation";
@@ -737,6 +738,7 @@ const HeaderSection: React.FC<{
 const TransactionsList: React.FC<{ transactions: TransactionProps[] }> = ({
   transactions,
 }) => {
+  const router = useRouter();
   const maxAmount = transactions.reduce(
     (max, tx) => Math.max(max, Math.abs(tx.amount)),
     0,
@@ -746,7 +748,7 @@ const TransactionsList: React.FC<{ transactions: TransactionProps[] }> = ({
     <div className="mt-2 sm:mt-3 px-3 sm:px-4">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-xs sm:text-sm font-bold text-slate-800">Categorias</h2>
-        <button className="bg-[#003cc3]/8 rounded-xl px-3 py-1.5 text-xs font-bold text-[#003cc3]">
+        <button onClick={() => router.push('/home/transactions')} className="bg-[#003cc3]/8 rounded-xl px-3 py-1.5 text-xs font-bold text-[#003cc3]">
           Ver todos
         </button>
       </div>
@@ -804,6 +806,7 @@ const TransactionsList: React.FC<{ transactions: TransactionProps[] }> = ({
 };
 
 const ControlPanelDashboardScreen: React.FC = () => {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("line");
   const [timeRange, setTimeRange] = useState<TimeRange>("1M");
   const [isCredit] = useState(false);
@@ -1112,7 +1115,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.26, ease: "easeOut" as const }}
+          transition={{ duration: 0.18, ease: "easeOut" as const }}
           className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
         >
           {/* Header: Year selector + Chart type switcher */}
@@ -1143,7 +1146,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
                   Distribuição do período
                 </p>
               </div>
-              <button className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
+              <button onClick={() => router.push('/home/transactions')} className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
                 Ver todos
                 {chevronSvg("#00216b")}
               </button>
@@ -1158,7 +1161,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, ease: "easeOut" as const }}
+          transition={{ duration: 0.18, ease: "easeOut" as const }}
           className="p-4 space-y-4"
         >
           {/* Stats Row */}
@@ -1204,7 +1207,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
                     Distribuição do período
                   </p>
                 </div>
-                <button className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
+                <button onClick={() => router.push('/home/transactions')} className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
                   Ver todos
                   {chevronSvg("#00216b")}
                 </button>

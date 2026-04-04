@@ -9,7 +9,7 @@ import {
   IAIcon,
 } from "@/constants/icons";
 import Link from "next/link";
-import { logo } from "@/constants/images";
+import { logo, logotype } from "@/constants/images";
 import { TrashIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { motion, AnimatePresence } from "framer-motion";
@@ -66,23 +66,23 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
     (isMobile: boolean) => (
       <>
         {/* Logo */}
-        <div className="flex items-center justify-center h-12 border-b border-slate-100/60 flex-shrink-0 lg:h-14">
-          <div className="w-9 h-9 rounded-xl bg-[#003cc3]/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
-            <Image src={logo} alt="Wundu" width={32} height={32} className="w-8 h-8 object-contain" priority />
-          </div>
-          {(isMobile || !collapsed) && (
+        <div className="flex items-center justify-center h-12 border-b border-slate-100/60 flex-shrink-0 lg:h-14 px-3">
+          {(isMobile || !collapsed) ? (
             <AnimatePresence>
-              <motion.span
-                key="logo-text"
-                className="ml-2.5 text-base font-black text-[#003cc3] tracking-tight whitespace-nowrap"
+              <motion.div
+                key="logotype"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
               >
-                Wundu
-              </motion.span>
+                <Image src={logotype} alt="Wundu" height={28} className="h-7 w-auto object-contain" priority />
+              </motion.div>
             </AnimatePresence>
+          ) : (
+            <div className="w-9 h-9 rounded-xl bg-[#003cc3]/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
+              <Image src={logo} alt="Wundu" width={32} height={32} className="w-8 h-8 object-contain" priority />
+            </div>
           )}
         </div>
 
@@ -134,7 +134,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Conversas
                 </span>
-                <button className="text-xs font-medium text-[#003cc3] transition-colors hover:text-[#003cc3]/70">
+                <button onClick={() => setConversations([])} className="text-xs font-medium text-[#003cc3] transition-colors hover:text-[#003cc3]/70">
                   + Nova
                 </button>
               </div>
@@ -198,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ duration: 0.25, ease: EASE_OUT_QUART }}
+              transition={{ duration: 0.18, ease: EASE_OUT_QUART }}
             >
               {renderContent(true)}
             </motion.aside>

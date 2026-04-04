@@ -47,7 +47,7 @@ const LandingHeader: React.FC = () => {
   };
   return (
     <header
-      className={`bg-white/95 backdrop-blur-md border-2 m-2 border-gray-100 shadow-2xs rounded-2xl z-50 transition-all duration-500 ${
+      className={`bg-white/95 border-2 m-2 border-gray-100 shadow-2xs rounded-2xl z-50 transition-all duration-500 ${
         isScrolled
           ? "fixed top-2 left-0 right-0 shadow-xl scale-[0.98] bg-white/98"
           : "absolute top-2 left-0 right-0 shadow-2xs"
@@ -119,7 +119,7 @@ const LandingHeader: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-200/50 animate-slide-up">
+        <div className="md:hidden bg-white/95 border-t border-gray-200/50 animate-slide-up">
           <div className="px-6 py-6 space-y-2">
             {navItems.map((item, index) => (
               <a

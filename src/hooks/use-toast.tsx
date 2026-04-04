@@ -63,9 +63,9 @@ export function useToast() {
       sonnerToast.custom(
         (id) => (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.8 }}
+            transition={{ type: "tween", duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className={`w-full max-w-sm bg-white p-5 rounded-3xl border ${theme.border} flex items-center gap-4 shadow-[0_20px_40px_-10px_rgba(45,27,24,0.12)] relative overflow-hidden group`}
           >
             {/* Status Line */}

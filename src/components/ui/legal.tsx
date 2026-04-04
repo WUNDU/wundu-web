@@ -45,7 +45,7 @@ const LegalTemplate: React.FC<LegalTemplateProps> = ({
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-20"></div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white mb-6 text-sm font-medium fade-in-section">
+          <span className="inline-block bg-white/20 px-4 py-2 rounded-full text-white mb-6 text-sm font-medium fade-in-section">
             {subtitle}
           </span>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight fade-in-section animate-in">

@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HelpIcon } from "@/constants/icons";
 import { useUserStore } from "@/store/user-store";
 import { useUiStore } from "@/store/ui-store";
-import { Button } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 
 const routeLabels: Record<string, string> = {
@@ -33,6 +32,62 @@ function getPageTitle(pathname: string): string {
   return "Wundu";
 }
 
+const NOTIF_ENTER: [number, number, number, number] = [0, 0, 0.2, 1];
+const NOTIF_EXIT:  [number, number, number, number] = [0.4, 0, 1, 1];
+
+interface NotifContentProps {
+  onClose: () => void;
+  onSupport: () => void;
+}
+
+const NotifContent: FC<NotifContentProps> = ({ onClose, onSupport }) => (
+  <div className="flex h-full flex-col">
+    {/* Header */}
+    <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66]">
+          <Bell className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Notificações</p>
+          <p className="text-xs text-slate-400">Actualizações recentes</p>
+        </div>
+      </div>
+      <button
+        onClick={onClose}
+        className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        aria-label="Fechar notificações"
+      >
+        <X className="h-5 w-5" />
+      </button>
+    </div>
+
+    {/* List */}
+    <div className="flex-1 overflow-y-auto px-5 py-5">
+      <div className="rounded-[16px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#003cc3]/10 to-[#001a66]/10">
+          <Bell className="h-5 w-5 text-[#003cc3]" />
+        </div>
+        <p className="mb-1 text-sm font-semibold text-slate-700">Sem notificações</p>
+        <p className="text-xs leading-relaxed text-slate-400">
+          Novidades sobre os seus comprovativos aparecerão aqui.
+        </p>
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div className="flex-shrink-0 border-t border-slate-100 px-5 py-4">
+      <button
+        onClick={onSupport}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:border-[#003cc3]/20 hover:bg-[#003cc3]/5 hover:text-[#003cc3]"
+      >
+        <HelpIcon className="h-4 w-4" />
+        Falar com suporte
+      </button>
+    </div>
+  </div>
+);
+
 const NotificationModal: FC = () => {
   const { isNotificationCenterOpen, closeNotificationCenter } = useUiStore();
   const handleSupportClick = () =>
@@ -41,57 +96,42 @@ const NotificationModal: FC = () => {
   return (
     <AnimatePresence>
       {isNotificationCenterOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-start justify-end bg-slate-900/20"
-          onClick={closeNotificationCenter}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.16, ease: "easeOut" }}
-        >
+        <>
+          {/* Backdrop */}
           <motion.div
-            className="mr-3 mt-14 w-full max-w-sm overflow-hidden rounded-xl border border-slate-100 bg-white shadow-[0_4px_16px_rgba(0,60,195,0.08)] sm:mr-4 sm:mt-16"
-            onClick={(e) => e.stopPropagation()}
-            initial={{ opacity: 0, y: -8, x: 6 }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, y: -8, x: 6 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            key="notif-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[200] bg-black/30"
+            onClick={closeNotificationCenter}
+          />
+
+          {/* Desktop — right side panel (lg+) */}
+          <motion.div
+            key="notif-desktop"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%", transition: { duration: 0.18, ease: NOTIF_EXIT } }}
+            transition={{ duration: 0.22, ease: NOTIF_ENTER }}
+            className="fixed bottom-0 right-0 top-0 z-[201] hidden w-[400px] flex-col overflow-hidden bg-white shadow-[0_4px_16px_rgba(0,60,195,0.08)] lg:flex"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="rounded-lg bg-[#ffd400]/20 p-1.5 text-[#003cc3]">
-                  <Bell className="h-4 w-4" />
-                </span>
-                <span className="text-sm font-semibold text-gray-900">Notificações</span>
-              </div>
-                <button
-                  onClick={closeNotificationCenter}
-                  className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            <div className="px-4 py-5">
-              <div className="rounded-xl border border-dashed border-slate-200 p-4 text-center">
-                <p className="mb-1 text-sm font-medium text-gray-700">Sem notificações</p>
-                <p className="text-xs text-gray-500">
-                  Novidades sobre os seus comprovativos aparecerão aqui.
-                </p>
-              </div>
-              <div className="mt-3 rounded-xl border border-dashed border-slate-200 p-4 text-center">
-                <p className="mb-2 text-xs text-gray-500">Precisa de ajuda?</p>
-                <Button
-                  variant="secondary"
-                  className="text-xs"
-                  onClick={handleSupportClick}
-                  leftIcon={<HelpIcon className="h-3.5 w-3.5" />}
-                >
-                  Falar com suporte
-                </Button>
-              </div>
-            </div>
+            <NotifContent onClose={closeNotificationCenter} onSupport={handleSupportClick} />
           </motion.div>
-        </motion.div>
+
+          {/* Mobile — full-screen slide up (<lg) */}
+          <motion.div
+            key="notif-mobile"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%", transition: { duration: 0.18, ease: NOTIF_EXIT } }}
+            transition={{ duration: 0.25, ease: NOTIF_ENTER }}
+            className="fixed inset-0 z-[201] flex flex-col overflow-hidden bg-white lg:hidden"
+          >
+            <NotifContent onClose={closeNotificationCenter} onSupport={handleSupportClick} />
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

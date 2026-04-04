@@ -20,7 +20,7 @@ const EASE_OUT = "easeOut" as const;
 
 const sectionAnim = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: EASE_OUT } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.18, ease: EASE_OUT } },
 };
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({
@@ -318,7 +318,7 @@ const LibraryScreen = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: EASE_OUT }}
+          transition={{ duration: 0.18, ease: EASE_OUT }}
           className="m-2 sm:m-3 flex flex-col flex-1 rounded-xl bg-white border border-slate-100 shadow-sm"
         >
           <div className="px-4 py-4 sm:py-5 border-b border-slate-100">
@@ -371,7 +371,7 @@ const LibraryScreen = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: EASE_OUT }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
               className="lg:w-[42%] xl:w-2/5 flex flex-col bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm"
             >
               <div className="px-4 lg:px-5 py-4 lg:py-5 border-b border-slate-100">
@@ -412,7 +412,7 @@ const LibraryScreen = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, ease: EASE_OUT, delay: 0.04 }}
+              transition={{ duration: 0.18, ease: EASE_OUT, delay: 0.04 }}
               className="lg:w-[58%] xl:w-3/5"
             >
               <RightSideContent />

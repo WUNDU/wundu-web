@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   imgMountain,
   imgAvatarCeo,
@@ -41,7 +42,7 @@ export default function HeroSection({
         {/* Main text content */}
         <div className="flex flex-col items-center text-center px-6 pt-36 md:pt-44 pb-10 md:pb-8 flex-1 justify-center">
           {/* Social proof badge */}
-          <div className="inline-flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs px-3 py-2 rounded-xl mb-8 relative z-20 backdrop-blur-sm animate-in fade-in slide-in-from-top duration-700">
+          <div className="inline-flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs px-3 py-2 rounded-xl mb-8 relative z-20 animate-in fade-in slide-in-from-top duration-700">
             <div className="flex -space-x-3">
               {avatars.map((avatar, i) => (
                 <div
@@ -80,9 +81,9 @@ export default function HeroSection({
           </p>
 
           <div className="relative z-20 animate-in fade-in slide-in-from-bottom duration-700 delay-300 w-full flex justify-center">
-            <button className="bg-yellow-400 text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-yellow-400/20">
+            <Link href="/register" className="bg-yellow-400 text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-yellow-400/20">
               Comece aqui
-            </button>
+            </Link>
           </div>
         </div>
 

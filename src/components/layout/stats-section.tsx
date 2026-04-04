@@ -133,7 +133,7 @@ const StatsSection: FC = () => {
 
   return (
     <motion.div
-      className="grid h-full w-full grid-cols-2 items-stretch gap-2 sm:grid-cols-2 sm:gap-2.5 md:grid-cols-3 lg:gap-3"
+      className="grid h-full w-full grid-cols-3 items-stretch gap-2 sm:gap-2.5 lg:gap-3"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, ease: "easeOut" }}

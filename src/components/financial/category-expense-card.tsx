@@ -21,9 +21,9 @@ const CategoryExpenseCard: React.FC<CategoryExpenseCardProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       whileHover={{ y: -1 }}
       className="group overflow-hidden rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md"
     >
@@ -49,7 +49,7 @@ const CategoryExpenseCard: React.FC<CategoryExpenseCardProps> = ({
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            transition={{ duration: 0.2, ease: "easeOut", delay: 0.1 }}
             style={{ backgroundColor: color }}
             className="h-full rounded-full"
           />

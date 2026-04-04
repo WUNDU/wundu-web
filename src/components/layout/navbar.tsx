@@ -48,7 +48,6 @@ export default function Navbar() {
         w-full max-w-6xl flex items-center justify-between 
         px-6 md:px-8 py-3 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] 
         rounded-full border shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]
-        backdrop-blur-xl
         ${
           scrolled
             ? "-translate-y-1 py-2 scale-[0.98] bg-yellow-400/20 border-yellow-400/70 shadow-[0_20px_40px_rgba(255,199,39,0.15)]"
@@ -107,7 +106,7 @@ export default function Navbar() {
 
       {/* Mobile Menu (Liquid Glass Style) */}
       {isMenuOpen && (
-        <div className="fixed inset-x-4 top-28 backdrop-blur-2xl bg-white/40 z-40 md:hidden rounded-[2.5rem] shadow-2xl border border-white/40 p-8 pointer-events-auto animate-scale-in origin-top overflow-hidden">
+        <div className="fixed inset-x-4 top-28 bg-white/40 z-40 md:hidden rounded-[2.5rem] shadow-2xl border border-white/40 p-8 pointer-events-auto animate-scale-in origin-top overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-b from-white/30 to-transparent pointer-events-none" />
           <div className="relative z-10 flex flex-col gap-5">
             {navItems.map((item) => (

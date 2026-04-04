@@ -305,7 +305,8 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
 /*  TransactionDetailPanel                                             */
 /* ------------------------------------------------------------------ */
 
-const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const PANEL_ENTER: [number, number, number, number] = [0, 0, 0.2, 1];   // smooth decelerate in
+const PANEL_EXIT:  [number, number, number, number] = [0.4, 0, 1, 1];   // accelerate out
 
 export interface TransactionDetailPanelProps {
   transaction: TransactionDTO | null;
@@ -344,8 +345,8 @@ export function TransactionDetailPanel({ transaction, isOpen, onClose }: Transac
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[200] bg-black/20"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] bg-black/30"
             onClick={onClose}
           />
 
@@ -355,7 +356,13 @@ export function TransactionDetailPanel({ transaction, isOpen, onClose }: Transac
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ duration: 0.25, ease: EASE_OUT }}
+            transition={{
+              x: {
+                duration: 0.32,
+                ease: PANEL_ENTER,
+              },
+              opacity: { duration: 0.15 },
+            }}
             className="fixed top-0 right-0 bottom-0 z-[201] w-[400px] bg-white shadow-[0_4px_16px_rgba(0,60,195,0.08)] hidden lg:flex flex-col overflow-hidden"
           >
             <PanelContent tx={transaction} onClose={onClose} />
@@ -366,8 +373,8 @@ export function TransactionDetailPanel({ transaction, isOpen, onClose }: Transac
             key="tx-detail-mobile"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ duration: 0.25, ease: EASE_OUT }}
+            exit={{ y: "100%", transition: { duration: 0.22, ease: PANEL_EXIT } }}
+            transition={{ duration: 0.35, ease: PANEL_ENTER }}
             className="fixed inset-0 z-[201] bg-[#F1F5FA] flex flex-col lg:hidden overflow-hidden"
           >
             <PanelContent tx={transaction} onClose={onClose} />

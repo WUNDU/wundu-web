@@ -46,7 +46,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" as const }}
+          transition={{ duration: 0.18, ease: "easeOut" as const }}
           className="bg-white rounded-xl mx-3 sm:mx-4 p-3 lg:p-4 border border-slate-100 shadow-sm"
         >
           <div className="flex flex-col items-center justify-center gap-3">
@@ -86,7 +86,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, ease: "easeOut" as const, delay: 0.05 }}
+          transition={{ duration: 0.18, ease: "easeOut" as const, delay: 0.05 }}
           className="px-4"
         >
           <div className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">

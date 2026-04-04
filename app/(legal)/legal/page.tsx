@@ -471,7 +471,7 @@ export default function Legal() {
 
         <div className="container mx-auto px-6 relative z-20 flex items-center min-h-[80vh]">
           <div className="max-w-4xl mx-auto text-center fade-in-section">
-            <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white mb-6 text-sm font-medium">
+            <span className="inline-block bg-white/20 px-4 py-2 rounded-full text-white mb-6 text-sm font-medium">
               WUNDU • Privacidade e Segurança em Primeiro Lugar
             </span>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
@@ -490,7 +490,7 @@ export default function Legal() {
               </a>
               <a
                 href="/contacts"
-                className="bg-white/20 flex backdrop-blur-sm text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-500 ease-out hover:scale-105 transform hover:-translate-y-1 animate-fade-in"
+                className="bg-white/20 flex text-white px-10 py-4 rounded-full font-medium text-center hover:bg-white/30 transition-all duration-500 ease-out hover:scale-105 transform hover:-translate-y-1 animate-fade-in"
               >
                 Fale Conosco{" "}
                 <span className="ml-2">
@@ -506,7 +506,7 @@ export default function Legal() {
           <div className="animate-bounce">
             <a
               href="#policy-content"
-              className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm hover:bg-white/30 transition-all duration-300"
+              className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-300"
             >
               <span className="text-white">↓</span>
             </a>

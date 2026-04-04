@@ -1,33 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter as useNavRouter } from "next/navigation";
-const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({ prev, color }) => {
-  const router = useNavRouter();
-  return (
-    <button onClick={prev ?? (() => router.back())} className={`p-2 -ml-2 ${color ?? "text-gray-700"} hover:bg-gray-100 rounded-full transition-colors`} aria-label="Voltar">
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-    </button>
-  );
-};
-import { SendIcon } from "@/constants/icons";
-
-const InitialInputArea: React.FC<{ onFocus: () => void }> = ({ onFocus }) => (
-  <div className="p-4">
-    <div className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 p-1">
-      <input
-        type="text"
-        placeholder="Pergunte alguma coisa"
-        className="flex-1 bg-transparent p-3 focus:outline-none text-sm"
-        onFocus={onFocus}
-      />
-      <button className="bg-gradient-to-b from-blue-600 to-blue-300 p-2 m-1 rounded-full">
-        <SendIcon className="w-5 h-5" />
-      </button>
-    </div>
-  </div>
-);
-import { Input as ChatInput, Message } from "@/components/ui";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   IAIcon,
   CoinIcon,
@@ -35,123 +9,152 @@ import {
   MoneyManagerIcon,
   MoneyPotIcon,
   MoneySignIcon,
+  SendIcon,
 } from "@/constants/icons";
+import { Message } from "@/components/ui";
+
+type ChatMessage = { text: string; isUser: boolean };
+
+const INITIAL_MESSAGES: ChatMessage[] = [
+  { text: "Olá! Sou a Wundu AI.\nEm que posso ajudar hoje?", isUser: false },
+];
+
+const CHAT_OPTIONS = [
+  { label: "Investimentos", bg: "bg-[#003cc3]/5", text: "text-[#003cc3]", icon: <MoneyBagIcon /> },
+  { label: "Finanças", bg: "bg-[#ffd400]/15", text: "text-amber-700", icon: <CoinIcon /> },
+  { label: "Poupanças", bg: "bg-emerald-50", text: "text-emerald-700", icon: <MoneyManagerIcon /> },
+  { label: "Gestão", bg: "bg-violet-50", text: "text-violet-700", icon: <MoneyPotIcon /> },
+  { label: "Dinheiro", bg: "bg-rose-50", text: "text-rose-600", icon: <MoneySignIcon /> },
+];
+
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const Chat: React.FC = () => {
-  const [showChat, setShowChat] = useState(false);
-  const [isSidebarOpen] = useState<boolean>(true);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const [input, setInput] = useState("");
+  const [showWelcome, setShowWelcome] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const prev = () => setShowChat(false);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const chatOptions = [
-    { label: "Investimentos", color: "bg-red-50 text-red-600", icon: <MoneyBagIcon /> },
-    { label: "Finanças", color: "bg-orange-50 text-orange-600", icon: <CoinIcon /> },
-    { label: "Poupanças", color: "bg-blue-50 text-blue-600", icon: <MoneyManagerIcon /> },
-    { label: "Gestão", color: "bg-green-50 text-green-600", icon: <MoneyPotIcon /> },
-    { label: "Dinheiro", color: "bg-teal-50 text-teal-600", icon: <MoneySignIcon /> },
-  ];
+  const handleSend = (text?: string) => {
+    const msg = text ?? input.trim();
+    if (!msg) return;
+    setMessages((prev) => [...prev, { text: msg, isUser: true }]);
+    setInput("");
+    setShowWelcome(false);
+  };
 
-  const chatMessages = [
-    { text: "Olá, Israel Manuel\nEm que posso ajudar ?", isUser: false },
-    { text: "Preciso de 3 dicas de como economizar.", isUser: true },
-    {
-      text: "Claro, aqui está a 5 para economizar dinheiro, em resumo:\n\nOrçamento: Acompanhe receitas e despesas.\n\nMetas: Defina o quanto quer economizar.\n\nCortes: Reduza gastos desnecessários.",
-      isUser: false,
-    },
-    { text: "Muito obrigado Wundo AI", isUser: true },
-  ];
-
-  const ChatOptionsPanel = ({ onOptionSelect }: { onOptionSelect: () => void }) => (
-    <div className="flex flex-col items-center justify-center flex-1 p-6">
-      <div className="w-full max-w-sm mt-16">
-        <h3 className="text-center text-gray-700 font-medium mb-6">Como posso ajudar?</h3>
-        <p className="text-center text-gray-600 text-sm mb-6">Deseja falar sobre:</p>
-        <div className="flex flex-wrap gap-5">
-          {chatOptions.map((option, index) => (
-            <button
-              key={index}
-              onClick={onOptionSelect}
-              className={`flex items-center justify-center p-3 rounded-xl ${option.color} transition-all hover:scale-105`}
-            >
-              <span className="mr-2">{option.icon}</span>
-              <span className="text-sm font-medium wrap-break-word whitespace-normal text-left grow">
-                {option.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const ChatMessagesPanel = () => (
-    <div className="flex-1 overflow-y-auto p-4">
-      {chatMessages.map((msg, index) => (
-        <Message key={index} text={msg.text} isUser={msg.isUser} />
-      ))}
-    </div>
-  );
-
-  const HeaderChatPanel = () => (
-    <div className="md:hidden flex items-center justify-center p-4 border-b border-gray-200">
-      <IAIcon />
-      <h1 className="ml-3 text-lg font-semibold text-gray-800">Wundo AI</h1>
-    </div>
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
-    <>
-      {/* Layout Mobile */}
-      <div className="flex flex-col h-screen rounded-2xl py-2 bg-gray-100 md:hidden">
-        {showChat ? <NavigationBack prev={prev} /> : <NavigationBack />}
-        <div className="mx-4 my-4 flex-1 bg-white rounded-xl flex flex-col">
-          <HeaderChatPanel />
-          {!showChat ? (
-            <>
-              <ChatOptionsPanel onOptionSelect={() => setShowChat(true)} />
-              <InitialInputArea onFocus={() => setShowChat(true)} />
-            </>
-          ) : (
-            <>
-              <ChatMessagesPanel />
-              <ChatInput />
-            </>
-          )}
+    <div className="flex flex-col h-full overflow-hidden gap-3">
+
+      {/* ── Header card ──────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 flex items-center justify-between bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
+            <IAIcon className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-sm font-bold text-[#1e293b]">Wundu AI</h1>
+            <p className="text-xs text-slate-400">Assistente financeiro</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-xs text-emerald-600 font-medium">Online</span>
         </div>
       </div>
 
-      {/* Layout Desktop */}
-      <div className="hidden md:flex h-screen bg-gray-50 relative overflow-hidden font-sans antialiased text-gray-800">
-        <div
-          className={`flex-1 flex flex-col transition-all duration-300 ${
-            isSidebarOpen ? "" : "md:ml-0"
-          } h-full`}
-        >
-          <main className="flex-1 px-4 m-5 pb-4 flex h-full overflow-hidden">
-            <div className="flex flex-1 h-full">
-              <div className="flex-1 bg-white rounded-2xl overflow-hidden flex flex-col">
-                <div className="border-b border-gray-200">
-                  <HeaderChatPanel />
+      {/* ── Messages area ────────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex flex-col px-1 py-2">
+          <AnimatePresence initial={false}>
+            {messages.map((msg, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18, ease: EASE_OUT }}
+              >
+                <Message text={msg.text} isUser={msg.isUser} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Welcome topic cards */}
+          <AnimatePresence>
+            {showWelcome && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.2, ease: EASE_OUT }}
+                className="mt-3 ml-[42px]"
+              >
+                <p className="text-xs text-slate-400 font-medium mb-3">
+                  Escolha um tema ou escreva a sua pergunta:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {CHAT_OPTIONS.map((opt) => (
+                    <motion.button
+                      key={opt.label}
+                      onClick={() => handleSend(opt.label)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-[#003cc3]/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
+                    >
+                      <div className={`w-8 h-8 rounded-[10px] ${opt.bg} flex items-center justify-center flex-shrink-0`}>
+                        <span className={`w-4 h-4 ${opt.text}`}>{opt.icon}</span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
+                    </motion.button>
+                  ))}
                 </div>
-                <div className="flex-1 flex flex-col">
-                  {!showChat ? (
-                    <>
-                      <ChatOptionsPanel onOptionSelect={() => setShowChat(true)} />
-                      <InitialInputArea onFocus={() => setShowChat(true)} />
-                    </>
-                  ) : (
-                    <>
-                      <ChatMessagesPanel />
-                      <ChatInput showSendButton />
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </main>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div ref={messagesEndRef} className="h-2" />
         </div>
       </div>
-    </>
+
+      {/* ── Input card ───────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-4 py-3">
+        <div className="flex items-end gap-3">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Escreva a sua pergunta…"
+            rows={1}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none max-h-32 leading-relaxed transition-all duration-150"
+            style={{ fieldSizing: "content" } as React.CSSProperties}
+          />
+          <motion.button
+            onClick={() => handleSend()}
+            disabled={!input.trim()}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+          >
+            <SendIcon className="w-4 h-4" />
+          </motion.button>
+        </div>
+        <p className="text-[10px] text-slate-400 text-center mt-2.5">
+          Wundu AI pode cometer erros — verifique informações importantes.
+        </p>
+      </div>
+
+    </div>
   );
 };
 

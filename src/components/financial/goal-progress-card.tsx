@@ -5,7 +5,6 @@ import { Edit2, CheckCircle2 } from "lucide-react";
 import { ObjectiveIcon } from "@/constants/icons";
 
 interface GoalProgressCardProps {
-  id?: string;
   title: string;
   targetAmount: string;
   savedAmount: string;
@@ -31,10 +30,10 @@ const GoalProgressCard: React.FC<GoalProgressCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      whileHover={{ y: -1 }}
       className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
     >
       {/* Subtle gradient background */}

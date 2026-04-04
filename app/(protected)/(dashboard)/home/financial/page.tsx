@@ -595,7 +595,7 @@ const NotificationToast: React.FC = () => {
     <div
       className={`
         fixed inset-0 z-9999 flex items-center justify-center p-4
-        bg-black/40 backdrop-blur-sm
+        bg-black/40
         ${notification ? "animate-backdrop-in" : "animate-backdrop-out pointer-events-none"}
       `}
       onClick={closeNotification}
@@ -631,7 +631,6 @@ const NotificationToast: React.FC = () => {
 
 const FinancialObjectiveScreen: React.FC = () => {
   const router = useRouter();
-  const [isSidebarOpen] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Goal | null>(null);
@@ -779,39 +778,8 @@ const FinancialObjectiveScreen: React.FC = () => {
                   </div>
                 </div>
               </div>
-              {/* <div
-                className={`hidden md:block rounded-xl shadow-sm md:shadow-none mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md`}
-                onClick={handleFinancialIAObjective}
-              >
-                <FinancialObjectiveCard
-                  icon={IAIcon}
-                  title="Gerar objetivo com AI"
-                  description="Peça à AI que ajude você a criar os seus objetivos"
-                  borderColor="border-l-purple-400"
-                  bgColor="bg-purple-100 md:bg-white"
-                  iconBgColor="bg-white md:bg-purple-100"
-                  iconColor="text-purple-600"
-                />
-              </div> */}
             </div>
 
-            {/* <div className="md:hidden mt-8">
-              <h2 className="text-lg font-semibold text-gray-400">Gerar o objectivo financeiro com AI</h2>
-              <div
-                className="rounded-xl shadow-sm mt-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-md"
-                onClick={handleFinancialIAObjective}
-              >
-                <FinancialObjectiveCard
-                  icon={IAIcon}
-                  title="Gerar objetivo com AI"
-                  description="Peça à AI que ajude você a criar os seus objetivos"
-                  borderColor="border-l-purple-400"
-                  bgColor="bg-purple-100"
-                  iconBgColor="bg-white"
-                  iconColor="text-purple-600"
-                />
-              </div>
-            </div> */}
             <div
               className="hidden md:flex mt-8 md:mt-0 rounded-2xl h-full min-h-130 p-2 pb-6 md:min-w-full animate-slide-up"
               style={{ animationDelay: "0.4s" }}

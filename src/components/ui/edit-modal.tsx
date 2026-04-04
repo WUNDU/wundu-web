@@ -99,7 +99,6 @@ const EditModal: React.FC<EditModalProps> = ({
   }, [objective]);
 
   const isCompleted = objective ? getGoalProgress(objective) >= 100 : false;
-  const isLoadingCategories = isCategoriesLoading;
   const resolvedCategoryId = useMemo(() => {
     if (!objective) {
       return "";
@@ -132,7 +131,7 @@ const EditModal: React.FC<EditModalProps> = ({
     const options = [
       {
         value: "",
-        label: isLoadingCategories
+        label: isCategoriesLoading
           ? "Carregando categorias..."
           : "Selecione a categoria",
       },
@@ -161,7 +160,7 @@ const EditModal: React.FC<EditModalProps> = ({
     return options;
   }, [
     categories,
-    isLoadingCategories,
+    isCategoriesLoading,
     objective?.category,
     objective?.categoryName,
     resolvedCategoryId,
@@ -227,7 +226,7 @@ const EditModal: React.FC<EditModalProps> = ({
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_4px_16px_rgba(0,60,195,0.08)]"
           >
         <form className="p-6 md:p-8 space-y-6" onSubmit={handleSubmit}>
