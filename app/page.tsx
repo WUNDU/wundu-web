@@ -269,6 +269,8 @@ export default function WunduPage() {
               src={imgDashboard}
               alt="Wundu Dashboard"
               className="w-full"
+              placeholder="blur"
+              sizes="(max-width: 1024px) 100vw, 1024px"
             />
           </div>
         </ScrollAnimationWrapper>

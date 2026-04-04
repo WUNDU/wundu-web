@@ -36,6 +36,9 @@ export default function HeroSection({
         fill
         className="object-cover"
         priority
+        placeholder="blur"
+        sizes="100vw"
+        quality={85}
       />
 
       <div className="absolute inset-0 bg-black/55 flex flex-col">
@@ -56,6 +59,7 @@ export default function HeroSection({
                     fill
                     className="object-cover object-top"
                     sizes="32px"
+                    priority
                   />
                 </div>
               ))}
@@ -95,6 +99,9 @@ export default function HeroSection({
               src={imgScreenAI}
               alt="Wundu IA"
               className="w-full rounded-[2rem] ring-1 ring-white/20"
+              priority
+              placeholder="blur"
+              sizes="(max-width: 1280px) 208px, 256px"
             />
           </div>
 
@@ -104,6 +111,9 @@ export default function HeroSection({
               src={imgScreenHome}
               alt="App Wundu"
               className="w-full rounded-[2.5rem] ring-2 ring-white/30"
+              priority
+              placeholder="blur"
+              sizes="(max-width: 640px) 192px, (max-width: 1024px) 240px, (max-width: 1280px) 288px, 320px"
             />
           </div>
 
@@ -113,6 +123,9 @@ export default function HeroSection({
               src={imgScreenScan}
               alt="Wundu - Importar dados"
               className="w-full rounded-[2rem] ring-1 ring-white/20"
+              priority
+              placeholder="blur"
+              sizes="(max-width: 1280px) 208px, 256px"
             />
           </div>
         </div>
