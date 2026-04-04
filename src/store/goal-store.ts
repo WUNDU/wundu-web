@@ -2,17 +2,11 @@ import { GoalsService } from "@/services/goal.service";
 import type { Goal, GoalPayload } from "@/types/dtos/goal.dto";
 import { create } from "zustand";
 import { useUiStore } from "@/store/ui-store";
+import { formatAOA } from "@/lib/currency";
 
 // ── Helper utilities (moved from use-goals hook) ───────────────────────────────
 
-const currencyFormatter = new Intl.NumberFormat("pt-AO", {
-  style: "currency",
-  currency: "AOA",
-  minimumFractionDigits: 2,
-});
-
-export const formatGoalCurrency = (value?: number) =>
-  currencyFormatter.format(value ?? 0);
+export const formatGoalCurrency = (value?: number) => formatAOA(value ?? 0);
 
 const clampProgress = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 

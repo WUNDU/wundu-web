@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { Tab } from "@/components/ui/tab";
 import Chart from "chart.js/auto";
 import annotationPlugin from "chartjs-plugin-annotation";
@@ -60,8 +61,8 @@ function getCategoryIcon(category: string) {
   };
 }
 
-function getCutoffDate(timeRange: TimeRange) {
-  const now = new Date();
+function getCutoffDate(timeRange: TimeRange, refDate?: Date) {
+  const now = refDate ?? new Date();
   switch (timeRange) {
     case "1D":
       return new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -135,7 +136,7 @@ interface BarChartProps {
 }
 
 const BAR_EMPTY_STATE = (
-  <div className="flex flex-1 items-center justify-center w-full h-48 rounded-3xl border border-dashed border-slate-200 text-sm text-slate-400 bg-slate-50">
+  <div className="flex flex-1 items-center justify-center w-full h-48 sm:h-64 rounded-xl border border-dashed border-slate-200 text-sm text-slate-400 bg-slate-50">
     Sem dados suficientes para este período
   </div>
 );
@@ -227,7 +228,7 @@ const BarChart: React.FC<BarChartProps> = ({
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 900, easing: "easeOutQuart" },
+        animation: { duration: 400, easing: "easeOutQuart" },
         onClick: (_, elements) => {
           if (elements.length) {
             const index = elements[0].index;
@@ -299,24 +300,19 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <div
-      className={`relative w-full h-48 rounded-[32px] bg-white border border-indigo-50 shadow-[0_15px_40px_rgba(15,23,42,0.08)] overflow-hidden ${className}`}
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(124,150,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(124,150,255,0.08) 1px, transparent 1px)",
-        backgroundSize: "48px 48px",
-      }}
+      className={`relative w-full h-48 sm:h-64 rounded-xl bg-white border border-indigo-50 shadow-sm overflow-hidden ${className}`}
     >
       {selectedPoint && formattedValue && (
-        <div className="absolute z-10 top-4 left-4 bg-white/95 text-slate-800 rounded-2xl px-4 py-2 shadow-lg text-xs border border-slate-100">
+        <div className="absolute z-10 top-3 left-3 bg-white/95 text-slate-800 rounded-xl px-3 py-1.5 shadow-sm text-xs border border-slate-100">
           <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
             {selectedPoint.month}
           </p>
-          <p className="text-base font-semibold">{formattedValue}</p>
+          <p className="text-sm font-semibold">{formattedValue}</p>
         </div>
       )}
       <canvas
         ref={canvasRef}
-        className="w-full h-full transition-all duration-500 ease-out hover:scale-[1.01]"
+        className="w-full h-full transition-all duration-300 ease-out"
       />
     </div>
   );
@@ -327,7 +323,7 @@ const BarChart: React.FC<BarChartProps> = ({
 Chart.register(annotationPlugin);
 
 const LINE_EMPTY_STATE = (
-  <div className="flex flex-1 items-center justify-center w-full h-48 rounded-3xl border border-dashed border-orange-200/80 text-sm text-orange-400 bg-orange-50/60">
+  <div className="flex flex-1 items-center justify-center w-full h-48 sm:h-64 rounded-xl border border-dashed border-orange-200/80 text-sm text-orange-400 bg-orange-50/60">
     Sem dados suficientes para este período
   </div>
 );
@@ -431,7 +427,7 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
         responsive: true,
         maintainAspectRatio: false,
         layout: { padding: { top: 24, bottom: 12, left: 16, right: 16 } },
-        animation: { duration: 900, easing: "easeOutQuart" },
+        animation: { duration: 400, easing: "easeOutQuart" },
         interaction: { mode: "nearest", axis: "x", intersect: false },
         onClick: (_, elements) => {
           if (elements.length > 0) setSelectedIndex(elements[0].index);
@@ -502,24 +498,19 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
 
   return (
     <div
-      className={`relative w-full h-48 overflow-hidden rounded-[32px] bg-white border border-orange-100 shadow-[0_15px_45px_rgba(15,23,42,0.08)] ${className}`}
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(15,23,42,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.02) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-      }}
+      className={`relative w-full h-48 sm:h-64 overflow-hidden rounded-xl bg-white border border-orange-100 shadow-sm ${className}`}
     >
       {selectedPoint && formattedValue && (
-        <div className="absolute z-10 top-4 left-4 bg-white text-[#ff5c35] rounded-2xl px-4 py-2 shadow-lg text-xs border border-orange-100">
+        <div className="absolute z-10 top-3 left-3 bg-white text-[#ff5c35] rounded-xl px-3 py-1.5 shadow-sm text-xs border border-orange-100">
           <p className="text-[11px] uppercase tracking-[0.2em] text-orange-400">
             {selectedPoint.month}
           </p>
-          <p className="text-base font-semibold">{formattedValue}</p>
+          <p className="text-sm font-semibold">{formattedValue}</p>
         </div>
       )}
       <canvas
         ref={canvasRef}
-        className="w-full h-full transition-transform duration-700 ease-out hover:scale-[1.01]"
+        className="w-full h-full transition-transform duration-500 ease-out"
       />
     </div>
   );
@@ -642,10 +633,10 @@ const PieChart: React.FC<PieChartProps> = ({
         layout: { padding: 32 },
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
         animation: {
-          duration: 2000,
+          duration: 600,
           easing: "easeOutQuart",
           animateRotate: true,
-          animateScale: true,
+          animateScale: false,
         },
       },
     });
@@ -691,10 +682,10 @@ const PieChart: React.FC<PieChartProps> = ({
 
   if (transactions.length === 0) {
     return (
-      <div className="flex justify-center items-center w-full h-64 animate-fade-in">
-        <div className="text-center text-slate-500 p-8 rounded-[32px] bg-white border border-indigo-100">
-          <p className="text-lg font-medium">Nenhuma transação</p>
-          <p className="text-sm">encontrada para este período</p>
+      <div className="flex justify-center items-center w-full h-48 sm:h-64">
+        <div className="text-center text-slate-500 p-5 rounded-xl bg-white border border-indigo-100">
+          <p className="text-sm font-medium">Nenhuma transação</p>
+          <p className="text-xs">encontrada para este período</p>
         </div>
       </div>
     );
@@ -702,14 +693,9 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div
-      className={`flex justify-center items-center w-full h-64 transition-all duration-500 ease-out rounded-[32px] bg-white border border-indigo-100 ${className}`}
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(124,150,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(124,150,255,0.12) 1px, transparent 1px)",
-        backgroundSize: "48px 48px",
-      }}
+      className={`flex justify-center items-center w-full h-48 sm:h-56 transition-all duration-300 ease-out rounded-xl bg-white border border-indigo-100 ${className}`}
     >
-      <div className="relative w-full max-w-md h-full transition-all duration-500 ease-out hover:scale-[1.02]">
+      <div className="relative w-full max-w-md h-full transition-all duration-300 ease-out">
         <canvas
           ref={canvasRef}
           className="transition-all duration-300 ease-out"
@@ -728,19 +714,19 @@ const HeaderSection: React.FC<{
   viewMode: ViewMode;
 }> = ({ isCredit, headerText, headerAmount, viewMode }) => (
   <div
-    className={`mx-4 p-6 bg-blue-950 text-white rounded-3xl shadow-lg ${
-      viewMode === "pie" ? "hidden md:block" : ""
-    }`}
+    className={`p-3 sm:p-4 bg-[#003cc3] text-white rounded-xl shadow-sm ${
+      viewMode === "pie" ? "hidden lg:block" : ""
+    } lg:col-span-4`}
   >
-    <div className="flex justify-center items-center mb-4">
-      <div className="flex bg-gray-500/45 px-4 py-2 rounded-2xl">
-        <span className="font-semibold text-lg">
+    <div className="flex justify-center items-center mb-2">
+      <div className="flex bg-white/15 px-3 py-1 rounded-xl border border-white/20">
+        <span className="text-sm font-bold">
           {isCredit ? "IMG" : "Todos"}
         </span>
       </div>
     </div>
-    <p className="text-sm text-center">{headerText}</p>
-    <h1 className="text-3xl font-bold text-center">
+    <p className="text-xs text-white/60 text-center">{headerText}</p>
+    <h1 className="text-base font-bold text-center">
       {headerAmount.toLocaleString("pt-AO")},00KZ
     </h1>
   </div>
@@ -751,31 +737,67 @@ const HeaderSection: React.FC<{
 const TransactionsList: React.FC<{ transactions: TransactionProps[] }> = ({
   transactions,
 }) => {
+  const maxAmount = transactions.reduce(
+    (max, tx) => Math.max(max, Math.abs(tx.amount)),
+    0,
+  );
+
   return (
-    <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-800">Categorias</h2>
-        <span className="text-gray-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </span>
+    <div className="mt-2 sm:mt-3 px-3 sm:px-4">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs sm:text-sm font-bold text-slate-800">Categorias</h2>
+        <button className="bg-[#003cc3]/8 rounded-xl px-3 py-1.5 text-xs font-bold text-[#003cc3]">
+          Ver todos
+        </button>
       </div>
-      <div className="mt-4">
-        {transactions.map((tx, index) => (
-          <Transaction key={index} {...tx} />
-        ))}
+      <div className="space-y-1.5 sm:space-y-2">
+        {transactions.map((tx, index) => {
+          const progress = maxAmount > 0 ? (Math.abs(tx.amount) / maxAmount) * 100 : 0;
+          return (
+            <div key={index} className="flex flex-col gap-1 sm:gap-1.5">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div
+                  className={`w-8 h-8 sm:w-10 sm:h-10 ${tx.icon.bgColor} rounded-lg sm:rounded-xl flex items-center justify-center shrink-0`}
+                >
+                  <span
+                    className={`text-[10px] sm:text-xs font-bold ${tx.icon.color === "white" ? "text-white" : "text-black"}`}
+                  >
+                    {tx.icon.initials}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">
+                    {tx.title}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-slate-400">
+                    {tx.transactions} transações
+                  </p>
+                </div>
+                <div
+                  className="rounded-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold"
+                  style={{
+                    backgroundColor: tx.icon.chartColor
+                      ? `${tx.icon.chartColor}18`
+                      : undefined,
+                    color: tx.icon.chartColor,
+                  }}
+                >
+                  KZ {tx.amount > 0 ? "+" : ""}
+                  {Math.abs(tx.amount).toLocaleString("pt-AO")}
+                </div>
+              </div>
+              <div className="h-1 sm:h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${progress}%`,
+                    backgroundColor: tx.icon.chartColor ?? "#94a3b8",
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -785,6 +807,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("line");
   const [timeRange, setTimeRange] = useState<TimeRange>("1M");
   const [isCredit] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
   const { transactions: rawTransactions, fetch } = useTransactionStore();
 
@@ -812,13 +835,37 @@ const ControlPanelDashboardScreen: React.FC = () => {
       .filter((tx): tx is NormalizedTransaction => Boolean(tx));
   }, [rawTransactions]);
 
+  const availableYears = useMemo(() => {
+    if (normalizedTransactions.length === 0) return [new Date().getFullYear()];
+    const years = [
+      ...new Set(normalizedTransactions.map((tx) => tx.timestamp.getFullYear())),
+    ].sort((a, b) => a - b);
+    return years;
+  }, [normalizedTransactions]);
+
+  useEffect(() => {
+    if (availableYears.length > 0 && !availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[availableYears.length - 1]);
+    }
+  }, [availableYears]);
+
+  const yearIndex = availableYears.indexOf(selectedYear);
+  const canGoPrev = yearIndex > 0;
+  const canGoNext = yearIndex < availableYears.length - 1;
+
   const filteredTransactionsRaw = useMemo(() => {
-    const cutoffDate = getCutoffDate(timeRange);
+    const currentYear = new Date().getFullYear();
+    const refDate =
+      selectedYear < currentYear
+        ? new Date(selectedYear, 11, 31)
+        : new Date();
+    const cutoffDate = getCutoffDate(timeRange, refDate);
     return normalizedTransactions.filter((tx) => {
+      if (tx.timestamp.getFullYear() !== selectedYear) return false;
       if (tx.timestamp < cutoffDate) return false;
       return isCredit ? tx.isIncome : !tx.isIncome;
     });
-  }, [normalizedTransactions, timeRange, isCredit]);
+  }, [normalizedTransactions, timeRange, isCredit, selectedYear]);
 
   const transactions = useMemo<TransactionProps[]>(() => {
     if (!filteredTransactionsRaw.length) return [];
@@ -886,269 +933,289 @@ const ControlPanelDashboardScreen: React.FC = () => {
     }
   })();
 
+  const chevronSvg = (color: string) => (
+    <svg className="w-4 h-4" fill="none" stroke={color} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+    </svg>
+  );
+
+  const chartSwitcher = (
+    <div className="flex space-x-1 bg-slate-100 p-0.5 rounded-xl">
+      <button
+        onClick={() => setViewMode("line")}
+        className={`p-1.5 rounded-[10px] transition-colors duration-200 ${
+          viewMode === "line"
+            ? "bg-[#003cc3] text-white shadow-sm"
+            : "text-slate-950 hover:bg-slate-200/50"
+        }`}
+      >
+        <ChartDataIcon />
+      </button>
+      <button
+        onClick={() => setViewMode("bar")}
+        className={`p-1.5 rounded-[10px] transition-colors duration-200 ${
+          viewMode === "bar"
+            ? "bg-[#003cc3] text-white shadow-sm"
+            : "text-slate-900 hover:bg-slate-200/50"
+        }`}
+      >
+        <BarChartIcon />
+      </button>
+      <button
+        onClick={() => setViewMode("pie")}
+        className={`p-1.5 rounded-[10px] transition-colors duration-200 ${
+          viewMode === "pie"
+            ? "bg-[#003cc3] text-white shadow-sm"
+            : "text-slate-950 hover:bg-slate-200/50"
+        }`}
+      >
+        <DonutChartIcon />
+      </button>
+    </div>
+  );
+
+  const yearSelector = (
+    <div className="flex items-center gap-1.5 rounded-full bg-[rgba(0,33,107,0.06)] px-2.5 py-1.5">
+      <button
+        onClick={() => canGoPrev && setSelectedYear(availableYears[yearIndex - 1])}
+        disabled={!canGoPrev}
+        className="w-7 h-7 flex items-center justify-center rotate-180 disabled:opacity-40"
+      >
+        {chevronSvg(canGoPrev ? "#00216b" : "#c0c0c0")}
+      </button>
+      <span className="w-11 text-center text-[15px] font-extrabold text-[#00216b] select-none">
+        {selectedYear}
+      </span>
+      <button
+        onClick={() => canGoNext && setSelectedYear(availableYears[yearIndex + 1])}
+        disabled={!canGoNext}
+        className="w-7 h-7 flex items-center justify-center disabled:opacity-40"
+      >
+        {chevronSvg(canGoNext ? "#00216b" : "#c0c0c0")}
+      </button>
+    </div>
+  );
+
+  const chartArea = (
+    <div className="w-full h-48 sm:h-64 px-2">
+      {viewMode === "line" && (
+        <LineChart
+          className="w-full h-full"
+          data={chartData}
+          lineColor={isCredit ? "#10B981" : "#E05445"}
+          dotColor={isCredit ? "#10B981" : "#E05445"}
+        />
+      )}
+      {viewMode === "pie" && (
+        <PieChart
+          className="w-full h-full"
+          transactions={transactions}
+          totalAmount={totalExpenses}
+          timeRangeText={headerText}
+        />
+      )}
+      {viewMode === "bar" && (
+        <BarChart
+          className="w-full h-full"
+          data={chartData}
+          primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
+          accentColor={isCredit ? "#0f172a" : "#7c2d12"}
+        />
+      )}
+    </div>
+  );
+
+  const filterPills = (
+    <div className="flex bg-[#F1F5F9] p-1 rounded-xl">
+      {tabRanges.map((range) => (
+        <Tab
+          key={range}
+          label={range}
+          value={range}
+          isActive={timeRange === range}
+          onClick={() => setTimeRange(range)}
+        />
+      ))}
+    </div>
+  );
+
+  const categoryItems = (gridCols?: boolean) => (
+    <div className={gridCols ? "grid grid-cols-2 gap-3" : "space-y-1.5 sm:space-y-2"}>
+      {transactions.length > 0 ? (
+        transactions.map((transaction, index) => {
+          const maxAmt = transactions.reduce(
+            (max, tx) => Math.max(max, Math.abs(tx.amount)),
+            0,
+          );
+          const progress =
+            maxAmt > 0
+              ? (Math.abs(transaction.amount) / maxAmt) * 100
+              : 0;
+          return (
+            <div
+              key={index}
+              className="flex flex-col gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-lg hover:bg-slate-50/80 transition-colors duration-200 cursor-pointer"
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div
+                  className={`w-8 h-8 sm:w-10 sm:h-10 ${transaction.icon.bgColor} rounded-lg sm:rounded-xl flex items-center justify-center shrink-0`}
+                >
+                  <span
+                    className={`text-[10px] sm:text-xs font-bold ${transaction.icon.color === "white" ? "text-white" : "text-black"}`}
+                  >
+                    {transaction.icon.initials}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-800 truncate">
+                    {transaction.title}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-slate-400">
+                    {transaction.transactions} transações
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xs sm:text-sm font-bold text-slate-800">
+                    KZ {transaction.amount > 0 ? "+" : ""}
+                    {Math.abs(transaction.amount).toLocaleString("pt-AO")}
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-slate-400">
+                    {transaction.percentage}%
+                  </p>
+                </div>
+              </div>
+              <div className="h-1 sm:h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${progress}%`,
+                    backgroundColor:
+                      transaction.icon.chartColor ?? "#94a3b8",
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        <p className={`text-slate-400 text-center text-sm py-6 ${gridCols ? "col-span-2" : ""}`}>
+          Nenhuma transação encontrada para este período
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <>
       {/* Mobile Layout */}
-      <div className="md:hidden min-h-screen bg-linear-to-br from-slate-50 via-slate-100 to-slate-200 p-3 font-sans">
-        <div className="mx-auto bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden pb-6 transition-all duration-500 ease-out animate-fade-in">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between p-4 transition-all duration-300 ease-out">
-            <div className="flex bg-blue-950 text-white px-4 py-1 rounded-2xl shadow-lg border border-blue-800/20">
-              <span className="font-semibold text-lg">
-                {isCredit ? "IMG" : "Todos"}
-              </span>
-            </div>
-            <div className="flex space-x-1 bg-gray-100/80 backdrop-blur-sm p-1 rounded-2xl shadow-lg border border-gray-200/50">
-              <button
-                onClick={() => setViewMode("line")}
-                className={`p-2 text-slate-950 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                  viewMode === "line"
-                    ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                    : "hover:bg-gray-200/50"
-                }`}
-              >
-                <ChartDataIcon />
-              </button>
-              <button
-                onClick={() => setViewMode("pie")}
-                className={`p-2 text-slate-950 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                  viewMode === "pie"
-                    ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                    : "hover:bg-gray-200/50"
-                }`}
-              >
-                <DonutChartIcon />
-              </button>
-              <button
-                onClick={() => setViewMode("bar")}
-                className={`p-2 text-slate-900 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                  viewMode === "bar"
-                    ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                    : "hover:bg-gray-200/50"
-                }`}
-              >
-                <BarChartIcon />
-              </button>
-            </div>
+      <div className="lg:hidden bg-[#F1F5FA] p-3 sm:p-4 font-sans">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.26, ease: "easeOut" as const }}
+          className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
+        >
+          {/* Header: Year selector + Chart type switcher */}
+          <div className="flex items-center justify-between px-3 sm:px-5 pt-3 sm:pt-5 pb-2 sm:pb-3">
+            {yearSelector}
+            {chartSwitcher}
           </div>
 
-          {/* Chart Section */}
-          <div className="px-4 pb-4 transition-all duration-500 ease-out">
-            <h2 className="text-xl font-bold text-gray-800 mb-4 animate-slide-up">
-              {viewMode === "pie"
-                ? "Distribuição por Categoria"
-                : `Despesas ${timeRange === "1D" ? "Diárias" : timeRange === "1S" ? "Semanais" : "Mensais"}`}
-            </h2>
-            <div className="w-full h-90 bg-white/50 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 transition-all duration-500 ease-out hover:shadow-xl">
-              {viewMode === "line" && (
-                <LineChart
-                  className="w-full h-full transition-all duration-500 ease-out"
-                  data={chartData}
-                  lineColor={isCredit ? "#10B981" : "#E05445"}
-                  dotColor={isCredit ? "#10B981" : "#E05445"}
-                />
-              )}
-              {viewMode === "pie" && (
-                <PieChart
-                  className="w-full h-full transition-all duration-500 ease-out"
-                  transactions={transactions}
-                  totalAmount={totalExpenses}
-                  timeRangeText={headerText}
-                />
-              )}
-              {viewMode === "bar" && (
-                <BarChart
-                  className="w-full h-full transition-all duration-500 ease-out"
-                  data={chartData}
-                  primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
-                  accentColor={isCredit ? "#0f172a" : "#7c2d12"}
-                />
-              )}
+          {/* Chart */}
+          {chartArea}
+
+          {/* Filter pills */}
+          <div className="px-3 sm:px-5 py-2 sm:py-4">
+            {filterPills}
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-[#F1F5F9] mx-5" />
+
+          {/* Categories section */}
+          <div className="px-3 sm:px-5 pt-3 sm:pt-5 pb-4 sm:pb-7">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-slate-800">
+                  Gastos por categoria
+                </h3>
+                <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">
+                  Distribuição do período
+                </p>
+              </div>
+              <button className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
+                Ver todos
+                {chevronSvg("#00216b")}
+              </button>
             </div>
+            {categoryItems(false)}
           </div>
-
-          {/* Time Range Tabs */}
-          <div className="flex justify-center p-2 bg-gray-100/80 backdrop-blur-sm rounded-2xl mx-4 shadow-lg border border-gray-200/50 transition-all duration-300 ease-out">
-            {tabRanges.map((range) => (
-              <Tab
-                key={range}
-                label={range}
-                value={range}
-                isActive={timeRange === range}
-                onClick={() => setTimeRange(range)}
-              />
-            ))}
-          </div>
-
-          {/* Transactions List */}
-          <TransactionsList transactions={transactions} />
-        </div>
+        </motion.div>
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:flex h-screen bg-linear-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden font-sans antialiased text-gray-800">
-          <main className="p-6 space-y-6 flex-1 flex flex-col overflow-y-auto animate-fade-in">
-            <div className="grid grid-cols-3 gap-6 animate-slide-up">
-              <HeaderSection
-                isCredit={isCredit}
-                headerText={headerText}
-                headerAmount={headerAmount}
-                viewMode={viewMode}
-              />
-              <div className="flex col-span-2">
-                <StatsSection />
-              </div>
+      <div className="hidden lg:block bg-[#F1F5FA] font-sans antialiased text-gray-800">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: "easeOut" as const }}
+          className="p-4 space-y-4"
+        >
+          {/* Stats Row */}
+          <div className="grid grid-cols-12 gap-3">
+            <HeaderSection
+              isCredit={isCredit}
+              headerText={headerText}
+              headerAmount={headerAmount}
+              viewMode={viewMode}
+            />
+            <div className="flex col-span-8">
+              <StatsSection />
+            </div>
+          </div>
+
+          {/* Full-width Chart Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            {/* Header: Year selector + Chart type switcher */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+              {yearSelector}
+              {chartSwitcher}
             </div>
 
-            <div
-              className="flex flex-1 flex-row gap-6 items-start animate-slide-up"
-              style={{ animationDelay: "0.2s" }}
-            >
-              {/* Categories Section */}
-              <div className="bg-white/95 backdrop-blur-xl basis-2/5 shrink-0 rounded-2xl p-6 shadow-lg border border-white/20 overflow-y-auto max-h-full transition-all duration-500 ease-out hover:shadow-xl hover:-translate-y-1">
-                <div className="flex items-center justify-start mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Categorias ({headerText.toLowerCase()})
+            {/* Chart — full width */}
+            {chartArea}
+
+            {/* Filter pills */}
+            <div className="flex justify-center py-4">
+              {filterPills}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-[#F1F5F9] mx-5" />
+
+            {/* Categories section */}
+            <div className="px-5 pt-5 pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-black text-slate-800">
+                    Gastos por categoria
                   </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Distribuição do período
+                  </p>
                 </div>
-                <div className="space-y-4">
-                  {transactions.length > 0 ? (
-                    transactions.map((transaction, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-md cursor-pointer"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className={`w-10 h-10 ${transaction.icon.bgColor} rounded-full flex items-center justify-center`}
-                          >
-                            <span
-                              className={`text-sm font-semibold ${transaction.icon.color === "white" ? "text-white" : "text-black"}`}
-                            >
-                              {transaction.icon.initials}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {transaction.title}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {transaction.transactions} transações
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-800">
-                            KZ {transaction.amount > 0 ? "+" : ""}
-                            {Math.abs(transaction.amount).toLocaleString(
-                              "pt-AO",
-                            )}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {transaction.percentage}%
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-8">
-                      Nenhuma transação encontrada para este período
-                    </p>
-                  )}
-                </div>
+                <button className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]">
+                  Ver todos
+                  {chevronSvg("#00216b")}
+                </button>
               </div>
-
-              {/* Right Column - Chart and Controls */}
-              <div className="flex-1 h-full">
-                <div className="bg-white/95 backdrop-blur-xl flex flex-col h-full rounded-2xl p-6 shadow-lg border border-white/20 transition-all duration-500 ease-out hover:shadow-xl hover:-translate-y-1">
-                  <div className="flex items-center justify-end">
-                    <div className="flex space-x-1 bg-gray-100/80 backdrop-blur-sm p-1 rounded-2xl shadow-lg border border-gray-200/50">
-                      <button
-                        onClick={() => setViewMode("line")}
-                        className={`p-2 text-slate-950 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                          viewMode === "line"
-                            ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                            : "hover:bg-gray-200/50"
-                        }`}
-                      >
-                        <ChartDataIcon />
-                      </button>
-                      <button
-                        onClick={() => setViewMode("pie")}
-                        className={`p-2 text-slate-950 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                          viewMode === "pie"
-                            ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                            : "hover:bg-gray-200/50"
-                        }`}
-                      >
-                        <DonutChartIcon />
-                      </button>
-                      <button
-                        onClick={() => setViewMode("bar")}
-                        className={`p-2 text-slate-900 rounded-xl transition-all duration-300 ease-out hover:scale-105 ${
-                          viewMode === "bar"
-                            ? "bg-linear-to-r from-slate-600 to-slate-700 text-white shadow-lg"
-                            : "hover:bg-gray-200/50"
-                        }`}
-                      >
-                        <BarChartIcon />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex-1 flex flex-col gap-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      {viewMode === "pie"
-                        ? "Distribuição por Categoria"
-                        : `Despesas ${timeRange === "1D" ? "Diárias" : timeRange === "1S" ? "Semanais" : "Mensais"}`}
-                    </h3>
-                    <div className="flex-1 w-full h-full">
-                      {viewMode === "line" && (
-                        <LineChart
-                          className="w-full h-full"
-                          data={chartData}
-                          lineColor={isCredit ? "#10B981" : "#E05445"}
-                          dotColor={isCredit ? "#10B981" : "#E05445"}
-                        />
-                      )}
-                      {viewMode === "pie" && (
-                        <PieChart
-                          className="w-full h-full"
-                          transactions={transactions}
-                          totalAmount={totalExpenses}
-                          timeRangeText={headerText}
-                        />
-                      )}
-                      {viewMode === "bar" && (
-                        <BarChart
-                          className="w-full h-full"
-                          data={chartData}
-                          primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
-                          accentColor={isCredit ? "#0f172a" : "#7c2d12"}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-center pt-4">
-                    <div className="flex bg-gray-100 p-1 rounded-full">
-                      {tabRanges.map((range) => (
-                        <Tab
-                          key={range}
-                          label={range}
-                          value={range}
-                          isActive={timeRange === range}
-                          onClick={() => setTimeRange(range)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {categoryItems(true)}
             </div>
-          </main>
-        </div>
-      </>
-    );
+          </div>
+        </motion.div>
+      </div>
+    </>
+  );
   };
 
 export default ControlPanelDashboardScreen;

@@ -1,12 +1,27 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { NoMovementIcon, ArrowRotateIcon, SearchIcon, SettingsIcon, DownloadIcon } from "@/constants/icons";
+import {
+  NoMovementIcon,
+  ArrowRotateIcon,
+  SearchIcon,
+  SettingsIcon,
+  DownloadIcon,
+} from "@/constants/icons";
 import { categories, investmentTypes, mockArticles } from "@/constants/mock-data";
 import { Button } from "@/components/ui";
 import { Article, InvestmentType, InvestmentContentProps } from "@/types/ui";
 import { CategoryFilterProps } from "@/types/ui";
 import { ROUTES } from "@/constants/routes";
+
+const EASE_OUT = "easeOut" as const;
+
+const sectionAnim = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: EASE_OUT } },
+};
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({
   categories,
@@ -26,24 +41,30 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 );
 
 const InvestmentTypeCard = ({ investmentType }: { investmentType: InvestmentType }) => (
-  <div className="mb-6">
+  <motion.div
+    variants={sectionAnim}
+    className="mb-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm"
+  >
     <div className="flex items-center mb-2">
-      <span className="font-semibold text-gray-900 mr-2">{investmentType.name}</span>
+      <span className="font-semibold text-slate-900 mr-2">{investmentType.name}</span>
       <span className={`text-xs px-2 py-1 rounded-full ${investmentType.riskLevel}`}></span>
     </div>
-    <p className="text-gray-600 text-sm mb-3">{investmentType.description}</p>
-    <ul className="space-y-1">
+    <p className="text-slate-600 text-sm mb-3">{investmentType.description}</p>
+    <ul className="space-y-1.5">
       {investmentType.examples.map((example, index) => (
-        <li key={index} className="text-sm text-gray-700 flex items-start">
-          <span className="text-gray-400 mr-2">•</span>
+        <li key={index} className="text-sm text-slate-700 flex items-start">
+          <span className="text-[#003cc3] mr-2">•</span>
           {example}
         </li>
       ))}
     </ul>
-  </div>
+  </motion.div>
 );
 
-const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }> = ({ types, imageUrl }) => {
+const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }> = ({
+  types,
+  imageUrl,
+}) => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleLoadMore = () => {
@@ -52,67 +73,111 @@ const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }
   };
 
   return (
-    <div className="bg-white md:bg-gray-50 rounded-2xl -mt-6 relative p-6">
-      <div className="mb-6">
-        <div className="flex items-center mb-4">
-          <span className="text-2xl mr-2">🚀</span>
-          <h2 className="text-lg font-bold text-gray-900">O que é investimento?</h2>
-          <div className="flex flex-col flex-1 items-end justify-end md:items-end-safe md:justify-end-safe">
-            <div className="rounded-full p-2 border-2 border-gray-300 hover:border-gray-100 transition-colors md:fixed md:bottom-1 md:right-15 md:p-3 md:bg-gray-200 md:hover:bg-gray-400 md:rounded-full md:text-white md:transition-colors md:shadow-lg md:z-20 lg:block">
-              <DownloadIcon className="h-5 w-5 text-gray-600" />
-            </div>
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={sectionAnim}
+      className="bg-white rounded-xl relative p-3 lg:p-4 border border-slate-100 shadow-sm"
+    >
+      <div className="mb-3">
+        <div className="flex items-center mb-3">
+          <span className="text-sm mr-2">🚀</span>
+          <h2 className="text-sm font-bold text-slate-900">O que é investimento?</h2>
+          <div className="flex flex-col flex-1 items-end justify-end">
+            <button className="rounded-xl p-2 border border-slate-200 bg-slate-50 hover:bg-[#fff9d6] transition-colors shadow-sm">
+              <DownloadIcon className="h-5 w-5 text-[#003cc3]" />
+            </button>
           </div>
         </div>
-        <p className="text-gray-600 text-sm leading-relaxed">
-          Investir é colocar o teu dinheiro a trabalhar por ti, com o objetivo de multiplicá-lo ao longo do tempo.
-          Em vez de deixá-lo parado (como debaixo do colchão ou numa conta sem juros), tu aplicas em algo que pode gerar retorno.
+        <p className="text-slate-600 text-sm leading-relaxed">
+          Investir é colocar o teu dinheiro a trabalhar por ti, com o objetivo de multiplicá-lo ao
+          longo do tempo. Em vez de deixá-lo parado, tu aplicas em algo que pode gerar retorno.
         </p>
       </div>
+
       {imageUrl && (
-        <div className="mb-6">
-          <img src={imageUrl} alt="Investment illustration" className="w-full h-48 object-cover rounded-tr-3xl rounded-bl-3xl" />
-        </div>
+        <motion.div variants={sectionAnim} className="mb-3">
+          <img
+            src={imageUrl}
+            alt="Investment illustration"
+            className="w-full h-32 sm:h-36 object-cover rounded-lg border border-slate-100"
+          />
+        </motion.div>
       )}
-      <div className="mb-6">
-        <div className="flex items-center mb-4">
-          <span className="text-2xl mr-2">🧠</span>
-          <h2 className="text-lg font-bold text-gray-900">Tipos de investimento</h2>
+
+      <div className="mb-3">
+        <div className="flex items-center mb-3">
+          <span className="text-sm mr-2">🧠</span>
+          <h2 className="text-sm font-bold text-slate-900">Tipos de investimento</h2>
         </div>
-        <div className="space-y-4">
+        <motion.div
+          initial="hidden"
+          animate="show"
+          transition={{ staggerChildren: 0.05 }}
+          className="space-y-3"
+        >
           {types.map((type) => (
             <InvestmentTypeCard key={type.id} investmentType={type} />
           ))}
-        </div>
+        </motion.div>
       </div>
+
       <div className="flex justify-center">
-        <Button variant="more" label="Ler mais" onClick={handleLoadMore} loading={isLoading} color="bg-gray-100 hover:bg-gray-200" />
+        <Button
+          variant="more"
+          label="Ler mais"
+          onClick={handleLoadMore}
+          loading={isLoading}
+          color="bg-slate-100 hover:bg-slate-200"
+        />
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-
 const EmptyState = ({ message }: { message: string }) => (
-  <div className="flex flex-col flex-1 border border-gray-400 px-10 rounded-2xl items-center justify-center">
-    <div className="bg-gray-200 mb-4 p-1 rounded-full">
-      <NoMovementIcon className="w-10 h-10" />
+  <div className="flex flex-col flex-1 border border-slate-100 px-4 rounded-xl items-center justify-center bg-white">
+    <div className="bg-slate-100 mb-3 p-2 rounded-full">
+      <NoMovementIcon className="w-8 h-8 text-slate-500" />
     </div>
-    <p className="text-gray-500 text-center text-sm max-w-xs">{message}</p>
+    <p className="text-slate-500 text-center text-sm max-w-xs">{message}</p>
   </div>
 );
 
-const SearchBar = ({ placeholder, onSearch, onFilterClick }: { placeholder: string; onSearch: (q: string) => void; onFilterClick: () => void }) => {
+const SearchBar = ({
+  placeholder,
+  onSearch,
+  onFilterClick,
+}: {
+  placeholder: string;
+  onSearch: (q: string) => void;
+  onFilterClick: () => void;
+}) => {
   const [query, setQuery] = useState("");
-  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSearch(query); };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(query);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="relative flex flex-row">
-      <div className="flex items-center rounded-xl px-4 py-3 border border-gray-300">
-        <SearchIcon className="h-5 w-5 text-gray-400 mr-3" />
-        <input type="text" placeholder={placeholder} value={query} onChange={(e) => setQuery(e.target.value)} className="flex-1 bg-transparent text-red-700 placeholder-gray-400 outline-none" />
+      <div className="flex flex-1 items-center rounded-xl px-4 py-2.5 border border-slate-200 bg-white">
+        <SearchIcon className="h-5 w-5 text-slate-400 mr-3" />
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="flex-1 bg-transparent text-slate-700 placeholder-slate-400 outline-none"
+        />
       </div>
-      <div className="flex flex-col flex-1 items-start justify-center">
-        <button type="button" onClick={onFilterClick} className="ml-3 p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
-          <SettingsIcon className="h-5 w-5 text-gray-400" />
+      <div className="flex flex-col items-start justify-center">
+        <button
+          type="button"
+          onClick={onFilterClick}
+          className="ml-2.5 p-2.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors"
+        >
+          <SettingsIcon className="h-5 w-5 text-[#003cc3]" />
         </button>
       </div>
     </form>
@@ -130,6 +195,16 @@ const LibraryScreen = () => {
   const handleSearch = (query: string) => setSearchQuery(query);
   const handleFilterClick = () => {};
   const handleCategoryChange = (category: string) => setActiveCategory(category);
+
+  const visibleArticles = useMemo(() => {
+    if (!searchQuery.trim()) return mockArticles;
+    const q = searchQuery.toLowerCase();
+    return mockArticles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(q) ||
+        article.description.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
 
   const handleReadMore = (articleId: string, list: Article[]) => {
     const article = list.find((a) => a.id === articleId);
@@ -152,23 +227,32 @@ const LibraryScreen = () => {
     }, 1500);
   };
 
-  const ArticleCard = ({ article, onReadMore }: { article: Article; onReadMore: (id: string) => void }) => (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+  const ArticleCard = ({
+    article,
+    onReadMore,
+  }: {
+    article: Article;
+    onReadMore: (id: string) => void;
+  }) => (
+    <motion.div
+      variants={sectionAnim}
+      className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100"
+    >
       <div className="relative h-32">
         <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
         {article.isNew && (
-          <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+          <div className="absolute top-2 right-2 bg-[#003cc3] text-white text-xs px-2 py-1 rounded-full">
             Novo
           </div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2">{article.title}</h3>
-        <p className="text-gray-600 text-xs mb-3 line-clamp-2">{article.description}</p>
+      <div className="p-3">
+        <h3 className="font-semibold text-slate-900 text-sm mb-2 line-clamp-2">{article.title}</h3>
+        <p className="text-slate-600 text-xs mb-3 line-clamp-2">{article.description}</p>
         <div className="flex flex-col items-end justify-center">
           <button
             onClick={() => onReadMore(article.id)}
-            className="flex items-center text-gray-900 text-xs font-medium hover:text-gray-700 transition-colors"
+            className="flex items-center text-[#003cc3] text-xs font-semibold hover:text-[#002fa0] transition-colors"
           >
             Saber Mais
             <svg className="h-3 w-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,20 +261,31 @@ const LibraryScreen = () => {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
-  const ArticleGrid = ({ articles, onReadMore }: { articles: Article[]; onReadMore: (id: string) => void }) => (
-    <div className="grid grid-cols-2 gap-4">
+  const ArticleGrid = ({
+    articles,
+    onReadMore,
+  }: {
+    articles: Article[];
+    onReadMore: (id: string) => void;
+  }) => (
+    <motion.div
+      initial="hidden"
+      animate="show"
+      transition={{ staggerChildren: 0.05 }}
+      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+    >
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} onReadMore={onReadMore} />
       ))}
-    </div>
+    </motion.div>
   );
 
   const RightSideContent = () => (
-    <div className="h-full flex flex-col">
-      <div className="p-6 border-b border-gray-100">
+    <div className="h-full flex flex-col bg-white rounded-xl border border-slate-100 shadow-sm">
+      <div className="p-3 lg:p-4 border-b border-slate-100">
         <SearchBar
           placeholder="Pesquisar por um artigo"
           onSearch={handleSearch}
@@ -199,16 +294,16 @@ const LibraryScreen = () => {
       </div>
       <div className="flex-1 overflow-y-auto">
         {!selectedArticle ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 p-6">
-            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 p-4">
+            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
               <NoMovementIcon />
             </div>
-            <p className="text-center">
+            <p className="text-center text-sm">
               Sem artigos abertos. Clique em um dos artigos para visualizar aqui.
             </p>
           </div>
         ) : (
-          <div className="p-6">
+          <div className="p-3 lg:p-4">
             <InvestmentContent imageUrl={selectedArticle.imageUrl} types={investmentTypes} />
           </div>
         )}
@@ -219,37 +314,42 @@ const LibraryScreen = () => {
   return (
     <>
       {/* Layout Mobile */}
-      <div className="flex flex-col min-h-screen bg-gray-100 pb-6 md:hidden">
-        <div className="m-2 flex flex-col flex-1 rounded-2xl bg-white">
-          <div className="px-4 py-6 shadow-sm">
+      <div className="flex flex-col min-h-screen bg-slate-100 pb-4 sm:pb-6 lg:hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: EASE_OUT }}
+          className="m-2 sm:m-3 flex flex-col flex-1 rounded-xl bg-white border border-slate-100 shadow-sm"
+        >
+          <div className="px-4 py-4 sm:py-5 border-b border-slate-100">
             <SearchBar
               placeholder="Pesquisar por um artigo"
               onSearch={handleSearch}
               onFilterClick={handleFilterClick}
             />
           </div>
-          <div className="px-4 py-4 bg-white border-b border-gray-100">
+          <div className="px-4 py-4 bg-white border-b border-slate-100">
             <CategoryFilter
               categories={categories}
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
             />
           </div>
-          <div className="flex flex-1 flex-col px-4 py-6">
+          <div className="flex flex-1 flex-col px-4 py-4 sm:py-5">
             {!showArticles ? (
               <div className="flex flex-1 flex-col items-center justify-center">
                 <EmptyState message="Sem movimentos artigo para mostrar" />
               </div>
             ) : (
               <>
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">Artigos Novos</h2>
+                <div className="mb-3">
+                  <h2 className="text-sm font-bold text-slate-900 mb-3">Artigos Novos</h2>
                   <ArticleGrid
-                    articles={mockArticles}
-                    onReadMore={(id) => handleReadMore(id, mockArticles)}
+                    articles={visibleArticles}
+                    onReadMore={(id) => handleReadMore(id, visibleArticles)}
                   />
                 </div>
-                <div className="flex justify-center mt-6">
+                <div className="flex justify-center mt-3">
                   <Button
                     variant="more"
                     label="Ver mais"
@@ -261,52 +361,64 @@ const LibraryScreen = () => {
               </>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Layout Desktop */}
-      <div className="hidden md:flex h-screen bg-gray-50 relative overflow-hidden font-sans antialiased text-gray-800">
-          <main className="flex-1 px-4 pb-0 flex h-full overflow-hidden">            <div className="flex flex-1 gap-4 h-full">
-              <div className="w-2/5 flex flex-col bg-gray-50 rounded-2xl overflow-hidden">
-                <div className="px-6 py-6 border-b border-gray-100">
-                  <CategoryFilter
-                    categories={categories}
-                    activeCategory={activeCategory}
-                    onCategoryChange={handleCategoryChange}
-                  />
-                </div>
-                <div className="flex-1 px-6 py-6 overflow-y-auto">
-                  {!showArticles ? (
-                    <div className="flex flex-1 flex-col items-center justify-center h-full">
-                      <EmptyState message="Sem movimentos artigo para mostrar" />
+      <div className="hidden lg:flex h-screen bg-slate-50 relative overflow-hidden font-sans antialiased text-gray-800">
+        <main className="flex-1 px-3 lg:px-4 pb-0 flex h-full overflow-hidden">
+          <div className="flex flex-1 gap-3 lg:gap-4 h-full py-3 lg:py-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: EASE_OUT }}
+              className="lg:w-[42%] xl:w-2/5 flex flex-col bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm"
+            >
+              <div className="px-4 lg:px-5 py-4 lg:py-5 border-b border-slate-100">
+                <CategoryFilter
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  onCategoryChange={handleCategoryChange}
+                />
+              </div>
+              <div className="flex-1 px-4 lg:px-5 py-4 lg:py-5 overflow-y-auto">
+                {!showArticles ? (
+                  <div className="flex flex-1 flex-col items-center justify-center h-full">
+                    <EmptyState message="Sem movimentos artigo para mostrar" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <h2 className="text-sm font-bold text-slate-900 mb-3">Artigos Novos</h2>
+                      <ArticleGrid
+                        articles={visibleArticles}
+                        onReadMore={(id) => handleSelectArticle(id, visibleArticles)}
+                      />
                     </div>
-                  ) : (
-                    <>
-                      <div className="mb-6 bg-white p-4 rounded-2xl">
-                        <h2 className="text-lg font-bold text-gray-900 mb-4">Artigos Novos</h2>
-                        <ArticleGrid
-                          articles={mockArticles}
-                          onReadMore={(id) => handleSelectArticle(id, mockArticles)}
-                        />
-                      </div>
-                      <div className="flex justify-center mt-6">
-                        <Button
-                          variant="more"
-                          label="Ver mais"
-                          rightIcon={<ArrowRotateIcon />}
-                          onClick={handleLoadMore}
-                          loading={isLoading}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
+                    <div className="flex justify-center mt-3">
+                      <Button
+                        variant="more"
+                        label="Ver mais"
+                        rightIcon={<ArrowRotateIcon />}
+                        onClick={handleLoadMore}
+                        loading={isLoading}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="w-3/5 bg-gray-50 rounded-2xl overflow-hidden">
-                <RightSideContent />
-              </div>
-            </div>
-          </main>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, ease: EASE_OUT, delay: 0.04 }}
+              className="lg:w-[58%] xl:w-3/5"
+            >
+              <RightSideContent />
+            </motion.div>
+          </div>
+        </main>
       </div>
     </>
   );

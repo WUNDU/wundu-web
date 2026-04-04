@@ -1,6 +1,7 @@
 import { TransactionProps } from "@/types/ui";
 import React from "react";
 import { Icon } from "@/components/ui/icon";
+import { formatAOA } from "@/lib/currency";
 
 export const Transaction: React.FC<TransactionProps> = ({
   icon,
@@ -28,7 +29,7 @@ export const Transaction: React.FC<TransactionProps> = ({
             amount < 0 ? "text-red-500" : "text-green-500"
           }`}
         >
-          KZ {amount.toLocaleString("pt-AO")}
+          Kz {formatAOA(Math.abs(amount))}
         </p>
         <p className="text-sm text-gray-500">{percentage}%</p>
       </div>

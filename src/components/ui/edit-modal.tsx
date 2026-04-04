@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { EditModalProps } from "@/types/ui";
 import { type GoalPayload, type GoalType } from "@/types/dtos/goal.dto";
 import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore, getGoalProgress } from "@/store/goal-store";
+import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 
 type EditFormState = {
   title: string;
@@ -76,6 +78,12 @@ const EditModal: React.FC<EditModalProps> = ({
   const [formData, setFormData] = useState<EditFormState>(() =>
     buildInitialFormData(objective),
   );
+  const [targetAmountDisplay, setTargetAmountDisplay] = useState(() =>
+    objective?.targetAmount ? formatAOA(objective.targetAmount) : "",
+  );
+  const [currentAmountDisplay, setCurrentAmountDisplay] = useState(() =>
+    objective?.currentAmount ? formatAOA(objective.currentAmount) : "",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -85,6 +93,8 @@ const EditModal: React.FC<EditModalProps> = ({
 
   useEffect(() => {
     setFormData(buildInitialFormData(objective));
+    setTargetAmountDisplay(objective?.targetAmount ? formatAOA(objective.targetAmount) : "");
+    setCurrentAmountDisplay(objective?.currentAmount ? formatAOA(objective.currentAmount) : "");
     setSubmitError("");
   }, [objective]);
 
@@ -199,16 +209,30 @@ const EditModal: React.FC<EditModalProps> = ({
   const disableInputs = isSubmitting || isCompleted;
   const selectedCategoryValue = formData.categoryId || resolvedCategoryId || "";
 
-  if (!objective || !isOpen) {
+  if (!objective) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/10 bg-opacity-50">
-      <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/15"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_4px_16px_rgba(0,60,195,0.08)]"
+          >
         <form className="p-6 md:p-8 space-y-6" onSubmit={handleSubmit}>
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+            <h2 className="text-[16px] font-bold text-gray-900">
               Editar objetivo financeiro
             </h2>
             <button
@@ -295,11 +319,16 @@ const EditModal: React.FC<EditModalProps> = ({
                 Valor necessário
               </label>
               <input
-                type="number"
-                value={formData.targetAmount}
-                onChange={(e) => handleChange("targetAmount", e.target.value)}
+                type="text"
+                inputMode="decimal"
+                value={targetAmountDisplay}
+                onChange={(e) => {
+                  const masked = maskAOAInput(e.target.value);
+                  setTargetAmountDisplay(masked);
+                  handleChange("targetAmount", parseAOA(masked));
+                }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="800.000"
+                placeholder="0,00"
                 required
                 disabled={disableInputs}
               />
@@ -310,11 +339,16 @@ const EditModal: React.FC<EditModalProps> = ({
                 Valor arrecadado
               </label>
               <input
-                type="number"
-                value={formData.currentAmount}
-                onChange={(e) => handleChange("currentAmount", e.target.value)}
+                type="text"
+                inputMode="decimal"
+                value={currentAmountDisplay}
+                onChange={(e) => {
+                  const masked = maskAOAInput(e.target.value);
+                  setCurrentAmountDisplay(masked);
+                  handleChange("currentAmount", parseAOA(masked));
+                }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="400.000"
+                placeholder="0,00"
                 disabled={disableInputs}
               />
             </div>
@@ -403,15 +437,17 @@ const EditModal: React.FC<EditModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-yellow-400 text-white rounded-lg font-medium hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-[#003cc3] text-white rounded-lg font-medium hover:bg-[#002fa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={disableInputs}
             >
               {isSubmitting ? "Salvando..." : "Salvar Alterações"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

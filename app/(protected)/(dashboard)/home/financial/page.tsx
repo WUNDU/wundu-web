@@ -12,6 +12,7 @@ import {
   PlusIcon,
 } from "@/constants/icons";
 import { Button, Select, TextInput } from "@/components/ui";
+import { maskAOAInput, parseAOA, formatAOA } from "@/lib/currency";
 const IconContainer: React.FC<{ icon: React.ElementType; bgColor: string; iconColor: string; className?: string }> = ({ icon: Icon, bgColor, iconColor, className }) => (
   <div className={`p-3 rounded-full flex-shrink-0 ${bgColor} ${className ?? ""}`}><Icon className={`h-6 w-6 ${iconColor}`} /></div>
 );
@@ -239,6 +240,7 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
   const [form, setFormState] = useState<ObjectiveFormState>(() =>
     createDefaultForm(),
   );
+  const [targetAmountDisplay, setTargetAmountDisplay] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
   );
@@ -261,6 +263,7 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
   const resetFormState = useCallback((opts?: { skipAutosave?: boolean }) => {
     if (opts?.skipAutosave) skipAutosaveRef.current = true;
     setFormState(createDefaultForm());
+    setTargetAmountDisplay("");
   }, []);
 
   useEffect(() => {
@@ -325,6 +328,9 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
     const draftState = toDraftState(payload);
     if (!draftState) return;
     setFormState(draftState);
+    if (draftState.targetAmount) {
+      setTargetAmountDisplay(formatAOA(parseFloat(draftState.targetAmount) || 0));
+    }
     writeDraftPayload({ data: draftState, committed: false });
     notifyDraftChange();
   }, []);
@@ -444,10 +450,15 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
             />
             <TextInput
               label="Valor necessário"
-              type="number"
-              placeholder="Digite o valor"
-              value={form.targetAmount}
-              onChange={(e) => setField("targetAmount", e.target.value)}
+              type="text"
+              inputMode="decimal"
+              placeholder="0,00"
+              value={targetAmountDisplay}
+              onChange={(e) => {
+                const masked = maskAOAInput(e.target.value);
+                setTargetAmountDisplay(masked);
+                setField("targetAmount", parseAOA(masked));
+              }}
               required
             />
             <div className="flex flex-col gap-2 md:col-span-2">

@@ -49,13 +49,13 @@ const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }
   };
 
   return (
-    <div className="bg-white md:bg-gray-50 rounded-2xl -mt-6 relative p-6">
+    <div className="bg-white md:bg-gray-50 rounded-xl -mt-6 relative p-6">
       <div className="mb-6">
         <div className="flex items-center mb-4">
-          <span className="text-2xl mr-2">🚀</span>
+          <span className="text-lg mr-2">🚀</span>
           <h2 className="text-lg font-bold text-gray-900">O que é investimento?</h2>
           <div className="flex flex-col flex-1 items-end justify-end md:items-end-safe md:justify-end-safe">
-            <div className="rounded-full p-2 border-2 border-gray-300 hover:border-gray-100 transition-colors md:fixed md:bottom-1 md:right-15 md:p-3 md:bg-gray-200 md:hover:bg-gray-400 md:rounded-full md:text-white md:transition-colors md:shadow-lg md:z-20 lg:block">
+            <div className="rounded-full p-2 border-2 border-gray-300 hover:border-gray-100 transition-colors md:fixed md:bottom-1 md:right-15 md:p-3 md:bg-gray-200 md:hover:bg-gray-400 md:rounded-full md:text-white md:transition-colors md:shadow-sm md:z-20 lg:block">
               <DownloadIcon className="h-5 w-5 text-gray-600" />
             </div>
           </div>
@@ -72,7 +72,7 @@ const InvestmentContent: React.FC<InvestmentContentProps & { imageUrl?: string }
       )}
       <div className="mb-6">
         <div className="flex items-center mb-4">
-          <span className="text-2xl mr-2">🧠</span>
+          <span className="text-lg mr-2">🧠</span>
           <h2 className="text-lg font-bold text-gray-900">Tipos de investimento</h2>
         </div>
         <div className="space-y-4">
@@ -95,7 +95,7 @@ const ArticleDetailScreen: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col p-2 min-h-screen bg-gray-200 rounded-2xl md:hidden">
+      <div className="flex flex-col p-2 min-h-screen bg-gray-200 rounded-xl md:hidden">
         <div className="flex-1 pb-6">
           <div className="relative rounded-t-2xl h-48 bg-gradient-to-br overflow-hidden">
             <img
@@ -114,7 +114,7 @@ const ArticleDetailScreen: React.FC = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6">
+          <div className="bg-white rounded-xl max-w-sm w-full p-6">
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">

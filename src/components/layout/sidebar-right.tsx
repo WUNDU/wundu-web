@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import type { FC } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 import { user as avatar } from "@/constants/images";
 import {
   DownArrowIcon,
@@ -9,14 +10,11 @@ import {
   NotificationDeskIcon,
   NotificationRightBarIcon,
 } from "@/constants/icons";
-import { useRouter } from "next/navigation";
-import { ROUTES } from "@/constants/routes";
 import { SidebarRightProps } from "@/types/ui";
 import { useUserStore } from "@/store/user-store";
 import { useUiStore } from "@/store/ui-store";
 
-const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
-  const route = useRouter();
+const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const { logoutUser, user } = useUserStore();
   const { openNotificationCenter } = useUiStore();
 
@@ -34,120 +32,145 @@ const SidebarRight: React.FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div
-      className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-white/5 backdrop-blur-xl z-50 transition-all duration-500 ease-out ${
-        isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-      }`}
-      onClick={onClose}
-    >
-      {/* Conteúdo com rolagem */}
-      <div
-        className="flex flex-col h-full max-h-screen overflow-y-auto bg-white/5 backdrop-blur-xl shadow-2xl border-l border-gray-200/50 transition-all duration-500 ease-out"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header com notificação e botão de fechar */}
-        <div className="flex flex-row justify-between items-center px-4 sm:px-6 py-4 animate-slide-up">
-          <button
-            type="button"
-            onClick={openNotificationCenter}
-            className="p-2 rounded-2xl transition-all duration-300 ease-out hover:scale-105 hover:bg-white/60"
-            aria-label="Abrir notificações"
-          >
-            <NotificationDeskIcon className="w-8 h-8 text-black" />
-          </button>
-          <button
-            onClick={onClose}
-            className="p-2 transition-all duration-300 ease-out hover:scale-110 hover:bg-gray-100 rounded-full"
-          >
-            <DownArrowIcon className="w-6 h-6 text-black rotate-90" />
-          </button>
-        </div>
-        {/* Conteúdo principal */}
-        <div
-          className="flex flex-col items-center space-y-6 px-4 sm:px-6 py-4 flex-1 animate-fade-in"
-          style={{ animationDelay: "0.2s" }}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-50 flex justify-end bg-slate-900/20"
+          onClick={onClose}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
         >
-          {/* Avatar do usuário */}
-          <div className="p-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500 ease-out hover:scale-110 hover:rotate-3 shadow-lg animate-scale-in">
-            <div className="bg-white p-3 rounded-full">
-              <Image
-                src={avatar}
-                alt={user?.name || "Usuário"}
-                className="w-12 h-12 rounded-full object-cover transition-all duration-300 ease-out hover:scale-105"
-              />
-            </div>
-          </div>
-          {/* Nome do usuário */}
-          <span
-            className="text-xl sm:text-2xl font-semibold text-black transition-all duration-300 ease-out animate-slide-up"
-            style={{ animationDelay: "0.3s" }}
+          <motion.aside
+            className="flex h-full w-full max-w-sm flex-col border-l border-slate-200 bg-white shadow-sm"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ x: "100%", opacity: 0.98 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0.98 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
           >
-            {user?.name || "Usuário"}
-          </span>
-          {/* Painel de controle */}
-          <div
-            className="w-full max-w-md animate-slide-up"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl hover:-translate-y-1">
-              <ul className="divide-y divide-gray-100">
-                {[
-                  {
-                    icon: <HelpIcon className="w-6 h-6 text-gray-600" />,
-                    text: "Suporte e Feedback",
-                    action: handleSupportClick,
-                  },
-                  {
-                    icon: (
-                      <NotificationRightBarIcon className="w-6 h-6 text-gray-600" />
-                    ),
-                    text: "Notificações",
-                    action: openNotificationCenter,
-                  },
-                ].map((item, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between items-center p-4 hover:bg-white/50 transition-all duration-300 ease-out hover:scale-[1.02] cursor-pointer"
-                    onClick={item.action}
-                  >
-                    <div className="flex items-center space-x-4">
-                      {item.icon}
-                      <span className="font-medium text-gray-800 text-sm sm:text-base">
-                        {item.text}
-                      </span>
-                    </div>
-                    <svg
-                      className="w-5 h-5 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </li>
-                ))}
-              </ul>
-              {/* Botão de logout */}
-              <button onClick={handleLogout} className="w-full">
-                <div className="p-4 border-t border-gray-100">
-                  <div className="flex items-center space-x-4 text-red-500 hover:bg-red-50 p-3 rounded-xl transition-all duration-300 ease-out cursor-pointer hover:scale-[1.02] hover:shadow-md">
-                    <LogoutIcon className="w-6 h-6 transition-all duration-300 ease-out hover:scale-110" />
-                    <span className="font-medium text-sm sm:text-base">
-                      Terminar Sessão
-                    </span>
-                  </div>
-                </div>
+            <motion.div
+              className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5 sm:px-5"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              <button
+                type="button"
+                onClick={openNotificationCenter}
+                className="rounded-lg p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-50 hover:text-[#003cc3]"
+                aria-label="Abrir notificações"
+              >
+                <NotificationDeskIcon className="h-7 w-7" />
               </button>
+              <button
+                onClick={onClose}
+                className="rounded-lg p-2 transition-colors duration-150 hover:bg-[#003cc3]/5"
+                aria-label="Fechar painel de perfil"
+              >
+                <DownArrowIcon className="h-5 w-5 rotate-90 text-slate-700" />
+              </button>
+            </motion.div>
+
+            <div className="flex flex-1 flex-col items-center space-y-5 overflow-y-auto px-4 py-5 sm:px-5">
+              <motion.div
+                className="rounded-full bg-[#003cc3] p-1 shadow-sm"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut", delay: 0.06 }}
+              >
+                <div className="rounded-full bg-white p-2.5">
+                  <Image
+                    src={avatar}
+                    alt={user?.name || "Usuário"}
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.span
+                className="text-base font-semibold text-slate-900"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut", delay: 0.1 }}
+              >
+                {user?.name || "Usuário"}
+              </motion.span>
+
+              <motion.div
+                className="w-full max-w-md"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, ease: "easeOut", delay: 0.14 }}
+              >
+                <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-[0_4px_16px_rgba(0,60,195,0.08)]">
+                  <ul className="divide-y divide-slate-100">
+                    {[
+                      {
+                        icon: <HelpIcon className="h-5 w-5 text-slate-600" />,
+                        text: "Suporte e Feedback",
+                        action: handleSupportClick,
+                      },
+                      {
+                        icon: (
+                          <NotificationRightBarIcon className="h-5 w-5 text-slate-600" />
+                        ),
+                        text: "Notificações",
+                        action: openNotificationCenter,
+                      },
+                    ].map((item, index) => (
+                      <motion.li
+                        key={index}
+                        className="flex cursor-pointer items-center justify-between p-3.5 transition-colors duration-150 hover:bg-[#003cc3]/5"
+                        onClick={item.action}
+                        whileHover={{ x: 1 }}
+                        transition={{ duration: 0.15, ease: "easeInOut" }}
+                      >
+                        <div className="flex items-center space-x-4">
+                          {item.icon}
+                          <span className="text-sm font-medium text-slate-800">
+                            {item.text}
+                          </span>
+                        </div>
+                        <svg
+                          className="h-4 w-4 text-slate-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </motion.li>
+                    ))}
+                  </ul>
+
+                  <button onClick={handleLogout} className="w-full">
+                    <div className="border-t border-slate-100 p-3.5">
+                      <motion.div
+                        className="flex items-center space-x-3 rounded-lg p-2.5 text-red-500 transition-colors duration-150 hover:bg-red-50"
+                        whileHover={{ x: 1 }}
+                        transition={{ duration: 0.15, ease: "easeInOut" }}
+                      >
+                        <LogoutIcon className="h-5 w-5" />
+                        <span className="text-sm font-medium">
+                          Terminar Sessão
+                        </span>
+                      </motion.div>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </motion.aside>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

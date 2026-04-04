@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Document } from "@/types/ui";
 import { LoadingSpinner } from "@/components/ui";
 import { StatsSection } from "@/components/layout";
@@ -27,6 +28,7 @@ import { Category } from "@/types/dtos/category.dto";
 import { createPortal } from "react-dom";
 import { useUserStore } from "@/store/user-store";
 import type {
+  TransactionDTO,
   TransactionFormData,
   TransactionFormField,
 } from "@/types/dtos/transaction.dto";
@@ -35,9 +37,34 @@ import {
   isFutureDateTime,
   normalizeDateTimePayload,
 } from "@/utils/date-time";
-import { ModalContent } from "@/components/ui/modal-content";
+
 import Button from "@/components/ui/button";
-import { Filter, X } from "lucide-react";
+import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import {
+  Filter,
+  X,
+  Car,
+  UtensilsCrossed,
+  Home as LucideHome,
+  Heart,
+  Gamepad2,
+  BookOpen,
+  Shirt,
+  Smartphone,
+  ShoppingCart,
+  Flame,
+  Wifi,
+  Banknote,
+  TrendingUp,
+  Shield,
+  Plane,
+  Receipt as LucideReceipt,
+  ChevronRight,
+  CheckCircle,
+  AlertCircle,
+  Info,
+} from "lucide-react";
 import {
   CloseIcon,
   NoMovementIcon,
@@ -51,25 +78,40 @@ import {
   CalendarIcon,
 } from "@/constants/icons";
 import TextInput from "@/components/ui/text-input";
+import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
+import { TransactionDetailPanel } from "@/components/ui/transaction-detail-panel";
 
 // ── UploadSection ─────────────────────────────────────────────────────────────
+
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const SECTION_ENTER = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.35, ease: EASE_OUT as [number, number, number, number] },
+};
 
 const UploadSection: React.FC<{ onUploadClick: () => void }> = ({
   onUploadClick,
 }) => (
-  <div
-    className="flex flex-col justify-center text-center p-4 m-2 sm:m-4 bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto cursor-pointer transition-transform hover:-translate-y-0.5"
+  <motion.div
+    {...SECTION_ENTER}
+    whileHover={{ transition: { duration: 0.18, ease: EASE_OUT } }}
+    className="group relative flex flex-col items-center justify-center p-3 sm:p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-[#ffd400]/60 transition-colors duration-300 cursor-pointer w-full h-full min-h-0 sm:min-h-[140px] overflow-hidden"
     onClick={onUploadClick}
     role="button"
     tabIndex={0}
   >
-    <div className="p-4 border-2 border-dashed border-gray-400 rounded-xl h-full flex flex-col justify-center">
-      <PlusFileIcon className="mx-auto mb-2 text-gray-600" />
-      <p className="text-center text-sm text-gray-500 px-2">
-        Comprovativos, imagens e documentos financeiros
+    <div className="absolute inset-0 bg-gradient-to-br from-[#ffd400]/12 via-transparent to-[#003cc3]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3">
+      <div className="relative p-3 bg-[#ffd400]/18 rounded-xl group-hover:bg-[#ffd400]/24 transition-colors duration-300 shadow-sm">
+        <PlusFileIcon className="w-6 h-6 text-[#003cc3]" />
+      </div>
+      <p className="text-sm font-semibold text-slate-900 tracking-tight">
+        Adicionar Transação
       </p>
     </div>
-  </div>
+  </motion.div>
 );
 
 // ── UploadOptions ──────────────────────────────────────────────────────────────
@@ -98,19 +140,39 @@ const UploadOptions: React.FC<{
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <Button
-        leftIcon={<EditIcon />}
-        variant="option"
-        label="Manual"
-        onClick={handleManualButtonClick}
-      />
-      <Button
-        leftIcon={<ReceiptIcon />}
-        label="Comprovativo"
-        variant="option"
+    <div className="flex flex-col gap-3 sm:gap-4">
+      <button
+        type="button"
         onClick={handleButtonClick}
-      />
+        className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 border-dashed border-[rgba(0,60,195,0.15)] bg-[rgba(0,60,195,0.025)] rounded-xl text-left hover:bg-[rgba(0,60,195,0.04)] transition-colors"
+      >
+        <div className="flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] rounded-[13px] sm:rounded-[15px]">
+          <PlusFileIcon className="w-6 h-6 text-[#ffd400]" />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-slate-900">Enviar Comprovativo</p>
+          <p className="text-xs text-slate-400">PDF do seu banco</p>
+        </div>
+      </button>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-slate-200" />
+        <span className="text-xs text-slate-400 font-medium">ou</span>
+        <div className="flex-1 h-px bg-slate-200" />
+      </div>
+
+      <button
+        type="button"
+        onClick={handleManualButtonClick}
+        className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-left hover:bg-slate-100 transition-colors"
+      >
+        <EditIcon className="w-5 h-5 text-slate-500" />
+        <div>
+          <p className="text-sm font-bold text-slate-900">Lançamento Manual</p>
+          <p className="text-xs text-slate-400">Registar manualmente</p>
+        </div>
+      </button>
+
       <input
         type="file"
         ref={fileInputRef}
@@ -119,70 +181,6 @@ const UploadOptions: React.FC<{
         style={{ display: "none" }}
       />
     </div>
-  );
-};
-
-// ── SentDocumentsSection ───────────────────────────────────────────────────────
-
-const SentDocumentsSection: React.FC<{
-  documents: Document[];
-  showOptions: boolean;
-  onFileSelect: (file: File, type: "image" | "document") => void;
-  onManualClick?: () => void;
-}> = ({ documents, showOptions, onFileSelect, onManualClick }) => {
-  if (showOptions) {
-    return (
-      <section className="flex flex-col flex-1 mb-2 items-center">
-        <div className="flex justify-center mb-6 md:hidden">
-          <h2 className="text-sm font-bold uppercase text-gray-900">
-            Adicionar Transação
-          </h2>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm flex flex-col justify-center flex-1 w-full max-w-md">
-          <UploadOptions
-            onFileSelect={onFileSelect}
-            onManualClick={onManualClick}
-          />
-        </div>
-      </section>
-    );
-  }
-
-  if (documents.length === 0) {
-    return (
-      <section className="flex flex-col flex-1 mb-2">
-        <div className="flex justify-center items-center mb-1 border-b-2 py-2 border-gray-200">
-          <h2 className="text-sm font-bold uppercase text-gray-900">
-            Adicionar Transação
-          </h2>
-        </div>
-        <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 text-center justify-center shadow-sm flex flex-col items-center flex-1">
-          <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
-          <p className="text-lg font-semibold text-gray-900">
-            Nenhum movimento registrado.
-          </p>
-          <p className="text-sm text-gray-500">
-            Toque no botão acima para começar.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="flex flex-col flex-1 mb-2">
-      <div className="flex justify-center items-center mb-8">
-        <h2 className="text-sm font-bold uppercase text-gray-900">
-          Adicionar Transação
-        </h2>
-      </div>
-      <div className="bg-white rounded-xl shadow-sm flex flex-col flex-1 justify-center">
-        <UploadOptions
-          onFileSelect={onFileSelect}
-          onManualClick={onManualClick}
-        />
-      </div>
-    </section>
   );
 };
 
@@ -210,16 +208,23 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onFormChange,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [amountDisplay, setAmountDisplay] = useState("");
   const { showNotification } = useUiStore();
 
   useEffect(() => {
     if (isOpen) setIsVisible(true);
-    else setIsVisible(false);
+    else { setIsVisible(false); setAmountDisplay(""); }
   }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && formData.type !== "expense") onFormChange("type", "expense");
   }, [formData.type, isOpen, onFormChange]);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const masked = maskAOAInput(e.target.value);
+    setAmountDisplay(masked);
+    onFormChange("amount", parseAOA(masked));
+  };
 
   const handleClose = () => {
     setIsVisible(false);
@@ -280,16 +285,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       onClick={handleClose}
     >
       <div
-        className={`bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-lg transform transition-all duration-300 ${isVisible ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"}`}
+        className={`bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-sm transform transition-all duration-300 ${isVisible ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-5 border-b border-gray-900/20">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-5 py-4 border-b border-gray-900/20">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-white/60">
                 Nova transação
               </p>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-sm font-bold text-white">
                 Adicionar despesa
               </h2>
             </div>
@@ -301,15 +306,15 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             Registre gastos e acompanhe o impacto no seu orçamento.
           </p>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           {submitError && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {submitError}
             </div>
           )}
           <form onSubmit={handleSubmit}>
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-gray-200 bg-gray-50/60 px-4 py-3">
+            <div className="space-y-4">
+              <div className="rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-500">
@@ -328,15 +333,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   </span>
                 </div>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <div className="relative">
                     <TextInput
                       label="Montante"
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="0,00"
-                      value={formData.amount}
-                      onChange={(e) => onFormChange("amount", e.target.value)}
+                      value={amountDisplay}
+                      onChange={handleAmountChange}
                       isError={!!errors.amount}
                       required={true}
                       className="pr-1"
@@ -435,7 +441,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 rounded-lg bg-red-500 px-6 py-3 text-white font-semibold shadow-lg transition-transform hover:scale-[1.01] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-lg bg-red-500 px-6 py-3 text-white font-semibold shadow-sm transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? "Adicionando..." : "Adicionar"}
               </button>
@@ -473,15 +479,15 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
   onSubmit,
 }) => {
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+  const [displayAmount, setDisplayAmount] = useState("");
   const [transactionDate, setTransactionDate] = useState("");
 
   useEffect(() => {
     if (defaults) {
       setDescription(defaults.description ?? "");
-      setAmount(
+      setDisplayAmount(
         defaults.amount !== null && defaults.amount !== undefined
-          ? String(defaults.amount)
+          ? formatAOA(defaults.amount)
           : "",
       );
       setTransactionDate(
@@ -496,8 +502,8 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!description || !amount || !transactionDate) return;
-    await onSubmit({ description, amount: Number(amount), transactionDate });
+    if (!description || !displayAmount || !transactionDate) return;
+    await onSubmit({ description, amount: parseFloat(parseAOA(displayAmount)) || 0, transactionDate });
   };
 
   return (
@@ -506,11 +512,11 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+        className="w-full max-w-md rounded-xl bg-white p-4 shadow-sm"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-sm font-bold text-gray-900">
             Completar transação
           </h2>
           <p className="text-sm text-gray-500">
@@ -526,11 +532,12 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
           />
           <TextInput
             label="Montante"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            type="text"
+            inputMode="decimal"
+            value={displayAmount}
+            onChange={(e) => setDisplayAmount(maskAOAInput(e.target.value))}
             required
-            min="0"
+            placeholder="0,00"
           />
           <TextInput
             label="Data"
@@ -568,137 +575,147 @@ interface CategoryScreenProps {
 }
 
 // ---------------------------------------------------------------------------
-// TransactionHighlight — inline (was @/shared/components/transaction-highlight)
+// getCategoryStyle — mobile-matching category color/icon mapping
+// ---------------------------------------------------------------------------
+
+type CategoryStyle = { icon: LucideIcon; color: string; bg: string };
+
+const CATEGORY_STYLES: { pattern: RegExp; style: CategoryStyle }[] = [
+  { pattern: /transport|carro|taxi|uber/i, style: { icon: Car, color: "#3B82F6", bg: "rgba(59,130,246,0.1)" } },
+  { pattern: /alimenta|comida|restaur|café/i, style: { icon: UtensilsCrossed, color: "#F97316", bg: "rgba(249,115,22,0.1)" } },
+  { pattern: /habita|renda|aluguel|imov|morad/i, style: { icon: LucideHome, color: "#8B5CF6", bg: "rgba(139,92,246,0.1)" } },
+  { pattern: /saúde|médic|farmác/i, style: { icon: Heart, color: "#10B981", bg: "rgba(16,185,129,0.1)" } },
+  { pattern: /lazer|entret|cinema|jogo/i, style: { icon: Gamepad2, color: "#EC4899", bg: "rgba(236,72,153,0.1)" } },
+  { pattern: /educa|escola|curso|livro/i, style: { icon: BookOpen, color: "#0EA5E9", bg: "rgba(14,165,233,0.1)" } },
+  { pattern: /vestuário|roupa|moda/i, style: { icon: Shirt, color: "#F59E0B", bg: "rgba(245,158,11,0.1)" } },
+  { pattern: /tecnolog|tel|celul/i, style: { icon: Smartphone, color: "#6366F1", bg: "rgba(99,102,241,0.1)" } },
+  { pattern: /mercado|superm|compra/i, style: { icon: ShoppingCart, color: "#14B8A6", bg: "rgba(20,184,166,0.1)" } },
+  { pattern: /combust|gasolina/i, style: { icon: Flame, color: "#EF4444", bg: "rgba(239,68,68,0.1)" } },
+  { pattern: /internet|comunic/i, style: { icon: Wifi, color: "#06B6D4", bg: "rgba(6,182,212,0.1)" } },
+  { pattern: /salário|rendimento/i, style: { icon: Banknote, color: "#10B981", bg: "rgba(16,185,129,0.1)" } },
+  { pattern: /investimento/i, style: { icon: TrendingUp, color: "#003cc3", bg: "rgba(0,60,195,0.1)" } },
+  { pattern: /seguro/i, style: { icon: Shield, color: "#64748b", bg: "rgba(100,116,139,0.1)" } },
+  { pattern: /viagem|férias/i, style: { icon: Plane, color: "#8B5CF6", bg: "rgba(139,92,246,0.1)" } },
+];
+
+const DEFAULT_CATEGORY_STYLE: CategoryStyle = {
+  icon: LucideReceipt,
+  color: "#00216b",
+  bg: "rgba(0,33,107,0.08)",
+};
+
+const getCategoryStyle = (category: string): CategoryStyle => {
+  const match = CATEGORY_STYLES.find(({ pattern }) => pattern.test(category));
+  return match?.style ?? DEFAULT_CATEGORY_STYLE;
+};
+
+// ---------------------------------------------------------------------------
+// TransactionHighlight — mobile-matching design
 // ---------------------------------------------------------------------------
 
 interface TransactionHighlightProps {
   title: string;
-  description: string;
   amount: number;
   isIncome: boolean;
   category: string;
   timestamp?: string;
-  icon: React.ElementType;
-  badgeClassName: string;
-  gradientClassName: string;
-  iconAccentClass?: string;
+  index: number;
+  onClick?: () => void;
 }
-
-const formatTimestampLabel = (timestamp?: string) => {
-  if (!timestamp) return "Agora mesmo";
-
-  let dateLabel: string | null = null;
-  let timeLabel: string | null = null;
-
-  const isoMatch = timestamp.match(
-    /^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2})(?::\d{2})?)?/,
-  );
-
-  if (isoMatch) {
-    const [, datePart, timePart] = isoMatch;
-    const dateOnly = new Date(`${datePart}T00:00:00`);
-    dateLabel = Number.isNaN(dateOnly.getTime())
-      ? datePart
-      : dateOnly.toLocaleDateString("pt-AO", {
-          day: "2-digit",
-          month: "short",
-        });
-    if (timePart) timeLabel = timePart;
-  }
-
-  if (!dateLabel || !timeLabel) {
-    const parsedDate = new Date(timestamp);
-    if (!Number.isNaN(parsedDate.getTime())) {
-      dateLabel = parsedDate.toLocaleDateString("pt-AO", {
-        day: "2-digit",
-        month: "short",
-      });
-      timeLabel = parsedDate.toLocaleTimeString("pt-AO", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
-  }
-
-  if (dateLabel && timeLabel) return `${dateLabel}, ${timeLabel}`;
-  if (dateLabel) return dateLabel;
-  return timestamp;
-};
 
 const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
   title,
-  description,
   amount,
   isIncome,
   category,
   timestamp,
-  icon: Icon,
-  badgeClassName,
-  gradientClassName,
-  iconAccentClass,
+  index,
+  onClick,
 }) => {
-  const formattedAmount = new Intl.NumberFormat("pt-AO", {
-    style: "currency",
-    currency: "AOA",
-    minimumFractionDigits: 2,
-  }).format(Math.abs(amount));
+  const { icon: Icon, color, bg } = getCategoryStyle(category);
 
-  const formattedTimestamp = formatTimestampLabel(timestamp);
+  const formattedAmount = formatAOA(Math.abs(amount));
+
+  const timeLabel = timestamp
+    ? new Date(timestamp).toLocaleTimeString("pt-AO", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
 
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white px-3 py-2 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+    <motion.div
+      initial={{ opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        duration: 0.3,
+        ease: "easeOut" as const,
+        delay: index * 0.055,
+      }}
+      className={`flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3${onClick ? " cursor-pointer hover:bg-slate-50/60 transition-colors" : ""}`}
+      onClick={onClick}
+    >
       <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradientClassName}`}
-      />
-      <div className="relative flex flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-inner ${
-                iconAccentClass || "shadow-slate-100"
-              }`}
-            >
-              <Icon className="h-4 w-4 text-slate-800" />
-            </div>
-            <div className="space-y-0.5">
-              <h3 className="text-[13px] font-semibold text-gray-900 leading-tight line-clamp-1">
-                {title}
-              </h3>
-              <p className="text-[11px] text-gray-500 leading-tight line-clamp-1">
-                {description}
-              </p>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-                {formattedTimestamp}
-              </span>
-            </div>
-          </div>
+        className="flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-[46px] sm:h-[46px] rounded-[13px] sm:rounded-[15px]"
+        style={{ backgroundColor: bg }}
+      >
+        <Icon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px]" style={{ color }} />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p
+          className="font-bold leading-tight truncate"
+          style={{ color: "#1e293b", fontSize: 14 }}
+        >
+          {title}
+        </p>
+        <div className="flex items-center gap-1.5 mt-1">
           <span
-            className={`text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 whitespace-nowrap ${badgeClassName}`}
+            className="inline-block"
+            style={{
+              backgroundColor: bg,
+              color,
+              fontSize: 10,
+              fontWeight: 700,
+              paddingLeft: 8,
+              paddingRight: 8,
+              paddingTop: 2,
+              paddingBottom: 2,
+              borderRadius: 20,
+            }}
           >
             {category}
           </span>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <p
-            className={`text-sm sm:text-base font-semibold ${
-              isIncome ? "text-emerald-600" : "text-rose-600"
-            }`}
-          >
-            {isIncome ? "+" : "-"} {formattedAmount}
-          </p>
-          <div
-            className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-              isIncome
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-rose-50 text-rose-700"
-            }`}
-          >
-            {isIncome ? "Receita" : "Despesa"}
-          </div>
+          {timeLabel && (
+            <span style={{ color: "#94a3b8", fontSize: 10 }}>{timeLabel}</span>
+          )}
         </div>
       </div>
-    </article>
+
+      <div
+        className="flex-shrink-0"
+        style={{
+          backgroundColor: isIncome
+            ? "rgba(16,185,129,0.08)"
+            : "rgba(239,68,68,0.08)",
+          paddingLeft: 10,
+          paddingRight: 10,
+          paddingTop: 6,
+          paddingBottom: 6,
+          borderRadius: 20,
+        }}
+      >
+        <span
+          style={{
+            fontWeight: 800,
+            color: isIncome ? "#10B981" : "#EF4444",
+          }}
+          className="text-[12px] sm:text-[13px]"
+        >
+          {isIncome ? "+" : "-"} {formattedAmount}
+        </span>
+      </div>
+    </motion.div>
   );
 };
 
@@ -714,68 +731,6 @@ interface MovementSectionProps {
   error?: string | null;
 }
 
-type PaletteStyle = {
-  gradient: string;
-  badge: string;
-  accent: string;
-};
-
-type PaletteSet = Record<string, PaletteStyle> & { default: PaletteStyle };
-
-const EXPENSE_PALETTE: PaletteSet = {
-  Habitação: {
-    gradient: "from-orange-50/80 via-transparent to-transparent",
-    badge: "bg-orange-100 text-orange-700",
-    accent: "shadow-orange-200",
-  },
-  Alimentação: {
-    gradient: "from-rose-50/80 via-transparent to-transparent",
-    badge: "bg-rose-100 text-rose-700",
-    accent: "shadow-rose-200",
-  },
-  Saúde: {
-    gradient: "from-red-50/80 via-transparent to-transparent",
-    badge: "bg-red-100 text-red-700",
-    accent: "shadow-red-200",
-  },
-  Transporte: {
-    gradient: "from-sky-50/80 via-transparent to-transparent",
-    badge: "bg-sky-100 text-sky-700",
-    accent: "shadow-sky-200",
-  },
-  default: {
-    gradient: "from-slate-50/80 via-transparent to-transparent",
-    badge: "bg-slate-100 text-slate-700",
-    accent: "shadow-slate-200",
-  },
-};
-
-const INCOME_PALETTE: PaletteSet = {
-  Salário: {
-    gradient: "from-emerald-50/80 via-transparent to-transparent",
-    badge: "bg-emerald-100 text-emerald-700",
-    accent: "shadow-emerald-200",
-  },
-  Investimentos: {
-    gradient: "from-teal-50/80 via-transparent to-transparent",
-    badge: "bg-teal-100 text-teal-700",
-    accent: "shadow-teal-200",
-  },
-  default: {
-    gradient: "from-lime-50/80 via-transparent to-transparent",
-    badge: "bg-lime-100 text-lime-700",
-    accent: "shadow-lime-200",
-  },
-};
-
-const getPalette = (
-  category: string | undefined,
-  isIncome: boolean,
-): PaletteStyle => {
-  const palette = isIncome ? INCOME_PALETTE : EXPENSE_PALETTE;
-  return palette[category ?? ""] ?? palette.default;
-};
-
 const MovementSection: React.FC<MovementSectionProps> = ({
   documents,
   isLoading,
@@ -783,11 +738,20 @@ const MovementSection: React.FC<MovementSectionProps> = ({
   onRefresh,
   error,
 }) => {
-  const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortField, setSortField] = useState<"date" | "amount">("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionDTO | null>(null);
+
+  const { transactions: rawTransactions } = useTransactionStore();
+
+  const handleTransactionClick = useCallback((doc: Document) => {
+    const found = rawTransactions.find(
+      (tx) => tx.amount === doc.amount && tx.transactionDate === doc.timestamp,
+    );
+    if (found) setSelectedTransaction(found);
+  }, [rawTransactions]);
 
   const transactionDocuments = useMemo(() => {
     const normalized = documents.map((doc, index) => {
@@ -836,16 +800,11 @@ const MovementSection: React.FC<MovementSectionProps> = ({
     });
   }, [documents, categoryFilter, sortField, sortDirection]);
 
-  useEffect(() => {
-    setShowAllTransactions(false);
-  }, [transactionDocuments, categoryFilter, sortField, sortDirection]);
-
   const totalTransactions = transactionDocuments.length;
 
   const visibleDocuments = useMemo(() => {
-    if (showAllTransactions) return transactionDocuments;
-    return transactionDocuments.slice(0, 5);
-  }, [transactionDocuments, showAllTransactions]);
+    return transactionDocuments.slice(0, 10);
+  }, [transactionDocuments]);
 
   const groupedTransactions = useMemo(() => {
     const groups = new Map<number, { label: string; items: Document[] }>();
@@ -897,80 +856,39 @@ const MovementSection: React.FC<MovementSectionProps> = ({
   if (isLoading) {
     return (
       <section className="flex flex-col flex-1 min-h-0 pb-5 overflow-hidden">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-sm font-bold uppercase text-gray-900">
-              Últimas transações
+        <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+              Transações
             </h2>
-            <p className="text-xs text-gray-500">Carregando transações...</p>
           </div>
-          <div className="border-2 rounded-full border-gray-200 bg-gray-100 p-1">
-            <SettingsIcon className="text-gray-500" />
+          <div className="flex flex-1 items-center justify-center py-12">
+            <div className="text-sm text-slate-400">Buscando dados...</div>
           </div>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="text-sm text-gray-500">Buscando dados...</div>
         </div>
       </section>
     );
   }
 
-  const renderHighlight = (doc: Document, index: number) => {
-    const isIncome = Boolean(doc.isIncome ?? (doc.amount ?? 0) > 0);
-    const palette = getPalette(doc.category, isIncome);
-    const IconComponent = isIncome ? MoneyIcon : PaymentIcon;
-
-    return (
-      <TransactionHighlight
-        key={`${doc.name}-${doc.timestamp ?? index}`}
-        title={doc.name}
-        description={
-          doc.description ??
-          (isIncome
-            ? "Receita sincronizada automaticamente"
-            : "Despesa registrada a partir do comprovativo")
-        }
-        amount={doc.amount ?? 0}
-        isIncome={isIncome}
-        category={doc.category ?? (isIncome ? "Receita" : "Despesa")}
-        timestamp={doc.timestamp}
-        icon={IconComponent}
-        badgeClassName={palette.badge}
-        gradientClassName={palette.gradient}
-        iconAccentClass={palette.accent}
-      />
-    );
-  };
-
   if (!documents.length) {
     return (
       <section className="flex flex-col flex-1 min-h-full pb-5">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-sm font-bold uppercase text-gray-900">
-              Últimas transações
+        <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+              Transações
             </h2>
-            <p className="text-xs text-gray-500">
-              Ainda não há movimentos registrados
+          </div>
+          <div className="flex flex-col items-center justify-center py-12 text-center px-5">
+            <NoMovementIcon className="mx-auto mb-3 text-slate-300" />
+            <p className="text-base font-semibold text-slate-900">
+              Nenhum movimento registrado.
             </p>
-          </div>
-          <div className="border-2 rounded-full border-gray-200 bg-gray-100 p-1">
-            <SettingsIcon className="text-gray-500" />
-          </div>
-        </div>
-        <div className="flex flex-1 min-h-0">
-          <div className="bg-white rounded-xl my-4 mb-20 md:my-2 p-8 shadow-sm flex flex-col flex-1 min-h-0 items-center justify-center text-center overflow-hidden">
-            <div className="flex flex-col items-center gap-2 mb-4">
-              <NoMovementIcon className="mx-auto mb-2 text-gray-600" />
-              <p className="text-lg font-semibold text-gray-900">
-                Nenhum movimento registrado.
-              </p>
-              <p className="text-sm text-gray-500">
-                {error
-                  ? error
-                  : "Faça upload de um comprovativo ou registre manualmente para visualizar aqui."}
-              </p>
-            </div>
+            <p className="text-sm text-slate-400 mt-1.5">
+              {error
+                ? error
+                : "Faça upload de um comprovativo ou registre manualmente para visualizar aqui."}
+            </p>
           </div>
         </div>
       </section>
@@ -978,221 +896,206 @@ const MovementSection: React.FC<MovementSectionProps> = ({
   }
 
   return (
-    <section className="flex flex-col flex-1 h-full min-h-0 overflow-hidden">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-sm font-bold uppercase text-gray-900">
-            Últimas transações
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: EASE_OUT }}
+      className="flex flex-col gap-3"
+    >
+      <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+            Transações
           </h2>
-          <p className="text-xs text-gray-500">
-            Resumo das despesas e receitas recentes
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onRefresh?.()}
-            className="border rounded-full border-gray-200 bg-gray-50 p-2 text-gray-500 hover:bg-white transition"
-            aria-label="Atualizar lista"
-          >
-            <ArrowRotateIcon className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsFilterOpen(true)}
-            className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:shadow-md transition-all"
-          >
-            <Filter className="w-4 h-4" />
-            Filtros
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-1 min-h-0">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col flex-1 min-h-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto pr-1 space-y-4 py-4">
-            {groupedTransactions.map(({ label, items }, groupIndex) => (
-              <div key={`${label}-${groupIndex}`} className="space-y-1 px-4">
-                <div className="flex items-center gap-1.5 text-[11px] font-medium text-gray-500">
-                  <CalendarIcon className="w-3 h-3" />
-                  <span>{label}</span>
-                </div>
-                <div className="mt-1 space-y-2 border-t border-gray-100 pt-1">
-                  {items.map((doc, index) => renderHighlight(doc, index))}
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onRefresh?.()}
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-300"
+              aria-label="Atualizar lista"
+            >
+              <ArrowRotateIcon className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen(true)}
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-300"
+            >
+              <Filter className="w-4 h-4" />
+            </button>
+            {totalTransactions > 10 && (
+              <Link
+                href="/home/transactions"
+                className="inline-flex items-center gap-1 bg-[rgba(0,60,195,0.08)] text-[#003cc3] text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-[rgba(0,60,195,0.12)] transition-colors"
+              >
+                Ver todas
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+            )}
           </div>
+        </div>
 
-          {totalTransactions > 5 && (
-            <div className="border-t border-gray-100 p-4 flex justify-center">
-              <Button
-                variant="secondary"
-                onClick={() => setShowAllTransactions((prev) => !prev)}
-                label={
-                  showAllTransactions
-                    ? "Mostrar menos"
-                    : "Ver todos os movimentos"
-                }
-              />
+        {/* Transaction list */}
+        <div className="pb-3">
+          {groupedTransactions.map(({ label, items }, groupIndex) => (
+            <div key={`${label}-${groupIndex}`}>
+              <div className="px-5 py-2">
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5"
+                  style={{ backgroundColor: "rgba(0,60,195,0.06)" }}
+                >
+                  <CalendarIcon className="w-[11px] h-[11px] text-[#003cc3]" />
+                  <span className="text-[#003cc3] font-bold text-xs">
+                    {label}
+                  </span>
+                </span>
+              </div>
+              {items.map((doc, index) => {
+                const isIncome = Boolean(
+                  doc.isIncome ?? (doc.amount ?? 0) > 0,
+                );
+                return (
+                  <React.Fragment
+                    key={`${doc.name}-${doc.timestamp ?? index}-${index}`}
+                  >
+                    <TransactionHighlight
+                      title={doc.name}
+                      amount={doc.amount ?? 0}
+                      isIncome={isIncome}
+                      category={
+                        doc.category ?? (isIncome ? "Receita" : "Despesa")
+                      }
+                      timestamp={doc.timestamp}
+                      index={groupIndex * 10 + index}
+                      onClick={() => handleTransactionClick(doc)}
+                    />
+                    {index < items.length - 1 && (
+                      <div
+                        className="h-px mx-5"
+                        style={{
+                          backgroundColor: "rgba(0,33,107,0.05)",
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          ))}
+
+          {totalTransactions === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
+                <NoMovementIcon className="w-6 h-6 text-slate-200" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900">
+                Nenhuma transação encontrada
+              </h3>
+              <p className="text-sm text-slate-400 mt-1.5">
+                Tente ajustar seus filtros ou faça um novo upload.
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4 transition-opacity duration-300 ${
-          isFilterOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        aria-hidden={!isFilterOpen}
-      >
-        <div
-          className={`w-full max-w-sm rounded-2xl bg-white shadow-2xl border border-gray-100 p-6 transform transition-all duration-300 ${
-            isFilterOpen ? "scale-100 translate-y-0" : "scale-90 translate-y-4"
-          }`}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs uppercase font-semibold text-gray-400">
-                Filtrar
-              </p>
-              <h3 className="text-lg font-semibold text-gray-800">
-                Personalize a visualização
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen(false)}
-              className="p-1 rounded-full hover:bg-gray-100"
-              aria-label="Fechar filtros"
+      {/* Filter Modal */}
+      <AnimatePresence>
+        {isFilterOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: EASE_OUT }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/45"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              transition={{ duration: 0.22, ease: EASE_OUT }}
+              className="w-full max-w-md bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
             >
-              <X className="w-4 h-4 text-gray-500" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs font-semibold text-gray-500 mb-2">
-                Ordenar por
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSortField("date");
-                    setSortDirection("desc");
-                  }}
-                  className={`rounded-xl border px-3 py-2 transition ${
-                    sortField === "date"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  Data (recentes)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSortField("amount");
-                    setSortDirection("desc");
-                  }}
-                  className={`rounded-xl border px-3 py-2 transition ${
-                    sortField === "amount"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  Montante (maior)
-                </button>
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Filtros</h3>
+                <p className="text-xs text-slate-500">Personalize sua visualização</p>
               </div>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="p-2 rounded-xl hover:bg-slate-200 text-slate-400 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>Direção</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSortDirection("desc")}
-                  className={`px-3 py-1.5 rounded-full border transition ${
-                    sortDirection === "desc"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-200"
-                  }`}
-                >
-                  Desc
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSortDirection("asc")}
-                  className={`px-3 py-1.5 rounded-full border transition ${
-                    sortDirection === "asc"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-200"
-                  }`}
-                >
-                  Asc
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-gray-500 mb-2">
-                Categoria
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter("all")}
-                  className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                    categoryFilter === "all"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-200 text-gray-600"
-                  }`}
-                >
-                  Todas
-                </button>
-                {categoryOptions.map((category) => (
+            
+            <div className="p-4 space-y-4">
+                <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 block">Ordenar por</label>
+                <div className="grid grid-cols-2 gap-3">
                   <button
-                    key={category}
-                    type="button"
-                    onClick={() => setCategoryFilter(category)}
-                    className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                      categoryFilter === category
-                        ? "border-slate-900 bg-slate-900 text-white"
-                        : "border-gray-200 text-gray-600"
-                    }`}
+                    onClick={() => { setSortField("date"); setSortDirection("desc"); }}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "date" ? "bg-amber-600 border-amber-600 text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-amber-200"}`}
                   >
-                    {category}
+                    Mais recentes
                   </button>
-                ))}
+                  <button
+                    onClick={() => { setSortField("amount"); setSortDirection("desc"); }}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "amount" ? "bg-amber-600 border-amber-600 text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-amber-200"}`}
+                  >
+                    Maior valor
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 block">Categorias</label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setCategoryFilter("all")}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${categoryFilter === "all" ? "bg-slate-900 border-slate-900 text-white" : "bg-slate-50 border-slate-100 text-slate-500 hover:bg-white hover:border-slate-200"}`}
+                  >
+                    Todas
+                  </button>
+                  {categoryOptions.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${categoryFilter === cat ? "bg-slate-900 border-slate-900 text-white" : "bg-slate-50 border-slate-100 text-slate-500 hover:bg-white hover:border-slate-200"}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 flex justify-between text-sm">
-            <button
-              type="button"
-              className="text-gray-500 hover:text-gray-800"
-              onClick={() => {
-                setSortField("date");
-                setSortDirection("desc");
-                setCategoryFilter("all");
-              }}
-            >
-              Limpar tudo
-            </button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setIsFilterOpen(false)}
-              label="Aplicar"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
+            <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex gap-3">
+              <button
+                onClick={() => { setSortField("date"); setSortDirection("desc"); setCategoryFilter("all"); }}
+                className="flex-1 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                Limpar
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="flex-1 px-3 py-2.5 rounded-xl bg-[#003cc3] text-white text-sm font-bold hover:bg-[#0033a8] transition-colors shadow-sm"
+              >
+                Aplicar
+              </button>
+            </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <TransactionDetailPanel
+        transaction={selectedTransaction}
+        isOpen={selectedTransaction !== null}
+        onClose={() => setSelectedTransaction(null)}
+      />
+    </motion.div>
   );
 };
 
@@ -1267,13 +1170,13 @@ const CategoryScreen = ({
                 />
               </svg>
             </button>
-            <h2 className="text-xl font-semibold text-gray-900">Categorias</h2>
+            <h2 className="text-base font-semibold text-gray-900">Categorias</h2>
             <div className="w-10"></div>
           </div>
-          <div className="p-6 bg-gray-100 rounded-2xl">
-            <div className="bg-white rounded-2xl p-4">
-              <div className="mb-8">
-                <h3 className="text-base font-medium text-gray-700 mb-6">
+          <div className="p-4 bg-gray-100 rounded-xl">
+            <div className="bg-white rounded-xl p-4">
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-4">
                   Categorias padrão
                 </h3>
                 <div className="flex flex-wrap gap-3">
@@ -1283,7 +1186,7 @@ const CategoryScreen = ({
                       onClick={() => handleCategorySelect(category)}
                       className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${
                         selectedCategory?.id === category.id
-                          ? "bg-yellow-400 text-white shadow-lg scale-105"
+                          ? "bg-yellow-400 text-white shadow-sm scale-105"
                           : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
                       }`}
                       style={
@@ -1345,7 +1248,7 @@ const CategoryScreen = ({
       {/* Desktop: Altera o conteúdo com base no estado de sucesso */}
       <div className="hidden md:block mt-2 w-full h-full overflow-y-auto">
         {showSuccessScreen ? (
-          <div className="bg-white rounded-2xl shadow-lg w-full p-8 text-center flex flex-col items-center justify-center h-full">
+          <div className="bg-white rounded-xl shadow-sm w-full p-4 text-center flex flex-col items-center justify-center h-full">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 width="29"
@@ -1360,7 +1263,7 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">
               Categoria definida com sucesso
             </h3>
             <p className="text-sm text-gray-600">
@@ -1369,12 +1272,12 @@ const CategoryScreen = ({
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-4">
-            <div className="mb-8">
-              <h3 className="text-base font-medium text-gray-700 mb-6">
+          <div className="bg-white rounded-xl p-4">
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">
                 Categorias padrão
               </h3>
-              <div className="rounded-2xl border-2 border-gray-100 p-8">
+              <div className="rounded-xl border-2 border-gray-100 p-4">
                 <div className="flex flex-wrap gap-3">
                   {defaultCategories.map((category) => (
                     <button
@@ -1382,7 +1285,7 @@ const CategoryScreen = ({
                       onClick={() => handleCategorySelect(category)}
                       className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${
                         selectedCategory?.id === category.id
-                          ? "bg-yellow-400 text-white shadow-lg scale-105"
+                          ? "bg-yellow-400 text-white shadow-sm scale-105"
                           : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
                       }`}
                       style={
@@ -1444,7 +1347,7 @@ const CategoryScreen = ({
       {/* Modal de sucesso (overlay) */}
       {showSuccessScreen && (
         <div className="md:hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center">
+          <div className="bg-white rounded-xl shadow-sm w-full max-w-sm p-4 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 width="29"
@@ -1459,7 +1362,7 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">
               Categoria definida com sucesso
             </h3>
             <p className="text-sm text-gray-600">
@@ -1498,36 +1401,31 @@ const NotificationToast: React.FC = () => {
   if (!isMounted || (!isAnimating && !notification)) return null;
   if (!notification) return null;
 
+  const iconMap = {
+    success: <CheckCircle className="w-5 h-5" />,
+    error: <AlertCircle className="w-5 h-5" />,
+    info: <Info className="w-5 h-5" />,
+  };
+
+  const bgMap = {
+    success: "bg-emerald-50 text-emerald-600",
+    error: "bg-rose-50 text-rose-600",
+    info: "bg-blue-50 text-blue-600",
+  };
+
   return createPortal(
-    <div
-      className={`
-        fixed inset-0 z-9999 flex items-center justify-center p-4
-        bg-black/40 backdrop-blur-sm
-        ${notification ? "animate-backdrop-in" : "animate-backdrop-out pointer-events-none"}
-      `}
-      onClick={closeNotification}
-    >
-      <div
-        className={`
-          relative w-full max-w-md bg-white rounded-3xl shadow-2xl
-          ${notification ? "animate-sweetalert-show" : "animate-sweetalert-hide"}
-        `}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={closeNotification}
-          aria-label="Fechar notificação"
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-200"
-        >
-          <CloseIcon className="w-4 h-4" />
-        </button>
-        <div className="px-6 py-8 sm:px-8 sm:py-10 text-center">
-          <ModalContent
-            type={notification.type}
-            title={notification.title}
-            message={notification.message}
-          />
+    <div className="fixed top-6 right-6 z-[100] w-full max-w-sm animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 flex items-center gap-3">
+        <div className={`p-2 rounded-xl ${bgMap[notification.type]}`}>
+          {iconMap[notification.type]}
         </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-slate-900">{notification.title}</p>
+          <p className="text-xs text-slate-500 truncate">{notification.message}</p>
+        </div>
+        <button onClick={closeNotification} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+          <CloseIcon className="w-4 h-4 text-slate-400" />
+        </button>
       </div>
     </div>,
     document.body,
@@ -1641,6 +1539,7 @@ const useAddTransactionModal = () => {
 };
 
 const HomeScreen = () => {
+  const { user } = useUserStore();
   const [pendingDocs, setPendingDocs] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -1838,43 +1737,64 @@ const HomeScreen = () => {
   };
 
   return (
-    <>
-      {/* Container principal */}
-      <main className="flex-1 mb-0 px-4 pb-6 flex flex-col h-full overflow-hidden">
-          {isUploading ? (
-            <div className="flex flex-1 items-center justify-center h-full">
-              <LoadingSpinner />
-            </div>
-          ) : (
-            <>
-              {/* Seção Superior */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-stretch m-0 h-auto transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5">
-                <div className="md:hidden flex flex-col flex-1">
-                  <StatsSection />
-                </div>
-                <div className="hidden md:flex flex-col flex-1">
-                  <UploadSection onUploadClick={toggleUploadOptions} />
-                </div>
-                <div className="hidden md:flex flex-1 items-center justify-center md:col-span-2">
-                  <StatsSection />
-                </div>
-              </div>
+    <div className="w-full max-w-[1360px] mx-auto flex flex-col gap-3">
+      {/* Header da Página */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.32, ease: EASE_OUT }}
+        className="flex flex-col gap-1"
+      >
+        <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+          Olá, {user?.name?.split(" ")[0] || "Usuário"}! 👋
+        </h2>
+        <p className="text-sm text-slate-500 font-medium">
+          Aqui está o que está acontecendo com suas finanças hoje.
+        </p>
+      </motion.div>
 
-              {/* Seção Principal */}
-              <MainContent
-                documents={documents}
-                showUploadOptions={showUploadOptions}
-                handleFileSelect={handleFileSelect}
-                onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
-                onManualClick={handleOpenTransactionModal}
-                isTransactionsLoading={isTransactionsLoading}
-                isTransactionsRefreshing={isTransactionsRefreshing}
-                transactionsError={transactionsError}
-                onRefreshTransactions={refreshTransactions}
-              />
-            </>
-          )}
-        </main>
+      {isUploading ? (
+        <div className="flex flex-1 items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {/* Grid de Cards Superiores - Alinhados e Proporcionais */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+            <div className="lg:col-span-4 flex">
+              <UploadSection onUploadClick={toggleUploadOptions} />
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.34, ease: EASE_OUT, delay: 0.08 }}
+              className="lg:col-span-8 flex"
+            >
+              <StatsSection />
+            </motion.div>
+          </div>
+
+          {/* Seção de Conteúdo Principal */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.36, ease: EASE_OUT, delay: 0.12 }}
+            className="min-h-[320px] lg:min-h-[360px]"
+          >
+            <MainContent
+              documents={documents}
+              showUploadOptions={showUploadOptions}
+              handleFileSelect={handleFileSelect}
+              onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
+              onManualClick={handleOpenTransactionModal}
+              isTransactionsLoading={isTransactionsLoading}
+              isTransactionsRefreshing={isTransactionsRefreshing}
+              transactionsError={transactionsError}
+              onRefreshTransactions={refreshTransactions}
+            />
+          </motion.div>
+        </div>
+      )}
 
       <NotificationToast />
       <ManualTransactionModal
@@ -1894,7 +1814,7 @@ const HomeScreen = () => {
         submitError={submitError}
         onFormChange={handleChange}
       />
-    </>
+    </div>
   );
 };
 
@@ -1919,9 +1839,7 @@ const MainContent = ({
   transactionsError: string | null;
   onRefreshTransactions: () => void;
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [transactionDescription, setTransactionDescription] = useState("");
 
@@ -1934,29 +1852,57 @@ const MainContent = ({
     setTransactionDescription,
   };
 
-  const rightContentDesktop = isCategoryModalOpen ? (
-    <CategoryScreen {...categoryProps} />
-  ) : (
-    <MovementSection
-      documents={documents}
-      isLoading={isTransactionsLoading}
-      isRefreshing={isTransactionsRefreshing}
-      onRefresh={onRefreshTransactions}
-      error={transactionsError}
-    />
-  );
-
   return (
-    <>
-      <div
-        className={`flex flex-col flex-1 min-h-0 mt-3 md:mt-4 transition-all duration-500 ease-out animate-slide-up hover:-translate-y-0.5  ${
-          showUploadOptions && "md:grid md:grid-cols-4 md:gap-4 md:h-full"
-        }`}
-      >
-        {!showUploadOptions ? (
-          <div className="flex flex-col flex-1 h-full min-h-0">
-            {/* Mobile: Sempre MovementSection ou modais como overlay */}
-            <div className="md:hidden flex flex-1 flex-col min-h-0">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: EASE_OUT }}
+      className="flex flex-col xl:flex-row gap-3 items-start h-full"
+    >
+      <AnimatePresence initial={false}>
+        {showUploadOptions && (
+          <motion.div
+            key="upload-options-panel"
+            initial={{ opacity: 0, x: -14 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -14 }}
+            transition={{ duration: 0.24, ease: EASE_OUT }}
+            className="w-full xl:w-[300px] flex-shrink-0"
+          >
+            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm">
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em] mb-4 text-center lg:text-left">
+                Opções de Envio
+              </h3>
+              <UploadOptions
+                onFileSelect={handleFileSelect}
+                onManualClick={onManualClick}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="flex-1 min-w-0 w-full h-full">
+        <AnimatePresence mode="wait" initial={false}>
+          {isCategoryModalOpen ? (
+            <motion.div
+              key="category-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.24, ease: EASE_OUT }}
+              className="h-full"
+            >
+              <CategoryScreen {...categoryProps} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="movement-panel"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.26, ease: EASE_OUT }}
+              className="h-full"
+            >
               <MovementSection
                 documents={documents}
                 isLoading={isTransactionsLoading}
@@ -1964,49 +1910,11 @@ const MainContent = ({
                 onRefresh={onRefreshTransactions}
                 error={transactionsError}
               />
-            </div>
-            {/* Desktop: Substitui por modais se ativos, full width quando !showUploadOptions */}
-            <div className="hidden md:block flex-col flex-1 h-full min-h-0">
-              {rightContentDesktop}
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Mobile: SentDocumentsSection full */}
-            <div className="flex flex-col flex-1 h-full md:hidden">
-              <SentDocumentsSection
-                documents={[]}
-                showOptions={true}
-                onFileSelect={handleFileSelect}
-                onManualClick={onManualClick}
-              />
-            </div>
-            {/* Desktop: SentDocumentsSection sempre visível à esquerda */}
-            <div className="md:flex items-start mt-2 h-full hidden">
-              <SentDocumentsSection
-                documents={[]}
-                showOptions={true}
-                onFileSelect={handleFileSelect}
-                onManualClick={onManualClick}
-              />
-            </div>
-            {/* Desktop: Área direita (substituição da MovementSection) */}
-            <div className="sm:flex flex-col flex-1 h-full min-h-0 hidden col-span-3 md:block">
-              {rightContentDesktop}
-            </div>
-          </>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      {/* Mobile: Modais como overlay */}
-      <div className="md:hidden">
-        {isCategoryModalOpen && (
-          <CategoryScreen
-            {...categoryProps}
-            onCloseOrSuccess={onCategoryCloseOrSuccess}
-          />
-        )}
-      </div>
-    </>
+    </motion.div>
   );
 };
 
