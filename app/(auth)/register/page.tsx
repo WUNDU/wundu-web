@@ -8,6 +8,7 @@ import { wunduToast } from "@/utils/toast";
 import { ROUTES } from "@/constants/routes";
 import { Button, Input, LoadingSpinner, LogoType } from "@/components/ui";
 import { useUserStore } from "@/store/user-store";
+import { useAuth } from "@/hooks/use-auth";
 import {
   validateEmail,
   validatePhoneNumber,
@@ -91,17 +92,8 @@ PhoneInput.displayName = "PhoneInput";
  * Depth: Fixed 660px height to prevent layout shifts.
  */
 const RegisterPage = () => {
-  const {
-    currentStep,
-    prevStep,
-    nextStep,
-    data,
-    loginUser,
-    clearError,
-    setRegisterData,
-    registerUser,
-    error,
-  } = useUserStore();
+  const { currentStep, prevStep, nextStep, data, setRegisterData } = useUserStore();
+  const { login, registerUser, error, clearError } = useAuth();
   const router = useRouter();
 
   // Clear global auth errors on mount
@@ -202,9 +194,14 @@ const RegisterPage = () => {
     setPasswordError("");
     setIsSubmitting(true);
     try {
-      await registerUser({ ...data, password: securityForm.password });
-      setRegisterData({ password: securityForm.password });
-      nextStep();
+      const ok = await registerUser({ ...data, password: securityForm.password });
+      if (ok) {
+        setRegisterData({ password: securityForm.password });
+        nextStep();
+      } else {
+        const message = error || "Falha ao concluir o cadastro.";
+        wunduToast.error("Erro no cadastro", { description: message });
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Falha ao concluir o cadastro.";
@@ -250,7 +247,7 @@ const RegisterPage = () => {
     setAutoLoginError(null);
     setIsLoggingIn(true);
     try {
-      await loginUser(data.email, data.password);
+      await login(data.email, data.password);
       wunduToast.success("Sessão iniciada!", {
         description: "A redirecionar...",
       });

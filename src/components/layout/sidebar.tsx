@@ -23,7 +23,7 @@ interface Conversation {
 
 const navItems = [
   { name: "Início", path: ROUTES.HOME, icon: HomeDeskIcon, exact: true },
-  { name: "Finanças", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false },
+  { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false },
   { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false },
   { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false },
 ];

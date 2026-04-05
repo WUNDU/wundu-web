@@ -1,4 +1,12 @@
-import { api } from "@/api/api";
+import { apiClient } from "@/api/api";
+import type {
+  DocumentList,
+  DocumentResult,
+  DocumentStatus,
+  UploadResponse,
+} from "@/types/dtos/document.dto";
+
+type DocStatus = "pending" | "processed" | "error" | "duplicate";
 
 type DocumentCountResponse = {
   totalDocuments?: number;
@@ -17,13 +25,42 @@ const normalizeCount = (
   return 0;
 };
 
-export const DocumentService = {
-  getTotalDocuments: async (): Promise<number> => {
-    const { data } = await api.get<number | DocumentCountResponse>(
-      "/documents/count",
-    );
-    return normalizeCount(data);
-  },
-};
+class DocumentService {
+  async upload(file: FormData): Promise<UploadResponse> {
+    const { data } = await apiClient.post<UploadResponse>("/documents/upload", file, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
 
-export default DocumentService;
+  async getAll(): Promise<DocumentList[]> {
+    const { data } = await apiClient.get<DocumentList[]>("/documents");
+    return data;
+  }
+
+  async getById(id: string): Promise<DocumentStatus> {
+    const { data } = await apiClient.get<DocumentStatus>(`/documents/${id}`);
+    return data;
+  }
+
+  async getByStatus(status: DocStatus): Promise<DocumentList[]> {
+    const { data } = await apiClient.get<DocumentList[]>(`/documents/status/${status}`);
+    return data;
+  }
+
+  async getCount(): Promise<number> {
+    const { data } = await apiClient.get<number | DocumentCountResponse>("/documents/count");
+    return normalizeCount(data);
+  }
+
+  async getTotalDocuments(): Promise<number> {
+    return this.getCount();
+  }
+
+  async getResult(id: string): Promise<DocumentResult> {
+    const { data } = await apiClient.get<DocumentResult>(`/documents/${id}/result`);
+    return data;
+  }
+}
+
+export const documentService = new DocumentService();

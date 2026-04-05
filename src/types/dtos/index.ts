@@ -7,3 +7,4 @@ export * from "./goal.dto";
 export * from "./limit.dto";
 export * from "./notification.dto";
 export * from "./transaction.dto";
+export * from "./user.dto";

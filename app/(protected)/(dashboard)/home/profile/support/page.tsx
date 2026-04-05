@@ -1,77 +1,15 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui";
 import { TextInput } from "@/components/ui";
 import {
-  CloseIcon,
   EmailIcon,
   HelpIcon,
   MessageIcon,
   PhoneIcon,
 } from "@/constants/icons";
-import { useUiStore } from "@/store/ui-store";
-import {
-  CheckCircle,
-  AlertCircle,
-  Info,
-} from "lucide-react";
-
-const NotificationToast: React.FC = () => {
-  const { notification, closeNotification } = useUiStore();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (notification) {
-      setIsAnimating(true);
-    } else {
-      timeout = setTimeout(() => setIsAnimating(false), 150);
-    }
-    return () => clearTimeout(timeout);
-  }, [notification]);
-
-  if (!isMounted || (!isAnimating && !notification)) return null;
-  if (!notification) return null;
-
-  const iconMap = {
-    success: <CheckCircle className="w-5 h-5" />,
-    error: <AlertCircle className="w-5 h-5" />,
-    info: <Info className="w-5 h-5" />,
-  };
-
-  const bgMap = {
-    success: "bg-emerald-50 text-emerald-600",
-    error: "bg-rose-50 text-rose-600",
-    info: "bg-blue-50 text-blue-600",
-  };
-
-  return createPortal(
-    <div className="fixed top-6 right-6 z-[100] w-full max-w-sm animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 flex items-center gap-3">
-        <div className={`p-2 rounded-xl ${bgMap[notification.type]}`}>
-          {iconMap[notification.type]}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-slate-900">{notification.title}</p>
-          <p className="text-xs text-slate-500 truncate">{notification.message}</p>
-        </div>
-        <button onClick={closeNotification} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
-          <CloseIcon className="w-4 h-4 text-slate-400" />
-        </button>
-      </div>
-    </div>,
-    document.body,
-  );
-};
 
 export default function Support() {
   const [form, setForm] = useState({
@@ -260,7 +198,6 @@ export default function Support() {
           </motion.section>
         </div>
       </main>
-      <NotificationToast />
     </>
   );
 }

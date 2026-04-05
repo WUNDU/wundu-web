@@ -10,7 +10,7 @@ import { Transaction } from "@/components/ui/transaction";
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from "@/constants/icons";
 import { tabRanges } from "@/constants/mock-data";
 import { StatsSection } from "@/components/layout";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import type { TransactionDTO } from "@/types/dtos/transaction.dto";
 import type {
   TimeRange,
@@ -812,7 +812,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isCredit] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
-  const { transactions: rawTransactions, fetch } = useTransactionStore();
+  const { transactions: rawTransactions, getTransactions: fetch } = useTransaction();
 
   useEffect(() => {
     fetch();

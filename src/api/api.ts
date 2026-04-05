@@ -1,146 +1,85 @@
+import axios from "axios";
+
 const API_BASE_URL = "/api/proxy";
 
-type RequestOptions = {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: any;
-  skipAuth?: boolean;
-};
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+  timeout: 30000,
+});
 
-const isFormData = (body: unknown): body is FormData => {
-  return typeof FormData !== "undefined" && body instanceof FormData;
-};
-
-async function request<T = any>(
-  path: string,
-  options: RequestOptions = {}
-): Promise<{ data: T }> {
-  const url = `${API_BASE_URL}${path}`;
-  const isMultipartBody = isFormData(options.body);
-
-  const headers: Record<string, string> = {
-    ...(isMultipartBody ? {} : { "Content-Type": "application/json" }),
-    ...(options.headers || {}),
-  };
-
-  if (typeof window !== "undefined" && !options.skipAuth) {
+// Request interceptor - adiciona token de autenticação
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
-    if (token && !headers["Authorization"]) {
-      headers["Authorization"] = token.startsWith("Bearer ")
+    if (token) {
+      config.headers.Authorization = token.startsWith("Bearer ")
         ? token
         : `Bearer ${token}`;
     }
   }
+  return config;
+});
 
-  const response = await fetch(url, {
-    method: options.method || "GET",
-    headers,
-    body: isMultipartBody
-      ? options.body
-      : options.body !== undefined
-        ? JSON.stringify(options.body)
-        : undefined,
-  });
+// Response interceptor - trata erros globais
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        const hadToken = !!localStorage.getItem("token");
+        localStorage.removeItem("token");
+        // Only redirect on session expiry (had a token). Login attempts (no token)
+        // return 401 for wrong credentials — let the error propagate to the caller.
+        if (hadToken) {
+          window.location.href = "/login";
+        }
+      }
+    }
 
-  const text = await response.text();
-  let data: any;
-
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
-
-  if (!response.ok) {
     const fallbackMessage =
       "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
-    const rawMessage = (data && (data as any).message) || response.statusText;
+    const rawMessage =
+      error.response?.data?.message || error.message || error.response?.statusText;
     const message =
       rawMessage && rawMessage !== "Internal Server Error"
         ? rawMessage
         : fallbackMessage;
-    throw new Error(message);
+
+    return Promise.reject(new Error(message));
   }
+);
 
-  return { data };
-}
+type ApiConfig = {
+  headers?: Record<string, string>;
+  skipAuth?: boolean;
+  params?: Record<string, unknown>;
+};
 
+// Wrapper para manter compatibilidade com código existente
 class Api {
-  get<T = any>(
-    path: string,
-    config?: {
-      headers?: Record<string, string>;
-      skipAuth?: boolean;
-    }
-  ) {
-    return request<T>(path, {
-      method: "GET",
-      headers: config?.headers,
-      skipAuth: config?.skipAuth,
-    });
+  get<T = any>(path: string, config?: ApiConfig) {
+    return api.get<T>(path, config);
   }
 
-  post<T = any>(
-    path: string,
-    body?: any,
-    config?: {
-      headers?: Record<string, string>;
-      skipAuth?: boolean;
-    }
-  ) {
-    return request<T>(path, {
-      method: "POST",
-      body,
-      headers: config?.headers,
-      skipAuth: config?.skipAuth,
-    });
+  post<T = any>(path: string, body?: any, config?: ApiConfig) {
+    return api.post<T>(path, body, config);
   }
 
-  put<T = any>(
-    path: string,
-    body?: any,
-    config?: {
-      headers?: Record<string, string>;
-      skipAuth?: boolean;
-    }
-  ) {
-    return request<T>(path, {
-      method: "PUT",
-      body,
-      headers: config?.headers,
-      skipAuth: config?.skipAuth,
-    });
+  put<T = any>(path: string, body?: any, config?: ApiConfig) {
+    return api.put<T>(path, body, config);
   }
 
-  patch<T = any>(
-    path: string,
-    body?: any,
-    config?: {
-      headers?: Record<string, string>;
-      skipAuth?: boolean;
-    }
-  ) {
-    return request<T>(path, {
-      method: "PATCH",
-      body,
-      headers: config?.headers,
-      skipAuth: config?.skipAuth,
-    });
+  patch<T = any>(path: string, body?: any, config?: ApiConfig) {
+    return api.patch<T>(path, body, config);
   }
 
-  delete<T = any>(
-    path: string,
-    config?: {
-      headers?: Record<string, string>;
-      skipAuth?: boolean;
-    }
-  ) {
-    return request<T>(path, {
-      method: "DELETE",
-      headers: config?.headers,
-      skipAuth: config?.skipAuth,
-    });
+  delete<T = any>(path: string, config?: ApiConfig) {
+    return api.delete<T>(path, config);
   }
 }
 
-export const api = new Api();
+export const apiClient = new Api();

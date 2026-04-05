@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IAIcon,
@@ -12,10 +12,11 @@ import {
   SendIcon,
 } from "@/constants/icons";
 import { Message } from "@/components/ui";
+import { useChat } from "@/hooks/use-chat";
 
-type ChatMessage = { text: string; isUser: boolean };
+type LocalMessage = { text: string; isUser: boolean };
 
-const INITIAL_MESSAGES: ChatMessage[] = [
+const INITIAL_MESSAGES: LocalMessage[] = [
   { text: "Olá! Sou a Wundu AI.\nEm que posso ajudar hoje?", isUser: false },
 ];
 
@@ -28,21 +29,76 @@ const CHAT_OPTIONS = [
 ];
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const TYPING_SPEED_MS = 14;
+
+// ─── Typing animation component ──────────────────────────────────────────────
+function TypingText({ text, onComplete }: { text: string; onComplete?: () => void }) {
+  const [charCount, setCharCount] = useState(0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    setCharCount(0);
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setCharCount(i);
+      if (i >= text.length) {
+        clearInterval(timer);
+        onCompleteRef.current?.();
+      }
+    }, TYPING_SPEED_MS);
+    return () => clearInterval(timer);
+  }, [text]);
+
+  const done = charCount >= text.length;
+  return (
+    <>
+      {text.slice(0, charCount)}
+      {!done && (
+        <span className="inline-block w-[2px] h-[14px] bg-slate-400 ml-0.5 align-middle animate-pulse" />
+      )}
+    </>
+  );
+}
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const { messages: apiMessages, isSending, sendMessage, fetchHistory } = useChat();
   const [input, setInput] = useState("");
   const [showWelcome, setShowWelcome] = useState(true);
+  const [typingIdx, setTypingIdx] = useState<number | null>(null);
+  const prevCountRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  // Detect new AI message and trigger typing
+  useEffect(() => {
+    const prev = prevCountRef.current;
+    prevCountRef.current = apiMessages.length;
+    if (apiMessages.length > prev) {
+      const last = apiMessages[apiMessages.length - 1];
+      if (last.role !== "user") {
+        setTypingIdx(apiMessages.length - 1);
+      }
+    }
+  }, [apiMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const displayMessages: LocalMessage[] = [
+    ...INITIAL_MESSAGES,
+    ...apiMessages.map((m) => ({ text: m.content, isUser: m.role === "user" })),
+  ];
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [displayMessages.length, isSending]);
 
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg) return;
-    setMessages((prev) => [...prev, { text: msg, isUser: true }]);
+    sendMessage(msg);
     setInput("");
     setShowWelcome(false);
   };
@@ -53,6 +109,8 @@ const Chat: React.FC = () => {
       handleSend();
     }
   };
+
+  const handleTypingComplete = useCallback(() => setTypingIdx(null), []);
 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-3">
@@ -78,17 +136,49 @@ const Chat: React.FC = () => {
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="flex flex-col px-1 py-2">
           <AnimatePresence initial={false}>
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.18, ease: EASE_OUT }}
-              >
-                <Message text={msg.text} isUser={msg.isUser} />
-              </motion.div>
-            ))}
+            {displayMessages.map((msg, i) => {
+              const apiIdx = i - INITIAL_MESSAGES.length;
+              const isTyping = !msg.isUser && typingIdx === apiIdx;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18, ease: EASE_OUT }}
+                >
+                  <Message
+                    isUser={msg.isUser}
+                    text={
+                      isTyping ? (
+                        <TypingText text={msg.text} onComplete={handleTypingComplete} />
+                      ) : (
+                        msg.text
+                      )
+                    }
+                  />
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
+
+          {isSending && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 ml-[42px] my-2"
+            >
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce"
+                    style={{ animationDelay: `${i * 0.15}s` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-slate-400">A pensar…</span>
+            </motion.div>
+          )}
 
           {/* Welcome topic cards */}
           <AnimatePresence>
@@ -136,12 +226,13 @@ const Chat: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder="Escreva a sua pergunta…"
             rows={1}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none max-h-32 leading-relaxed transition-all duration-150"
+            disabled={isSending}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none max-h-32 leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fieldSizing: "content" } as React.CSSProperties}
           />
           <motion.button
             onClick={() => handleSend()}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isSending}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"

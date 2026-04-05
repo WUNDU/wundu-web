@@ -50,10 +50,9 @@ const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError 
   );
 };
 import { ROUTES } from "@/constants/routes";
-import { COUNTRIES } from "@/constants/countries";
 import { logo } from "@/constants/images";
 import { ClockIcon, CheckmarkIcon } from "@/constants/icons";
-import { validatePhoneNumber } from "@/utils/validation";
+import { usePasswordRecovery } from "@/hooks/use-password-recovery";
 
 type CTAVariant = "landing" | "login" | "default";
 
@@ -108,18 +107,33 @@ const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({ prev,
   );
 };
 
-// ── Step 1: Email / Phone ──
-function StepEmailPhone({ setResetData, nextStep }: { setResetData: (d: PasswordResetData) => void; nextStep: () => void }) {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState(COUNTRIES[0].code);
+// ── Step 1: Email ──
+function StepEmailPhone({
+  setResetData,
+  nextStep,
+  sendRequestEmail,
+}: {
+  setResetData: (d: PasswordResetData) => void;
+  nextStep: () => void;
+  sendRequestEmail: (email: string) => Promise<boolean>;
+}) {
+  const [email, setEmail] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validatePhoneNumber(phoneNumber)) {
-      setResetData({ phoneOrEmail: countryCode + phoneNumber });
+    if (!email.includes("@")) {
+      setIsError(true);
+      return;
+    }
+    setIsError(false);
+    setIsLoading(true);
+    const ok = await sendRequestEmail(email);
+    setIsLoading(false);
+    if (ok) {
+      setResetData({ phoneOrEmail: email });
       nextStep();
-      setIsError(false);
     } else {
       setIsError(true);
     }
@@ -131,7 +145,7 @@ function StepEmailPhone({ setResetData, nextStep }: { setResetData: (d: Password
       <div className="w-full text-left md:text-center">
         <CTA
           title="Perdeu a sua senha?"
-          subtitle="Digite seu número telefónico e enviaremos um código de verificação."
+          subtitle="Digite seu endereço de email e enviaremos um código de verificação."
           variant="default"
         />
       </div>
@@ -139,37 +153,22 @@ function StepEmailPhone({ setResetData, nextStep }: { setResetData: (d: Password
         onSubmit={submit}
         className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6"
       >
-        <div className="flex items-center gap-2">
-          <select
-            name="countryCode"
-            value={countryCode}
-            onChange={(e) => setCountryCode(e.target.value)}
-            className="w-auto rounded-xl border border-gray-300 px-4 py-3 m-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 md:rounded-lg"
-          >
-            {COUNTRIES.map((country) => (
-              <option key={country.code} value={country.code}>
-                {country.flag} {country.code}
-              </option>
-            ))}
-          </select>
-          <TextInput
-            id="phone-number"
-            label=""
-            type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Digite seu nº de telefone"
-            isError={isError}
-            maxLength={9}
-            required
-          />
-        </div>
+        <TextInput
+          id="email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Digite seu email"
+          isError={isError}
+          required
+        />
         {isError && (
           <p className="text-sm text-red-500 -mt-4 md:text-center">
-            Por favor, insira um número de telefone válido.
+            Por favor, insira um endereço de email válido.
           </p>
         )}
-        <Button onClick={() => {}} type="submit">
+        <Button onClick={() => {}} type="submit" loading={isLoading}>
           Continuar
         </Button>
       </form>
@@ -179,26 +178,44 @@ function StepEmailPhone({ setResetData, nextStep }: { setResetData: (d: Password
 }
 
 // ── Step 2: Verification ──
-function StepVerification({ prevStep, nextStep, timer, resetTimer, isCodeIncorrect, setIsCodeIncorrect }: {
+function StepVerification({
+  prevStep,
+  nextStep,
+  timer,
+  resetTimer,
+  isCodeIncorrect,
+  setIsCodeIncorrect,
+  data,
+  setResetData,
+  verifyOtp,
+}: {
   prevStep: () => void;
   nextStep: () => void;
   timer: number;
   resetTimer: () => void;
   isCodeIncorrect: boolean;
   setIsCodeIncorrect: (v: boolean) => void;
+  data: PasswordResetData;
+  setResetData: (d: PasswordResetData) => void;
+  verifyOtp: (d: { email: string; otp: string }) => Promise<{ success: boolean; errorMessage?: string }>;
 }) {
   const [code, setCode] = useState("");
   const [isCodeCorrect, setIsCodeCorrect] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
   const isRed = timer <= 30;
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (code === "123456") {
+    setIsLoading(true);
+    const result = await verifyOtp({ email: data.phoneOrEmail!, otp: code });
+    setIsLoading(false);
+    if (result.success) {
       setIsCodeIncorrect(false);
       setIsCodeCorrect(true);
+      setResetData({ code });
       setTimeout(() => {
         nextStep();
       }, 500);
@@ -214,7 +231,7 @@ function StepVerification({ prevStep, nextStep, timer, resetTimer, isCodeIncorre
       <div className="w-full mt-10 md:mt-0 md:text-center">
         <CTA
           title="Verificação do Código"
-          subtitle="Insira o código que foi enviado para o seu nº telefônico nos campos abaixo."
+          subtitle="Insira o código que foi enviado para o seu email nos campos abaixo."
           variant="default"
         />
       </div>
@@ -250,7 +267,7 @@ function StepVerification({ prevStep, nextStep, timer, resetTimer, isCodeIncorre
             {seconds.toString().padStart(2, "0")}
           </div>
         </div>
-        <Button onClick={() => {}} type="submit">
+        <Button onClick={() => {}} type="submit" loading={isLoading}>
           Confirmar
         </Button>
       </form>
@@ -260,22 +277,47 @@ function StepVerification({ prevStep, nextStep, timer, resetTimer, isCodeIncorre
 }
 
 // ── Step 3: New Password ──
-function StepNewPassword({ prevStep, nextStep, setResetData }: { prevStep: () => void; nextStep: () => void; setResetData: (d: PasswordResetData) => void }) {
+function StepNewPassword({
+  prevStep,
+  nextStep,
+  setResetData,
+  data,
+  resetPassword,
+}: {
+  prevStep: () => void;
+  nextStep: () => void;
+  setResetData: (d: PasswordResetData) => void;
+  data: PasswordResetData;
+  resetPassword: (d: { email: string; newPassword: string; confirmPassword: string }) => Promise<boolean>;
+}) {
   const [form, setFormState] = useState({ password: "", confirmPassword: "" });
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const setField = (field: "password" | "confirmPassword", value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password === form.confirmPassword && form.password.length > 0) {
+    if (form.password !== form.confirmPassword || form.password.length === 0) {
+      setPasswordsMatch(false);
+      return;
+    }
+    setPasswordsMatch(true);
+    setIsLoading(true);
+    const ok = await resetPassword({
+      email: data.phoneOrEmail!,
+      newPassword: form.password,
+      confirmPassword: form.confirmPassword,
+    });
+    setIsLoading(false);
+    if (ok) {
       setResetData({ newPassword: form.password });
       nextStep();
-      setPasswordsMatch(true);
     } else {
-      setPasswordsMatch(false);
+      setIsError(true);
     }
   };
 
@@ -318,7 +360,12 @@ function StepNewPassword({ prevStep, nextStep, setResetData }: { prevStep: () =>
             As senhas não correspondem.
           </p>
         )}
-        <Button onClick={() => {}} type="submit">
+        {isError && (
+          <p className="text-sm text-red-500 text-center">
+            Não foi possível redefinir a senha. Tente novamente.
+          </p>
+        )}
+        <Button onClick={() => {}} type="submit" loading={isLoading}>
           Continuar
         </Button>
       </form>
@@ -357,6 +404,8 @@ export default function PasswordReset() {
   const [timer, setTimer] = useState(120);
   const [isCodeIncorrect, setIsCodeIncorrect] = useState(false);
 
+  const { sendRequestEmail, verifyOtp, resetPassword } = usePasswordRecovery();
+
   const setResetData = (newData: PasswordResetData) =>
     setData((prev) => ({ ...prev, ...newData }));
   const nextStep = () => setCurrentStep((prev) => prev + 1);
@@ -374,15 +423,15 @@ export default function PasswordReset() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} />;
+        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} sendRequestEmail={sendRequestEmail} />;
       case 2:
-        return <StepVerification prevStep={prevStep} nextStep={nextStep} timer={timer} resetTimer={resetTimer} isCodeIncorrect={isCodeIncorrect} setIsCodeIncorrect={setIsCodeIncorrect} />;
+        return <StepVerification prevStep={prevStep} nextStep={nextStep} timer={timer} resetTimer={resetTimer} isCodeIncorrect={isCodeIncorrect} setIsCodeIncorrect={setIsCodeIncorrect} data={data} setResetData={setResetData} verifyOtp={verifyOtp} />;
       case 3:
-        return <StepNewPassword prevStep={prevStep} nextStep={nextStep} setResetData={setResetData} />;
+        return <StepNewPassword prevStep={prevStep} nextStep={nextStep} setResetData={setResetData} data={data} resetPassword={resetPassword} />;
       case 4:
         return <StepSuccess />;
       default:
-        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} />;
+        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} sendRequestEmail={sendRequestEmail} />;
     }
   };
 

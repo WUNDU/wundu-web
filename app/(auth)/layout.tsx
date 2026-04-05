@@ -82,7 +82,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading || !checked) {
+  if (!checked || isAuthenticated) {
     return (
       <div className="flex flex-1 justify-center h-screen items-center">
         <LoadingSpinner />
@@ -92,10 +92,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   if (isMaintenance) {
     return <MaintenanceOverlay />;
-  }
-
-  if (isAuthenticated) {
-    return null;
   }
 
   return <>{children}</>;

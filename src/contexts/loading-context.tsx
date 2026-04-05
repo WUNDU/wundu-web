@@ -60,20 +60,20 @@ function GlobalLoadingOverlay() {
           <div className="relative flex flex-col items-center gap-6">
             {/* CSS spinner — matches Google link page speed */}
             <div className="relative w-12 h-12">
-              <div className="absolute inset-0 border-[3px] border-[#2D1B18]/5 rounded-full" />
-              <div className="absolute inset-0 border-[3px] border-t-[#B8926A] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+              <div className="absolute inset-0 border-[3px] border-[#ffd400]/15 rounded-full" />
+              <div className="absolute inset-0 border-[3px] border-t-[#ffd400] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
             </div>
 
             {/* Subtle Message */}
             <div className="flex flex-col items-center gap-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#2D1B18] italic">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#003cc3]/70 italic">
                 {message || (authIsLoading ? "Autenticando" : "Carregando")}
               </p>
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1 h-1 bg-[#B8926A]/40 rounded-full"
+                    className="w-1 h-1 bg-[#ffd400]/50 rounded-full"
                     animate={{ opacity: [0.2, 1, 0.2] }}
                     transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                   />

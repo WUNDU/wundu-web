@@ -6,7 +6,6 @@ import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import { AuthInitializer } from "@/components/auth-initializer";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { Toaster } from "sonner";
-import { ToasterComponent } from "@/hooks/use-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -68,8 +67,7 @@ export default function RootLayout({
             <AuthInitializer />
             {children}
             <CookieConsent />
-            <Toaster position="top-right" closeButton />
-            <ToasterComponent />
+            <Toaster position="top-right" closeButton richColors={false} theme="light" expand={false} gap={12} />
           </CookieConsentProvider>
       </body>
     </html>

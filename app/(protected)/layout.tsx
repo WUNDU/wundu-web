@@ -24,8 +24,6 @@ export default function ProtectedLayout({
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (!isAuthenticated) return null;
-
   if (isLoading || !checked) {
     return (
       <div className="flex flex-1 justify-center h-screen items-center">
@@ -33,6 +31,8 @@ export default function ProtectedLayout({
       </div>
     );
   }
+
+  if (!isAuthenticated) return null;
 
   return <>{children}</>;
 }

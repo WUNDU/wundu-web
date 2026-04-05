@@ -1,7 +1,7 @@
 import { IAIcon } from "@/constants/icons";
 import React from "react";
 
-const Message: React.FC<{ text: string; isUser: boolean }> = ({
+const Message: React.FC<{ text: React.ReactNode; isUser: boolean }> = ({
   text,
   isUser,
 }) => {

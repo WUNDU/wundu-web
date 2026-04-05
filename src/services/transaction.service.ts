@@ -1,5 +1,12 @@
-import { api } from "@/api/api";
-import type { TransactionDTO } from "@/types/dtos/transaction.dto";
+import { apiClient } from "@/api/api";
+import type {
+  DefineCategoryRequest,
+  TransactionDTO,
+  TransactionRequest,
+  TransactionResponse,
+  TransactionUpdateRequest,
+} from "@/types/dtos/transaction.dto";
+import type { Page } from "@/types/dtos/common.dto";
 
 type DocumentUploadResponse = {
   documentId: string;
@@ -89,126 +96,105 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
   return { isPaginated: false };
 };
 
-export const TransactionService = {
-  add: async (data: TransactionDTO) => {
+class TransactionService {
+  async add(data: TransactionDTO): Promise<boolean> {
     try {
-      await api.post("/transactions", { ...data, type: "expense" });
+      await apiClient.post("/transactions", { ...data, type: "expense" });
       return true;
-    } catch (error) {
-      const fallbackMessage =
-        "Serviço temporariamente indisponível. Tente novamente em instantes.";
-      const message =
-        error instanceof Error &&
-        error.message &&
-        error.message !== "Internal Server Error"
-          ? error.message
-          : fallbackMessage;
+    } catch {
       return false;
     }
-  },
+  }
 
-  get: async (): Promise<TransactionDTO[]> => {
-    try {
-      const aggregated: TransactionDTO[] = [];
-      let page = 0;
-      let shouldContinue = true;
+  async get(): Promise<TransactionDTO[]> {
+    const aggregated: TransactionDTO[] = [];
+    let page = 0;
+    let shouldContinue = true;
 
-      while (shouldContinue) {
-        const pageSuffix = page > 0 ? `?page=${page}` : "";
-        const { data } = await api.get<unknown>(`/transactions${pageSuffix}`);
-        const items = normalizeTransactionsResponse(data);
-        const meta = extractPaginationMeta(data);
-        aggregated.push(...items);
+    while (shouldContinue) {
+      const pageSuffix = page > 0 ? `?page=${page}` : "";
+      const { data } = await apiClient.get<unknown>(`/transactions${pageSuffix}`);
+      const items = normalizeTransactionsResponse(data);
+      const meta = extractPaginationMeta(data);
+      aggregated.push(...items);
 
-        if (!meta.isPaginated) {
-          shouldContinue = false;
-        } else {
-          const done =
-            items.length === 0 ||
-            meta.last === true ||
-            (typeof meta.totalPages === "number" &&
-              page + 1 >= meta.totalPages);
-          if (done) shouldContinue = false;
-          else page += 1;
-        }
+      if (!meta.isPaginated) {
+        shouldContinue = false;
+      } else {
+        const done =
+          items.length === 0 ||
+          meta.last === true ||
+          (typeof meta.totalPages === "number" &&
+            page + 1 >= meta.totalPages);
+        if (done) shouldContinue = false;
+        else page += 1;
       }
-
-      return aggregated;
-    } catch (error) {
-      const message =
-        error instanceof Error &&
-        error.message &&
-        error.message !== "Internal Server Error"
-          ? error.message
-          : "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
-      throw new Error(message);
     }
-  },
 
-  uploadDocument: async (file: File, options?: { documentType?: string }) => {
+    return aggregated;
+  }
+
+  async uploadDocument(file: File, options?: { documentType?: string }): Promise<DocumentUploadResponse> {
     const formData = new FormData();
     formData.append("file", file);
     if (options?.documentType) {
       formData.append("type", options.documentType);
     }
 
-    const { data } = await api.post<DocumentUploadResponse>(
+    const { data } = await apiClient.post<DocumentUploadResponse>(
       "/documents/upload",
       formData,
     );
     return data;
-  },
+  }
 
-  processDocumentOcr: async (documentId: string) => {
-    const { data } = await api.post<OcrProcessResponse>(
+  async processDocumentOcr(documentId: string): Promise<OcrProcessResponse> {
+    const { data } = await apiClient.post<OcrProcessResponse>(
       `/ocr/process/${documentId}`,
     );
     return data;
-  },
+  }
 
-  completeTransaction: async (
+  async completeTransaction(
     transactionId: string,
     payload: TransactionCompletionPayload,
-  ) => {
-    const { data } = await api.patch(
+  ): Promise<void> {
+    await apiClient.patch(
       `/transactions/${transactionId}/complete`,
       {
         ...payload,
         type: "expense",
       },
     );
-    return data;
-  },
+  }
 
-  categorizeTransaction: async (transactionId: string) => {
-    const { data } = await api.post<CategorizationResponse>(
+  async categorizeTransaction(transactionId: string): Promise<CategorizationResponse> {
+    const { data } = await apiClient.post<CategorizationResponse>(
       `/nlp/categorize/${transactionId}`,
     );
     return data;
-  },
+  }
 
-  processDocumentTransaction: async (
+  async processDocumentTransaction(
     file: File,
     options: {
       documentType?: string;
       completionOverrides?: TransactionCompletionPayload;
     } = {},
-  ) => {
-    const uploadResult = await TransactionService.uploadDocument(file, {
+  ) {
+    const uploadResult = await this.uploadDocument(file, {
       documentType: options.documentType,
     });
 
     let ocrResult: OcrProcessResponse;
     try {
-      ocrResult = await TransactionService.processDocumentOcr(
-        uploadResult.documentId,
-      );
+      ocrResult = await this.processDocumentOcr(uploadResult.documentId);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       const isDuplicate = message.toLowerCase().includes("documento duplicado");
 
       if (isDuplicate) {
-        const transactions = await TransactionService.get();
+        const transactions = await this.get();
         const duplicated = transactions.find((transaction) =>
           transaction.source?.includes(uploadResult.documentId),
         );
@@ -223,7 +209,7 @@ export const TransactionService = {
     let relatedTransaction: TransactionDTO | undefined;
 
     if (!ocrResult.transactionId) {
-      const transactions = await TransactionService.get();
+      const transactions = await this.get();
       const pendingTransaction = transactions.find((transaction) =>
         transaction.source?.includes(uploadResult.documentId),
       );
@@ -240,7 +226,7 @@ export const TransactionService = {
     }
 
     if (!relatedTransaction) {
-      const transactions = await TransactionService.get();
+      const transactions = await this.get();
       relatedTransaction = transactions.find(
         (transaction) => transaction.id === ocrResult.transactionId,
       );
@@ -283,12 +269,12 @@ export const TransactionService = {
       );
     }
 
-    await TransactionService.completeTransaction(
+    await this.completeTransaction(
       ocrResult.transactionId,
       completionPayload,
     );
 
-    const categorization = await TransactionService.categorizeTransaction(
+    const categorization = await this.categorizeTransaction(
       ocrResult.transactionId,
     );
 
@@ -297,19 +283,82 @@ export const TransactionService = {
       ocr: ocrResult,
       categorization,
     };
-  },
+  }
 
-  finalizeManualTransaction: async (
+  async finalizeManualTransaction(
     transactionId: string,
     payload: TransactionCompletionPayload,
-  ) => {
-    await TransactionService.completeTransaction(transactionId, {
+  ): Promise<CategorizationResponse> {
+    await this.completeTransaction(transactionId, {
       ...payload,
       type: "expense",
     });
 
-    const categorization =
-      await TransactionService.categorizeTransaction(transactionId);
+    const categorization = await this.categorizeTransaction(transactionId);
     return categorization;
-  },
-};
+  }
+
+  // ── Methods from mobile API ─────────────────────────────────────────────────
+
+  async getAll(page = 0, size = 20): Promise<Page<TransactionResponse>> {
+    const { data } = await apiClient.get<Page<TransactionResponse>>("/transactions", { params: { page, size } });
+    return data as Page<TransactionResponse>;
+  }
+
+  async getAllNotPaginated(): Promise<TransactionResponse[]> {
+    const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
+    return Array.isArray(data) ? data : [];
+  }
+
+  async getById(id: string): Promise<TransactionResponse> {
+    const { data } = await apiClient.get<TransactionResponse>(`/transactions/find/${id}`);
+    return data;
+  }
+
+  async getFiltered(
+    page = 0,
+    size = 20,
+    filters?: Record<string, any>,
+  ): Promise<Page<TransactionResponse>> {
+    const { data } = await apiClient.get<Page<TransactionResponse>>("/transactions/filters", {
+      params: { page, size, ...filters },
+    });
+    return data as Page<TransactionResponse>;
+  }
+
+  async getByCategory(categoryId: string): Promise<TransactionResponse[]> {
+    const { data } = await apiClient.get<TransactionResponse[]>(`/transactions/category/${categoryId}`);
+    return Array.isArray(data) ? data : [];
+  }
+
+  async getAwaitingInput(): Promise<TransactionResponse[]> {
+    const { data } = await apiClient.get<TransactionResponse[]>("/transactions/awaiting-input");
+    return Array.isArray(data) ? data : [];
+  }
+
+  async getIncompleteCount(): Promise<Record<string, number>> {
+    const { data } = await apiClient.get<Record<string, number>>("/transactions/incomplete-count");
+    return data;
+  }
+
+  async create(payload: TransactionRequest): Promise<TransactionResponse> {
+    const { data } = await apiClient.post<TransactionResponse>("/transactions", payload);
+    return data;
+  }
+
+  async complete(id: string, payload: TransactionUpdateRequest): Promise<TransactionResponse> {
+    const { data } = await apiClient.patch<TransactionResponse>(`/transactions/${id}/complete`, payload);
+    return data;
+  }
+
+  async defineCategory(id: string, payload: DefineCategoryRequest): Promise<TransactionResponse> {
+    const { data } = await apiClient.put<TransactionResponse>(`/transactions/${id}/define-category`, payload);
+    return data;
+  }
+
+  async delete(id: string): Promise<void> {
+    await apiClient.delete(`/transactions/${id}`);
+  }
+}
+
+export const transactionService = new TransactionService();

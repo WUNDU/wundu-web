@@ -5,13 +5,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { user as avatar } from "@/constants/images";
 import { HelpIcon, LogoutIcon } from "@/constants/icons";
-import { useUserStore } from "@/store/user-store";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Profile() {
-  const { user, logoutUser } = useUserStore();
+  const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logoutUser();
+  const handleLogout = () => {
+    logout();
   };
 
   const handleSupportClick = () => {

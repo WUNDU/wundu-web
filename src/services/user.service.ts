@@ -1,10 +1,13 @@
-import { api } from "@/api/api";
-import { AxiosError } from "axios";
-import type { RegisterData } from "@/types/dtos/auth.dto";
-import type { ApiErrorResponse } from "@/types/dtos/common.dto";
+import { apiClient } from "@/api/api";
+import type { RegisterData, User } from "@/types/dtos/auth.dto";
+import type { UserRequest } from "@/types/dtos/user.dto";
 
-export const UserService = {
-  register: async (data: RegisterData) => {
+interface LoginResponse {
+  token: string;
+}
+
+class UserService {
+  async register(data: RegisterData): Promise<User> {
     const payload = {
       name: data.name,
       email: data.email,
@@ -12,52 +15,33 @@ export const UserService = {
       password: data.password,
       planType: "FREE",
     };
-    try {
-      const response = await api.post("/users", payload, { skipAuth: true });
-      return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      throw new Error(
-        axiosError.response?.data?.message ||
-          axiosError.message ||
-          "Failed to register user",
-      );
-    }
-  },
+    const { data: response } = await apiClient.post<User>("/users", payload, { skipAuth: true });
+    return response;
+  }
 
-  login: async (email: string, password: string) => {
-    try {
-      const response = await api.post(
-        "/auth",
-        { email, password },
-        { skipAuth: true },
-      );
-      return response.data;
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      throw new Error(
-        axiosError.response?.data?.message ||
-          axiosError.message ||
-          "Failed to login",
-      );
-    }
-  },
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const { data } = await apiClient.post<LoginResponse>(
+      "/auth",
+      { email, password },
+      { skipAuth: true },
+    );
+    return data;
+  }
 
-  getUser: async () => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Token não encontrado");
-    try {
-      const response = await api.get("/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data;
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiErrorResponse>;
-      throw new Error(
-        axiosError.response?.data?.message ||
-          axiosError.message ||
-          "Failed to get user",
-      );
-    }
-  },
-};
+  async getUser(): Promise<User> {
+    const { data } = await apiClient.get<User>("/users/me");
+    return data;
+  }
+
+  async getById(id: string): Promise<User> {
+    const { data } = await apiClient.get<User>(`/users/${id}`);
+    return data;
+  }
+
+  async update(id: string, payload: Partial<UserRequest>): Promise<User> {
+    const { data } = await apiClient.put<User>(`/users/${id}`, payload);
+    return data;
+  }
+}
+
+export const userService = new UserService();

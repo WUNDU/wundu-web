@@ -14,12 +14,18 @@ export interface ErrorMessage {
   erros?: Record<string, string>;
 }
 
+export interface SortObject {
+  sorted: boolean;
+  empty: boolean;
+  unsorted: boolean;
+}
+
 export interface PageableObject {
   paged: boolean;
   pageNumber: number;
   pageSize: number;
   offset: number;
-  sort: { sorted: boolean; empty: boolean; unsorted: boolean };
+  sort: SortObject;
   unpaged: boolean;
 }
 
@@ -34,4 +40,10 @@ export interface Page<T> {
   first: boolean;
   last: boolean;
   empty: boolean;
+}
+
+export interface Pageable {
+  page: number; // minimum: 0
+  size: number; // minimum: 1
+  sort: string[];
 }

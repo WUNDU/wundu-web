@@ -6,58 +6,43 @@ import { EmailIcon, SecurityIcon } from "@/constants/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useUserStore } from "@/store/user-store";
-import {
-  validateEmail,
-  validatePasswordDetailed,
-} from "@/utils/validation";
+import { useAuth } from "@/hooks/use-auth";
+import { validateEmail, validatePasswordDetailed } from "@/utils/validation";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const {
-    isAuthenticated,
-    clearError,
-    loginUser,
-    error: contextError,
-    isLoading,
-  } = useUserStore();
+  const { isAuthenticated, login, error } = useAuth();
 
-  const [hasError, setHasError] = useState(false);
+  // ref always holds the latest error — avoids stale closure after await
+  const errorRef = useRef<string | null>(null);
+  errorRef.current = error ?? null;
+
   const [form, setFormState] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Clear global errors on mount
-  useEffect(() => {
-    clearError();
-  }, [clearError]);
+  const hasError = !!(errors.email || errors.password || loginError);
+
+  // Clear global store error on mount only
 
   useEffect(() => {
-    if (contextError) setHasError(true);
-  }, [contextError]);
-
-  useEffect(() => {
-    if (isAuthenticated) setHasError(false);
-  }, [isAuthenticated]);
+    if (isAuthenticated) router.push(ROUTES.HOME);
+  }, [isAuthenticated, router]);
 
   const setField = (field: "email" | "password", value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-    if (errors[field] || contextError) {
-      clearError();
-      setHasError(false);
-    }
+    // Clear field-level and API errors as user types
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+    setLoginError(null);
   };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setErrors({ email: "", password: "" });
-    clearError();
-    setHasError(false);
+    setLoginError(null);
 
     let valid = true;
     const nextErrors = { email: "", password: "" };
@@ -76,21 +61,25 @@ const LoginPage: React.FC = () => {
 
     if (!valid) {
       setErrors(nextErrors);
-      setHasError(true);
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await loginUser(form.email, form.password);
-      router.push(ROUTES.HOME);
+      const success = await login(form.email, form.password);
+      if (!success) {
+        setLoginError(errorRef.current || "Credenciais incorretas. Tente novamente.");
+      }
     } catch {
-      setHasError(true);
+      setLoginError("Ocorreu um erro inesperado. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isSubmitting) handleLogin();
+  };
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
       <header className="flex h-16 shrink-0 items-center justify-start px-8 md:justify-start md:px-12">
@@ -131,84 +120,85 @@ const LoginPage: React.FC = () => {
                 </p>
               </header>
 
-              {isLoading || isSubmitting ? (
-                <div className="flex h-80 flex-col items-center justify-center">
-                  <LoadingSpinner size="md" message="A verificar..." />
-                </div>
-              ) : (
-                <form onSubmit={submit} className="flex w-full flex-col">
-                  <div className="flex flex-col gap-4">
+              <form onSubmit={handleLogin} className="flex w-full flex-col">
+                <div className="flex flex-col gap-4">
+                  <Input
+                    id="email"
+                    label="E-mail"
+                    type="email"
+                    leftIcon={<EmailIcon className="w-5 h-5" />}
+                    value={form.email}
+                    onChange={(e) => setField("email", e.target.value)}
+                    placeholder="exemplo@email.com"
+                    disabled={isSubmitting}
+                    isError={!!errors.email || !!loginError}
+                    className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                  />
+
+                  <div className="space-y-1.5">
                     <Input
-                      id="email"
-                      label="E-mail"
-                      type="email"
-                      leftIcon={<EmailIcon className="w-5 h-5" />}
-                      value={form.email}
-                      onChange={(e) => setField("email", e.target.value)}
-                      placeholder="exemplo@email.com"
-                      required
-                      isError={!!errors.email || !!contextError}
+                      id="password"
+                      label="Palavra-passe"
+                      type="password"
+                      leftIcon={<SecurityIcon className="w-5 h-5" />}
+                      value={form.password}
+                      onChange={(e) => setField("password", e.target.value)}
+                      placeholder="Sua senha"
+                      isError={!!errors.password || !!loginError}
+                      disabled={isSubmitting}
                       className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
                     />
-
-                    <div className="space-y-1.5">
-                      <Input
-                        id="password"
-                        label="Palavra-passe"
-                        type="password"
-                        leftIcon={<SecurityIcon className="w-5 h-5" />}
-                        value={form.password}
-                        onChange={(e) => setField("password", e.target.value)}
-                        placeholder="Sua senha"
-                        isError={!!errors.password || !!contextError}
-                        required
-                        className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
-                      />
-                      <div className="flex justify-end">
-                        <Link
-                          href={ROUTES.RESET_PASSWORD}
-                          className="text-xs font-bold text-slate-500 transition-colors hover:text-slate-900"
-                        >
-                          Esqueceu a senha?
-                        </Link>
-                      </div>
+                    <div className="flex justify-end">
+                      <Link
+                        href={ROUTES.RESET_PASSWORD}
+                        className="text-xs font-bold text-slate-500 transition-colors hover:text-slate-900"
+                      >
+                        Esqueceu a senha?
+                      </Link>
                     </div>
                   </div>
+                </div>
 
-                  {/* Reserved Space for Feedback - Prevents layout jump */}
-                  <div className="min-h-17 py-3 flex items-center">
-                    {(errors.password || contextError) && (
-                      <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
-                        <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                        <p className="text-xs font-bold text-red-600">
-                          {errors.password || contextError}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                {/* Reserved Space for Feedback - Prevents layout jump */}
+                <div className="min-h-17 py-3 flex items-center">
+                  {(errors.password || loginError) && (
+                    <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
+                      <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                      <p className="text-xs font-bold text-red-600">
+                        {errors.password || loginError}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                  <Button
-                    variant="warning"
-                    type="submit"
-                    fullWidth
-                    className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
-                  >
-                    Entrar no Wundu
-                  </Button>
+                <Button
+                  variant="warning"
+                  type="submit"
+                  fullWidth
+                  disabled={isSubmitting}
+                  className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <LoadingSpinner size="sm" />A verificar...
+                    </span>
+                  ) : (
+                    "Entrar no Wundu"
+                  )}
+                </Button>
 
-                  <footer className="mt-6 border-t border-slate-100 pt-6 text-center">
-                    <p className="text-sm font-medium text-slate-500">
-                      Novo por aqui?{" "}
-                      <Link
-                        href={ROUTES.REGISTER}
-                        className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline"
-                      >
-                        Crie uma conta
-                      </Link>
-                    </p>
-                  </footer>
-                </form>
-              )}
+                <footer className="mt-6 border-t border-slate-100 pt-6 text-center">
+                  <p className="text-sm font-medium text-slate-500">
+                    Novo por aqui?{" "}
+                    <Link
+                      href={ROUTES.REGISTER}
+                      className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline"
+                    >
+                      Crie uma conta
+                    </Link>
+                  </p>
+                </footer>
+              </form>
             </div>
           </div>
 

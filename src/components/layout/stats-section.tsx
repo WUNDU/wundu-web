@@ -4,7 +4,7 @@ import type { ElementType, FC } from "react";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
-import { DocumentService } from "@/services/document.service";
+import { documentService } from "@/services/document.service";
 import { useTransactionStore } from "@/store/transaction-store";
 
 interface StatsCardProps {
@@ -86,7 +86,7 @@ const StatsSection: FC = () => {
       setIsLoading(true);
       try {
         const [docCount] = await Promise.all([
-          DocumentService.getTotalDocuments(),
+          documentService.getTotalDocuments(),
           fetchTransactions(),
         ]);
         setTotalDocuments(docCount);
