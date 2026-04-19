@@ -31,6 +31,7 @@ export const useAddTransactionModal = () => {
     if (!user) throw Error("invalid user");
     const success = await add({
       ...formData,
+      source: "MANUAL",
       type: "expense",
       amount: parseFloat(formData.amount),
       userId: user.id,

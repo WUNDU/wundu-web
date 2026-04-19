@@ -37,13 +37,14 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 12 }}
+      initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
-        duration: 0.2,
+        duration: 0.28,
         ease: "easeOut" as const,
-        delay: Math.min(index * 0.03, 0.25),
+        delay: Math.min(index * 0.055, 0.4),
       }}
+      whileHover={{ x: 2, transition: { duration: 0.15 } }}
       className={`flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3${onClick ? " cursor-pointer hover:bg-slate-50/60 transition-colors" : ""}`}
       onClick={onClick}
     >

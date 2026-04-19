@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { validateEmail, validatePasswordDetailed } from "@/utils/validation";
+import posthog from "posthog-js";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -67,11 +68,19 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       const success = await login(form.email, form.password);
-      if (!success) {
-        setLoginError(errorRef.current || "Credenciais incorretas. Tente novamente.");
+      if (success) {
+        posthog.identify(form.email, { email: form.email });
+        posthog.capture("user_signed_in", { method: "email" });
+      } else {
+        const errMsg = errorRef.current || "Credenciais incorretas. Tente novamente.";
+        setLoginError(errMsg);
+        posthog.capture("user_sign_in_failed", { reason: errMsg });
       }
-    } catch {
-      setLoginError("Ocorreu um erro inesperado. Tente novamente.");
+    } catch (err) {
+      const errMsg = "Ocorreu um erro inesperado. Tente novamente.";
+      setLoginError(errMsg);
+      posthog.capture("user_sign_in_failed", { reason: errMsg });
+      posthog.captureException(err);
     } finally {
       setIsSubmitting(false);
     }

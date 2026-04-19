@@ -7,6 +7,7 @@ import { useGoal } from "@/hooks/use-goal";
 import { useCategory } from "@/hooks/use-category";
 import { useCurrencyInput } from "@/hooks/use-currency-input";
 import type { GoalPayload, GoalType } from "@/types/dtos/goal.dto";
+import posthog from "posthog-js";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -37,16 +38,25 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const targetAmount = parseFloat(targetNumeric) || 0;
     const ok = await add({
       title,
-      targetAmount: parseFloat(targetNumeric) || 0,
+      targetAmount,
       startDate,
       endDate,
       type,
       categoryId,
     } as GoalPayload);
-    if (ok) onSuccess();
-    else setLoading(false);
+    if (ok) {
+      posthog.capture("goal_created", {
+        goal_type: type,
+        target_amount: targetAmount,
+        has_category: Boolean(categoryId),
+      });
+      onSuccess();
+    } else {
+      setLoading(false);
+    }
   };
 
   const inputCls = "w-full text-sm rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[#1e293b] placeholder-[#94a3b8] focus:border-[#003cc3] focus:ring-2 focus:ring-[#003cc3]/15 outline-none transition-colors";

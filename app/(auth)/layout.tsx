@@ -3,7 +3,6 @@ import { useUserStore } from "@/store/user-store";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
-import { LoadingSpinner } from "@/components/ui";
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, ArrowRight } from "lucide-react";
 
@@ -71,7 +70,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   // Alterar para false quando os problemas técnicos forem resolvidos
-  const isMaintenance = true;
+  const isMaintenance = false;
 
   useEffect(() => {
     if (!isLoading) {
@@ -83,11 +82,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   }, [isAuthenticated, isLoading, router]);
 
   if (!checked || isAuthenticated) {
-    return (
-      <div className="flex flex-1 justify-center h-screen items-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return null;
   }
 
   if (isMaintenance) {

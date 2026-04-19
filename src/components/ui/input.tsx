@@ -37,24 +37,24 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
 
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-    // Border and Ring logic based on project skills (Subtle & Meaningful)
+    // Border and Ring logic — brand blue #003cc3 on focus, matching mobile Input
     const stateClasses = isError 
       ? "border-red-500 bg-red-50/30" 
       : isFocused 
-        ? "border-slate-900 bg-white ring-4 ring-slate-950/[0.03]" 
+        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]" 
         : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50";
 
     const iconColorClass = isError 
       ? "text-red-400" 
       : isFocused 
-        ? "text-slate-900" 
+        ? "text-[#003cc3]" 
         : "text-slate-400";
 
     return (
       <div className="flex w-full flex-col gap-2 group">
         {label && (
           <label className={`text-sm font-semibold transition-colors duration-150 ${
-            isError ? "text-red-600" : isFocused ? "text-slate-900" : "text-slate-500"
+            isError ? "text-red-600" : isFocused ? "text-[#003cc3]" : "text-slate-500"
           }`}>
             {label}
           </label>

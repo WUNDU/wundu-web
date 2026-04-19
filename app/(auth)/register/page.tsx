@@ -15,6 +15,7 @@ import {
   validatePasswordDetailed,
   type PasswordValidation,
 } from "@/utils/validation";
+import posthog from "posthog-js";
 import {
   CheckmarkIcon,
   MoneyBagIcon,
@@ -51,17 +52,17 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
-    const borderClass = isError ? "border-red-500" : "border-gray-300";
-    const ringClass = isError ? "focus:ring-red-500" : "focus:ring-blue-500";
+    const borderClass = isError ? "border-red-500" : "border-slate-200";
+    const ringClass = isError ? "focus:ring-red-500" : "focus:ring-[#003cc3]";
 
     return (
       <div className="flex w-full flex-col gap-2">
-        {label && <label className="text-gray-600 text-sm font-medium">{label}</label>}
+        {label && <label className="text-slate-500 text-sm font-semibold">{label}</label>}
         <div className="flex">
           <select
             value={selectedCountry}
             onChange={handleCountryChange}
-            className={`rounded-l-xl border ${borderClass} px-3 py-3 text-gray-800 focus:outline-none focus:ring-2 ${ringClass} bg-gray-50 min-w-[100px]`}
+            className={`rounded-l-xl border ${borderClass} px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 ${ringClass} bg-slate-50/50 min-w-[100px]`}
           >
             {countries.map((country) => (
               <option key={country.code} value={country.code}>{country.flag} {country.code}</option>
@@ -74,7 +75,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             value={phoneOnly}
             onChange={handlePhoneChange}
             required={required}
-            className={`w-full rounded-r-xl border-l-0 border ${borderClass} px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 ${ringClass}`}
+            className={`w-full rounded-r-xl border-l-0 border ${borderClass} px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 ${ringClass}`}
             {...props}
           />
         </div>
@@ -146,6 +147,7 @@ const RegisterPage = () => {
     if (!valid) return;
 
     setRegisterData(personalForm);
+    posthog.capture("user_registration_step_completed", { step: 1 });
     nextStep();
   };
 
@@ -197,6 +199,8 @@ const RegisterPage = () => {
       const ok = await registerUser({ ...data, password: securityForm.password });
       if (ok) {
         setRegisterData({ password: securityForm.password });
+        posthog.identify(data.email!, { email: data.email, name: data.name });
+        posthog.capture("user_registered", { name: data.name, email: data.email });
         nextStep();
       } else {
         const message = error || "Falha ao concluir o cadastro.";
@@ -206,6 +210,7 @@ const RegisterPage = () => {
       const message =
         err instanceof Error ? err.message : "Falha ao concluir o cadastro.";
       wunduToast.error("Erro no cadastro", { description: message });
+      posthog.captureException(err);
     } finally {
       setIsSubmitting(false);
     }

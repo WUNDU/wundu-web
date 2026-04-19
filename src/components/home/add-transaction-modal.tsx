@@ -7,6 +7,7 @@ import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
 import type { TransactionFormData } from "@/types/dtos/transaction.dto";
+import posthog from "posthog-js";
 
 export interface AddTransactionModalProps {
   isOpen: boolean;
@@ -65,7 +66,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit();
+    const success = await onSubmit();
+    if (success) {
+      posthog.capture("transaction_added", {
+        category: formData.category,
+        type: formData.type,
+        amount: formData.amount,
+      });
+    }
   };
 
   const maxTransactionDate = formatDateTimeLocal();
@@ -121,6 +129,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
                   Despesa
+                </span>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
+                  Manual
                 </span>
                 <button
                   type="button"

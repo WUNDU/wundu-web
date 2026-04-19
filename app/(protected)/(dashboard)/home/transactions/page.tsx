@@ -18,6 +18,7 @@ import { TransactionItem } from "@/components/transactions/transaction-item";
 import { FilterModal } from "@/components/transactions/filter-modal";
 import type { SortField, SortDir, TypeFilter } from "@/components/transactions/filter-modal";
 import { groupByDate } from "@/utils/transaction-groups";
+import posthog from "posthog-js";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -56,6 +57,21 @@ export default function TransactionsPage() {
   const groups = useMemo(() => groupByDate(filtered), [filtered]);
 
   const handleRefresh = useCallback(() => fetch(), [fetch]);
+
+  const handleSetSortField = useCallback((field: SortField) => {
+    setSortField(field);
+    posthog.capture("transaction_filter_applied", { sort_field: field, sort_dir: sortDir, type_filter: typeFilter });
+  }, [sortDir, typeFilter]);
+
+  const handleSetSortDir = useCallback((dir: SortDir) => {
+    setSortDir(dir);
+    posthog.capture("transaction_filter_applied", { sort_field: sortField, sort_dir: dir, type_filter: typeFilter });
+  }, [sortField, typeFilter]);
+
+  const handleSetTypeFilter = useCallback((type: TypeFilter) => {
+    setTypeFilter(type);
+    posthog.capture("transaction_filter_applied", { sort_field: sortField, sort_dir: sortDir, type_filter: type });
+  }, [sortField, sortDir]);
 
   let runningIdx = 0;
 
@@ -226,9 +242,9 @@ export default function TransactionsPage() {
       {/* Filter modal */}
       <FilterModal
         open={filterOpen} onClose={() => setFilterOpen(false)}
-        sortField={sortField} setSortField={setSortField}
-        sortDir={sortDir} setSortDir={setSortDir}
-        typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+        sortField={sortField} setSortField={handleSetSortField}
+        sortDir={sortDir} setSortDir={handleSetSortDir}
+        typeFilter={typeFilter} setTypeFilter={handleSetTypeFilter}
       />
 
       {/* Detail panel */}

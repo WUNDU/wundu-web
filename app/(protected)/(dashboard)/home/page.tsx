@@ -27,6 +27,7 @@ import ManualTransactionModal from "@/components/home/manual-transaction-modal";
 import MovementSection from "@/components/home/movement-section";
 import CategoryScreen from "@/components/home/category-screen";
 import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
+import posthog from "posthog-js";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -144,6 +145,11 @@ const HomeScreen = () => {
         "Comprovativo processado",
         "Transação criada automaticamente a partir do OCR.",
       );
+      posthog.capture("document_uploaded", {
+        document_type: type,
+        file_name: file.name,
+        file_size: file.size,
+      });
 
       await refreshTransactions();
       setPendingDocs([]);
@@ -164,6 +170,11 @@ const HomeScreen = () => {
             ? error.message
             : "Não foi possível processar o comprovativo.";
         showNotification("error", "Falha no processamento", message);
+        posthog.capture("document_upload_failed", {
+          document_type: type,
+          reason: message,
+        });
+        posthog.captureException(error);
       }
     } finally {
       setIsUploading(false);

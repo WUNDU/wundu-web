@@ -13,6 +13,7 @@ import {
 } from "@/constants/icons";
 import { Message } from "@/components/ui";
 import { useChat } from "@/hooks/use-chat";
+import posthog from "posthog-js";
 
 type LocalMessage = { text: string; isUser: boolean };
 
@@ -29,45 +30,15 @@ const CHAT_OPTIONS = [
 ];
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const TYPING_SPEED_MS = 14;
-
-// ─── Typing animation component ──────────────────────────────────────────────
-function TypingText({ text, onComplete }: { text: string; onComplete?: () => void }) {
-  const [charCount, setCharCount] = useState(0);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
-
-  useEffect(() => {
-    setCharCount(0);
-    let i = 0;
-    const timer = setInterval(() => {
-      i++;
-      setCharCount(i);
-      if (i >= text.length) {
-        clearInterval(timer);
-        onCompleteRef.current?.();
-      }
-    }, TYPING_SPEED_MS);
-    return () => clearInterval(timer);
-  }, [text]);
-
-  const done = charCount >= text.length;
-  return (
-    <>
-      {text.slice(0, charCount)}
-      {!done && (
-        <span className="inline-block w-[2px] h-[14px] bg-slate-400 ml-0.5 align-middle animate-pulse" />
-      )}
-    </>
-  );
-}
 
 const Chat: React.FC = () => {
   const { messages: apiMessages, isSending, sendMessage, fetchHistory } = useChat();
   const [input, setInput] = useState("");
-  const [showWelcome, setShowWelcome] = useState(true);
+  // Hide welcome if messages already exist (persists across navigation)
+  const [showWelcome, setShowWelcome] = useState(() => apiMessages.length === 0);
   const [typingIdx, setTypingIdx] = useState<number | null>(null);
-  const prevCountRef = useRef(0);
+  // Init to current count so existing messages don't retrigger typing on remount
+  const prevCountRef = useRef(apiMessages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -98,6 +69,12 @@ const Chat: React.FC = () => {
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg) return;
+    const isTopicShortcut = text !== undefined;
+    if (isTopicShortcut) {
+      posthog.capture("ai_topic_selected", { topic: msg });
+    } else {
+      posthog.capture("ai_message_sent", { message_length: msg.length });
+    }
     sendMessage(msg);
     setInput("");
     setShowWelcome(false);
@@ -138,7 +115,6 @@ const Chat: React.FC = () => {
           <AnimatePresence initial={false}>
             {displayMessages.map((msg, i) => {
               const apiIdx = i - INITIAL_MESSAGES.length;
-              const isTyping = !msg.isUser && typingIdx === apiIdx;
               return (
                 <motion.div
                   key={i}
@@ -148,13 +124,9 @@ const Chat: React.FC = () => {
                 >
                   <Message
                     isUser={msg.isUser}
-                    text={
-                      isTyping ? (
-                        <TypingText text={msg.text} onComplete={handleTypingComplete} />
-                      ) : (
-                        msg.text
-                      )
-                    }
+                    text={msg.text}
+                    isTyping={!msg.isUser && typingIdx === apiIdx}
+                    onTypingComplete={handleTypingComplete}
                   />
                 </motion.div>
               );

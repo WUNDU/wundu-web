@@ -152,8 +152,21 @@ const MovementSection: React.FC<MovementSectionProps> = ({
               Transações
             </h2>
           </div>
-          <div className="flex flex-1 items-center justify-center py-12">
-            <div className="text-sm text-slate-400">Buscando dados...</div>
+          <div className="pb-4">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 px-5 py-3"
+                style={{ opacity: 1 - i * 0.15 }}
+              >
+                <div className="h-[46px] w-[46px] flex-shrink-0 animate-pulse rounded-[15px] bg-slate-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-2/3 animate-pulse rounded-full bg-slate-100" />
+                  <div className="h-2.5 w-1/3 animate-pulse rounded-full bg-slate-100" />
+                </div>
+                <div className="h-8 w-20 animate-pulse rounded-full bg-slate-100" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -326,13 +339,13 @@ const MovementSection: React.FC<MovementSectionProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => { setSortField("date"); setSortDirection("desc"); }}
-                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "date" ? "bg-amber-600 border-amber-600 text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-amber-200"}`}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "date" ? "bg-[#003cc3] border-[#003cc3] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-[#003cc3]/20"}`}
                   >
                     Mais recentes
                   </button>
                   <button
                     onClick={() => { setSortField("amount"); setSortDirection("desc"); }}
-                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "amount" ? "bg-amber-600 border-amber-600 text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-amber-200"}`}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "amount" ? "bg-[#003cc3] border-[#003cc3] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-[#003cc3]/20"}`}
                   >
                     Maior valor
                   </button>

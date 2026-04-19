@@ -151,7 +151,7 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
   return (
     <>
       <motion.header
-        className="z-30 h-12 flex-shrink-0 border-b border-white/40 bg-white/90 shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] lg:h-14"
+        className="z-30 h-12 flex-shrink-0 bg-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] lg:h-14"
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
@@ -187,7 +187,7 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
               transition={{ duration: 0.16, ease: "easeOut" }}
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-[#ffd400]" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-[#EF4444]" />
             </motion.button>
 
             <motion.button
@@ -201,19 +201,26 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
               <span className="hidden text-sm font-semibold text-slate-700 md:block">
                 {user?.name?.split(" ")[0] || "Usuário"}
               </span>
-              <div className="h-8 w-8 overflow-hidden rounded-lg ring-2 ring-[#003cc3]/15 shadow-sm">
-                <Image
-                  src={avatar}
-                  alt={user?.name || "Usuário"}
-                  width={36}
-                  height={36}
-                  className="h-full w-full object-cover"
-                />
+              <div
+                className="h-8 w-8 overflow-hidden rounded-lg shadow-sm"
+                style={{ padding: 2, backgroundColor: "#ffd400", borderRadius: 10 }}
+              >
+                <div className="h-full w-full overflow-hidden rounded-[6px]">
+                  <Image
+                    src={avatar}
+                    alt={user?.name || "Usuário"}
+                    width={36}
+                    height={36}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </motion.button>
           </div>
         </div>
       </motion.header>
+      {/* Brand accent line — matches mobile header signature */}
+      <div style={{ height: 2, backgroundColor: "#ffd400", opacity: 0.6 }} />
 
       <NotificationModal />
     </>
