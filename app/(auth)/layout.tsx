@@ -1,6 +1,6 @@
 "use client";
 import { useUserStore } from "@/store/user-store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
 import { motion } from "framer-motion";
@@ -67,21 +67,26 @@ const MaintenanceOverlay: React.FC = () => {
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useUserStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [checked, setChecked] = useState(false);
 
   // Alterar para false quando os problemas técnicos forem resolvidos
   const isMaintenance = false;
 
+  // These pages must remain accessible even when authenticated
+  const isVerifyPage =
+    pathname === ROUTES.VERIFY_PENDING || pathname === ROUTES.VERIFY_EMAIL;
+
   useEffect(() => {
     if (!isLoading) {
-      if (isAuthenticated) {
+      if (isAuthenticated && !isVerifyPage) {
         router.push(ROUTES.HOME);
       }
       setChecked(true);
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, isVerifyPage]);
 
-  if (!checked || isAuthenticated) {
+  if (!checked || (isAuthenticated && !isVerifyPage)) {
     return null;
   }
 

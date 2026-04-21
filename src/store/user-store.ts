@@ -45,6 +45,7 @@ interface AuthState {
   checkAuthStatus(): Promise<void>;
   initializeAuth(): Promise<void>;
   setToken(newToken: string | null): void;
+  setUser(user: User): void;
   login(email: string, password: string): Promise<boolean>;
   register(payload: RegisterData): Promise<boolean>;
   logout(): void;
@@ -104,6 +105,10 @@ export const useUserStore = create<AuthState>()(
         set({ token: newToken });
       },
 
+      setUser: (user) => {
+        set({ user });
+      },
+
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
@@ -113,6 +118,14 @@ export const useUserStore = create<AuthState>()(
           get().setToken(response.token);
           set({ isAuthenticated: true, isLoading: false });
           await get().checkAuthStatus();
+
+          // Redirect unverified users to the email verification pending page
+          const user = get().user;
+          if (user && !user.isActive && typeof window !== "undefined") {
+            sessionStorage.setItem("pending_verification_email", user.email);
+            window.location.href = "/verify-pending";
+          }
+
           return true;
         } catch (error: any) {
           const err =

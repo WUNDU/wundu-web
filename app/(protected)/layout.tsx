@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useUserStore } from "@/store/user-store";
+import EmailVerificationBanner from "@/components/email-verification-banner";
 
 export default function ProtectedLayout({
   children,
@@ -29,5 +30,10 @@ export default function ProtectedLayout({
 
   if (!isAuthenticated) return null;
 
-  return <>{children}</>;
+  return (
+    <>
+      <EmailVerificationBanner />
+      {children}
+    </>
+  );
 }

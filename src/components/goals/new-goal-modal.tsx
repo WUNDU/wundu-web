@@ -72,7 +72,7 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 8 }}
         transition={{ duration: 0.2, ease: EASE_OUT }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-sm overflow-hidden"
+        className="w-full max-w-md bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -84,7 +84,7 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           <div>
             <label className={labelCls}>Título</label>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}

@@ -40,6 +40,16 @@ api.interceptors.response.use(
       }
     }
 
+    // Redirect to email verification pending page when backend blocks unverified users
+    if (error.response?.data?.errorCode === "EMAIL_NOT_VERIFIED") {
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname;
+        if (currentPath !== "/verify-pending" && currentPath !== "/verify-email") {
+          window.location.href = "/verify-pending";
+        }
+      }
+    }
+
     const fallbackMessage =
       "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
     const rawMessage =
@@ -49,7 +59,11 @@ api.interceptors.response.use(
         ? rawMessage
         : fallbackMessage;
 
-    return Promise.reject(new Error(message));
+    // Attach errorCode so callers can react to specific backend error codes
+    const err = new Error(message) as Error & { errorCode?: string };
+    err.errorCode = error.response?.data?.errorCode;
+
+    return Promise.reject(err);
   }
 );
 

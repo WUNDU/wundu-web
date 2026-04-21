@@ -19,6 +19,8 @@ export type GoalPayload = GoalRequest;
 export interface GoalProgress {
   id: string;
   amount: number;
+  accumulatedAmount: number;
+  progressPercent: number;
   progressDate: string;
   createdAt: string;
 }

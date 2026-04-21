@@ -20,4 +20,6 @@ export const ROUTES = {
   CONTROL_PANEL: "/home/profile/control_panel",
   SUPPORT: "/home/profile/support",
   SCAN: "/home/scan",
+  VERIFY_PENDING: "/verify-pending",
+  VERIFY_EMAIL: "/verify-email",
 } as const;
