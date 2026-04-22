@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Receipt as LucideReceipt, AlertCircle } from "lucide-react";
+import { Receipt as LucideReceipt, AlertCircle, Loader2, ChevronDown, Check } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
 import type { TransactionFormData } from "@/types/dtos/transaction.dto";
 import posthog from "posthog-js";
+import { useCategoryStore } from "@/store/category-store";
 
 export interface AddTransactionModalProps {
   isOpen: boolean;
@@ -19,17 +21,6 @@ export interface AddTransactionModalProps {
   submitError: string;
   onFormChange: (field: string, value: string) => void;
 }
-
-const CATEGORIES = [
-  { id: "food",      name: "Alimentação" },
-  { id: "transport", name: "Transporte"  },
-  { id: "housing",   name: "Moradia"     },
-  { id: "health",    name: "Saúde"       },
-  { id: "education", name: "Educação"    },
-  { id: "leisure",   name: "Lazer"       },
-  { id: "services",  name: "Serviços"    },
-  { id: "others",    name: "Outros"      },
-];
 
 const inputCls = (hasError: boolean) =>
   `w-full rounded-xl border px-4 py-3 text-sm text-[#1e293b] placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
@@ -48,7 +39,38 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   submitError,
   onFormChange,
 }) => {
+  const [catDropOpen, setCatDropOpen] = useState(false);
+  const catDropRef = useRef<HTMLDivElement>(null);
+  const catBtnRef = useRef<HTMLButtonElement>(null);
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 });
   const [amountDisplay, setAmountDisplay] = useState("");
+
+  const { categories, isLoading: catsLoading, fetchActive } = useCategoryStore();
+  const globalCategories = categories.filter((c) => !c.userId);
+  const myCategories = categories.filter((c) => !!c.userId);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        catDropRef.current && !catDropRef.current.contains(e.target as Node) &&
+        catBtnRef.current && !catBtnRef.current.contains(e.target as Node)
+      ) {
+        setCatDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const openDrop = () => {
+    if (catBtnRef.current) {
+      const r = catBtnRef.current.getBoundingClientRect();
+      setDropPos({ top: r.bottom + 4, left: r.left, width: r.width });
+    }
+    setCatDropOpen((o) => !o);
+  };
+
+  useEffect(() => { fetchActive(); }, [fetchActive]);
 
   useEffect(() => {
     if (!isOpen) setAmountDisplay("");
@@ -209,28 +231,87 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 )}
               </div>
 
-              {/* Category chips */}
+              {/* Category dropdown */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-2">Categoria</label>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {CATEGORIES.map((cat) => {
-                    const sel = formData.category === cat.name;
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => onFormChange("category", cat.name)}
-                        className={`rounded-xl py-2.5 px-1 text-[11px] font-semibold text-center transition-all ${
-                          sel
-                            ? "bg-[rgba(0,60,195,0.08)] border border-[#003cc3]/25 text-[#003cc3]"
-                            : "bg-slate-50 border border-slate-200 text-slate-500 hover:border-[#003cc3]/20 hover:text-[#003cc3]"
-                        }`}
+                {catsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      ref={catBtnRef}
+                      type="button"
+                      onClick={openDrop}
+                      className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm bg-slate-50 focus:outline-none transition-all ${
+                        errors.category_id
+                          ? "border-red-300"
+                          : catDropOpen
+                          ? "border-[#003cc3]/40 bg-white"
+                          : "border-slate-200 hover:border-[#003cc3]/30"
+                      }`}
+                    >
+                      <span className={formData.category ? "text-[#1e293b]" : "text-slate-400"}>
+                        {formData.category || "Selecione uma categoria"}
+                      </span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-slate-400 transition-transform ${catDropOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {catDropOpen && typeof document !== "undefined" && createPortal(
+                      <div
+                        ref={catDropRef}
+                        style={{ top: dropPos.top, left: dropPos.left, width: dropPos.width }}
+                        className="fixed z-[9999] bg-white rounded-xl border border-slate-200 shadow-xl max-h-64 overflow-y-auto"
                       >
-                        {cat.name}
-                      </button>
-                    );
-                  })}
-                </div>
+                        {globalCategories.length > 0 && (
+                          <>
+                            <p className="px-3 pt-2.5 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Sistema
+                            </p>
+                            {globalCategories.map((cat) => (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => { onFormChange("category", cat.name); setCatDropOpen(false); }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-slate-50 ${
+                                  formData.category === cat.name ? "text-[#003cc3] font-semibold" : "text-[#1e293b]"
+                                }`}
+                              >
+                                {cat.name}
+                                {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3]" />}
+                              </button>
+                            ))}
+                          </>
+                        )}
+                        {myCategories.length > 0 && (
+                          <>
+                            <div className="mx-3 my-1 h-px bg-slate-100" />
+                            <p className="px-3 pt-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Personalizadas
+                            </p>
+                            {myCategories.map((cat) => (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => { onFormChange("category", cat.name); setCatDropOpen(false); }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
+                                  formData.category === cat.name ? "text-[#003cc3] font-semibold" : "text-[#1e293b]"
+                                }`}
+                              >
+                                {cat.name}
+                                {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3]" />}
+                              </button>
+                            ))}
+                          </>
+                        )}
+                        <div className="p-1.5" />
+                      </div>,
+                      document.body
+                    )}
+                  </>
+                )}
                 {errors.category_id && (
                   <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>
                 )}

@@ -13,6 +13,7 @@ import {
 } from "@/constants/icons";
 import { Message } from "@/components/ui";
 import { useChat } from "@/hooks/use-chat";
+import { Loader2, Plus } from "lucide-react";
 import posthog from "posthog-js";
 
 type LocalMessage = { text: string; isUser: boolean };
@@ -32,28 +33,37 @@ const CHAT_OPTIONS = [
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const Chat: React.FC = () => {
-  const { messages: apiMessages, isSending, sendMessage, fetchHistory } = useChat();
+  const {
+    messages: apiMessages,
+    conversationId,
+    isSending,
+    isLoadingConversation,
+    sendMessage,
+    clearConversation,
+  } = useChat();
+
   const [input, setInput] = useState("");
-  // Hide welcome if messages already exist (persists across navigation)
   const [showWelcome, setShowWelcome] = useState(() => apiMessages.length === 0);
   const [typingIdx, setTypingIdx] = useState<number | null>(null);
-  // Init to current count so existing messages don't retrigger typing on remount
   const prevCountRef = useRef(apiMessages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  // Track if the next message batch comes from history load (not a live AI response)
+  const wasLoadingConversationRef = useRef(false);
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    if (isLoadingConversation) wasLoadingConversationRef.current = true;
+  }, [isLoadingConversation]);
 
-  // Detect new AI message and trigger typing
   useEffect(() => {
     const prev = prevCountRef.current;
     prevCountRef.current = apiMessages.length;
     if (apiMessages.length > prev) {
-      const last = apiMessages[apiMessages.length - 1];
-      if (last.role !== "user") {
-        setTypingIdx(apiMessages.length - 1);
+      // Skip typing animation if messages came from loading a past conversation
+      if (wasLoadingConversationRef.current) {
+        wasLoadingConversationRef.current = false;
+        return;
       }
+      const last = apiMessages[apiMessages.length - 1];
+      if (last.role !== "user") setTypingIdx(apiMessages.length - 1);
     }
   }, [apiMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -66,34 +76,38 @@ const Chat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [displayMessages.length, isSending]);
 
+  // Sync welcome state when a conversation is loaded from sidebar
+  useEffect(() => {
+    if (apiMessages.length > 0) setShowWelcome(false);
+    else setShowWelcome(true);
+  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg) return;
-    const isTopicShortcut = text !== undefined;
-    if (isTopicShortcut) {
-      posthog.capture("ai_topic_selected", { topic: msg });
-    } else {
-      posthog.capture("ai_message_sent", { message_length: msg.length });
-    }
+    if (text !== undefined) posthog.capture("ai_topic_selected", { topic: msg });
+    else posthog.capture("ai_message_sent", { message_length: msg.length });
     sendMessage(msg);
     setInput("");
     setShowWelcome(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleTypingComplete = useCallback(() => setTypingIdx(null), []);
 
-  return (
-    <div className="flex flex-col h-full overflow-hidden gap-3">
+  const handleNewConversation = () => {
+    clearConversation();
+    setShowWelcome(true);
+    prevCountRef.current = 0;
+  };
 
-      {/* ── Header card ──────────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 flex items-center justify-between bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-5 py-4">
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex-shrink-0 flex items-center justify-between bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-5 py-4 mb-3">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
             <IAIcon className="w-5 h-5 text-white" />
@@ -103,94 +117,109 @@ const Chat: React.FC = () => {
             <p className="text-xs text-slate-400">Assistente financeiro</p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs text-emerald-600 font-medium">Online</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleNewConversation}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Nova conversa
+          </button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-emerald-600 font-medium">Online</span>
+          </div>
         </div>
       </div>
 
-      {/* ── Messages area ────────────────────────────────────────────────── */}
+      {/* Messages area */}
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="flex flex-col px-1 py-2">
-          <AnimatePresence initial={false}>
-            {displayMessages.map((msg, i) => {
-              const apiIdx = i - INITIAL_MESSAGES.length;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.18, ease: EASE_OUT }}
-                >
-                  <Message
-                    isUser={msg.isUser}
-                    text={msg.text}
-                    isTyping={!msg.isUser && typingIdx === apiIdx}
-                    onTypingComplete={handleTypingComplete}
-                  />
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-
-          {isSending && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 ml-[42px] my-2"
-            >
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <span
+        {isLoadingConversation ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-[#003cc3]/40" />
+            <p className="text-xs text-slate-400">A carregar conversa…</p>
+          </div>
+        ) : (
+          <div className="flex flex-col px-4 py-4">
+            <AnimatePresence initial={false}>
+              {displayMessages.map((msg, i) => {
+                const apiIdx = i - INITIAL_MESSAGES.length;
+                return (
+                  <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-slate-400">A pensar…</span>
-            </motion.div>
-          )}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.18, ease: EASE_OUT }}
+                  >
+                    <Message
+                      isUser={msg.isUser}
+                      text={msg.text}
+                      isTyping={!msg.isUser && typingIdx === apiIdx}
+                      onTypingComplete={handleTypingComplete}
+                    />
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
-          {/* Welcome topic cards */}
-          <AnimatePresence>
-            {showWelcome && (
+            {isSending && (
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.2, ease: EASE_OUT }}
-                className="mt-3 ml-[42px]"
+                className="flex items-center gap-2 ml-[42px] my-2"
               >
-                <p className="text-xs text-slate-400 font-medium mb-3">
-                  Escolha um tema ou escreva a sua pergunta:
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {CHAT_OPTIONS.map((opt) => (
-                    <motion.button
-                      key={opt.label}
-                      onClick={() => handleSend(opt.label)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-[#003cc3]/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
-                    >
-                      <div className={`w-8 h-8 rounded-[10px] ${opt.bg} flex items-center justify-center flex-shrink-0`}>
-                        <span className={`w-4 h-4 ${opt.text}`}>{opt.icon}</span>
-                      </div>
-                      <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
-                    </motion.button>
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
                   ))}
                 </div>
+                <span className="text-xs text-slate-400">A pensar…</span>
               </motion.div>
             )}
-          </AnimatePresence>
 
-          <div ref={messagesEndRef} className="h-2" />
-        </div>
+            <AnimatePresence>
+              {showWelcome && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+                  transition={{ duration: 0.2, ease: EASE_OUT }}
+                  className="mt-3 ml-[42px]"
+                >
+                  <p className="text-xs text-slate-400 font-medium mb-3">
+                    Escolha um tema ou escreva a sua pergunta:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {CHAT_OPTIONS.map((opt) => (
+                      <motion.button
+                        key={opt.label}
+                        onClick={() => handleSend(opt.label)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-[#003cc3]/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
+                      >
+                        <div className={`w-8 h-8 rounded-[10px] ${opt.bg} flex items-center justify-center flex-shrink-0`}>
+                          <span className={`w-4 h-4 ${opt.text}`}>{opt.icon}</span>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700">{opt.label}</span>
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div ref={messagesEndRef} className="h-2" />
+          </div>
+        )}
       </div>
 
-      {/* ── Input card ───────────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-4 py-3">
+      {/* Input */}
+      <div className="flex-shrink-0 bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-4 py-3 mt-3">
         <div className="flex items-end gap-3">
           <textarea
             value={input}
@@ -198,13 +227,13 @@ const Chat: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder="Escreva a sua pergunta…"
             rows={1}
-            disabled={isSending}
+            disabled={isSending || isLoadingConversation}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none max-h-32 leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fieldSizing: "content" } as React.CSSProperties}
           />
           <motion.button
             onClick={() => handleSend()}
-            disabled={!input.trim() || isSending}
+            disabled={!input.trim() || isSending || isLoadingConversation}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
@@ -216,7 +245,6 @@ const Chat: React.FC = () => {
           Wundu AI pode cometer erros — verifique informações importantes.
         </p>
       </div>
-
     </div>
   );
 };

@@ -18,6 +18,7 @@ const routeLabels: Record<string, string> = {
   [ROUTES.SCAN]: "Scan de Documentos",
   [ROUTES.CHAT_IA]: "Wundu AI",
   [ROUTES.CONTROL_PANEL]: "Análises",
+  [ROUTES.CATEGORIES]: "Categorias",
   [ROUTES.LIBRARY]: "Biblioteca",
   [ROUTES.ARTICLE]: "Artigo",
   [ROUTES.PROFILE]: "Perfil",

@@ -8,9 +8,12 @@ interface ChatStore {
   history: ChatConversationSummary[];
   isLoading: boolean;
   isSending: boolean;
+  isLoadingConversation: boolean;
   error: string | null;
   sendMessage(message: string): Promise<void>;
   fetchHistory(): Promise<void>;
+  loadConversation(id: string): Promise<void>;
+  deleteConversation(id: string): Promise<void>;
   setConversationId(id: string | null): void;
   clearConversation(): void;
 }
@@ -21,6 +24,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   history: [],
   isLoading: false,
   isSending: false,
+  isLoadingConversation: false,
   error: null,
 
   sendMessage: async (message: string) => {
@@ -41,6 +45,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         messages: response.messages,
         isSending: false,
       });
+      // Refresh history so the new/updated conversation appears
+      get().fetchHistory();
     } catch (error: any) {
       const err = error?.response?.data?.message || "Erro ao enviar mensagem";
       set({ messages: prevMessages, error: err, isSending: false });
@@ -56,6 +62,36 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     } catch (error: any) {
       const err = error?.response?.data?.message || "Erro ao carregar histórico";
       set({ error: err, isLoading: false });
+    }
+  },
+
+  loadConversation: async (id: string) => {
+    set({ isLoadingConversation: true, error: null });
+    try {
+      const response = await chatService.getConversation(id);
+      set({
+        conversationId: response.conversationId,
+        messages: response.messages,
+        isLoadingConversation: false,
+      });
+    } catch (error: any) {
+      const err = error?.response?.data?.message || "Erro ao carregar conversa";
+      set({ error: err, isLoadingConversation: false });
+      import("@/hooks/use-notification").then(({ notify }) => notify.error(err));
+    }
+  },
+
+  deleteConversation: async (id: string) => {
+    try {
+      await chatService.deleteConversation(id);
+      const current = get().conversationId;
+      set((s) => ({
+        history: s.history.filter((h) => h.id !== id),
+        ...(current === id ? { conversationId: null, messages: [] } : {}),
+      }));
+    } catch (error: any) {
+      const err = error?.response?.data?.message || "Erro ao apagar conversa";
+      import("@/hooks/use-notification").then(({ notify }) => notify.error(err));
     }
   },
 

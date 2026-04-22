@@ -4,6 +4,13 @@ import { categoryService } from "@/services/category.service";
 import type { Category, CategoryRequest } from "@/types/dtos/category.dto";
 import { useUiStore } from "@/store/ui-store";
 
+const sortCategories = (cats: Category[]): Category[] =>
+  [...cats].sort((a, b) => {
+    if (a.name === "Outros") return 1;
+    if (b.name === "Outros") return -1;
+    return a.name.localeCompare(b.name, "pt");
+  });
+
 interface CategoryState {
   categories: Category[];
   isLoading: boolean;
@@ -35,7 +42,7 @@ export const useCategoryStore = create<CategoryState>()(
         set({ isLoading: true, error: null });
         try {
           const data = await categoryService.getActive();
-          set({ categories: data, isLoading: false, hasFetched: true });
+          set({ categories: sortCategories(data), isLoading: false, hasFetched: true });
         } catch (error: any) {
           const err =
             error instanceof Error
@@ -50,7 +57,7 @@ export const useCategoryStore = create<CategoryState>()(
         try {
           const newCategory = await categoryService.create(payload);
           set((s) => ({
-            categories: [...s.categories, newCategory],
+            categories: sortCategories([...s.categories, newCategory]),
           }));
           useUiStore.getState().showNotification("success", "Categoria criada", "Categoria criada com sucesso!");
           return newCategory;

@@ -16,6 +16,7 @@ export const ROUTES = {
   LIBRARY: "/home/library",
   ARTICLE: "/home/library/article",
   PROFILE: "/home/profile",
+  CATEGORIES: "/home/categories",
   CHAT_IA: "/home/chat",
   CONTROL_PANEL: "/home/profile/control_panel",
   SUPPORT: "/home/profile/support",

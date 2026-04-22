@@ -6,7 +6,6 @@ import type {
 } from "@/types/dtos/chat.dto";
 
 class ChatService {
-  // AI responses can take 30-60s — override timeout for this endpoint
   async sendMessage(payload: ChatMessageRequest): Promise<ChatMessageResponse> {
     const { data } = await apiClient.post<ChatMessageResponse>("/chat/send", payload);
     return data;
@@ -15,6 +14,15 @@ class ChatService {
   async getHistory(): Promise<ChatConversationSummary[]> {
     const { data } = await apiClient.get<ChatConversationSummary[]>("/chat/history");
     return data;
+  }
+
+  async getConversation(conversationId: string): Promise<ChatMessageResponse> {
+    const { data } = await apiClient.get<ChatMessageResponse>(`/chat/${conversationId}`);
+    return data;
+  }
+
+  async deleteConversation(conversationId: string): Promise<void> {
+    await apiClient.delete(`/chat/${conversationId}`);
   }
 }
 

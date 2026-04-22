@@ -34,8 +34,15 @@ api.interceptors.response.use(
         localStorage.removeItem("token");
         // Only redirect on session expiry (had a token). Login attempts (no token)
         // return 401 for wrong credentials — let the error propagate to the caller.
+        // Never redirect away from public pages (landing, about, legal, etc.).
         if (hadToken) {
-          window.location.href = "/login";
+          const publicPaths = ["/", "/about", "/features", "/contacts", "/legal"];
+          const isPublicPath = publicPaths.some(
+            (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/")
+          );
+          if (!isPublicPath) {
+            window.location.href = "/login";
+          }
         }
       }
     }

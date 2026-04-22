@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
@@ -8,23 +8,19 @@ import {
   HomeDeskIcon,
   IAIcon,
 } from "@/constants/icons";
+import { Tag, Trash2, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { logo, logotype } from "@/constants/images";
-import { TrashIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Conversation {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: string;
-}
+import { useChatStore } from "@/store/chat-store";
+import { formatConvoDate, parseJavaDate } from "@/types/dtos/chat.dto";
 
 const navItems = [
   { name: "Início", path: ROUTES.HOME, icon: HomeDeskIcon, exact: true },
   { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false },
   { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false },
+  { name: "Categorias", path: ROUTES.CATEGORIES, icon: Tag, exact: false },
   { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false },
 ];
 
@@ -39,25 +35,63 @@ const EASE_OUT_QUART = [0.25, 0.46, 0.45, 0.94] as const;
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile }) => {
   const pathname = usePathname() || "";
 
+  const {
+    history,
+    conversationId,
+    isLoading: isLoadingHistory,
+    fetchHistory,
+    loadConversation,
+    deleteConversation,
+    clearConversation,
+  } = useChatStore();
+
   // Close mobile drawer on route change
   useEffect(() => {
     onCloseMobile();
   }, [pathname, onCloseMobile]);
 
-  const [conversations, setConversations] = useState<Conversation[]>([
-    { id: "1", title: "Dicas de Economia", lastMessage: "Muito obrigado Wundo AI", timestamp: "10:30" },
-    { id: "2", title: "Investimentos para Iniciantes", lastMessage: "Como posso começar a investir?", timestamp: "Ontem" },
-    { id: "3", title: "Planejamento Financeiro", lastMessage: "Preciso de ajuda com orçamento", timestamp: "2 dias" },
-    { id: "4", title: "Poupança e Metas", lastMessage: "Qual a melhor estratégia?", timestamp: "1 semana" },
-  ]);
-
   const isInChatPage = pathname.startsWith(ROUTES.CHAT_IA);
+
+  // Fetch history when entering the chat page
+  useEffect(() => {
+    if (isInChatPage) fetchHistory();
+  }, [isInChatPage, fetchHistory]);
+
+  const sortedHistory = [...history].sort((a, b) => {
+    const da = parseJavaDate(a.updatedAt)?.getTime() ?? 0;
+    const db = parseJavaDate(b.updatedAt)?.getTime() ?? 0;
+    return db - da;
+  });
+
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   const isActive = (item: (typeof navItems)[number]) =>
     item.exact ? pathname === item.path : pathname === item.path || pathname.startsWith(item.path + "/");
 
-  const deleteConversation = (id: string) =>
-    setConversations((prev) => prev.filter((c) => c.id !== id));
+  const handleNewConversation = () => {
+    clearConversation();
+  };
+
+  const handleSelectConversation = async (id: string) => {
+    setConfirmDeleteId(null);
+    await loadConversation(id);
+  };
+
+  const handleDeleteConversation = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
+    await deleteConversation(id);
+  };
+
+  const handleAskConfirm = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setConfirmDeleteId(id);
+  };
+
+  const handleCancelDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
+  };
 
   const sidebarWidth = collapsed ? 72 : 220;
 
@@ -134,29 +168,73 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Conversas
                 </span>
-                <button onClick={() => setConversations([])} className="text-xs font-medium text-[#003cc3] transition-colors hover:text-[#003cc3]/70">
-                  + Nova
+                <button
+                  onClick={handleNewConversation}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#003cc3] transition-colors hover:text-[#003cc3]/70"
+                >
+                  <Plus className="w-3 h-3" />
+                  Nova
                 </button>
               </div>
-              <div className="space-y-0.5">
-                {conversations.map((c) => (
-                  <div
-                    key={c.id}
-                    className="group flex cursor-pointer items-start rounded-lg px-2 py-2 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-800 truncate">{c.title}</p>
-                      <p className="text-xs text-gray-400 truncate mt-0.5">{c.lastMessage}</p>
-                    </div>
-                    <button
-                      onClick={() => deleteConversation(c.id)}
-                      className="ml-1 rounded p-1 opacity-0 transition-all hover:bg-slate-200 group-hover:opacity-100"
-                    >
-                      <TrashIcon className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+
+              {isLoadingHistory ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
+                </div>
+              ) : sortedHistory.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-4 px-2">
+                  Sem conversas ainda
+                </p>
+              ) : (
+                <div className="space-y-0.5">
+                  {sortedHistory.map((conv) => {
+                    const isActiveConv = conv.id === conversationId;
+                    const isConfirming = confirmDeleteId === conv.id;
+                    return (
+                      <div
+                        key={conv.id}
+                        onClick={() => !isConfirming && handleSelectConversation(conv.id)}
+                        className={`group flex cursor-pointer items-center rounded-lg px-2 py-2 transition-colors ${
+                          isActiveConv ? "bg-[#003cc3]/10" : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-semibold truncate ${isActiveConv ? "text-[#003cc3]" : "text-gray-800"}`}>
+                            {formatConvoDate(conv.updatedAt)}
+                          </p>
+                          {isConfirming ? (
+                            <div className="flex items-center gap-1 mt-1" onClick={(e) => e.stopPropagation()}>
+                              <span className="text-[10px] text-red-500 font-medium">Apagar?</span>
+                              <button
+                                onClick={(e) => handleDeleteConversation(e, conv.id)}
+                                className="text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 px-1.5 py-0.5 rounded transition-colors"
+                              >
+                                Sim
+                              </button>
+                              <button
+                                onClick={handleCancelDelete}
+                                className="text-[10px] font-bold text-slate-500 hover:text-slate-700 px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 transition-colors"
+                              >
+                                Não
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-gray-400 truncate mt-0.5">Conversa</p>
+                          )}
+                        </div>
+                        {!isConfirming && (
+                          <button
+                            onClick={(e) => handleAskConfirm(e, conv.id)}
+                            className="ml-1 rounded p-1 opacity-0 transition-all hover:bg-slate-200 group-hover:opacity-100"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -165,7 +243,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
         </nav>
       </>
     ),
-    [collapsed, conversations, isInChatPage, onCloseMobile, pathname],
+    [collapsed, history, conversationId, isInChatPage, isLoadingHistory, sortedHistory, confirmDeleteId, onCloseMobile, pathname],
   );
 
   return (

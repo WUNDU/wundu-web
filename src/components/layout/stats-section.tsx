@@ -84,17 +84,11 @@ const StatsSection: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      try {
-        const [docCount] = await Promise.all([
-          documentService.getTotalDocuments(),
-          fetchTransactions(),
-        ]);
-        setTotalDocuments(docCount);
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-      } finally {
-        setIsLoading(false);
-      }
+      await Promise.allSettled([
+        documentService.getTotalDocuments().then(setTotalDocuments).catch(() => {}),
+        fetchTransactions(),
+      ]);
+      setIsLoading(false);
     };
     fetchData();
   }, [fetchTransactions]);

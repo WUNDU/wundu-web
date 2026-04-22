@@ -85,11 +85,31 @@ const features = [
 ];
 
 const faqs = [
-  "1. O que é a Wundu e como ela funciona?",
-  "2. A Wundu é segura para guardar os meus dados financeiros?",
-  "3. Posso controlar despesas e receber em diferentes categorias?",
-  "4. A Wundu ajuda com o acompanhamento das minhas metas financeiras?",
-  "5. O que acontece se não vejo os gastos em informação real?",
+  {
+    question: "1. O que é a Wundu e como ela funciona?",
+    answer:
+      "A Wundu é uma aplicação para gerir o teu dinheiro. Registas o que ganhas e o que gastas, defines categorias e acompanhas as tuas metas — tudo num só lugar, de forma simples.",
+  },
+  {
+    question: "2. A Wundu é segura para guardar os meus dados financeiros?",
+    answer:
+      "Sim, os teus dados estão protegidos. Ninguém tem acesso à tua conta a não ser tu, e nunca partilhamos as tuas informações com terceiros.",
+  },
+  {
+    question: "3. Posso controlar despesas e receber em diferentes categorias?",
+    answer:
+      "Claro! Podes organizar cada gasto por categoria — Alimentação, Transporte, Saúde, Lazer e muito mais. Também podes criar as tuas próprias categorias se precisares.",
+  },
+  {
+    question: "4. A Wundu ajuda com o acompanhamento das minhas metas financeiras?",
+    answer:
+      "Sim! Defines um valor que queres poupar e uma data limite. A Wundu mostra-te quanto já poupaste e quanto falta, para te manteres motivado.",
+  },
+  {
+    question: "5. O que acontece se não vejo os gastos actualizados?",
+    answer:
+      "Experimenta fechar e abrir a aplicação novamente. Se continuar sem actualizar, verifica a tua ligação à internet. Ainda com problemas? O nosso suporte ajuda-te.",
+  },
 ];
 
 // Configuração dos planetas (nós orbitais)
@@ -421,7 +441,7 @@ export default function WunduPage() {
                 className="w-full text-left px-6 py-5 md:px-8 md:py-6 text-sm md:text-lg font-black text-gray-800 flex items-center justify-between hover:bg-gray-50/50 transition-colors group"
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
               >
-                <span className="tracking-tight">{faq}</span>
+                <span className="tracking-tight">{faq.question}</span>
                 <div
                   className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 shrink-0 ml-4 ${openFaq === i ? "bg-yellow-400 text-white rotate-180" : "bg-gray-100 text-gray-400 group-hover:bg-gray-200"}`}
                 >
@@ -432,8 +452,7 @@ export default function WunduPage() {
                 className={`overflow-hidden transition-all duration-500 ease-in-out ${openFaq === i ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}
               >
                 <div className="px-6 pb-6 md:px-8 md:pb-8 pt-2 text-sm md:text-base text-gray-500 leading-relaxed font-medium">
-                  A Wundu oferece funcionalidades completas para gerir as suas
-                  finanças pessoais com segurança e simplicidade.
+                  {faq.answer}
                 </div>
               </div>
             </div>
