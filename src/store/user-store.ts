@@ -84,7 +84,12 @@ export const useUserStore = create<AuthState>()(
           }
           const user = await userService.getUser();
           set({ user, isAuthenticated: true, isLoading: false });
-        } catch {
+        } catch (error: any) {
+          // Don't log out on aborted/cancelled requests (e.g. StrictMode double-mount, navigation)
+          if (error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
+            set({ isLoading: false });
+            return;
+          }
           get().setToken(null);
           set({ isAuthenticated: false, isLoading: false, user: null });
         }
@@ -116,7 +121,8 @@ export const useUserStore = create<AuthState>()(
           clearUserStores();
           // setToken persists to localStorage["token"] so the API interceptor can read it
           get().setToken(response.token);
-          set({ isAuthenticated: true, isLoading: false });
+          // Reset any leftover registration state
+          set({ isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
           await get().checkAuthStatus();
 
           // Redirect unverified users to the email verification pending page
@@ -159,7 +165,7 @@ export const useUserStore = create<AuthState>()(
           localStorage.removeItem("token");
           window.location.href = "/login";
         }
-        set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null });
+        set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });
       },
 
       logoutUser: () => {
@@ -186,11 +192,8 @@ export const useUserStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           await userService.register(data);
-          const success = await get().login(data.email ?? "", data.password ?? "");
-          if (success) {
-            set({ currentStep: 3 });
-          }
-          return success;
+          set({ isLoading: false });
+          return true;
         } catch (error: any) {
           const err =
             error?.response?.status === 500

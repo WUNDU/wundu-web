@@ -28,6 +28,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Pass through cancelled/aborted requests without processing them as errors
+    if (axios.isCancel(error) || error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
         const hadToken = !!localStorage.getItem("token");
