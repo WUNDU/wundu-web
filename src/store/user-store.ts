@@ -207,12 +207,20 @@ export const useUserStore = create<AuthState>()(
     {
       name: "wundu-user-cache",
       storage: createJSONStorage(() => localStorage),
+      // Only persist auth credentials — registration state (currentStep, data) is
+      // intentionally ephemeral. Persisting currentStep caused blank screens when it
+      // got stuck on an invalid value (e.g. 4) across page reloads.
       partialize: (state) => ({
         token: state.token,
         user: state.user,
-        currentStep: state.currentStep,
-        data: state.data,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Sanitise any stale registration state left by older versions of the store
+        if (state) {
+          state.currentStep = 1;
+          state.data = {};
+        }
+      },
     },
   ),
 );
