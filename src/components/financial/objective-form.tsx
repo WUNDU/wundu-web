@@ -326,6 +326,7 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
               value={form.categoryId}
               onChange={(value) => setField("categoryId", value)}
               options={categoryOptions}
+              modal
               required
             />
             {categoriesError && (

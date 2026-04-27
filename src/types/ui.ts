@@ -402,6 +402,8 @@ export interface SelectProps {
   options: { value: string; label: string }[];
   required?: boolean;
   className?: string;
+  /** When true, opens a centered full-screen overlay instead of an inline dropdown — best for long lists */
+  modal?: boolean;
 }
 
 // ─── sidebar ──────────────────────────────────────────────────────────────────
