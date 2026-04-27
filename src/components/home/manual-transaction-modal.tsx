@@ -30,7 +30,10 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
 }) => {
   const [description, setDescription] = useState("");
   const [displayAmount, setDisplayAmount] = useState("");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [dateVal, setDateVal] = useState("");
+  const [timeVal, setTimeVal] = useState("");
+
+  const transactionDate = dateVal && timeVal ? `${dateVal}T${timeVal}:00` : dateVal ? `${dateVal}T00:00:00` : "";
 
   useEffect(() => {
     if (defaults) {
@@ -40,11 +43,12 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
           ? formatAOA(defaults.amount)
           : "",
       );
-      setTransactionDate(
-        defaults.transactionDate
-          ? defaults.transactionDate.slice(0, 19)
-          : new Date().toISOString().slice(0, 19),
-      );
+      const raw = defaults.transactionDate
+        ? defaults.transactionDate.slice(0, 19)
+        : new Date().toISOString().slice(0, 19);
+      const [d, t = ""] = raw.split("T");
+      setDateVal(d ?? "");
+      setTimeVal(t.slice(0, 5));
     }
   }, [defaults, isOpen]);
 
@@ -89,13 +93,22 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
             required
             placeholder="0,00"
           />
-          <TextInput
-            label="Data"
-            type="datetime-local"
-            value={transactionDate}
-            onChange={(e) => setTransactionDate(e.target.value)}
-            required
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <TextInput
+              label="Data"
+              type="date"
+              value={dateVal}
+              onChange={(e) => setDateVal(e.target.value)}
+              required
+            />
+            <TextInput
+              label="Hora"
+              type="time"
+              value={timeVal}
+              onChange={(e) => setTimeVal(e.target.value)}
+              required
+            />
+          </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="secondary"

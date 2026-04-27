@@ -398,7 +398,7 @@ export interface ProtectedRouteProps {
 export interface SelectProps {
   label: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (value: string) => void;
   options: { value: string; label: string }[];
   required?: boolean;
   className?: string;

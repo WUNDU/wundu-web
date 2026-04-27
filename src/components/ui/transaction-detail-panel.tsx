@@ -284,17 +284,6 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
           {tx.createdAt && (
             <InfoRow icon={Clock} label="Registado em" value={formatDateTime(tx.createdAt)} valueColor="#94a3b8" />
           )}
-
-          {tx.id && (
-            <div className="mt-6 p-3.5 bg-[#F8FAFC] rounded-[14px] border border-[#F1F5F9]">
-              <p className="text-[10px] text-[#94a3b8] font-semibold uppercase tracking-wider mb-1">
-                ID da Transação
-              </p>
-              <p className="text-xs text-[#64748b] font-semibold font-mono truncate">
-                {tx.id}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </>

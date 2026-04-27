@@ -317,14 +317,14 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
             <Select
               label="Tipo"
               value={form.type}
-              onChange={(e) => setField("type", e.target.value)}
+              onChange={(value) => setField("type", value)}
               options={typeOptions}
               required
             />
             <Select
               label="Categoria"
               value={form.categoryId}
-              onChange={(e) => setField("categoryId", e.target.value)}
+              onChange={(value) => setField("categoryId", value)}
               options={categoryOptions}
               required
             />

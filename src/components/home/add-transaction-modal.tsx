@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Receipt as LucideReceipt, AlertCircle, Loader2, ChevronDown, Check } from "lucide-react";
+import { Receipt as LucideReceipt, AlertCircle, Loader2, ChevronDown, Check, X } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
@@ -29,6 +28,13 @@ const inputCls = (hasError: boolean) =>
       : "border-slate-200 focus:border-[#003cc3]/40"
   }`;
 
+/** Parse a datetime string (ISO or datetime-local) into [date, time] parts */
+function parseDateTime(dt: string): { date: string; time: string } {
+  if (!dt) return { date: "", time: "" };
+  const [datePart, timePart = ""] = dt.split("T");
+  return { date: datePart ?? "", time: timePart.slice(0, 5) };
+}
+
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   isOpen,
   onClose,
@@ -39,46 +45,50 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   submitError,
   onFormChange,
 }) => {
-  const [catDropOpen, setCatDropOpen] = useState(false);
-  const catDropRef = useRef<HTMLDivElement>(null);
-  const catBtnRef = useRef<HTMLButtonElement>(null);
-  const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 });
+  const [catModalOpen, setCatModalOpen] = useState(false);
   const [amountDisplay, setAmountDisplay] = useState("");
+  const [dateVal, setDateVal] = useState("");
+  const [timeVal, setTimeVal] = useState("");
 
   const { categories, isLoading: catsLoading, fetchActive } = useCategoryStore();
   const globalCategories = categories.filter((c) => !c.userId);
   const myCategories = categories.filter((c) => !!c.userId);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (
-        catDropRef.current && !catDropRef.current.contains(e.target as Node) &&
-        catBtnRef.current && !catBtnRef.current.contains(e.target as Node)
-      ) {
-        setCatDropOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const openDrop = () => {
-    if (catBtnRef.current) {
-      const r = catBtnRef.current.getBoundingClientRect();
-      setDropPos({ top: r.bottom + 4, left: r.left, width: r.width });
-    }
-    setCatDropOpen((o) => !o);
-  };
-
   useEffect(() => { fetchActive(); }, [fetchActive]);
 
   useEffect(() => {
-    if (!isOpen) setAmountDisplay("");
+    if (!isOpen) {
+      setAmountDisplay("");
+      setCatModalOpen(false);
+    }
   }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && formData.type !== "expense") onFormChange("type", "expense");
   }, [formData.type, isOpen, onFormChange]);
+
+  // Sync date+time state from formData
+  useEffect(() => {
+    const { date, time } = parseDateTime(formData.transactionDate);
+    setDateVal(date);
+    setTimeVal(time);
+  }, [formData.transactionDate]);
+
+  const handleDateChange = (newDate: string) => {
+    setDateVal(newDate);
+    if (newDate && timeVal) {
+      onFormChange("transactionDate", `${newDate}T${timeVal}:00`);
+    } else if (newDate) {
+      onFormChange("transactionDate", `${newDate}T00:00:00`);
+    }
+  };
+
+  const handleTimeChange = (newTime: string) => {
+    setTimeVal(newTime);
+    if (dateVal && newTime) {
+      onFormChange("transactionDate", `${dateVal}T${newTime}:00`);
+    }
+  };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const masked = maskAOAInput(e.target.value);
@@ -98,18 +108,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     }
   };
 
-  const maxTransactionDate = formatDateTimeLocal();
-  const maxLabel = new Date(maxTransactionDate).toLocaleString("pt-AO", {
-    day: "2-digit", month: "2-digit", year: "numeric",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  });
-
-  const handleDateInvalid = (e: React.InvalidEvent<HTMLInputElement>) => {
-    e.currentTarget.setCustomValidity(`Use uma data e hora iguais ou anteriores a ${maxLabel}.`);
-  };
-  const handleDateInput = (e: React.FormEvent<HTMLInputElement>) => {
-    e.currentTarget.setCustomValidity("");
-  };
+  const maxDate = formatDateTimeLocal().split("T")[0];
 
   return (
     <AnimatePresence>
@@ -175,45 +174,53 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </div>
               )}
 
-              {/* Amount + Date */}
+              {/* Amount */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0,00"
+                    value={amountDisplay}
+                    onChange={handleAmountChange}
+                    required
+                    className={`${inputCls(!!errors.amount)} pr-10`}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                    Kz
+                  </span>
+                </div>
+                {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
+              </div>
+
+              {/* Date + Time */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      value={amountDisplay}
-                      onChange={handleAmountChange}
-                      required
-                      className={`${inputCls(!!errors.amount)} pr-10`}
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
-                      Kz
-                    </span>
-                  </div>
-                  {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Data e hora</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Data</label>
                   <input
-                    type="datetime-local"
-                    step={1}
-                    max={maxTransactionDate}
-                    value={formData.transactionDate}
-                    onChange={(e) => onFormChange("transactionDate", e.target.value)}
-                    onInvalid={handleDateInvalid}
-                    onInput={handleDateInput}
+                    type="date"
+                    max={maxDate}
+                    value={dateVal}
+                    onChange={(e) => handleDateChange(e.target.value)}
                     required
                     className={`${inputCls(!!errors.transactionDate)} px-3`}
                   />
-                  {errors.transactionDate && (
-                    <p className="text-red-500 text-xs mt-1">{errors.transactionDate}</p>
-                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Hora</label>
+                  <input
+                    type="time"
+                    value={timeVal}
+                    onChange={(e) => handleTimeChange(e.target.value)}
+                    required
+                    className={`${inputCls(!!errors.transactionDate)} px-3`}
+                  />
                 </div>
               </div>
+              {errors.transactionDate && (
+                <p className="text-red-500 text-xs -mt-2">{errors.transactionDate}</p>
+              )}
 
               {/* Description */}
               <div>
@@ -231,7 +238,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 )}
               </div>
 
-              {/* Category dropdown */}
+              {/* Category trigger */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-2">Categoria</label>
                 {catsLoading ? (
@@ -239,78 +246,22 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
                   </div>
                 ) : (
-                  <>
-                    <button
-                      ref={catBtnRef}
-                      type="button"
-                      onClick={openDrop}
-                      className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm bg-slate-50 focus:outline-none transition-all ${
-                        errors.category_id
-                          ? "border-red-300"
-                          : catDropOpen
-                          ? "border-[#003cc3]/40 bg-white"
-                          : "border-slate-200 hover:border-[#003cc3]/30"
-                      }`}
-                    >
-                      <span className={formData.category ? "text-[#1e293b]" : "text-slate-400"}>
-                        {formData.category || "Selecione uma categoria"}
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-slate-400 transition-transform ${catDropOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {catDropOpen && typeof document !== "undefined" && createPortal(
-                      <div
-                        ref={catDropRef}
-                        style={{ top: dropPos.top, left: dropPos.left, width: dropPos.width }}
-                        className="fixed z-[9999] bg-white rounded-xl border border-slate-200 shadow-xl max-h-64 overflow-y-auto"
-                      >
-                        {globalCategories.length > 0 && (
-                          <>
-                            <p className="px-3 pt-2.5 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                              Sistema
-                            </p>
-                            {globalCategories.map((cat) => (
-                              <button
-                                key={cat.id}
-                                type="button"
-                                onClick={() => { onFormChange("category", cat.name); setCatDropOpen(false); }}
-                                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-slate-50 ${
-                                  formData.category === cat.name ? "text-[#003cc3] font-semibold" : "text-[#1e293b]"
-                                }`}
-                              >
-                                {cat.name}
-                                {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3]" />}
-                              </button>
-                            ))}
-                          </>
-                        )}
-                        {myCategories.length > 0 && (
-                          <>
-                            <div className="mx-3 my-1 h-px bg-slate-100" />
-                            <p className="px-3 pt-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                              Personalizadas
-                            </p>
-                            {myCategories.map((cat) => (
-                              <button
-                                key={cat.id}
-                                type="button"
-                                onClick={() => { onFormChange("category", cat.name); setCatDropOpen(false); }}
-                                className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-blue-50 ${
-                                  formData.category === cat.name ? "text-[#003cc3] font-semibold" : "text-[#1e293b]"
-                                }`}
-                              >
-                                {cat.name}
-                                {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3]" />}
-                              </button>
-                            ))}
-                          </>
-                        )}
-                        <div className="p-1.5" />
-                      </div>,
-                      document.body
-                    )}
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => setCatModalOpen(true)}
+                    className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm bg-slate-50 focus:outline-none transition-all ${
+                      errors.category_id
+                        ? "border-red-300"
+                        : catModalOpen
+                        ? "border-[#003cc3]/40 bg-white ring-4 ring-[#003cc3]/[0.06]"
+                        : "border-slate-200 hover:border-[#003cc3]/30"
+                    }`}
+                  >
+                    <span className={formData.category ? "text-[#1e293b]" : "text-slate-400"}>
+                      {formData.category || "Selecione uma categoria"}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  </button>
                 )}
                 {errors.category_id && (
                   <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>
@@ -337,6 +288,87 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </button>
               </div>
             </form>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Category picker modal — centered overlay */}
+      {isOpen && catModalOpen && (
+        <motion.div
+          key="cat-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setCatModalOpen(false)}
+        >
+          <motion.div
+            key="cat-panel"
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="bg-white w-full max-w-sm rounded-[20px] shadow-[0_8px_40px_rgba(0,0,0,0.18)] overflow-hidden flex flex-col max-h-[70vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+              <h3 className="text-sm font-bold text-[#1e293b]">Selecione a categoria</h3>
+              <button
+                type="button"
+                onClick={() => setCatModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable list */}
+            <div className="overflow-y-auto flex-1 py-2">
+              {globalCategories.length > 0 && (
+                <>
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Sistema
+                  </p>
+                  {globalCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => { onFormChange("category", cat.name); setCatModalOpen(false); }}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-slate-50 ${
+                        formData.category === cat.name ? "text-[#003cc3] font-semibold bg-blue-50/60" : "text-[#1e293b]"
+                      }`}
+                    >
+                      {cat.name}
+                      {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />}
+                    </button>
+                  ))}
+                </>
+              )}
+              {myCategories.length > 0 && (
+                <>
+                  <div className="mx-4 my-2 h-px bg-slate-100" />
+                  <p className="px-4 pt-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Personalizadas
+                  </p>
+                  {myCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => { onFormChange("category", cat.name); setCatModalOpen(false); }}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-blue-50/40 ${
+                        formData.category === cat.name ? "text-[#003cc3] font-semibold bg-blue-50/60" : "text-[#1e293b]"
+                      }`}
+                    >
+                      {cat.name}
+                      {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />}
+                    </button>
+                  ))}
+                </>
+              )}
+              <div className="h-2" />
+            </div>
           </motion.div>
         </motion.div>
       )}
