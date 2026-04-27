@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { EditModalProps } from "@/types/ui";
 import { type GoalPayload, type GoalType } from "@/types/dtos/goal.dto";
-import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore, getGoalProgress } from "@/store/goal-store";
+import { useCategoryStore } from "@/store/category-store";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 import Select from "@/components/ui/select";
+import CategorySelect from "@/components/ui/category-select";
 
 type EditFormState = {
   title: string;
@@ -70,12 +71,7 @@ const EditModal: React.FC<EditModalProps> = ({
   onUpdated,
 }) => {
   const { update } = useGoalStore();
-  const {
-    categories,
-    isLoading: isCategoriesLoading,
-    error: categoriesError,
-    fetch: fetchCategories,
-  } = useCategoryStore();
+  const { categories } = useCategoryStore();
   const [formData, setFormData] = useState<EditFormState>(() =>
     buildInitialFormData(objective),
   );
@@ -87,10 +83,6 @@ const EditModal: React.FC<EditModalProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
 
   useEffect(() => {
     setFormData(buildInitialFormData(objective));
@@ -127,45 +119,6 @@ const EditModal: React.FC<EditModalProps> = ({
       setFormData((prev) => ({ ...prev, categoryId: resolvedCategoryId }));
     }
   }, [formData.categoryId, resolvedCategoryId]);
-
-  const categoryOptions = useMemo(() => {
-    const options = [
-      {
-        value: "",
-        label: isCategoriesLoading
-          ? "Carregando categorias..."
-          : "Selecione a categoria",
-      },
-      ...categories.map((category) => ({
-        value: normalizeCategoryId(category.id),
-        label: category.name,
-      })),
-    ];
-
-    const selectedCategoryId = resolvedCategoryId;
-    const selectedCategoryName =
-      categories.find(
-        (category) => normalizeCategoryId(category.id) === selectedCategoryId,
-      )?.name ??
-      objective?.category?.name ??
-      objective?.categoryName ??
-      "Categoria atual";
-
-    if (
-      selectedCategoryId &&
-      !options.some((option) => option.value === selectedCategoryId)
-    ) {
-      options.push({ value: selectedCategoryId, label: selectedCategoryName });
-    }
-
-    return options;
-  }, [
-    categories,
-    isCategoriesLoading,
-    objective?.category,
-    objective?.categoryName,
-    resolvedCategoryId,
-  ]);
 
   const handleChange = (field: keyof EditFormState, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -358,17 +311,12 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <Select
+              <CategorySelect
                 label="Categoria"
                 value={selectedCategoryValue}
                 onChange={(v) => handleChange("categoryId", v)}
-                options={categoryOptions}
                 disabled={disableInputs}
-                modal
               />
-              {categoriesError && (
-                <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
-              )}
             </div>
           </div>
 

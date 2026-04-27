@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Select, TextInput } from "@/components/ui";
+import { Button, Select, TextInput, CategorySelect } from "@/components/ui";
 import { maskAOAInput, parseAOA, formatAOA } from "@/lib/currency";
 import { useGoal } from "@/hooks/use-goal";
-import { useCategory } from "@/hooks/use-category";
 import type { GoalPayload } from "@/types/dtos/goal.dto";
 import {
   type ObjectiveFormState,
@@ -38,11 +37,6 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
   const latestFormRef = useRef<ObjectiveFormState>(form);
   const skipAutosaveRef = useRef(false);
   const skipCleanupRemovalRef = useRef(false);
-  const {
-    categories,
-    isLoading: isCategoriesLoading,
-    error: categoriesError,
-  } = useCategory();
 
   const resetFormState = useCallback((opts?: { skipAutosave?: boolean }) => {
     if (opts?.skipAutosave) skipAutosaveRef.current = true;
@@ -205,18 +199,6 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
     { value: "SHORT_TERM", label: "Curto prazo" },
     { value: "LONG_TERM", label: "Longo prazo" },
   ];
-  const categoryOptions = [
-    {
-      value: "",
-      label: isCategoriesLoading
-        ? "Carregando categorias..."
-        : "Selecione a categoria",
-    },
-    ...categories.map((category) => ({
-      value: category.id,
-      label: category.name,
-    })),
-  ];
   const isSubmitting = status === "loading";
 
   return (
@@ -321,17 +303,11 @@ const ObjectiveForm: React.FC<ObjectiveFormProps> = ({ onSuccess }) => {
               options={typeOptions}
               required
             />
-            <Select
+            <CategorySelect
               label="Categoria"
               value={form.categoryId}
               onChange={(value) => setField("categoryId", value)}
-              options={categoryOptions}
-              modal
-              required
             />
-            {categoriesError && (
-              <p className="text-xs text-red-500">{categoriesError}</p>
-            )}
           </div>
           {errorMessage && (
             <p className="text-sm text-red-500">{errorMessage}</p>

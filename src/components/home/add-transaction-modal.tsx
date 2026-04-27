@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Receipt as LucideReceipt, AlertCircle, Loader2, ChevronDown, Check, X } from "lucide-react";
+import { Receipt as LucideReceipt, AlertCircle, Loader2 } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
 import type { TransactionFormData } from "@/types/dtos/transaction.dto";
 import posthog from "posthog-js";
-import { useCategoryStore } from "@/store/category-store";
+import CategorySelect from "@/components/ui/category-select";
 
 export interface AddTransactionModalProps {
   isOpen: boolean;
@@ -45,21 +45,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   submitError,
   onFormChange,
 }) => {
-  const [catModalOpen, setCatModalOpen] = useState(false);
   const [amountDisplay, setAmountDisplay] = useState("");
   const [dateVal, setDateVal] = useState("");
   const [timeVal, setTimeVal] = useState("");
 
-  const { categories, isLoading: catsLoading, fetchActive } = useCategoryStore();
-  const globalCategories = categories.filter((c) => !c.userId);
-  const myCategories = categories.filter((c) => !!c.userId);
-
-  useEffect(() => { fetchActive(); }, [fetchActive]);
 
   useEffect(() => {
     if (!isOpen) {
       setAmountDisplay("");
-      setCatModalOpen(false);
     }
   }, [isOpen]);
 
@@ -238,35 +231,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 )}
               </div>
 
-              {/* Category trigger */}
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">Categoria</label>
-                {catsLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setCatModalOpen(true)}
-                    className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm bg-slate-50 focus:outline-none transition-all ${
-                      errors.category_id
-                        ? "border-red-300"
-                        : catModalOpen
-                        ? "border-[#003cc3]/40 bg-white ring-4 ring-[#003cc3]/[0.06]"
-                        : "border-slate-200 hover:border-[#003cc3]/30"
-                    }`}
-                  >
-                    <span className={formData.category ? "text-[#1e293b]" : "text-slate-400"}>
-                      {formData.category || "Selecione uma categoria"}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  </button>
-                )}
-                {errors.category_id && (
-                  <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>
-                )}
-              </div>
+              {/* Category */}
+              <CategorySelect
+                value={formData.category}
+                onChange={(name) => onFormChange("category", name)}
+                valueType="name"
+                label="Categoria"
+                error={errors.category_id}
+              />
 
               {/* Actions */}
               <div className="h-px bg-slate-100" />
@@ -292,86 +264,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         </motion.div>
       )}
 
-      {/* Category picker modal — centered overlay */}
-      {isOpen && catModalOpen && (
-        <motion.div
-          key="cat-backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
-          onClick={() => setCatModalOpen(false)}
-        >
-          <motion.div
-            key="cat-panel"
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-white w-full max-w-sm rounded-[20px] shadow-[0_8px_40px_rgba(0,0,0,0.18)] overflow-hidden flex flex-col max-h-[70vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
-              <h3 className="text-sm font-bold text-[#1e293b]">Selecione a categoria</h3>
-              <button
-                type="button"
-                onClick={() => setCatModalOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Scrollable list */}
-            <div className="overflow-y-auto flex-1 py-2">
-              {globalCategories.length > 0 && (
-                <>
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Sistema
-                  </p>
-                  {globalCategories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => { onFormChange("category", cat.name); setCatModalOpen(false); }}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-slate-50 ${
-                        formData.category === cat.name ? "text-[#003cc3] font-semibold bg-blue-50/60" : "text-[#1e293b]"
-                      }`}
-                    >
-                      {cat.name}
-                      {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />}
-                    </button>
-                  ))}
-                </>
-              )}
-              {myCategories.length > 0 && (
-                <>
-                  <div className="mx-4 my-2 h-px bg-slate-100" />
-                  <p className="px-4 pt-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Personalizadas
-                  </p>
-                  {myCategories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => { onFormChange("category", cat.name); setCatModalOpen(false); }}
-                      className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-blue-50/40 ${
-                        formData.category === cat.name ? "text-[#003cc3] font-semibold bg-blue-50/60" : "text-[#1e293b]"
-                      }`}
-                    >
-                      {cat.name}
-                      {formData.category === cat.name && <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />}
-                    </button>
-                  ))}
-                </>
-              )}
-              <div className="h-2" />
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
     </AnimatePresence>
   );
 };

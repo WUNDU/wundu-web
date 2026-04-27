@@ -4,11 +4,10 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useGoal } from "@/hooks/use-goal";
-import { useCategory } from "@/hooks/use-category";
 import { useCurrencyInput } from "@/hooks/use-currency-input";
 import type { GoalPayload, GoalType } from "@/types/dtos/goal.dto";
 import posthog from "posthog-js";
-import Select from "@/components/ui/select";
+import CategorySelect from "@/components/ui/category-select";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -27,7 +26,6 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
   const { displayValue: targetDisplay, numericValue: targetNumeric, onChange: onTargetChange } = useCurrencyInput();
 
   const { addGoal: add } = useGoal();
-  const { categories } = useCategory();
 
   // auto-type
   useEffect(() => {
@@ -129,20 +127,13 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
             </div>
           </div>
 
-          {categories.length > 0 && (
-            <div>
-              <Select
-                label="Categoria"
-                value={categoryId}
-                onChange={setCategoryId}
-                options={[
-                  { value: "", label: "Selecionar..." },
-                  ...categories.map(c => ({ value: c.id, label: c.name })),
-                ]}
-                modal
-              />
-            </div>
-          )}
+          <div>
+            <CategorySelect
+              label="Categoria"
+              value={categoryId}
+              onChange={setCategoryId}
+            />
+          </div>
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
