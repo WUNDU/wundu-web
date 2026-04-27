@@ -34,12 +34,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       timestamp: new Date().toISOString(),
     };
     const prevMessages = get().messages;
-    set({ isSending: true, error: null, messages: [...prevMessages, optimisticUserMsg] });
+    const allMessages = [...prevMessages, optimisticUserMsg];
+    set({ isSending: true, error: null, messages: allMessages });
     try {
-      const response = await chatService.sendMessage({
-        conversationId: get().conversationId ?? undefined,
-        message,
-      });
+      const conversationId = get().conversationId ?? crypto.randomUUID();
+      const response = await chatService.sendMessage(conversationId, allMessages);
       set({
         conversationId: response.conversationId,
         messages: response.messages,

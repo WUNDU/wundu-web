@@ -1,13 +1,16 @@
 import { apiClient } from "@/api/api";
 import type {
   ChatConversationSummary,
-  ChatMessageRequest,
+  ChatMessage,
   ChatMessageResponse,
 } from "@/types/dtos/chat.dto";
 
 class ChatService {
-  async sendMessage(payload: ChatMessageRequest): Promise<ChatMessageResponse> {
-    const { data } = await apiClient.post<ChatMessageResponse>("/chat/send", payload);
+  async sendMessage(conversationId: string, messages: ChatMessage[]): Promise<ChatMessageResponse> {
+    const { data } = await apiClient.post<ChatMessageResponse>(
+      `/chat/${conversationId}/messages`,
+      { conversationId, messages },
+    );
     return data;
   }
 
