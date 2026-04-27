@@ -7,6 +7,7 @@ import { type GoalPayload, type GoalType } from "@/types/dtos/goal.dto";
 import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore, getGoalProgress } from "@/store/goal-store";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
+import Select from "@/components/ui/select";
 
 type EditFormState = {
   title: string;
@@ -267,37 +268,13 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.type}
-                  onChange={(e) =>
-                    handleChange("type", e.target.value as GoalType)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-                >
-                  {typeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+              <Select
+                label="Tipo"
+                value={formData.type}
+                onChange={(v) => handleChange("type", v as GoalType)}
+                options={typeOptions}
+                disabled={disableInputs}
+              />
             </div>
 
             <div>
@@ -381,39 +358,14 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categoria
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedCategoryValue}
-                  onChange={(e) => handleChange("categoryId", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-                  disabled={disableInputs}
-                >
-                  {categoryOptions.map((option) => (
-                    <option
-                      key={option.value || "placeholder"}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+              <Select
+                label="Categoria"
+                value={selectedCategoryValue}
+                onChange={(v) => handleChange("categoryId", v)}
+                options={categoryOptions}
+                disabled={disableInputs}
+                modal
+              />
               {categoriesError && (
                 <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
               )}

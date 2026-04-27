@@ -8,6 +8,7 @@ import { useCategory } from "@/hooks/use-category";
 import { useCurrencyInput } from "@/hooks/use-currency-input";
 import type { GoalPayload, GoalType } from "@/types/dtos/goal.dto";
 import posthog from "posthog-js";
+import Select from "@/components/ui/select";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -130,14 +131,16 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
 
           {categories.length > 0 && (
             <div>
-              <label className={labelCls}>Categoria</label>
-              <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
-                className={inputCls}>
-                <option value="">Selecionar...</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+              <Select
+                label="Categoria"
+                value={categoryId}
+                onChange={setCategoryId}
+                options={[
+                  { value: "", label: "Selecionar..." },
+                  ...categories.map(c => ({ value: c.id, label: c.name })),
+                ]}
+                modal
+              />
             </div>
           )}
 

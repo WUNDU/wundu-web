@@ -401,6 +401,7 @@ export interface SelectProps {
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   required?: boolean;
+  disabled?: boolean;
   className?: string;
   /** When true, opens a centered full-screen overlay instead of an inline dropdown — best for long lists */
   modal?: boolean;

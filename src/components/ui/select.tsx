@@ -12,6 +12,7 @@ const Select: React.FC<SelectProps> = ({
   onChange,
   options,
   modal = false,
+  disabled = false,
   className,
 }) => {
   const [open, setOpen] = useState(false);
@@ -36,6 +37,7 @@ const Select: React.FC<SelectProps> = ({
   }, [modal]);
 
   const openDrop = () => {
+    if (disabled) return;
     if (!modal && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
       const dropHeight = Math.min(options.length * 44 + 8, 260);
@@ -52,7 +54,9 @@ const Select: React.FC<SelectProps> = ({
   };
 
   const triggerCls = `w-full flex items-center justify-between rounded-xl border px-4 py-3 text-sm bg-slate-50 focus:outline-none transition-all ${
-    open
+    disabled
+      ? "opacity-50 cursor-not-allowed border-slate-200"
+      : open
       ? "border-[#003cc3]/40 bg-white ring-4 ring-[#003cc3]/[0.06]"
       : "border-slate-200 hover:border-[#003cc3]/30"
   }`;
