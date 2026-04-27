@@ -11,44 +11,88 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor - adiciona token de autenticação
+// Request interceptor - lê token em memória a partir do store (nunca do localStorage)
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+    const token = useUserStore.getState().token;
     if (token) {
-      config.headers.Authorization = token.startsWith("Bearer ")
-        ? token
-        : `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;
 });
 
+// Fila de pedidos que aguardam refresh silencioso
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = [];
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue = [];
+}
+
 // Response interceptor - trata erros globais
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     // Pass through cancelled/aborted requests without processing them as errors
     if (axios.isCancel(error) || error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        const hadToken = !!localStorage.getItem("token");
-        localStorage.removeItem("token");
-        // Only redirect on session expiry (had a token). Login attempts (no token)
-        // return 401 for wrong credentials — let the error propagate to the caller.
-        // Never redirect away from public pages (landing, about, legal, etc.).
-        if (hadToken) {
+    const originalRequest = error.config;
+
+    // Tenta refresh silencioso antes de redirecionar para login
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+        const newToken = await useUserStore.getState().refreshToken();
+        processQueue(null, newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        if (typeof window !== "undefined") {
           const publicPaths = ["/", "/about", "/features", "/contacts", "/legal"];
           const isPublicPath = publicPaths.some(
             (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/")
           );
           if (!isPublicPath) {
-            window.location.href = "/login";
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+            useUserStore.getState().logout();
           }
         }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
@@ -83,6 +127,7 @@ type ApiConfig = {
   headers?: Record<string, string>;
   skipAuth?: boolean;
   params?: Record<string, unknown>;
+  withCredentials?: boolean;
 };
 
 // Wrapper para manter compatibilidade com código existente

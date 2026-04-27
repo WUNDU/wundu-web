@@ -44,12 +44,13 @@ interface AuthState {
 
   checkAuthStatus(): Promise<void>;
   initializeAuth(): Promise<void>;
+  refreshToken(): Promise<string>;
   setToken(newToken: string | null): void;
   setUser(user: User): void;
   login(email: string, password: string): Promise<boolean>;
   register(payload: RegisterData): Promise<boolean>;
-  logout(): void;
-  logoutUser(): void;
+  logout(): Promise<void>;
+  logoutUser(): Promise<void>;
   clearError(): void;
 
   // Registration methods
@@ -95,18 +96,27 @@ export const useUserStore = create<AuthState>()(
         }
       },
 
+      // Tenta refresh silencioso no arranque. Se o cookie de refresh ainda for válido,
+      // o backend devolve um novo accessToken sem pedir password.
       initializeAuth: async () => {
-        await get().checkAuthStatus();
+        set({ isLoading: true });
+        try {
+          const { accessToken } = await userService.refresh();
+          set({ token: accessToken });
+          await get().checkAuthStatus();
+        } catch {
+          set({ token: null, isAuthenticated: false, isLoading: false, user: null });
+        }
+      },
+
+      // Renova o accessToken usando o cookie HttpOnly de refresh (gerido pelo browser)
+      refreshToken: async () => {
+        const { accessToken } = await userService.refresh();
+        set({ token: accessToken, isAuthenticated: true });
+        return accessToken;
       },
 
       setToken: (newToken) => {
-        if (typeof window !== "undefined") {
-          if (newToken) {
-            localStorage.setItem("token", newToken);
-          } else {
-            localStorage.removeItem("token");
-          }
-        }
         set({ token: newToken });
       },
 
@@ -119,10 +129,8 @@ export const useUserStore = create<AuthState>()(
         try {
           const response = await userService.login(email, password);
           clearUserStores();
-          // setToken persists to localStorage["token"] so the API interceptor can read it
-          get().setToken(response.token);
-          // Reset any leftover registration state
-          set({ isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
+          // accessToken guardado apenas em memória — nunca em localStorage
+          set({ token: response.accessToken, isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
           await get().checkAuthStatus();
 
           // Redirect unverified users to the email verification pending page
@@ -159,17 +167,18 @@ export const useUserStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        // Notifica o backend para revogar o cookie de refresh (fire and forget)
+        userService.logoutApi().catch(() => {});
         clearUserStores();
+        set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });
         if (typeof window !== "undefined") {
-          localStorage.removeItem("token");
           window.location.href = "/login";
         }
-        set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });
       },
 
-      logoutUser: () => {
-        get().logout();
+      logoutUser: async () => {
+        await get().logout();
       },
 
       clearError: () => set({ error: null }),
@@ -207,11 +216,10 @@ export const useUserStore = create<AuthState>()(
     {
       name: "wundu-user-cache",
       storage: createJSONStorage(() => localStorage),
-      // Only persist auth credentials — registration state (currentStep, data) is
-      // intentionally ephemeral. Persisting currentStep caused blank screens when it
-      // got stuck on an invalid value (e.g. 4) across page reloads.
+      // O token NÃO é persistido — vive apenas em memória (segurança contra XSS).
+      // O user é persistido para exibição imediata enquanto o refresh silencioso decorre.
+      // O estado de registo (currentStep, data) é intencionalmente efémero.
       partialize: (state) => ({
-        token: state.token,
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {

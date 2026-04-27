@@ -1,9 +1,13 @@
-import { apiClient } from "@/api/api";
+import { api, apiClient } from "@/api/api";
 import type { RegisterData, User } from "@/types/dtos/auth.dto";
 import type { UserRequest } from "@/types/dtos/user.dto";
 
 interface LoginResponse {
-  token: string;
+  accessToken: string;
+}
+
+interface RefreshResponse {
+  accessToken: string;
 }
 
 class UserService {
@@ -23,9 +27,20 @@ class UserService {
     const { data } = await apiClient.post<LoginResponse>(
       "/auth",
       { email, password },
-      { skipAuth: true },
+      { skipAuth: true, withCredentials: true },
     );
     return data;
+  }
+
+  async refresh(): Promise<RefreshResponse> {
+    const { data } = await api.post<RefreshResponse>("/auth/refresh", undefined, {
+      withCredentials: true,
+    });
+    return data;
+  }
+
+  async logoutApi(): Promise<void> {
+    await api.post("/auth/logout", undefined, { withCredentials: true });
   }
 
   async getUser(): Promise<User> {
