@@ -3,8 +3,8 @@
 export type JavaDate = string | number[] | null;
 
 export interface ChatMessageRequest {
-  conversationId: string;
-  messages: ChatMessage[];
+  conversationId?: string;
+  message: string;
 }
 
 export interface ChatMessage {
