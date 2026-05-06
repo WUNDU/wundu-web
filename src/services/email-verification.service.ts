@@ -6,7 +6,7 @@ class EmailVerificationService {
   }
 
   async resendVerification(email: string) {
-    return await apiClient.post("/auth/resend-verification", { email });
+    return await apiClient.post("/auth/verify-email/resend", { email });
   }
 
   async changeEmail(email: string) {

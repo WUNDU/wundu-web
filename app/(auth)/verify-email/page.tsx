@@ -7,6 +7,12 @@ import { motion } from "framer-motion";
 import { LogoType, Button, LoadingSpinner } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { emailVerificationService } from "@/services/email-verification.service";
+import { useUserStore } from "@/store/user-store";
+import {
+  buildVerifyPendingUrl,
+  clearPendingVerificationContext,
+  getPendingVerificationEmail,
+} from "@/utils/pending-verification";
 
 type VerifyState =
   | { status: "loading" }
@@ -18,6 +24,7 @@ type VerifyState =
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { token: authToken, checkAuthStatus } = useUserStore();
   const token = searchParams.get("token");
 
   const [state, setState] = useState<VerifyState>({ status: "loading" });
@@ -30,7 +37,13 @@ function VerifyEmailContent() {
 
     emailVerificationService
       .verifyEmail(token)
-      .then(() => setState({ status: "success" }))
+      .then(async () => {
+        clearPendingVerificationContext();
+        if (authToken) {
+          await checkAuthStatus();
+        }
+        setState({ status: "success" });
+      })
       .catch((err: any) => {
         const code: string | undefined = err?.errorCode;
         if (code === "TOKEN_EXPIRED") {
@@ -41,7 +54,10 @@ function VerifyEmailContent() {
           setState({ status: "invalid" });
         }
       });
-  }, [token]);
+  }, [authToken, checkAuthStatus, token]);
+
+  const pendingEmail = getPendingVerificationEmail();
+  const requestNewUrl = pendingEmail ? buildVerifyPendingUrl(pendingEmail) : ROUTES.LOGIN;
 
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
@@ -67,7 +83,7 @@ function VerifyEmailContent() {
               <StateContent
                 status={state.status}
                 onLogin={() => router.push(ROUTES.LOGIN)}
-                onRequestNew={() => router.push(ROUTES.VERIFY_PENDING)}
+                onRequestNew={() => router.push(requestNewUrl)}
               />
             </div>
           </div>

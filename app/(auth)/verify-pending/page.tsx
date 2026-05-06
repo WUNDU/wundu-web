@@ -10,22 +10,30 @@ import { emailVerificationService } from "@/services/email-verification.service"
 import { userService } from "@/services/user.service";
 import { useUserStore } from "@/store/user-store";
 import { wunduToast } from "@/utils/toast";
+import {
+  clearPendingVerificationContext,
+  getPendingVerificationCooldownSeconds,
+  getPendingVerificationEmail,
+  setPendingVerificationCooldown,
+  setPendingVerificationEmail,
+} from "@/utils/pending-verification";
+import { getEmailErrorMessage, validateEmail } from "@/utils/validation";
 
 const RESEND_COOLDOWN = 120;
 
 export default function VerifyPendingPage() {
   const router = useRouter();
   const { user, setUser } = useUserStore();
+  const queryEmail =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("email") ?? ""
+      : "";
 
   // Resolve email from store or sessionStorage
-  const resolvedEmail =
-    user?.email ||
-    (typeof window !== "undefined"
-      ? sessionStorage.getItem("pending_verification_email") ?? ""
-      : "");
+  const resolvedEmail = user?.email || queryEmail || getPendingVerificationEmail();
 
   const [email, setEmail] = useState(resolvedEmail);
-  const [cooldown, setCooldown] = useState(0);
+  const [cooldown, setCooldown] = useState(() => getPendingVerificationCooldownSeconds());
   const [isResending, setIsResending] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
@@ -33,11 +41,32 @@ export default function VerifyPendingPage() {
   const [showEmailChange, setShowEmailChange] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const canChangeEmail = Boolean(user);
+
+  const applyCooldown = useCallback((seconds: number) => {
+    setPendingVerificationCooldown(seconds);
+    setCooldown(seconds);
+  }, []);
 
   // Sync email when user store populates after hydration
   useEffect(() => {
-    if (user?.email && !email) setEmail(user.email);
-  }, [user?.email, email]);
+    const nextEmail = user?.email || queryEmail || getPendingVerificationEmail();
+    if (nextEmail && nextEmail !== email) {
+      setEmail(nextEmail);
+    }
+  }, [user?.email, queryEmail, email]);
+
+  useEffect(() => {
+    if (queryEmail) {
+      setPendingVerificationEmail(queryEmail);
+    }
+  }, [queryEmail]);
+
+  useEffect(() => {
+    if (user?.email) {
+      setPendingVerificationEmail(user.email);
+    }
+  }, [user?.email]);
 
   // Countdown timer
   useEffect(() => {
@@ -53,36 +82,59 @@ export default function VerifyPendingPage() {
   };
 
   const handleResend = useCallback(async () => {
-    if (cooldown > 0 || isResending || !email) return;
+    const normalizedEmail = email.trim();
+    if (cooldown > 0 || isResending) return;
+    if (!normalizedEmail) {
+      router.push(ROUTES.LOGIN);
+      return;
+    }
+
+    setEmail(normalizedEmail);
     setIsResending(true);
     try {
-      await emailVerificationService.resendVerification(email);
-      setCooldown(RESEND_COOLDOWN);
+      await emailVerificationService.resendVerification(normalizedEmail);
+      setPendingVerificationEmail(normalizedEmail);
+      applyCooldown(RESEND_COOLDOWN);
       wunduToast.success("Email de verificação reenviado!");
-    } catch {
-      wunduToast.error("Não foi possível reenviar. Tente novamente.");
+    } catch (error: any) {
+      const retryAfterSeconds =
+        typeof error?.retryAfterSeconds === "number" ? error.retryAfterSeconds : 0;
+
+      if (retryAfterSeconds > 0) {
+        applyCooldown(retryAfterSeconds);
+      }
+
+      if (error?.status === 429) {
+        wunduToast.error(
+          `Aguarda ${formatCountdown(retryAfterSeconds || RESEND_COOLDOWN)} antes de reenviar.`
+        );
+      } else if (error?.status === 404) {
+        wunduToast.error("Não encontrámos uma conta com esse email.");
+      } else {
+        wunduToast.error(error?.message || "Não foi possível reenviar. Tente novamente.");
+      }
     } finally {
       setIsResending(false);
     }
-  }, [cooldown, isResending, email]);
+  }, [applyCooldown, cooldown, email, isResending]);
 
   const handleChangeEmail = async () => {
-    if (!newEmail || !newEmail.includes("@")) {
-      wunduToast.error("Por favor, insira um email válido.");
+    const normalizedEmail = newEmail.trim();
+    if (!validateEmail(normalizedEmail)) {
+      wunduToast.error(getEmailErrorMessage());
       return;
     }
     setIsSavingEmail(true);
     try {
-      await emailVerificationService.changeEmail(newEmail);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("pending_verification_email", newEmail);
-      }
-      setEmail(newEmail);
+      await emailVerificationService.changeEmail(normalizedEmail);
+      setPendingVerificationEmail(normalizedEmail);
+      applyCooldown(RESEND_COOLDOWN);
+      setEmail(normalizedEmail);
       setNewEmail("");
       setShowEmailChange(false);
       wunduToast.success("Email actualizado! Verifique a sua nova caixa de entrada.");
-    } catch {
-      wunduToast.error("Não foi possível alterar o email. Tente novamente.");
+    } catch (error: any) {
+      wunduToast.error(error?.message || "Não foi possível alterar o email. Tente novamente.");
     } finally {
       setIsSavingEmail(false);
     }
@@ -94,6 +146,7 @@ export default function VerifyPendingPage() {
       const fresh = await userService.getUser();
       if (fresh.isActive) {
         setUser(fresh);
+        clearPendingVerificationContext();
         wunduToast.success("Email verificado! Bem-vindo ao Wundu.");
         router.push(ROUTES.HOME);
       } else {
@@ -185,6 +238,17 @@ export default function VerifyPendingPage() {
               </header>
 
               <div className="flex flex-col gap-4">
+                {!email && (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-left">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Precisamos que entres novamente para reenviar verificação.
+                    </p>
+                    <p className="mt-1 text-xs font-medium text-slate-500">
+                      O email já é recuperado do login. Não precisas de digitá-lo outra vez.
+                    </p>
+                  </div>
+                )}
+
                 {/* Expiry note */}
                 <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-4 py-3">
                   <svg
@@ -207,7 +271,7 @@ export default function VerifyPendingPage() {
                 <Button
                   variant="warning"
                   fullWidth
-                  disabled={cooldown > 0 || isResending}
+                  disabled={Boolean(email) && (cooldown > 0 || isResending)}
                   onClick={handleResend}
                   className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                 >
@@ -218,6 +282,8 @@ export default function VerifyPendingPage() {
                     </span>
                   ) : cooldown > 0 ? (
                     `Reenviar em ${formatCountdown(cooldown)}`
+                  ) : !email ? (
+                    "Entrar para reenviar"
                   ) : (
                     "Reenviar email de verificação"
                   )}
@@ -242,55 +308,57 @@ export default function VerifyPendingPage() {
                 </Button>
 
                 {/* Change email section */}
-                <div className="mt-1 text-center">
-                  <button
-                    onClick={() => setShowEmailChange((v) => !v)}
-                    className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-700"
-                  >
-                    Email errado?
-                  </button>
+                {canChangeEmail && (
+                  <div className="mt-1 text-center">
+                    <button
+                      onClick={() => setShowEmailChange((v) => !v)}
+                      className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-700"
+                    >
+                      Email errado?
+                    </button>
 
-                  <AnimatePresence>
-                    {showEmailChange && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.22, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="mt-3 flex flex-col gap-3">
-                          <Input
-                            id="new-email"
-                            label="Novo email"
-                            type="email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            placeholder="novo@email.com"
-                            disabled={isSavingEmail}
-                            className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
-                          />
-                          <Button
-                            variant="primary"
-                            fullWidth
-                            disabled={isSavingEmail || !newEmail}
-                            onClick={handleChangeEmail}
-                            className="h-10 rounded-xl text-sm font-bold"
-                          >
-                            {isSavingEmail ? (
-                              <span className="flex items-center gap-2">
-                                <LoadingSpinner size="sm" />
-                                A guardar...
-                              </span>
-                            ) : (
-                              "Actualizar email"
-                            )}
-                          </Button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                    <AnimatePresence>
+                      {showEmailChange && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-3 flex flex-col gap-3">
+                            <Input
+                              id="new-email"
+                              label="Novo email"
+                              type="email"
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              placeholder="novo@email.com"
+                              disabled={isSavingEmail}
+                              className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                            />
+                            <Button
+                              variant="primary"
+                              fullWidth
+                              disabled={isSavingEmail || !newEmail}
+                              onClick={handleChangeEmail}
+                              className="h-10 rounded-xl text-sm font-bold"
+                            >
+                              {isSavingEmail ? (
+                                <span className="flex items-center gap-2">
+                                  <LoadingSpinner size="sm" />
+                                  A guardar...
+                                </span>
+                              ) : (
+                                "Actualizar email"
+                              )}
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
               </div>
 
               <footer className="mt-6 border-t border-slate-100 pt-5 text-center">

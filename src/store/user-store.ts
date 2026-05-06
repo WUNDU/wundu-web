@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types/dtos/auth.dto";
 import type { RegisterData } from "@/types/dtos/auth.dto";
+import { clearPendingVerificationContext, setPendingVerificationEmail } from "@/utils/pending-verification";
 
 /** Limpa todos os dados de utilizador em cache nos stores */
 function clearUserStores() {
@@ -136,8 +137,10 @@ export const useUserStore = create<AuthState>()(
           // Redirect unverified users to the email verification pending page
           const user = get().user;
           if (user && !user.isActive && typeof window !== "undefined") {
-            sessionStorage.setItem("pending_verification_email", user.email);
+            setPendingVerificationEmail(user.email);
             window.location.href = "/verify-pending";
+          } else {
+            clearPendingVerificationContext();
           }
 
           return true;

@@ -1,6 +1,13 @@
 import axios from "axios";
+import { setPendingVerificationEmail } from "@/utils/pending-verification";
 
 const API_BASE_URL = "/api/proxy";
+
+export type ApiError = Error & {
+  errorCode?: string;
+  status?: number;
+  retryAfterSeconds?: number;
+};
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -99,6 +106,12 @@ api.interceptors.response.use(
     // Redirect to email verification pending page when backend blocks unverified users
     if (error.response?.data?.errorCode === "EMAIL_NOT_VERIFIED") {
       if (typeof window !== "undefined") {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+        const email = useUserStore.getState().user?.email;
+        if (email) {
+          setPendingVerificationEmail(email);
+        }
         const currentPath = window.location.pathname;
         if (currentPath !== "/verify-pending" && currentPath !== "/verify-email") {
           window.location.href = "/verify-pending";
@@ -116,8 +129,10 @@ api.interceptors.response.use(
         : fallbackMessage;
 
     // Attach errorCode so callers can react to specific backend error codes
-    const err = new Error(message) as Error & { errorCode?: string };
+    const err = new Error(message) as ApiError;
     err.errorCode = error.response?.data?.errorCode;
+    err.status = error.response?.status;
+    err.retryAfterSeconds = error.response?.data?.retryAfterSeconds;
 
     return Promise.reject(err);
   }
