@@ -33,6 +33,9 @@ export default function VerifyPendingPage() {
   const resolvedEmail = user?.email || queryEmail || getPendingVerificationEmail();
 
   const [email, setEmail] = useState(resolvedEmail);
+  const [hasResolvedContext, setHasResolvedContext] = useState(
+    Boolean(resolvedEmail)
+  );
   const [cooldown, setCooldown] = useState(() => getPendingVerificationCooldownSeconds());
   const [isResending, setIsResending] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -54,6 +57,7 @@ export default function VerifyPendingPage() {
     if (nextEmail && nextEmail !== email) {
       setEmail(nextEmail);
     }
+    setHasResolvedContext(true);
   }, [user?.email, queryEmail, email]);
 
   useEffect(() => {
@@ -69,10 +73,10 @@ export default function VerifyPendingPage() {
   }, [user?.email]);
 
   useEffect(() => {
-    if (!email && typeof window !== "undefined") {
+    if (hasResolvedContext && !email && typeof window !== "undefined") {
       router.replace(ROUTES.LOGIN);
     }
-  }, [email, router]);
+  }, [email, hasResolvedContext, router]);
 
   // Countdown timer
   useEffect(() => {
@@ -266,16 +270,12 @@ export default function VerifyPendingPage() {
                 <Button
                   variant="warning"
                   fullWidth
+                  loading={isResending}
                   disabled={cooldown > 0 || isResending}
                   onClick={handleResend}
                   className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                 >
-                  {isResending ? (
-                    <span className="flex items-center gap-2">
-                      <LoadingSpinner size="sm" />
-                      A enviar...
-                    </span>
-                  ) : cooldown > 0 ? (
+                  {cooldown > 0 ? (
                     `Reenviar em ${formatCountdown(cooldown)}`
                   ) : (
                     "Reenviar email de verificação"

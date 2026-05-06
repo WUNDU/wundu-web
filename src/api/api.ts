@@ -3,6 +3,24 @@ import { setPendingVerificationEmail } from "@/utils/pending-verification";
 
 const API_BASE_URL = "/api/proxy";
 
+function extractRequestEmail(data: unknown) {
+  if (!data) return "";
+
+  if (typeof data === "string") {
+    try {
+      const parsed = JSON.parse(data) as { email?: unknown };
+      return typeof parsed.email === "string" ? parsed.email.trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  if (typeof data !== "object") return "";
+
+  const email = (data as { email?: unknown }).email;
+  return typeof email === "string" ? email.trim() : "";
+}
+
 export type ApiError = Error & {
   errorCode?: string;
   status?: number;
@@ -87,7 +105,17 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         if (typeof window !== "undefined") {
-          const publicPaths = ["/", "/about", "/features", "/contacts", "/legal"];
+          const publicPaths = [
+            "/",
+            "/about",
+            "/features",
+            "/contacts",
+            "/legal",
+            "/login",
+            "/register",
+            "/verify-pending",
+            "/verify-email",
+          ];
           const isPublicPath = publicPaths.some(
             (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/")
           );
@@ -108,7 +136,8 @@ api.interceptors.response.use(
       if (typeof window !== "undefined") {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
-        const email = useUserStore.getState().user?.email;
+        const email =
+          useUserStore.getState().user?.email || extractRequestEmail(error.config?.data);
         if (email) {
           setPendingVerificationEmail(email);
         }
