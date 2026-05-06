@@ -68,6 +68,12 @@ export default function VerifyPendingPage() {
     }
   }, [user?.email]);
 
+  useEffect(() => {
+    if (!email && typeof window !== "undefined") {
+      router.replace(ROUTES.LOGIN);
+    }
+  }, [email, router]);
+
   // Countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -238,17 +244,6 @@ export default function VerifyPendingPage() {
               </header>
 
               <div className="flex flex-col gap-4">
-                {!email && (
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-left">
-                    <p className="text-sm font-semibold text-slate-800">
-                      Precisamos que entres novamente para reenviar verificação.
-                    </p>
-                    <p className="mt-1 text-xs font-medium text-slate-500">
-                      O email já é recuperado do login. Não precisas de digitá-lo outra vez.
-                    </p>
-                  </div>
-                )}
-
                 {/* Expiry note */}
                 <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-4 py-3">
                   <svg
@@ -271,7 +266,7 @@ export default function VerifyPendingPage() {
                 <Button
                   variant="warning"
                   fullWidth
-                  disabled={Boolean(email) && (cooldown > 0 || isResending)}
+                  disabled={cooldown > 0 || isResending}
                   onClick={handleResend}
                   className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                 >
@@ -282,8 +277,6 @@ export default function VerifyPendingPage() {
                     </span>
                   ) : cooldown > 0 ? (
                     `Reenviar em ${formatCountdown(cooldown)}`
-                  ) : !email ? (
-                    "Entrar para reenviar"
                   ) : (
                     "Reenviar email de verificação"
                   )}
