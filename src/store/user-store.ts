@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types/dtos/auth.dto";
 import type { RegisterData } from "@/types/dtos/auth.dto";
+import { getApiErrorMessage } from "@/utils/api-error";
 import {
   clearPendingVerificationContext,
   setPendingVerificationCooldown,
@@ -150,10 +151,12 @@ export const useUserStore = create<AuthState>()(
 
           return true;
         } catch (error: any) {
-          const err =
+          const err = getApiErrorMessage(
+            error,
             error?.response?.status === 500
               ? "Não foi possível acessar o sistema. Tente mais tarde!"
-              : error?.message || "Credenciais erradas";
+              : "Credenciais erradas"
+          );
           set({ error: err, isLoading: false });
           return false;
         }
@@ -166,10 +169,12 @@ export const useUserStore = create<AuthState>()(
           // Após registro, fazer login automático
           return await get().login(payload.email ?? "", payload.password ?? "");
         } catch (error: any) {
-          const err =
+          const err = getApiErrorMessage(
+            error,
             error?.response?.status === 500
               ? "Não foi possível acessar o sistema. Tente mais tarde!"
-              : error?.response?.data?.message || "Erro ao criar conta";
+              : "Erro ao criar conta"
+          );
           set({ error: err, isLoading: false });
           return false;
         }
@@ -212,10 +217,12 @@ export const useUserStore = create<AuthState>()(
           set({ isLoading: false });
           return true;
         } catch (error: any) {
-          const err =
+          const err = getApiErrorMessage(
+            error,
             error?.response?.status === 500
               ? "Não foi possível acessar o sistema. Tente mais tarde!"
-              : error?.response?.data?.message || "Erro ao criar conta";
+              : "Erro ao criar conta"
+          );
           set({ error: err, isLoading: false });
           return false;
         }

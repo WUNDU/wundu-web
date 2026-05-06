@@ -9,6 +9,7 @@ import { ROUTES } from "@/constants/routes";
 import { Button, Input, LoadingSpinner, LogoType } from "@/components/ui";
 import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
 import {
   validateEmail,
   validatePhoneNumber,
@@ -122,6 +123,7 @@ const RegisterPage = () => {
     if (personalErrors[field]) {
       setPersonalErrors((prev) => ({ ...prev, [field]: "" }));
     }
+    if (submitError) setSubmitError("");
     clearError();
   };
 
@@ -157,12 +159,13 @@ const RegisterPage = () => {
     confirmPassword: "",
   });
   const [passwordError, setPasswordError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordValidation, setPasswordValidation] =
     useState<PasswordValidation>(
       validatePasswordDetailed(data.password || ""),
     );
-  const contextError = error;
+  const contextError = submitError || error;
 
   const setSecurityField = (
     field: "password" | "confirmPassword",
@@ -172,10 +175,12 @@ const RegisterPage = () => {
     if (field === "password") {
       setPasswordValidation(validatePasswordDetailed(value));
       if (passwordError) setPasswordError("");
+      if (submitError) setSubmitError("");
       if (error) clearError();
     }
     if (field === "confirmPassword" && passwordError) {
       setPasswordError("");
+      if (submitError) setSubmitError("");
       if (error) clearError();
     }
   };
@@ -184,6 +189,8 @@ const RegisterPage = () => {
     e.preventDefault();
     if (isSubmitting) return;
     clearError();
+    setSubmitError("");
+    setPersonalErrors({ name: "", email: "", phone: "" });
     const validation = validatePasswordDetailed(securityForm.password);
     if (!validation.isValid) {
       setPasswordError("A senha não cumpre todos os requisitos de segurança.");
@@ -203,12 +210,34 @@ const RegisterPage = () => {
         posthog.capture("user_registered", { name: data.name, email: data.email });
         nextStep();
       } else {
-        const message = error || "Falha ao concluir o cadastro.";
+        const message =
+          useUserStore.getState().error || "Falha ao concluir o cadastro.";
+        const field = getRegisterErrorField(message);
+
+        if (field) {
+          setPersonalErrors({ name: "", email: "", phone: "", [field]: message });
+          setSubmitError("");
+          clearError();
+          prevStep();
+        } else {
+          setSubmitError(message);
+        }
+
         wunduToast.error("Erro no cadastro", { description: message });
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Falha ao concluir o cadastro.";
+      const message = getApiErrorMessage(err, "Falha ao concluir o cadastro.");
+      const field = getRegisterErrorField(message);
+
+      if (field) {
+        setPersonalErrors({ name: "", email: "", phone: "", [field]: message });
+        setSubmitError("");
+        clearError();
+        prevStep();
+      } else {
+        setSubmitError(message);
+      }
+
       wunduToast.error("Erro no cadastro", { description: message });
       posthog.captureException(err);
     } finally {
