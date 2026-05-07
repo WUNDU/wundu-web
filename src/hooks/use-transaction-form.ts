@@ -13,7 +13,7 @@ import {
 
 export const useTransactionForm = (initialData?: Partial<TransactionFormData>) => {
   const [formData, setFormData] = useState<TransactionFormData>({
-    type: "expense",
+    type: "EXPENSE",
     userId: "",
     amount: "",
     description: "",
@@ -37,7 +37,7 @@ export const useTransactionForm = (initialData?: Partial<TransactionFormData>) =
       newErrors.amount = "Montante deve ser maior que zero";
     if (!formData.description.trim())
       newErrors.description = "Descrição é obrigatória";
-    if (!formData.category) newErrors.category_id = "Categoria é obrigatória";
+    if (!formData.category) newErrors.category = "Categoria é obrigatória";
     if (!formData.transactionDate) {
       newErrors.transactionDate = "Data e hora são obrigatórias";
     } else if (isFutureDateTime(formData.transactionDate)) {
@@ -49,7 +49,7 @@ export const useTransactionForm = (initialData?: Partial<TransactionFormData>) =
 
   const resetForm = () => {
     setFormData({
-      type: "expense",
+      type: "EXPENSE",
       amount: "",
       userId: "",
       description: "",

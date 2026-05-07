@@ -152,8 +152,15 @@ function Divider() {
 /*  Panel content (shared between desktop & mobile)                    */
 /* ------------------------------------------------------------------ */
 
+const SOURCE_LABELS: Record<string, string> = {
+  AUTOMATICO: "Automático",
+  MANUAL: "Manual",
+  PDF: "PDF",
+  IMG: "Imagem",
+};
+
 function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void }) {
-  const isExpense = tx.type === "expense";
+  const isExpense = tx.type === "EXPENSE";
   const categoryName = tx.category?.name || "Outro";
   const { icon: CategoryIcon } = getCategoryStyle(categoryName);
   const statusCfg = STATUS_CONFIG[tx.status as string] ?? DEFAULT_STATUS;
@@ -262,7 +269,7 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
 
           {tx.source && (
             <>
-              <InfoRow icon={Building2} label="Fonte" value={tx.source} />
+              <InfoRow icon={Building2} label="Fonte" value={SOURCE_LABELS[tx.source] ?? tx.source} />
               <Divider />
             </>
           )}

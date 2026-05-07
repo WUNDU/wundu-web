@@ -159,7 +159,7 @@ export default function TransactionsPage() {
           <div className="flex items-center gap-2 px-4 pb-3 flex-wrap">
             {typeFilter !== "all" && (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[rgba(0,60,195,0.08)] text-[#003cc3]">
-                {typeFilter === "expense" ? "Despesas" : "Receitas"}
+                {typeFilter === "EXPENSE" ? "Despesas" : "Receitas"}
                 <button onClick={() => setTypeFilter("all")}><X className="w-3 h-3" /></button>
               </span>
             )}

@@ -32,7 +32,6 @@ export const useAddTransactionModal = () => {
     const success = await add({
       ...formData,
       source: "MANUAL",
-      type: "expense",
       amount: parseFloat(formData.amount),
       userId: user.id,
       category: { name: formData.category },

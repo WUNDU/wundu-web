@@ -1,6 +1,6 @@
 import type { CategoryResponse } from "./category.dto";
 
-export type TransactionSource = "PDF" | "IMG" | "OCR" | "GEMINI" | "MANUAL";
+export type TransactionSource = "PDF" | "IMG" | "AUTOMATICO" | "MANUAL";
 
 export type TransactionStatus =
   | "PENDING"
@@ -10,7 +10,7 @@ export type TransactionStatus =
   | "AWAITING_USER_INPUT";
 
 export interface TransactionRequest {
-  type: "income" | "expense";
+  type: "INCOME" | "EXPENSE";
   source: TransactionSource;
   amount: number;
   description?: string;
@@ -38,7 +38,7 @@ export interface DefineCategoryRequest {
 
 export interface TransactionResponse {
   id: string;
-  type: "income" | "expense";
+  type: "INCOME" | "EXPENSE";
   source?: TransactionSource;
   amount: number;
   userId: string;
@@ -53,7 +53,7 @@ export interface TransactionResponse {
 /** Flexible type used for both read and write operations */
 export interface TransactionDTO {
   id?: string;
-  type: "income" | "expense";
+  type: "INCOME" | "EXPENSE";
   source?: TransactionSource;
   amount: number;
   userId: string;
@@ -81,7 +81,7 @@ export interface TransactionQueryResult {
 }
 
 export interface TransactionFormData {
-  type: "income" | "expense";
+  type: "INCOME" | "EXPENSE";
   source?: TransactionSource;
   amount: string;
   userId: string;

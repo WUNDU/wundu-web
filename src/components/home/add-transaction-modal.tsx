@@ -56,10 +56,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen && formData.type !== "expense") onFormChange("type", "expense");
-  }, [formData.type, isOpen, onFormChange]);
-
   // Sync date+time state from formData
   useEffect(() => {
     const { date, time } = parseDateTime(formData.transactionDate);
@@ -137,13 +133,32 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-[#1e293b] leading-tight">Nova Transação</h2>
-                  <p className="text-xs text-slate-400">Registe um novo gasto</p>
+                  <p className="text-xs text-slate-400">{formData.type === "INCOME" ? "Registe uma nova receita" : "Registe um novo gasto"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
+                <button
+                  type="button"
+                  onClick={() => onFormChange("type", "EXPENSE")}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                    formData.type === "EXPENSE"
+                      ? "bg-red-50 text-red-500 border-red-100"
+                      : "bg-slate-50 text-slate-400 border-slate-100"
+                  }`}
+                >
                   Despesa
-                </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFormChange("type", "INCOME")}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                    formData.type === "INCOME"
+                      ? "bg-green-50 text-green-600 border-green-100"
+                      : "bg-slate-50 text-slate-400 border-slate-100"
+                  }`}
+                >
+                  Receita
+                </button>
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
                   Manual
                 </span>
@@ -237,7 +252,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 onChange={(name) => onFormChange("category", name)}
                 valueType="name"
                 label="Categoria"
-                error={errors.category_id}
+                error={errors.category}
               />
 
               {/* Actions */}

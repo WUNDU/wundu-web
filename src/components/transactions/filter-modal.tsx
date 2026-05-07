@@ -7,7 +7,7 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export type SortField  = "date" | "amount";
 export type SortDir    = "desc" | "asc";
-export type TypeFilter = "all" | "expense" | "income";
+export type TypeFilter = "all" | "EXPENSE" | "INCOME";
 
 export function FilterModal({
   open, onClose,
@@ -51,7 +51,7 @@ export function FilterModal({
 
             <p className="text-xs font-bold text-[#64748b] mb-2">Tipo</p>
             <div className="flex gap-2 mb-5">
-              {([["all","Todos"],["expense","Despesas"],["income","Receitas"]] as const).map(([v,l]) => (
+              {([["all","Todos"],["EXPENSE","Despesas"],["INCOME","Receitas"]] as const).map(([v,l]) => (
                 <button key={v} onClick={() => setTypeFilter(v)} className={pill(typeFilter === v)}>{l}</button>
               ))}
             </div>

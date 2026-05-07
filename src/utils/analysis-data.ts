@@ -52,7 +52,7 @@ function filterByPeriod(
 ): TransactionResponse[] {
   const now = new Date();
   const isCurrentYear = year === now.getFullYear();
-  const expenses = txs.filter((t) => t.type === "expense");
+  const expenses = txs.filter((t) => t.type === "EXPENSE");
 
   switch (filter) {
     case "1D": {

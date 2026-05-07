@@ -33,7 +33,7 @@ export type TransactionCompletionPayload = {
   amount?: number;
   transactionDate?: string;
   operationNumber?: string;
-  type?: "expense";
+  type?: "INCOME" | "EXPENSE";
 };
 
 type CategorizationResponse = {
@@ -99,7 +99,7 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
 class TransactionService {
   async add(data: TransactionDTO): Promise<boolean> {
     try {
-      await apiClient.post("/transactions", { ...data, type: "expense" });
+      await apiClient.post("/transactions", data);
       return true;
     } catch {
       return false;
@@ -161,10 +161,7 @@ class TransactionService {
   ): Promise<void> {
     await apiClient.patch(
       `/transactions/${transactionId}/complete`,
-      {
-        ...payload,
-        type: "expense",
-      },
+      payload,
     );
   }
 
@@ -255,7 +252,7 @@ class TransactionService {
         extracted.operationNumber ??
         relatedTransaction?.operationNumber ??
         undefined,
-      type: "expense",
+      type: "EXPENSE",
     };
 
     if (
@@ -289,10 +286,7 @@ class TransactionService {
     transactionId: string,
     payload: TransactionCompletionPayload,
   ): Promise<CategorizationResponse> {
-    await this.completeTransaction(transactionId, {
-      ...payload,
-      type: "expense",
-    });
+    await this.completeTransaction(transactionId, payload);
 
     const categorization = await this.categorizeTransaction(transactionId);
     return categorization;

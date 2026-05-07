@@ -8,7 +8,7 @@ import type { TransactionDTO } from "@/types/dtos/transaction.dto";
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function TransactionItem({ tx, index, onClick }: { tx: TransactionDTO; index: number; onClick: () => void }) {
-  const isExpense = tx.type === "expense";
+  const isExpense = tx.type === "EXPENSE";
   const amountColor = isExpense ? "#EF4444" : "#10B981";
   const amountBg   = isExpense ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)";
   const categoryName = tx.category?.name || "Outro";

@@ -141,7 +141,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           ? new Date(tx.transactionDate)
           : new Date();
         if (Number.isNaN(timestamp.getTime()) || rawAmount === 0) return null;
-        const isIncome = tx.type === "income";
+        const isIncome = tx.type === "INCOME";
         const amount = isIncome ? Math.abs(rawAmount) : -Math.abs(rawAmount);
         return {
           amount,

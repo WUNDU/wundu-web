@@ -54,7 +54,7 @@ const HomeScreen = () => {
         amount: tx.amount,
         category: tx.category?.name ?? undefined,
         timestamp: tx.transactionDate,
-        isIncome: tx.type === "income",
+        isIncome: tx.type === "INCOME",
       })),
     ],
     [rawTransactions, pendingDocs],
