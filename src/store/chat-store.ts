@@ -66,11 +66,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   loadConversation: async (id: string) => {
-    set({ isLoadingConversation: true, error: null });
+    set({ isLoadingConversation: true, error: null, conversationId: id });
     try {
       const response = await chatService.getConversation(id);
       set({
-        conversationId: response.conversationId,
+        conversationId: response.conversationId ?? id,
         messages: response.messages,
         isLoadingConversation: false,
       });
