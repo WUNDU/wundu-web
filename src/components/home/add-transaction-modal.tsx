@@ -133,32 +133,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-[#1e293b] leading-tight">Nova Transação</h2>
-                  <p className="text-xs text-slate-400">{formData.type === "INCOME" ? "Registe uma nova receita" : "Registe um novo gasto"}</p>
+                  <p className="text-xs text-slate-400">Registe um novo gasto</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onFormChange("type", "EXPENSE")}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
-                    formData.type === "EXPENSE"
-                      ? "bg-red-50 text-red-500 border-red-100"
-                      : "bg-slate-50 text-slate-400 border-slate-100"
-                  }`}
-                >
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
                   Despesa
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onFormChange("type", "INCOME")}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
-                    formData.type === "INCOME"
-                      ? "bg-green-50 text-green-600 border-green-100"
-                      : "bg-slate-50 text-slate-400 border-slate-100"
-                  }`}
-                >
-                  Receita
-                </button>
+                </span>
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
                   Manual
                 </span>
