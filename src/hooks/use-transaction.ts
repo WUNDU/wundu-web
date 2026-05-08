@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useTransactionStore } from "@/store/transaction-store";
 import type {
   DefineCategoryRequest,
+  TransactionPatchPayload,
   TransactionRequest,
   TransactionUpdateRequest,
 } from "@/types/dtos/transaction.dto";
@@ -25,6 +26,7 @@ export function useTransaction() {
   const add = useTransactionStore((s) => s.add);
   const create = useTransactionStore((s) => s.create);
   const complete = useTransactionStore((s) => s.complete);
+  const update = useTransactionStore((s) => s.update);
   const defineCategory = useTransactionStore((s) => s.defineCategory);
   const remove = useTransactionStore((s) => s.remove);
   const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
@@ -60,6 +62,7 @@ export function useTransaction() {
     clearAll,
     createTransaction: (payload: TransactionRequest) => create(payload),
     completeTransaction: (id: string, payload: TransactionUpdateRequest) => complete(id, payload),
+    updateTransaction: (id: string, payload: TransactionPatchPayload) => update(id, payload),
     defineCategoryTransaction: (id: string, payload: DefineCategoryRequest) => defineCategory(id, payload),
     removeTransaction: (id: string) => remove(id),
     getAllNotPaginated,

@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ROUTES } from "@/constants/routes";
 import {
   DocumentIcon,
   HistoryIcon,
@@ -26,7 +24,6 @@ import { IconContainer } from "@/components/financial/financial-progress-card";
 import ObjectiveForm from "@/components/financial/objective-form";
 
 const FinancialObjectiveScreen: React.FC = () => {
-  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Goal | null>(null);
@@ -40,6 +37,11 @@ const FinancialObjectiveScreen: React.FC = () => {
 
   const unfulfilledObjectives = useMemo(
     () => goals.filter((g) => getGoalProgress(g) < 100).map(buildGoalCardData),
+    [goals],
+  );
+
+  const allObjectives = useMemo(
+    () => goals.map(buildGoalCardData),
     [goals],
   );
 
@@ -64,24 +66,14 @@ const FinancialObjectiveScreen: React.FC = () => {
   };
 
   const handleFinancialNewObjective = () => {
-    if (typeof window !== "undefined" && window.innerWidth >= 768) {
-      setShowForm(true);
-      refresh();
-    } else {
-      dispatchDraftCommit();
-      router.push(ROUTES.FINANCIAL_NEW_OBJECTIVE);
-    }
+    setShowForm(true);
+    refresh();
   };
 
   const handleFinancialObjective = () => {
-    if (typeof window !== "undefined" && window.innerWidth >= 768) {
-      if (showForm) dispatchDraftCommit();
-      setShowForm(false);
-      refresh();
-    } else {
-      dispatchDraftCommit();
-      router.push(ROUTES.FINANCIAL_OBJECTIVE);
-    }
+    if (showForm) dispatchDraftCommit();
+    setShowForm(false);
+    refresh();
   };
 
   useEffect(() => {
@@ -117,9 +109,9 @@ const FinancialObjectiveScreen: React.FC = () => {
   return (
     <>
       <main className="p-4 pb-6 space-y-6 flex-1 min-h-0 animate-slide-up">
-          <div className="flex flex-col flex-1 min-h-0 rounded-2xl p-5 space-y-10">
+        <div className="max-w-[1360px] mx-auto w-full flex flex-col flex-1 min-h-0 rounded-2xl p-5 space-y-10">
             <h2
-              className="text-lg font-semibold text-gray-800 md:hidden animate-slide-up"
+              className="text-sm font-bold text-slate-900 tracking-tight md:hidden animate-slide-up"
               style={{ animationDelay: "0.2s" }}
             >
               Objectivos financeiros
@@ -139,10 +131,10 @@ const FinancialObjectiveScreen: React.FC = () => {
                   <div className="flex items-center space-x-4 transition-all duration-300 ease-out">
                     <IconContainer icon={PlusIcon} bgColor="bg-white" iconColor="text-yellow-400" />
                     <div>
-                      <h3 className="text-base font-semibold text-yellow-400 md:text-gray-900 transition-all duration-300 ease-out">
+                      <h3 className="text-base font-semibold text-yellow-400 md:text-slate-900 transition-all duration-300 ease-out">
                         Crie um objectivo financeiro
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1 transition-all duration-300 ease-out">
+                      <p className="text-xs text-slate-500 mt-1 transition-all duration-300 ease-out">
                         São metas específicas relacionadas ao dinheiro.
                       </p>
                     </div>
@@ -160,10 +152,10 @@ const FinancialObjectiveScreen: React.FC = () => {
                   <div className="flex items-center space-x-4 transition-all duration-300 ease-out">
                     <IconContainer icon={HistoryIcon} bgColor="bg-white" iconColor="text-rose-500" />
                     <div>
-                      <h3 className="text-base font-semibold text-rose-500 md:text-gray-900 transition-all duration-300 ease-out">
+                      <h3 className="text-base font-semibold text-rose-500 md:text-slate-900 transition-all duration-300 ease-out">
                         Meus objectivos
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1 transition-all duration-300 ease-out">
+                      <p className="text-xs text-slate-500 mt-1 transition-all duration-300 ease-out">
                         Visualize todos os seus objectivos criados.
                       </p>
                     </div>
@@ -173,7 +165,7 @@ const FinancialObjectiveScreen: React.FC = () => {
             </div>
 
             <div
-              className="hidden md:flex mt-8 md:mt-0 rounded-2xl h-full min-h-130 p-2 pb-6 md:min-w-full animate-slide-up"
+              className="flex flex-col mt-4 md:mt-0 rounded-2xl h-full min-h-[520px] p-2 pb-6 md:min-w-full animate-slide-up"
               style={{ animationDelay: "0.4s" }}
             >
               {showForm ? (
@@ -181,13 +173,13 @@ const FinancialObjectiveScreen: React.FC = () => {
                   <div className="flex flex-[1.5] min-h-0 w-full">
                     <ObjectiveForm onSuccess={refresh} />
                   </div>
-                  <div className="flex flex-1 min-h-0 w-full">
+                  <div className="hidden md:flex flex-1 min-h-0 w-full">
                     {/* SketchPanel */}
-                    <div className="flex h-full w-full items-center justify-center rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
+                    <div className="flex h-full w-full items-center justify-center rounded-3xl border border-slate-100 bg-white p-6 shadow-lg">
                       <div className="w-full text-center space-y-4">
                         <div
-                          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-gray-500 transition-colors ${
-                            hasDraft ? "bg-yellow-100 text-yellow-500" : "bg-gray-50"
+                          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-slate-500 transition-colors ${
+                            hasDraft ? "bg-yellow-100 text-yellow-500" : "bg-slate-50"
                           }`}
                         >
                           {hasDraft ? (
@@ -199,10 +191,10 @@ const FinancialObjectiveScreen: React.FC = () => {
                         {hasDraft ? (
                           <div className="space-y-4">
                             <div>
-                              <h3 className="text-base font-semibold text-gray-800">
+                              <h3 className="text-base font-semibold text-slate-800">
                                 Você tem um rascunho salvo.
                               </h3>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Continue de onde parou ou descarte para começar novamente.
                               </p>
                             </div>
@@ -217,10 +209,10 @@ const FinancialObjectiveScreen: React.FC = () => {
                           </div>
                         ) : (
                           <div>
-                            <h3 className="text-base font-semibold text-gray-700">
+                            <h3 className="text-base font-semibold text-slate-700">
                               Sem rascunhos.
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-slate-500">
                               Todos os seus rascunhos irão aparecer aqui.
                             </p>
                           </div>
@@ -231,11 +223,11 @@ const FinancialObjectiveScreen: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex flex-1 w-full min-h-0">
-                  <div className="flex flex-1 flex-col rounded-3xl bg-white p-6 mb-5 pb-8 shadow-lg border border-gray-100 min-h-0 max-h-[calc(100vh-220px)] overflow-hidden">
+                  <div className="flex flex-1 flex-col rounded-3xl bg-white p-6 mb-5 pb-8 shadow-lg border border-slate-100 min-h-0 max-h-[calc(100vh-220px)] overflow-hidden">
                     <div className="flex-1 pr-2 min-h-0">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-800">
+                          <h3 className="text-lg font-semibold text-slate-800">
                             Objectivos
                           </h3>
                           {goalsError && (
@@ -251,16 +243,16 @@ const FinancialObjectiveScreen: React.FC = () => {
                           className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
                           style={{ animationDelay: "0.5s" }}
                         >
-                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
+                          <h3 className="text-lg font-semibold text-slate-800 transition-all duration-300 ease-out">
                             Meus objectivos financeiros
                           </h3>
                           <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
-                            {isLoadingGoals && unfulfilledObjectives.length === 0 ? (
-                              <p className="text-sm text-gray-500">
+                            {isLoadingGoals && allObjectives.length === 0 ? (
+                              <p className="text-sm text-slate-500">
                                 Carregando objetivos...
                               </p>
-                            ) : unfulfilledObjectives.length ? (
-                              unfulfilledObjectives.map((obj, index) => (
+                            ) : allObjectives.length ? (
+                              allObjectives.map((obj, index) => (
                                 <div
                                   key={obj.id}
                                   className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
@@ -279,7 +271,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 </div>
                               ))
                             ) : (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Nenhum objetivo em andamento.
                               </p>
                             )}
@@ -291,12 +283,12 @@ const FinancialObjectiveScreen: React.FC = () => {
                           className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
                           style={{ animationDelay: "0.7s" }}
                         >
-                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
+                          <h3 className="text-lg font-semibold text-slate-800 transition-all duration-300 ease-out">
                             Objectivos cumpridos
                           </h3>
                           <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
                             {isLoadingGoals && fulfilledObjectives.length === 0 ? (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Carregando objetivos...
                               </p>
                             ) : fulfilledObjectives.length ? (
@@ -319,7 +311,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 </div>
                               ))
                             ) : (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Nenhum objetivo cumprido.
                               </p>
                             )}
@@ -331,12 +323,12 @@ const FinancialObjectiveScreen: React.FC = () => {
                           className="flex h-full flex-col gap-4 animate-slide-up min-h-0"
                           style={{ animationDelay: "0.9s" }}
                         >
-                          <h3 className="text-lg font-semibold text-gray-800 transition-all duration-300 ease-out">
+                          <h3 className="text-lg font-semibold text-slate-800 transition-all duration-300 ease-out">
                             Objectivos por cumprir
                           </h3>
                           <div className="flex-1 min-h-0 space-y-3 overflow-y-auto px-3 py-4">
                             {isLoadingGoals && unfulfilledObjectives.length === 0 ? (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Carregando objetivos...
                               </p>
                             ) : unfulfilledObjectives.length ? (
@@ -359,7 +351,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                                 </div>
                               ))
                             ) : (
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-slate-500">
                                 Nenhum objetivo pendente.
                               </p>
                             )}

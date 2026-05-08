@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Tab } from "@/components/ui/tab";
-import { Transaction } from "@/components/ui/transaction";
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from "@/constants/icons";
 import { tabRanges } from "@/constants/mock-data";
 import { StatsSection } from "@/components/layout";
@@ -14,7 +13,6 @@ import {
   BarChart,
   LineChart,
   PieChart,
-  CATEGORY_COLORS,
   getCategoryIcon,
   getCutoffDate,
   buildChartData,
@@ -291,7 +289,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const chartArea = (
-    <div className="w-full h-48 sm:h-64 px-2">
+    <div className="w-full h-56 sm:h-72 px-2">
       {viewMode === "line" && (
         <LineChart
           className="w-full h-full"
@@ -320,23 +318,25 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const filterPills = (
-    <div className="flex bg-[#F1F5F9] p-1 rounded-xl">
-      {tabRanges.map((range) => (
-        <Tab
-          key={range}
-          label={range}
-          value={range}
-          isActive={timeRange === range}
-          onClick={() => setTimeRange(range)}
-        />
-      ))}
+    <div className="overflow-x-auto flex justify-center">
+      <div className="flex min-w-max bg-[#F1F5F9] p-1 rounded-xl">
+        {tabRanges.map((range) => (
+          <Tab
+            key={range}
+            label={range}
+            value={range}
+            isActive={timeRange === range}
+            onClick={() => setTimeRange(range)}
+          />
+        ))}
+      </div>
     </div>
   );
 
   const categoriesHeader = (onDesktop?: boolean) => (
     <div className={`flex items-center justify-between ${onDesktop ? "mb-4" : "mb-3 sm:mb-4"}`}>
       <div>
-        <h3 className={`${onDesktop ? "text-base" : "text-sm sm:text-base"} font-black text-slate-800`}>
+        <h3 className={`${onDesktop ? "text-base" : "text-sm sm:text-base"} font-bold text-slate-800`}>
           Gastos por categoria
         </h3>
         <p className={`${onDesktop ? "text-xs" : "text-[10px] sm:text-xs"} text-slate-400 mt-0.5`}>
@@ -356,35 +356,67 @@ const ControlPanelDashboardScreen: React.FC = () => {
   return (
     <>
       {/* Mobile Layout */}
-      <div className="lg:hidden bg-[#F1F5FA] p-3 sm:p-4 font-sans">
+      <div className="lg:hidden font-sans space-y-3">
+        {/* Page header */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" as const }}
+          className="bg-white rounded-xl border border-slate-100 shadow-sm px-3 py-3 sm:px-4 sm:py-4"
+        >
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Análise</p>
+          <h1 className="mt-1 text-sm font-bold text-slate-900 tracking-tight">Controlo Financeiro</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Acompanhe os seus gastos por período</p>
+        </motion.div>
+
+        {/* Stats row */}
+        <StatsSection />
+
+        {/* Summary + Chart card */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, ease: "easeOut" as const }}
+          transition={{ duration: 0.18, ease: "easeOut" as const, delay: 0.06 }}
           className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
         >
-          <div className="flex items-center justify-between px-3 sm:px-5 pt-3 sm:pt-5 pb-2 sm:pb-3">
+          {/* Period summary */}
+          <div className="bg-[#003cc3] text-white px-4 py-3">
+            <p className="text-xs text-white/60 text-center">{headerText}</p>
+            <p className="text-base font-bold text-center mt-0.5">
+              {headerAmount.toLocaleString("pt-AO")},00KZ
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between px-3 sm:px-5 pt-3 sm:pt-4 pb-2 sm:pb-3">
             {yearSelector}
             {chartSwitcher}
           </div>
           {chartArea}
-          <div className="px-3 sm:px-5 py-2 sm:py-4">{filterPills}</div>
-          <div className="h-px bg-[#F1F5F9] mx-5" />
-          <div className="px-3 sm:px-5 pt-3 sm:pt-5 pb-4 sm:pb-7">
+          <div className="px-3 sm:px-5 py-3 sm:py-4">{filterPills}</div>
+          <div className="h-px bg-[#F1F5F9] mx-4" />
+          <div className="px-3 sm:px-5 pt-4 sm:pt-5 pb-4 sm:pb-6">
             {categoriesHeader()}
-            <CategoryItems transactions={transactions} gridCols={false} />
+            <div className="relative">
+              <div className="max-h-[300px] overflow-y-auto pr-0.5">
+                <CategoryItems transactions={transactions} gridCols={false} />
+              </div>
+              {transactions.length > 5 && (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent" />
+              )}
+            </div>
           </div>
         </motion.div>
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:block bg-[#F1F5FA] font-sans antialiased text-gray-800">
+      <div className="hidden lg:block font-sans antialiased">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.18, ease: "easeOut" as const }}
           className="p-4 space-y-4"
         >
+          <div className="max-w-[1360px] mx-auto space-y-4">
           <div className="grid grid-cols-12 gap-3">
             <HeaderSection
               isCredit={isCredit}
@@ -407,8 +439,16 @@ const ControlPanelDashboardScreen: React.FC = () => {
             <div className="h-px bg-[#F1F5F9] mx-5" />
             <div className="px-5 pt-5 pb-6">
               {categoriesHeader(true)}
-              <CategoryItems transactions={transactions} gridCols={true} />
+              <div className="relative">
+                <div className="max-h-[360px] overflow-y-auto pr-0.5">
+                  <CategoryItems transactions={transactions} gridCols={true} />
+                </div>
+                {transactions.length > 8 && (
+                  <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent" />
+                )}
+              </div>
             </div>
+          </div>
           </div>
         </motion.div>
       </div>

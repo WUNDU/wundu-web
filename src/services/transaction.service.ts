@@ -2,6 +2,7 @@ import { apiClient } from "@/api/api";
 import type {
   DefineCategoryRequest,
   TransactionDTO,
+  TransactionPatchPayload,
   TransactionRequest,
   TransactionResponse,
   TransactionUpdateRequest,
@@ -347,6 +348,16 @@ class TransactionService {
 
   async defineCategory(id: string, payload: DefineCategoryRequest): Promise<TransactionResponse> {
     const { data } = await apiClient.put<TransactionResponse>(`/transactions/${id}/define-category`, payload);
+    return data;
+  }
+
+  async update(id: string, payload: TransactionPatchPayload): Promise<TransactionResponse> {
+    const { data } = await apiClient.patch<TransactionResponse>(`/transactions/${id}`, payload);
+    return data;
+  }
+
+  async updateCategory(id: string, categoryId: string): Promise<TransactionResponse> {
+    const { data } = await apiClient.patch<TransactionResponse>(`/transactions/${id}/category`, { categoryId });
     return data;
   }
 

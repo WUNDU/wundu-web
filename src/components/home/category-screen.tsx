@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useCategoryStore } from "@/store/category-store";
 import type { Category } from "@/types/dtos/category.dto";
 import { Plus, Loader2 } from "lucide-react";
+import { getCategoryStyle } from "@/utils/category-style";
 
 export interface CategoryScreenProps {
   onCloseOrSuccess?: () => void;
@@ -86,19 +87,26 @@ const CategoryScreen = ({
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {globalCategories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategorySelect(category)}
-                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
-                  selectedCategory?.id === category.id
-                    ? "bg-yellow-400 text-white shadow-sm scale-105"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
+            {globalCategories.map((category) => {
+              const style = getCategoryStyle(category.name);
+              const Icon = style.icon;
+              const isActive = selectedCategory?.id === category.id;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategorySelect(category)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? "text-white shadow-sm scale-105"
+                      : "bg-white border border-slate-200 hover:bg-slate-50"
+                  }`}
+                  style={isActive ? { backgroundColor: style.color } : { color: style.color }}
+                >
+                  <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  {category.name}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -110,19 +118,25 @@ const CategoryScreen = ({
             Personalizadas
           </h3>
           <div className="flex flex-wrap gap-2">
-            {myCategories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategorySelect(category)}
-                className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
-                  selectedCategory?.id === category.id
-                    ? "bg-[#003cc3] text-white shadow-sm scale-105"
-                    : "bg-blue-50 text-[#003cc3] border border-blue-100 hover:bg-blue-100"
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
+            {myCategories.map((category) => {
+              const style = getCategoryStyle(category.name);
+              const Icon = style.icon;
+              const isActive = selectedCategory?.id === category.id;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategorySelect(category)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-[#003cc3] text-white shadow-sm scale-105"
+                      : "bg-blue-50 text-[#003cc3] border border-blue-100 hover:bg-blue-100"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  {category.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -234,11 +248,11 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">
               Categoria definida com sucesso
             </h3>
-            <p className="text-sm text-gray-600">
-              O movimento "Débito" foi definido na categoria{" "}
+            <p className="text-sm text-slate-600">
+              O movimento "{transactionDescription || "Movimento"}" foi definido na categoria{" "}
               {selectedCategory?.name.toLowerCase()}.
             </p>
           </div>
@@ -247,14 +261,14 @@ const CategoryScreen = ({
             <CategoryList />
             {selectedCategory && (
               <div className="mb-8">
-                <h3 className="text-base font-medium text-gray-700 mb-4">
+                <h3 className="text-base font-medium text-slate-700 mb-4">
                   Descrição
                 </h3>
                 <textarea
                   value={transactionDescription}
                   onChange={(e) => setTransactionDescription(e.target.value)}
                   placeholder="Escrever"
-                  className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  className="w-full h-32 p-4 bg-white border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 />
               </div>
             )}
@@ -290,11 +304,11 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">
               Categoria definida com sucesso
             </h3>
-            <p className="text-sm text-gray-600">
-              O movimento "Débito" foi definido na categoria{" "}
+            <p className="text-sm text-slate-600">
+              O movimento "{transactionDescription || "Movimento"}" foi definido na categoria{" "}
               {selectedCategory?.name.toLowerCase()}.
             </p>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui";
 import { TextInput } from "@/components/ui";
@@ -70,7 +70,7 @@ export default function Support() {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-5 pb-4 sm:pb-6 space-y-3 bg-slate-50">
+      <main className="flex-1 px-3 sm:px-4 lg:px-5 pb-4 sm:pb-6 space-y-3">
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

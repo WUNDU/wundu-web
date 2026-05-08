@@ -111,7 +111,7 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
 
           <div className="px-6 py-6 flex flex-col items-center gap-5 text-center">
             {/* Icon */}
-            {(isPolling || !isTerminal) && (
+            {(isPolling || !isTerminal) && !needsCategory && (
               <div className="w-14 h-14 rounded-full bg-[#003cc3]/8 flex items-center justify-center">
                 <Loader2 className="w-7 h-7 text-[#003cc3] animate-spin" />
               </div>
@@ -158,11 +158,15 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#003cc3]/40"
                 >
                   <option value="">Selecione uma categoria…</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  {categories.length === 0 ? (
+                    <option disabled value="">Nenhuma categoria disponível</option>
+                  ) : (
+                    categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))
+                  )}
                 </select>
                 {categorizeError && (
                   <p className="text-xs text-red-500">{categorizeError}</p>

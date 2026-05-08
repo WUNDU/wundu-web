@@ -9,10 +9,9 @@ import { StatsSection } from "@/components/layout";
 import { useUiStore } from "@/store/ui-store";
 import { useAuth } from "@/hooks/use-auth";
 import { useTransaction } from "@/hooks/use-transaction";
-import { useDocumentPolling } from "@/hooks/use-document-polling";
+import { useDocumentQueue } from "@/hooks/use-document-queue";
 import { documentService } from "@/services/document.service";
 import {
-  ALLOWED_UPLOAD_MIMES,
   MAX_UPLOAD_FILE_SIZE_BYTES,
   MAX_UPLOAD_FILE_SIZE_MB,
 } from "@/constants/upload";
@@ -23,7 +22,7 @@ import UploadOptions from "@/components/home/upload-options";
 import AddTransactionModal from "@/components/home/add-transaction-modal";
 import MovementSection from "@/components/home/movement-section";
 import CategoryScreen from "@/components/home/category-screen";
-import OcrStatusModal from "@/components/home/ocr-status-modal";
+import OcrToastStack from "@/components/home/ocr-toast-stack";
 import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
 import posthog from "posthog-js";
 
@@ -34,7 +33,6 @@ const HomeScreen = () => {
   const [pendingDocs, setPendingDocs] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [ocrModalOpen, setOcrModalOpen] = useState(false);
   const {
     transactions: rawTransactions,
     isLoading: isTransactionsLoading,
@@ -48,6 +46,7 @@ const HomeScreen = () => {
     () => [
       ...pendingDocs,
       ...rawTransactions.map((tx, index) => ({
+        id: tx.id,
         type: "transaction" as const,
         name: tx.description || tx.category?.name || `Transação ${index + 1}`,
         description: tx.description ?? undefined,
@@ -72,13 +71,10 @@ const HomeScreen = () => {
     handleSubmit,
   } = useAddTransactionModal();
 
-  const { doc: pollingDoc, isPolling, startPolling, reset: resetPolling } = useDocumentPolling({
-    onTerminal: (doc) => {
-      const status = doc.status?.toUpperCase();
-      if (status === "PROCESSED") {
-        refreshTransactions();
-        posthog.capture("document_ocr_processed", { documentId: doc.id });
-      }
+  const { entries: ocrEntries, startPolling, dismiss: dismissOcr, categorize: categorizeOcr } = useDocumentQueue({
+    onProcessed: (doc) => {
+      refreshTransactions();
+      posthog.capture("document_ocr_processed", { documentId: doc.id });
     },
   });
 
@@ -124,7 +120,6 @@ const HomeScreen = () => {
     }
 
     setIsUploading(true);
-    resetPolling();
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -135,9 +130,8 @@ const HomeScreen = () => {
         file_size: file.size,
         documentId: response.documentId,
       });
-      setOcrModalOpen(true);
       setShowUploadOptions(false);
-      startPolling(response.documentId);
+      startPolling(response.documentId, file.name);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Não foi possível enviar o comprovativo.";
@@ -148,21 +142,7 @@ const HomeScreen = () => {
     }
   };
 
-  const handleOcrModalClose = () => {
-    setOcrModalOpen(false);
-    resetPolling();
-  };
-
-  const handleOcrSuccess = useCallback(async () => {
-    setOcrModalOpen(false);
-    resetPolling();
-    await refreshTransactions();
-    showNotification("success", "Pronto!", "Transação registada com sucesso.");
-  }, [resetPolling, refreshTransactions, showNotification]);
-
-  const handleOcrRetry = () => {
-    setOcrModalOpen(false);
-    resetPolling();
+  const handleOcrRetry = (_id: string) => {
     setShowUploadOptions(true);
   };
 
@@ -240,12 +220,10 @@ const HomeScreen = () => {
         submitError={submitError}
         onFormChange={handleChange}
       />
-      <OcrStatusModal
-        isOpen={ocrModalOpen}
-        doc={pollingDoc}
-        isPolling={isPolling}
-        onClose={handleOcrModalClose}
-        onSuccess={handleOcrSuccess}
+      <OcrToastStack
+        entries={ocrEntries}
+        onDismiss={dismissOcr}
+        onCategorize={categorizeOcr}
         onRetry={handleOcrRetry}
       />
     </div>

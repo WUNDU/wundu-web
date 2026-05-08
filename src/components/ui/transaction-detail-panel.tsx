@@ -1,28 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import type { TransactionDTO, TransactionStatus } from "@/types/dtos/transaction.dto";
 import type { LucideIcon } from "lucide-react";
 import {
   X,
-  Car,
-  UtensilsCrossed,
-  Home,
-  Heart,
-  Gamepad2,
-  BookOpen,
-  Shirt,
-  Smartphone,
-  ShoppingCart,
-  Flame,
-  Wifi,
-  Banknote,
-  TrendingUp,
-  Shield,
-  Plane,
-  Receipt,
   Calendar,
   FileText,
   Building2,
@@ -31,38 +15,14 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
+  Pencil,
+  Loader2,
+  Check,
 } from "lucide-react";
 import { formatAOA } from "@/lib/currency";
-
-/* ------------------------------------------------------------------ */
-/*  Category styles (matching home page)                               */
-/* ------------------------------------------------------------------ */
-
-type CategoryStyle = { icon: LucideIcon; color: string; bg: string };
-
-const CATEGORY_STYLES: { pattern: RegExp; style: CategoryStyle }[] = [
-  { pattern: /transport|carro|taxi|uber/i, style: { icon: Car, color: "#3B82F6", bg: "rgba(59,130,246,0.1)" } },
-  { pattern: /alimenta|comida|restaur|café/i, style: { icon: UtensilsCrossed, color: "#F97316", bg: "rgba(249,115,22,0.1)" } },
-  { pattern: /habita|renda|aluguel|imov|morad/i, style: { icon: Home, color: "#8B5CF6", bg: "rgba(139,92,246,0.1)" } },
-  { pattern: /saúde|médic|farmác/i, style: { icon: Heart, color: "#10B981", bg: "rgba(16,185,129,0.1)" } },
-  { pattern: /lazer|entret|cinema|jogo/i, style: { icon: Gamepad2, color: "#EC4899", bg: "rgba(236,72,153,0.1)" } },
-  { pattern: /educa|escola|curso|livro/i, style: { icon: BookOpen, color: "#0EA5E9", bg: "rgba(14,165,233,0.1)" } },
-  { pattern: /vestuário|roupa|moda/i, style: { icon: Shirt, color: "#F59E0B", bg: "rgba(245,158,11,0.1)" } },
-  { pattern: /tecnolog|tel|celul/i, style: { icon: Smartphone, color: "#6366F1", bg: "rgba(99,102,241,0.1)" } },
-  { pattern: /mercado|superm|compra/i, style: { icon: ShoppingCart, color: "#14B8A6", bg: "rgba(20,184,166,0.1)" } },
-  { pattern: /combust|gasolina/i, style: { icon: Flame, color: "#EF4444", bg: "rgba(239,68,68,0.1)" } },
-  { pattern: /internet|comunic/i, style: { icon: Wifi, color: "#06B6D4", bg: "rgba(6,182,212,0.1)" } },
-  { pattern: /salário|rendimento/i, style: { icon: Banknote, color: "#10B981", bg: "rgba(16,185,129,0.1)" } },
-  { pattern: /investimento/i, style: { icon: TrendingUp, color: "#003cc3", bg: "rgba(0,60,195,0.1)" } },
-  { pattern: /seguro/i, style: { icon: Shield, color: "#64748b", bg: "rgba(100,116,139,0.1)" } },
-  { pattern: /viagem|férias/i, style: { icon: Plane, color: "#8B5CF6", bg: "rgba(139,92,246,0.1)" } },
-];
-
-const DEFAULT_STYLE: CategoryStyle = { icon: Receipt, color: "#00216b", bg: "rgba(0,33,107,0.08)" };
-
-function getCategoryStyle(category: string): CategoryStyle {
-  return CATEGORY_STYLES.find(({ pattern }) => pattern.test(category))?.style ?? DEFAULT_STYLE;
-}
+import { CategorySelect } from "@/components/ui/category-select";
+import { useTransactionStore } from "@/store/transaction-store";
+import { getCategoryStyle } from "@/utils/category-style";
 
 /* ------------------------------------------------------------------ */
 /*  Status config                                                      */
@@ -95,6 +55,15 @@ function formatDateTime(d: string) {
     return new Date(d).toLocaleString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   } catch {
     return d;
+  }
+}
+
+function toDateInputValue(iso: string | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toISOString().split("T")[0];
+  } catch {
+    return "";
   }
 }
 
@@ -149,7 +118,7 @@ function Divider() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Panel content (shared between desktop & mobile)                    */
+/*  Source labels                                                      */
 /* ------------------------------------------------------------------ */
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -159,17 +128,189 @@ const SOURCE_LABELS: Record<string, string> = {
   IMG: "Imagem",
 };
 
-function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void }) {
+/* ------------------------------------------------------------------ */
+/*  Edit form                                                          */
+/* ------------------------------------------------------------------ */
+
+interface EditFormState {
+  amount: string;
+  description: string;
+  transactionDate: string;
+  categoryName: string;
+}
+
+function EditForm({
+  tx,
+  onSave,
+  onCancel,
+}: {
+  tx: TransactionDTO;
+  onSave: (form: EditFormState) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [form, setForm] = useState<EditFormState>({
+    amount: tx.amount != null ? String(tx.amount) : "",
+    description: tx.description ?? "",
+    transactionDate: toDateInputValue(tx.transactionDate),
+    categoryName: tx.category?.name ?? "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const field = (key: keyof EditFormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = parseFloat(form.amount.replace(",", "."));
+    if (!form.amount || isNaN(parsed) || parsed <= 0) {
+      setError("Montante inválido.");
+      return;
+    }
+    if (!form.transactionDate) {
+      setError("Data obrigatória.");
+      return;
+    }
+    setError(null);
+    setSaving(true);
+    try {
+      await onSave({ ...form, amount: String(parsed) });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao guardar.");
+      setSaving(false);
+    }
+  };
+
+  const inputCls =
+    "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#1e293b] focus:outline-none focus:border-[#003cc3]/40 focus:ring-4 focus:ring-[#003cc3]/[0.06] transition-all";
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-5 pt-6 pb-8">
+      <h3 className="text-sm font-bold text-[#1e293b] mb-1">Editar transação</h3>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-slate-600">Montante (Kz)</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0.01"
+          value={form.amount}
+          onChange={field("amount")}
+          className={inputCls}
+          placeholder="0.00"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-slate-600">Descrição</label>
+        <input
+          type="text"
+          value={form.description}
+          onChange={field("description")}
+          className={inputCls}
+          placeholder="Descrição da transação"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-slate-600">Data</label>
+        <input
+          type="date"
+          value={form.transactionDate}
+          onChange={field("transactionDate")}
+          className={inputCls}
+        />
+      </div>
+
+      <CategorySelect
+        valueType="name"
+        value={form.categoryName}
+        onChange={(v) => setForm((f) => ({ ...f, categoryName: v }))}
+        label="Categoria"
+        placeholder="Selecione uma categoria"
+      />
+
+      {error && (
+        <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+      )}
+
+      <div className="flex gap-3 mt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="flex-1 py-3 rounded-xl bg-[#003cc3] text-sm font-bold text-white hover:bg-[#0033a8] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              A guardar…
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4" />
+              Guardar
+            </>
+          )}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  PanelContent                                                       */
+/* ------------------------------------------------------------------ */
+
+function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose: () => void }) {
+  const updateStore = useTransactionStore((s) => s.update);
+  const [tx, setTx] = useState<TransactionDTO>(initialTx);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setTx(initialTx);
+    setIsEditing(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTx.id]);
+
   const isExpense = tx.type === "EXPENSE";
   const categoryName = tx.category?.name || "Outro";
   const { icon: CategoryIcon } = getCategoryStyle(categoryName);
   const statusCfg = STATUS_CONFIG[tx.status as string] ?? DEFAULT_STATUS;
-
   const formattedAmount = formatAOA(Math.abs(tx.amount));
 
   const gradientFrom = isExpense ? "#4c0519" : "#052e16";
   const gradientVia = isExpense ? "#9f1239" : "#065f46";
   const gradientTo = isExpense ? "#be185d" : "#0f766e";
+
+  const handleSave = async (form: EditFormState) => {
+    if (!tx.id) return;
+    const payload = {
+      source: tx.source,
+      amount: parseFloat(form.amount),
+      description: form.description,
+      transactionDate: form.transactionDate
+        ? new Date(form.transactionDate + "T12:00:00").toISOString()
+        : tx.transactionDate,
+      ...(form.categoryName ? { category: { name: form.categoryName } } : {}),
+    };
+    const updated = await updateStore(tx.id, payload);
+    if (updated) {
+      setTx({
+        ...tx,
+        ...payload,
+        category: updated.category ?? tx.category,
+      });
+      setIsEditing(false);
+    }
+  };
 
   return (
     <>
@@ -181,7 +322,7 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
         }}
       >
         <div className="px-5 pt-5 pb-14">
-          {/* Close + Title + Badge */}
+          {/* Close + Title + Edit + Badge */}
           <div className="flex items-center gap-3 mb-7">
             <button
               onClick={onClose}
@@ -198,6 +339,21 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
             <span className="flex-1 text-[17px] font-extrabold text-white tracking-tight">
               Detalhes
             </span>
+            {tx.id && (
+              <button
+                onClick={() => setIsEditing((v) => !v)}
+                className="w-10 h-10 rounded-[14px] flex items-center justify-center transition-colors"
+                style={{
+                  backgroundColor: isEditing ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.15)",
+                  borderWidth: 1,
+                  borderStyle: "solid",
+                  borderColor: "rgba(255,255,255,0.2)",
+                }}
+                title="Editar transação"
+              >
+                <Pencil className="w-4 h-4 text-white" />
+              </button>
+            )}
             <span
               className="px-3 py-1.5 rounded-full text-white text-xs font-bold"
               style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
@@ -247,51 +403,72 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
         </div>
       </div>
 
-      {/* Details Card */}
+      {/* Details / Edit Card */}
       <div className="flex-1 overflow-y-auto bg-white rounded-t-[20px] -mt-8 relative z-10">
-        <div className="px-5 pt-7 pb-12">
-          <InfoRow
-            icon={statusCfg.icon}
-            label="Status"
-            value={statusCfg.label}
-            valueColor={statusCfg.color}
-            valueBg={statusCfg.bg}
-            badge
-          />
-          <Divider />
-
-          {tx.description && (
-            <>
-              <InfoRow icon={FileText} label="Descrição" value={tx.description} />
+        <AnimatePresence mode="wait" initial={false}>
+          {isEditing ? (
+            <motion.div
+              key="edit-form"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+            >
+              <EditForm tx={tx} onSave={handleSave} onCancel={() => setIsEditing(false)} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="detail-view"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="px-5 pt-7 pb-12"
+            >
+              <InfoRow
+                icon={statusCfg.icon}
+                label="Status"
+                value={statusCfg.label}
+                valueColor={statusCfg.color}
+                valueBg={statusCfg.bg}
+                badge
+              />
               <Divider />
-            </>
-          )}
 
-          {tx.source && (
-            <>
-              <InfoRow icon={Building2} label="Fonte" value={SOURCE_LABELS[tx.source] ?? tx.source} />
-              <Divider />
-            </>
-          )}
+              {tx.description && (
+                <>
+                  <InfoRow icon={FileText} label="Descrição" value={tx.description} />
+                  <Divider />
+                </>
+              )}
 
-          {tx.operationNumber && (
-            <>
-              <InfoRow icon={Hash} label="Nº de Operação" value={tx.operationNumber} />
-              <Divider />
-            </>
-          )}
+              {tx.source && (
+                <>
+                  <InfoRow icon={Building2} label="Fonte" value={SOURCE_LABELS[tx.source] ?? tx.source} />
+                  <Divider />
+                </>
+              )}
 
-          {tx.transactionDate && (
-            <>
-              <InfoRow icon={Calendar} label="Data da transação" value={formatDate(tx.transactionDate)} />
-              <Divider />
-            </>
-          )}
+              {tx.operationNumber && (
+                <>
+                  <InfoRow icon={Hash} label="Nº de Operação" value={tx.operationNumber} />
+                  <Divider />
+                </>
+              )}
 
-          {tx.createdAt && (
-            <InfoRow icon={Clock} label="Registado em" value={formatDateTime(tx.createdAt)} valueColor="#94a3b8" />
+              {tx.transactionDate && (
+                <>
+                  <InfoRow icon={Calendar} label="Data da transação" value={formatDate(tx.transactionDate)} />
+                  <Divider />
+                </>
+              )}
+
+              {tx.createdAt && (
+                <InfoRow icon={Clock} label="Registado em" value={formatDateTime(tx.createdAt)} valueColor="#94a3b8" />
+              )}
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
     </>
   );
@@ -301,8 +478,8 @@ function PanelContent({ tx, onClose }: { tx: TransactionDTO; onClose: () => void
 /*  TransactionDetailPanel                                             */
 /* ------------------------------------------------------------------ */
 
-const PANEL_ENTER: [number, number, number, number] = [0, 0, 0.2, 1];   // smooth decelerate in
-const PANEL_EXIT:  [number, number, number, number] = [0.4, 0, 1, 1];   // accelerate out
+const PANEL_ENTER: [number, number, number, number] = [0, 0, 0.2, 1];
+const PANEL_EXIT:  [number, number, number, number] = [0.4, 0, 1, 1];
 
 export interface TransactionDetailPanelProps {
   transaction: TransactionDTO | null;
@@ -352,13 +529,7 @@ export function TransactionDetailPanel({ transaction, isOpen, onClose }: Transac
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{
-              x: {
-                duration: 0.32,
-                ease: PANEL_ENTER,
-              },
-              opacity: { duration: 0.15 },
-            }}
+            transition={{ x: { duration: 0.32, ease: PANEL_ENTER }, opacity: { duration: 0.15 } }}
             className="fixed top-0 right-0 bottom-0 z-[201] w-[400px] bg-white shadow-[0_4px_16px_rgba(0,60,195,0.08)] hidden lg:flex flex-col overflow-hidden"
           >
             <PanelContent tx={transaction} onClose={onClose} />

@@ -48,8 +48,8 @@ const PieChart: React.FC<PieChartProps> = ({
           : timeRangeText.includes("Créditos")
             ? "Créditos"
             : "Gastos";
-        ctx.fillText(prefix.toUpperCase(), x, y - 16);
-        ctx.font = "600 18px 'Inter', sans-serif";
+        ctx.fillText(prefix.toUpperCase(), x, y - 22);
+        ctx.font = "600 20px 'Inter', sans-serif";
         const primaryValue = selectedTx
           ? `KZ ${Math.abs(selectedTx.amount).toLocaleString("pt-AO")}`
           : `KZ ${totalAmount.toLocaleString("pt-AO")}`;
@@ -59,7 +59,7 @@ const PieChart: React.FC<PieChartProps> = ({
         const displayText = selectedTx
           ? `${selectedTx.percentage}% do total`
           : timeRangeText.replace("Gastos ", "").replace("Créditos ", "");
-        ctx.fillText(displayText, x, y + 19);
+        ctx.fillText(displayText, x, y + 26);
         ctx.restore();
       },
     };
@@ -98,7 +98,7 @@ const PieChart: React.FC<PieChartProps> = ({
         maintainAspectRatio: false,
         cutout: "85%",
         rotation: -90,
-        layout: { padding: 30 },
+        layout: { padding: 16 },
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
         animation: {
           duration: 600,
@@ -158,7 +158,7 @@ const PieChart: React.FC<PieChartProps> = ({
 
   if (transactions.length === 0) {
     return (
-      <div className="flex justify-center items-center w-full h-48 sm:h-64">
+      <div className="flex justify-center items-center w-full h-full">
         <div className="text-center text-slate-500 p-5 rounded-xl bg-white border border-indigo-100">
           <p className="text-sm font-medium">Nenhuma transação</p>
           <p className="text-xs">encontrada para este período</p>
@@ -169,9 +169,9 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div
-      className={`flex justify-center items-center w-full h-48 sm:h-56 transition-all duration-300 ease-out rounded-xl bg-white border border-indigo-100 ${className}`}
+      className={`flex justify-center items-center w-full h-full transition-all duration-300 ease-out rounded-xl bg-white border border-indigo-100 ${className}`}
     >
-      <div className="relative w-full max-w-md h-full transition-all duration-300 ease-out">
+      <div className="relative w-full max-w-xl h-full transition-all duration-300 ease-out">
         <canvas
           ref={canvasRef}
           className="transition-all duration-300 ease-out"

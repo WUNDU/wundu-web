@@ -23,11 +23,11 @@ const INITIAL_MESSAGES: LocalMessage[] = [
 ];
 
 const CHAT_OPTIONS = [
-  { label: "Investimentos", bg: "bg-[#003cc3]/5", text: "text-[#003cc3]", icon: <MoneyBagIcon /> },
-  { label: "Finanças", bg: "bg-[#ffd400]/15", text: "text-amber-700", icon: <CoinIcon /> },
-  { label: "Poupanças", bg: "bg-emerald-50", text: "text-emerald-700", icon: <MoneyManagerIcon /> },
-  { label: "Gestão", bg: "bg-violet-50", text: "text-violet-700", icon: <MoneyPotIcon /> },
-  { label: "Dinheiro", bg: "bg-rose-50", text: "text-rose-600", icon: <MoneySignIcon /> },
+  { label: "Investimentos", message: "Como posso começar a investir o meu dinheiro de forma segura?", bg: "bg-[#003cc3]/5", text: "text-[#003cc3]", icon: <MoneyBagIcon /> },
+  { label: "Finanças", message: "Como posso melhorar a gestão das minhas finanças pessoais?", bg: "bg-[#ffd400]/15", text: "text-amber-700", icon: <CoinIcon /> },
+  { label: "Poupanças", message: "Quais as melhores estratégias de poupança para o meu perfil?", bg: "bg-emerald-50", text: "text-emerald-700", icon: <MoneyManagerIcon /> },
+  { label: "Gestão", message: "Como posso organizar melhor o meu orçamento mensal?", bg: "bg-violet-50", text: "text-violet-700", icon: <MoneyPotIcon /> },
+  { label: "Dinheiro", message: "Dá-me dicas práticas para controlar melhor o meu dinheiro.", bg: "bg-rose-50", text: "text-rose-600", icon: <MoneySignIcon /> },
 ];
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -35,11 +35,12 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const Chat: React.FC = () => {
   const {
     messages: apiMessages,
-    conversationId,
     isSending,
     isLoadingConversation,
+    error,
     sendMessage,
     clearConversation,
+    fetchHistory,
   } = useChat();
 
   const [input, setInput] = useState("");
@@ -47,10 +48,35 @@ const Chat: React.FC = () => {
   const [typingIdx, setTypingIdx] = useState<number | null>(null);
   const prevCountRef = useRef(apiMessages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isNearBottomRef = useRef(true);
   // Track if the next message batch comes from history load (not a live AI response)
   const wasLoadingConversationRef = useRef(false);
+
+  // Fetch history on mount (defense in depth for mobile where sidebar may not run effects)
+  useEffect(() => {
+    fetchHistory();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Textarea auto-grow: JS fallback for Safari/Firefox (fieldSizing:content not supported)
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [input]);
+
   useEffect(() => {
     if (isLoadingConversation) wasLoadingConversationRef.current = true;
+  }, [isLoadingConversation]);
+
+  // Reset wasLoadingConversationRef if loading ended but messages didn't change (error case)
+  useEffect(() => {
+    if (!isLoadingConversation && wasLoadingConversationRef.current) {
+      const t = setTimeout(() => { wasLoadingConversationRef.current = false; }, 50);
+      return () => clearTimeout(t);
+    }
   }, [isLoadingConversation]);
 
   useEffect(() => {
@@ -67,29 +93,50 @@ const Chat: React.FC = () => {
     }
   }, [apiMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Welcome bubble only on new/empty conversations — never on loaded history
+  const isNewConversation = apiMessages.length === 0;
   const displayMessages: LocalMessage[] = [
-    ...INITIAL_MESSAGES,
+    ...(isNewConversation ? INITIAL_MESSAGES : []),
     ...apiMessages.map((m) => ({ text: m.content, isUser: m.role === "user" })),
   ];
 
+  // Track if user is near bottom to decide whether to autoscroll
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  }, []);
+
+  // Smart autoscroll: only when user is near bottom (don't interrupt manual reading)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isNearBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [displayMessages.length, isSending]);
 
-  // Sync welcome state when a conversation is loaded from sidebar
+  // On history load complete: instant jump to bottom regardless of scroll position
   useEffect(() => {
-    if (apiMessages.length > 0) setShowWelcome(false);
-    else setShowWelcome(true);
-  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isLoadingConversation && apiMessages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [isLoadingConversation]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync welcome state: hide during load, show only when truly no messages
+  useEffect(() => {
+    if (isLoadingConversation) { setShowWelcome(false); return; }
+    setShowWelcome(apiMessages.length === 0);
+  }, [apiMessages.length, isLoadingConversation]);
 
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg) return;
-    if (text !== undefined) posthog.capture("ai_topic_selected", { topic: msg });
+    if (text !== undefined) posthog.capture("ai_topic_selected", { topic: text });
     else posthog.capture("ai_message_sent", { message_length: msg.length });
     sendMessage(msg);
     setInput("");
     setShowWelcome(false);
+    isNearBottomRef.current = true;
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -102,6 +149,7 @@ const Chat: React.FC = () => {
     clearConversation();
     setShowWelcome(true);
     prevCountRef.current = 0;
+    isNearBottomRef.current = true;
   };
 
   return (
@@ -133,7 +181,11 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto min-h-0"
+      >
         {isLoadingConversation ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
             <Loader2 className="w-6 h-6 animate-spin text-[#003cc3]/40" />
@@ -141,12 +193,33 @@ const Chat: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col px-4 py-4">
+
+            {/* Inline error banner */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 font-medium"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <AnimatePresence initial={false}>
               {displayMessages.map((msg, i) => {
-                const apiIdx = i - INITIAL_MESSAGES.length;
+                const isInitMsg = isNewConversation && i < INITIAL_MESSAGES.length;
+                const apiIdx = isInitMsg ? -1 : i - (isNewConversation ? INITIAL_MESSAGES.length : 0);
+                const key = isInitMsg
+                  ? `init-${i}`
+                  : `api-${apiIdx}-${apiMessages[apiIdx]?.timestamp ?? i}`;
                 return (
                   <motion.div
-                    key={i}
+                    key={key}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.18, ease: EASE_OUT }}
@@ -154,7 +227,7 @@ const Chat: React.FC = () => {
                     <Message
                       isUser={msg.isUser}
                       text={msg.text}
-                      isTyping={!msg.isUser && typingIdx === apiIdx}
+                      isTyping={!msg.isUser && !isInitMsg && typingIdx === apiIdx}
                       onTypingComplete={handleTypingComplete}
                     />
                   </motion.div>
@@ -166,7 +239,7 @@ const Chat: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 ml-[42px] my-2"
+                className="flex items-center gap-2 sm:ml-[42px] my-2"
               >
                 <div className="flex gap-1">
                   {[0, 1, 2].map((i) => (
@@ -188,7 +261,7 @@ const Chat: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
                   transition={{ duration: 0.2, ease: EASE_OUT }}
-                  className="mt-3 ml-[42px]"
+                  className="mt-3 sm:ml-[42px]"
                 >
                   <p className="text-xs text-slate-400 font-medium mb-3">
                     Escolha um tema ou escreva a sua pergunta:
@@ -197,7 +270,7 @@ const Chat: React.FC = () => {
                     {CHAT_OPTIONS.map((opt) => (
                       <motion.button
                         key={opt.label}
-                        onClick={() => handleSend(opt.label)}
+                        onClick={() => handleSend(opt.message)}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.97 }}
                         className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-[#003cc3]/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
@@ -222,14 +295,14 @@ const Chat: React.FC = () => {
       <div className="flex-shrink-0 bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-4 py-3 mt-3">
         <div className="flex items-end gap-3">
           <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Escreva a sua pergunta…"
             rows={1}
             disabled={isSending || isLoadingConversation}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none max-h-32 leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ fieldSizing: "content" } as React.CSSProperties}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none overflow-y-auto leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <motion.button
             onClick={() => handleSend()}

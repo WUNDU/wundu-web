@@ -20,6 +20,12 @@ const UploadSection: React.FC<{ onUploadClick: () => void }> = ({
     whileHover={{ transition: { duration: 0.18, ease: EASE_OUT } }}
     className="group relative flex flex-col items-center justify-center p-3 sm:p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-[#ffd400]/60 transition-colors duration-300 cursor-pointer w-full h-full min-h-0 sm:min-h-[140px] overflow-hidden"
     onClick={onUploadClick}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onUploadClick();
+      }
+    }}
     role="button"
     tabIndex={0}
   >

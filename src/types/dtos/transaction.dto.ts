@@ -91,3 +91,11 @@ export interface TransactionFormData {
 }
 
 export type TransactionFormField = keyof TransactionFormData;
+
+export interface TransactionPatchPayload {
+  source?: TransactionSource;
+  amount?: number;
+  description?: string;
+  transactionDate?: string;
+  category?: { name: string };
+}

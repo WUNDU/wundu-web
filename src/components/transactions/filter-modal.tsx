@@ -51,7 +51,7 @@ export function FilterModal({
 
             <p className="text-xs font-bold text-[#64748b] mb-2">Tipo</p>
             <div className="flex gap-2 mb-5">
-              {([["all","Todos"],["EXPENSE","Despesas"],["INCOME","Receitas"]] as const).map(([v,l]) => (
+              {([["all","Todos"],["EXPENSE","Despesas"]] as const).map(([v,l]) => (
                 <button key={v} onClick={() => setTypeFilter(v)} className={pill(typeFilter === v)}>{l}</button>
               ))}
             </div>

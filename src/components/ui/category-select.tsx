@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check, X, Loader2 } from "lucide-react";
 import { useCategoryStore } from "@/store/category-store";
 import type { Category } from "@/types/dtos/category.dto";
+import { getCategoryStyle } from "@/utils/category-style";
 
 export interface CategorySelectProps {
   /** The currently selected value — an ID (default) or a name, depending on `valueType` */
@@ -83,10 +84,13 @@ export function CategorySelect({
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
             A carregar…
           </span>
-        ) : (
-          <span className={!displayName ? "text-slate-400" : "text-[#1e293b]"}>
-            {displayName || placeholder}
+        ) : selectedCat ? (
+          <span className="flex items-center gap-2 text-[#1e293b]">
+            {(() => { const s = getCategoryStyle(selectedCat.name); const Icon = s.icon; return <Icon className="w-4 h-4 flex-shrink-0" style={{ color: s.color }} />; })()}
+            {displayName}
           </span>
+        ) : (
+          <span className="text-slate-400">{placeholder}</span>
         )}
         <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
       </button>
@@ -134,7 +138,10 @@ export function CategorySelect({
                         <p className="px-4 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Sistema
                         </p>
-                        {systemCats.map((cat) => (
+                        {systemCats.map((cat) => {
+                          const style = getCategoryStyle(cat.name);
+                          const Icon = style.icon;
+                          return (
                           <button
                             key={cat.id}
                             type="button"
@@ -145,12 +152,16 @@ export function CategorySelect({
                                 : "text-[#1e293b] hover:bg-slate-50"
                             }`}
                           >
-                            {cat.name}
+                            <span className="flex items-center gap-2.5">
+                              <Icon className="w-4 h-4 flex-shrink-0" style={{ color: style.color }} />
+                              {cat.name}
+                            </span>
                             {isSelected(cat) && (
                               <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />
                             )}
                           </button>
-                        ))}
+                          );
+                        })}
                       </>
                     )}
 
@@ -162,7 +173,10 @@ export function CategorySelect({
                         <p className="px-4 pt-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Personalizadas
                         </p>
-                        {userCats.map((cat) => (
+                        {userCats.map((cat) => {
+                          const style = getCategoryStyle(cat.name);
+                          const Icon = style.icon;
+                          return (
                           <button
                             key={cat.id}
                             type="button"
@@ -173,12 +187,16 @@ export function CategorySelect({
                                 : "text-[#1e293b] hover:bg-blue-50/40"
                             }`}
                           >
-                            {cat.name}
+                            <span className="flex items-center gap-2.5">
+                              <Icon className="w-4 h-4 flex-shrink-0" style={{ color: style.color }} />
+                              {cat.name}
+                            </span>
                             {isSelected(cat) && (
                               <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />
                             )}
                           </button>
-                        ))}
+                          );
+                        })}
                       </>
                     )}
 

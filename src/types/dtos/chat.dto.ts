@@ -39,12 +39,11 @@ export function formatConvoDate(d: JavaDate): string {
   const date = parseJavaDate(d);
   if (!date) return "—";
   const now = new Date();
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
-  if (isToday) {
-    return date.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
-  }
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86_400_000);
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const time = date.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+  if (dateOnly.getTime() === today.getTime()) return `Hoje, ${time}`;
+  if (dateOnly.getTime() === yesterday.getTime()) return `Ontem, ${time}`;
   return date.toLocaleDateString("pt-AO", { day: "2-digit", month: "short" });
 }

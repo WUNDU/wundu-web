@@ -96,12 +96,21 @@ function MarkdownContent({ text }: { text: string }) {
 }
 
 // ─── Typing animation — renders markdown live as characters arrive ────────────
+// Skip animation for long responses to avoid multi-second delays
+const TYPING_CHAR_LIMIT = 200;
+
 function TypingText({ text, onComplete }: { text: string; onComplete?: () => void }) {
-  const [charCount, setCharCount] = React.useState(0);
+  const skip = text.length > TYPING_CHAR_LIMIT;
+  const [charCount, setCharCount] = React.useState(() => (skip ? text.length : 0));
   const onCompleteRef = React.useRef(onComplete);
   onCompleteRef.current = onComplete;
 
   React.useEffect(() => {
+    if (text.length > TYPING_CHAR_LIMIT) {
+      setCharCount(text.length);
+      onCompleteRef.current?.();
+      return;
+    }
     setCharCount(0);
     let i = 0;
     const timer = setInterval(() => {
@@ -137,30 +146,54 @@ const Message: React.FC<{
 }> = ({ text, isUser, isTyping, onTypingComplete }) => {
   if (isUser) {
     return (
-      <div className="flex justify-end items-end gap-2.5 mb-3">
-        <div className="bg-gradient-to-br from-[#003cc3] to-[#001a66] px-4 py-3 rounded-2xl rounded-br-sm max-w-[72%] shadow-sm">
-          <p className="text-sm text-white leading-relaxed whitespace-pre-wrap">{text}</p>
+      <div className="mb-3">
+        {/* Mobile: avatar + label stacked above bubble */}
+        <div className="flex items-center justify-end gap-2 mb-1 sm:hidden">
+          <span className="text-[10px] text-slate-400 font-medium">Você</span>
+          <div className="w-6 h-6 flex-shrink-0 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+            </svg>
+          </div>
         </div>
-        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-          </svg>
+        {/* Bubble: full-width self-end on mobile, capped on desktop */}
+        <div className="flex sm:justify-end sm:items-end sm:gap-2.5">
+          <div className="bg-gradient-to-br from-[#003cc3] to-[#001a66] px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tr-sm sm:rounded-tr-2xl sm:rounded-br-sm w-full sm:w-auto sm:max-w-[72%] shadow-sm">
+            <p className="text-sm text-white leading-relaxed whitespace-pre-wrap">{text}</p>
+          </div>
+          {/* Desktop avatar */}
+          <div className="hidden sm:flex w-8 h-8 flex-shrink-0 rounded-full bg-slate-200 items-center justify-center text-slate-500">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+            </svg>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-start gap-2.5 mb-3">
-      <div className="w-8 h-8 flex-shrink-0 rounded-[10px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
-        <IAIcon className="w-4 h-4 text-white" />
+    <div className="mb-3">
+      {/* Mobile: avatar + label stacked above bubble */}
+      <div className="flex items-center gap-2 mb-1 sm:hidden">
+        <div className="w-6 h-6 flex-shrink-0 rounded-[8px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
+          <IAIcon className="w-3 h-3 text-white" />
+        </div>
+        <span className="text-[10px] text-slate-400 font-medium">Wundu AI</span>
       </div>
-      <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-sm max-w-[72%] shadow-[0_2px_8px_rgba(0,60,195,0.08)] border border-slate-100">
-        {isTyping ? (
-          <TypingText text={text} onComplete={onTypingComplete} />
-        ) : (
-          <MarkdownContent text={text} />
-        )}
+      {/* Bubble */}
+      <div className="flex sm:items-start sm:gap-2.5">
+        {/* Desktop avatar */}
+        <div className="hidden sm:flex w-8 h-8 flex-shrink-0 rounded-[10px] bg-gradient-to-br from-[#003cc3] to-[#001a66] items-center justify-center shadow-sm">
+          <IAIcon className="w-4 h-4 text-white" />
+        </div>
+        <div className="bg-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tl-sm sm:rounded-tl-2xl sm:rounded-bl-sm w-full sm:max-w-[72%] shadow-[0_2px_8px_rgba(0,60,195,0.08)] border border-slate-100">
+          {isTyping ? (
+            <TypingText text={text} onComplete={onTypingComplete} />
+          ) : (
+            <MarkdownContent text={text} />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -68,6 +68,7 @@ export interface UploadProps {
 export type DocumentType = "image" | "document" | "transaction";
 
 export interface Document {
+  id?: string;
   type: DocumentType;
   name: string;
   description?: string;

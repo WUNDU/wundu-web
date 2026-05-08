@@ -37,9 +37,11 @@ const MovementSection: React.FC<MovementSectionProps> = ({
   const { transactions: rawTransactions } = useTransaction();
 
   const handleTransactionClick = useCallback((doc: Document) => {
-    const found = rawTransactions.find(
-      (tx) => tx.amount === doc.amount && tx.transactionDate === doc.timestamp,
-    );
+    const found = doc.id
+      ? rawTransactions.find((tx) => tx.id === doc.id)
+      : rawTransactions.find(
+          (tx) => tx.amount === doc.amount && tx.transactionDate === doc.timestamp,
+        );
     if (found) setSelectedTransaction(found);
   }, [rawTransactions]);
 

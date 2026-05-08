@@ -4,6 +4,7 @@ import { transactionService } from "@/services/transaction.service";
 import type {
   DefineCategoryRequest,
   TransactionDTO,
+  TransactionPatchPayload,
   TransactionRequest,
   TransactionResponse,
   TransactionUpdateRequest,
@@ -42,6 +43,7 @@ interface TransactionState {
   // CRUD
   create(payload: TransactionRequest): Promise<boolean>;
   complete(id: string, payload: TransactionUpdateRequest): Promise<boolean>;
+  update(id: string, payload: TransactionPatchPayload): Promise<TransactionResponse | null>;
   defineCategory(id: string, payload: DefineCategoryRequest): Promise<boolean>;
   remove(id: string): Promise<boolean>;
 }
@@ -261,6 +263,30 @@ export const useTransactionStore = create<TransactionState>()(
             error instanceof Error ? error.message : "Erro ao atualizar transação";
           useUiStore.getState().showNotification("error", "Erro", err);
           return false;
+        }
+      },
+
+      update: async (id: string, payload: TransactionPatchPayload): Promise<TransactionResponse | null> => {
+        try {
+          const updated = await transactionService.update(id, payload);
+          set((s) => ({
+            transactions: sortByDate(
+              patchList(
+                s.transactions as unknown as TransactionResponse[],
+                id,
+                updated,
+              ) as unknown as TransactionDTO[],
+            ),
+            allTransactions: patchList(s.allTransactions, id, updated),
+            notPaginated: patchList(s.notPaginated, id, updated),
+          }));
+          useUiStore.getState().showNotification("success", "Transação actualizada", "Alterações guardadas com sucesso!");
+          return updated;
+        } catch (error: any) {
+          const err =
+            error instanceof Error ? error.message : "Erro ao actualizar transação";
+          useUiStore.getState().showNotification("error", "Erro", err);
+          return null;
         }
       },
 

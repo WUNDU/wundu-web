@@ -14,7 +14,7 @@ export function TransactionItem({ tx, index, onClick }: { tx: TransactionDTO; in
   const categoryName = tx.category?.name || "Outro";
   const { icon: Icon, color, bg } = getCategoryStyle(categoryName);
   const time = tx.transactionDate
-    ? new Date(tx.transactionDate).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })
+    ? new Date(tx.transactionDate).toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" })
     : null;
   const primary   = tx.description?.trim() || categoryName;
   const secondary = tx.description?.trim() ? categoryName : null;
