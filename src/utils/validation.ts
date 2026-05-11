@@ -1,8 +1,6 @@
 export interface PasswordValidation {
   isValid: boolean;
   criteria: {
-    minLength: boolean;
-    maxLength: boolean;
     hasLowercase: boolean;
     hasUppercase: boolean;
     hasNumber: boolean;
@@ -13,7 +11,7 @@ export interface PasswordValidation {
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PASSWORD_STRONG_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{4,6}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/;
 export const PASSWORD_MEDIUM_REGEX = /^.{4,}$/;
 export const NAME_REGEX = /^[a-zA-ZÀ-ÿ\s]{4,}$/;
 
@@ -24,8 +22,6 @@ export const validatePassword = (password: string, strong = false): boolean =>
 
 export const validatePasswordDetailed = (password: string): PasswordValidation => {
   const criteria = {
-    minLength: password.length >= 4,
-    maxLength: password.length <= 6,
     hasLowercase: /[a-z]/.test(password),
     hasUppercase: /[A-Z]/.test(password),
     hasNumber: /\d/.test(password),
@@ -33,8 +29,6 @@ export const validatePasswordDetailed = (password: string): PasswordValidation =
   };
 
   const messages: string[] = [];
-  if (!criteria.minLength) messages.push("Mínimo de 4 caracteres");
-  if (!criteria.maxLength) messages.push("Máximo de 6 caracteres");
   if (!criteria.hasLowercase) messages.push("Pelo menos uma letra minúscula");
   if (!criteria.hasUppercase) messages.push("Pelo menos uma letra maiúscula");
   if (!criteria.hasNumber) messages.push("Pelo menos um número");
@@ -58,7 +52,7 @@ export const getEmailErrorMessage = (): string =>
 
 export const getPasswordErrorMessage = (strong = false): string =>
   strong
-    ? "Senha deve ter entre 4 e 6 caracteres, incluindo maiúscula, minúscula, número e caractere especial (@$!%*?&)"
+    ? "Senha deve conter maiúscula, minúscula, número e caractere especial (@$!%*?&)"
     : "Senha deve ter no mínimo 4 caracteres";
 
 export const getNameErrorMessage = (): string =>
