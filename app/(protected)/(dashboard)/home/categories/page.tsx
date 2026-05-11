@@ -110,8 +110,8 @@ function ResumoTab({
     .filter(([k, v]) => k !== "__none__" && v > 0)
     .sort((a, b) => b[1] - a[1]);
 
-  // categories with limit and spending — for alert section
-  const atRisk = systemCategories.filter((c) => {
+  // all categories with limit and spending — for alert section
+  const atRisk = [...systemCategories, ...myCategories].filter((c) => {
     const limit = getLimitKey(c.id);
     const spent = monthlySpendByName[c.name] ?? 0;
     if (!limit || spent === 0) return false;
@@ -278,8 +278,17 @@ function SystemCategoryCard({
 }
 
 // ─── Custom category card ─────────────────────────────────────────────────────
-function CustomCategoryCard({ cat, spent, index }: { cat: Category; spent: number; index: number }) {
+function CustomCategoryCard({
+  cat, limit, spent, onSetLimit, index,
+}: {
+  cat: Category; limit?: { monthlyLimit: number }; spent: number;
+  onSetLimit: () => void; index: number;
+}) {
   const { icon: Icon, color, bg } = getCategoryStyle(cat.name);
+  const monthlyLimit = limit?.monthlyLimit ?? 0;
+  const pct = monthlyLimit > 0 ? Math.min(Math.round((spent / monthlyLimit) * 100), 100) : 0;
+  const barColor = progressColor(pct);
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03, duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -290,17 +299,49 @@ function CustomCategoryCard({ cat, spent, index }: { cat: Category; spent: numbe
           <Icon className="w-4.5 h-4.5" style={{ color }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#1e293b] truncate">{cat.name}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-[#1e293b] truncate">{cat.name}</p>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: bg, color }}>
+              PESSOAL
+            </span>
+          </div>
           {spent > 0 ? (
-            <p className="text-xs font-semibold mt-0.5" style={{ color }}>KZ {formatCurrency(spent)} gastos este mês</p>
+            <p className="text-xs font-semibold mt-0.5 text-slate-500">KZ {formatCurrency(spent)} gastos este mês</p>
           ) : (
             <p className="text-xs text-slate-300 font-medium mt-0.5">Sem actividade este mês</p>
           )}
         </div>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: bg, color }}>
-          PESSOAL
-        </span>
+        <button onClick={onSetLimit}
+          className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+          style={{ color, borderColor: color + "40", backgroundColor: bg }}>
+          {limit ? <Pencil className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+          {limit ? "Editar" : "Limite"}
+        </button>
       </div>
+      {monthlyLimit > 0 && (
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] text-slate-400 font-medium">
+              KZ {formatCurrency(spent)} <span className="text-slate-300">/ KZ {formatCurrency(monthlyLimit)}</span>
+            </span>
+            <span className="text-[10px] font-bold" style={{ color: barColor }}>{pct}%</span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <motion.div className="h-full rounded-full" initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.04 }}
+              style={{ backgroundColor: barColor }} />
+          </div>
+          {pct >= 80 && (
+            <div className="flex items-center gap-1 mt-1.5">
+              <AlertTriangle className="w-3 h-3" style={{ color: barColor }} />
+              <span className="text-[10px] font-bold" style={{ color: barColor }}>
+                {pct >= 100 ? "Limite atingido!" : "A aproximar do limite"}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -322,7 +363,7 @@ export default function CategoriesPage() {
   useEffect(() => { if (!hasFetchedAll) getAllNotPaginated(); }, [hasFetchedAll, getAllNotPaginated]);
   useEffect(() => {
     if (!categories.length) return;
-    categories.filter((c) => !c.userId).forEach((c) => fetchLimit(c.id));
+    categories.forEach((c) => fetchLimit(c.id));
   }, [categories]);
 
   const monthlySpendByName = useMemo(() => {
@@ -468,7 +509,10 @@ export default function CategoriesPage() {
               <div className="space-y-2">
                 {myCategories.map((cat, i) => (
                   <CustomCategoryCard key={cat.id} cat={cat}
-                    spent={monthlySpendByName[cat.name] ?? 0} index={i} />
+                    limit={getLimitKey(cat.id)}
+                    spent={monthlySpendByName[cat.name] ?? 0}
+                    onSetLimit={() => setLimitTarget(cat)}
+                    index={i} />
                 ))}
               </div>
             )}
