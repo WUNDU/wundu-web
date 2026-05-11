@@ -159,14 +159,6 @@ const LoginPage: React.FC = () => {
                       disabled={isSubmitting}
                       className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
                     />
-                    <div className="flex justify-end">
-                      <Link
-                        href={ROUTES.RESET_PASSWORD}
-                        className="text-xs font-bold text-slate-500 transition-colors hover:text-slate-900"
-                      >
-                        Esqueceu a senha?
-                      </Link>
-                    </div>
                   </div>
                 </div>
 
