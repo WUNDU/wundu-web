@@ -48,16 +48,24 @@ const LoginPage: React.FC = () => {
     let valid = true;
     const nextErrors = { email: "", password: "" };
 
-    if (!validateEmail(form.email)) {
+    if (!form.email.trim()) {
+      nextErrors.email = "Por favor, insira o seu e-mail";
+      valid = false;
+    } else if (!validateEmail(form.email)) {
       nextErrors.email = "Por favor, insira um email válido";
       valid = false;
     }
 
-    const passwordValidation = validatePasswordDetailed(form.password);
-    if (!passwordValidation.isValid) {
-      nextErrors.password =
-        "Senha deve ter entre 8 e 12 caracteres, com letras maiúsculas, minúsculas, números e caractere especial";
+    if (!form.password) {
+      nextErrors.password = "Por favor, insira a sua palavra-passe";
       valid = false;
+    } else {
+      const passwordValidation = validatePasswordDetailed(form.password);
+      if (!passwordValidation.isValid) {
+        nextErrors.password =
+          "Senha deve ter entre 8 e 12 caracteres, com letras maiúsculas, minúsculas, números e caractere especial";
+        valid = false;
+      }
     }
 
     if (!valid) {
@@ -170,11 +178,11 @@ const LoginPage: React.FC = () => {
 
                 {/* Reserved Space for Feedback - Prevents layout jump */}
                 <div className="min-h-17 py-3 flex items-center">
-                  {(errors.password || loginError) && (
+                  {(errors.email || errors.password || loginError) && (
                     <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
                       <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                       <p className="text-xs font-bold text-red-600">
-                        {errors.password || loginError}
+                        {errors.email || errors.password || loginError}
                       </p>
                     </div>
                   )}

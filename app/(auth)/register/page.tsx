@@ -14,6 +14,7 @@ import {
   validateEmail,
   validatePhoneNumber,
   validatePasswordDetailed,
+  validateName,
   type PasswordValidation,
 } from "@/utils/validation";
 import posthog from "posthog-js";
@@ -132,11 +133,17 @@ const RegisterPage = () => {
     let valid = true;
     const nextErrors = { name: "", email: "", phone: "" };
 
-    if (!personalForm.name || personalForm.name.trim().length < 3) {
-      nextErrors.name = "Por favor, insira seu nome completo";
+    if (!personalForm.name.trim()) {
+      nextErrors.name = "Por favor, insira o seu nome completo";
+      valid = false;
+    } else if (!validateName(personalForm.name)) {
+      nextErrors.name = "Nome deve ter pelo menos 4 letras e não pode conter números";
       valid = false;
     }
-    if (!validateEmail(personalForm.email)) {
+    if (!personalForm.email.trim()) {
+      nextErrors.email = "Por favor, insira o seu e-mail";
+      valid = false;
+    } else if (!validateEmail(personalForm.email)) {
       nextErrors.email = "Por favor, insira um email válido";
       valid = false;
     }
@@ -197,7 +204,11 @@ const RegisterPage = () => {
       return;
     }
     if (securityForm.password !== securityForm.confirmPassword) {
-      setPasswordError("As senhas digitadas não são iguais.");
+      setPasswordError(
+        !securityForm.confirmPassword
+          ? "Por favor, confirme a sua senha."
+          : "As senhas digitadas não são iguais."
+      );
       return;
     }
     setPasswordError("");
@@ -304,6 +315,11 @@ const RegisterPage = () => {
       key: "minLength",
       label: "8+ chars",
       isValid: passwordValidation.criteria.minLength,
+    },
+    {
+      key: "maxLength",
+      label: "≤12 chars",
+      isValid: passwordValidation.criteria.maxLength,
     },
     {
       key: "hasLowercase",
