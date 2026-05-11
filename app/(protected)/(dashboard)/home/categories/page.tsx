@@ -134,7 +134,7 @@ function ResumoTab({
       {/* Alerts — at-risk limits */}
       {atRisk.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">⚠️ Limites em risco</p>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Limites em risco</p>
           {atRisk.map((cat) => {
             const limit = getLimitKey(cat.id)!;
             const spent = monthlySpendByName[cat.name] ?? 0;
