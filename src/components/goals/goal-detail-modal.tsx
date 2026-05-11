@@ -79,6 +79,8 @@ function StatChip({ label, value, accent }: { label: string; value: string; acce
 
 // ── History row ───────────────────────────────────────────────────────────────
 function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number; isLast: boolean }) {
+  const isAdjustment = item.changeType === "TARGET_ADJUSTMENT";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -88,22 +90,44 @@ function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number
     >
       {/* Timeline spine */}
       <div className="flex flex-col items-center gap-0 w-5 flex-shrink-0 pt-1">
-        <div className="w-2 h-2 rounded-full bg-[#003cc3] flex-shrink-0 ring-4 ring-[#003cc3]/10" />
+        <div className={`w-2 h-2 rounded-full flex-shrink-0 ring-4 ${
+          isAdjustment
+            ? "bg-amber-400 ring-amber-400/20"
+            : "bg-[#003cc3] ring-[#003cc3]/10"
+        }`} />
         {!isLast && <div className="flex-1 w-px bg-slate-100 mt-1" />}
       </div>
 
       {/* Content */}
-      <div className={`flex-1 min-w-0 flex items-center justify-between gap-2 pb-3 ${isLast ? "" : "border-b border-slate-50"}`}>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-[#1e293b] truncate">{formatAOA(item.amount)}</p>
-          <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">{formatDate(item.progressDate)}</p>
-        </div>
-        <div className="text-right flex-shrink-0">
-          <span className="inline-block text-[11px] font-black text-[#003cc3] bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
-            {Math.round(item.progressPercent ?? 0)}%
-          </span>
-          <p className="text-[10px] text-[#94a3b8] mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
-        </div>
+      <div className={`flex-1 min-w-0 pb-3 ${isLast ? "" : "border-b border-slate-50"}`}>
+        {isAdjustment ? (
+          /* TARGET_ADJUSTMENT — show note, no amount badge */
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <span className="inline-block text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full mb-1">
+                Ajuste de meta
+              </span>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                {item.note ?? `Valor alvo alterado para ${formatAOA(item.amount)}`}
+              </p>
+              <p className="text-[10px] text-[#94a3b8] font-medium mt-0.5">{formatDate(item.progressDate)}</p>
+            </div>
+          </div>
+        ) : (
+          /* CONTRIBUTION — original layout */
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#1e293b] truncate">{formatAOA(item.amount)}</p>
+              <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">{formatDate(item.progressDate)}</p>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <span className="inline-block text-[11px] font-black text-[#003cc3] bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
+                {Math.round(item.progressPercent ?? 0)}%
+              </span>
+              <p className="text-[10px] text-[#94a3b8] mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

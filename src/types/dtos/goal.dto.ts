@@ -16,12 +16,16 @@ export interface GoalRequest {
 
 export type GoalPayload = GoalRequest;
 
+export type GoalProgressChangeType = "CONTRIBUTION" | "TARGET_ADJUSTMENT";
+
 export interface GoalProgress {
   id: string;
   amount: number;
   accumulatedAmount: number;
   progressPercent: number;
   progressDate: string;
+  changeType: GoalProgressChangeType;
+  note?: string;
   createdAt: string;
 }
 
