@@ -7,11 +7,8 @@ class LimitService {
     return data;
   }
 
-  async getByUserAndCategory(
-    userId: string,
-    categoryId: string,
-  ): Promise<UserCategoryLimitResponse> {
-    const { data } = await apiClient.get<UserCategoryLimitResponse>(`/limits/${userId}/${categoryId}`);
+  async getByCategory(categoryId: string): Promise<UserCategoryLimitResponse> {
+    const { data } = await apiClient.get<UserCategoryLimitResponse>(`/limits/${categoryId}`);
     return data;
   }
 }

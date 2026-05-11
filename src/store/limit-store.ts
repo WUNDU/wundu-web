@@ -7,7 +7,7 @@ interface LimitStore {
   isLoading: boolean;
   error: string | null;
   define(payload: UserCategoryLimitRequest): Promise<boolean>;
-  fetchLimit(userId: string, categoryId: string): Promise<void>;
+  fetchLimit(categoryId: string): Promise<void>;
   clearAll(): void;
 }
 
@@ -21,8 +21,7 @@ export const useLimitStore = create<LimitStore>((set, get) => ({
     loading.show("Definindo limite...");
     try {
       const result = await limitService.define(payload);
-      const key = `${payload.userId}_${payload.categoryId}`;
-      set((s) => ({ limits: { ...s.limits, [key]: result } }));
+      set((s) => ({ limits: { ...s.limits, [result.categoryId]: result } }));
       loading.hide();
       notify.success("Limite definido com sucesso!");
       return true;
@@ -34,16 +33,14 @@ export const useLimitStore = create<LimitStore>((set, get) => ({
     }
   },
 
-  fetchLimit: async (userId: string, categoryId: string) => {
-    const key = `${userId}_${categoryId}`;
-    if (get().limits[key]) return;
+  fetchLimit: async (categoryId: string) => {
+    if (get().limits[categoryId]) return;
     set({ isLoading: true });
     try {
-      const result = await limitService.getByUserAndCategory(userId, categoryId);
-      set((s) => ({ limits: { ...s.limits, [key]: result }, isLoading: false }));
+      const result = await limitService.getByCategory(categoryId);
+      set((s) => ({ limits: { ...s.limits, [categoryId]: result }, isLoading: false }));
     } catch (error: any) {
-      const err = error?.response?.data?.message || "Limite não encontrado";
-      set({ error: err, isLoading: false });
+      set({ isLoading: false });
     }
   },
 

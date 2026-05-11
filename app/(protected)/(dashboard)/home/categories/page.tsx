@@ -321,9 +321,9 @@ export default function CategoriesPage() {
   useEffect(() => { if (!hasFetched) fetchActive(); }, [hasFetched, fetchActive]);
   useEffect(() => { if (!hasFetchedAll) getAllNotPaginated(); }, [hasFetchedAll, getAllNotPaginated]);
   useEffect(() => {
-    if (!userId || !categories.length) return;
-    categories.filter((c) => !c.userId).forEach((c) => fetchLimit(userId, c.id));
-  }, [userId, categories]);
+    if (!categories.length) return;
+    categories.filter((c) => !c.userId).forEach((c) => fetchLimit(c.id));
+  }, [categories]);
 
   const monthlySpendByName = useMemo(() => {
     const now = new Date();
@@ -340,7 +340,7 @@ export default function CategoriesPage() {
 
   const systemCategories = categories.filter((c) => !c.userId);
   const myCategories = categories.filter((c) => !!c.userId);
-  const getLimitKey = (id: string) => userId ? limits[`${userId}_${id}`] : undefined;
+  const getLimitKey = (id: string) => limits[id];
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -356,10 +356,10 @@ export default function CategoriesPage() {
   };
 
   const handleConfirmLimit = useCallback(async (amount: number) => {
-    if (!limitTarget || !userId) return;
-    const ok = await define({ userId, categoryId: limitTarget.id, monthlyLimit: amount });
+    if (!limitTarget) return;
+    const ok = await define({ categoryId: limitTarget.id, monthlyLimit: amount });
     if (ok) setLimitTarget(null);
-  }, [limitTarget, userId, define]);
+  }, [limitTarget, define]);
 
   const TABS = [
     { id: "resumo" as const, label: "Resumo", icon: BarChart3 },
