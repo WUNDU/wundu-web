@@ -12,6 +12,7 @@ import {
   Search,
   Filter,
   X,
+  Loader2,
 } from "lucide-react";
 import { CalendarIcon, ArrowRotateIcon, NoMovementIcon } from "@/constants/icons";
 import { TransactionItem } from "@/components/transactions/transaction-item";
@@ -23,7 +24,16 @@ import posthog from "posthog-js";
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function TransactionsPage() {
-  const { transactions, isLoading, getTransactions: fetch } = useTransaction();
+  const {
+    allTransactions,
+    isLoading,
+    isLoadingMore,
+    isLastPage,
+    totalElements,
+    loadPage,
+    loadMore,
+    resetPagination,
+  } = useTransaction();
 
   const [search, setSearch]               = useState("");
   const [showSearch, setShowSearch]       = useState(false);
@@ -33,7 +43,13 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter]       = useState<TypeFilter>("all");
   const [selected, setSelected]           = useState<TransactionDTO | null>(null);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    resetPagination();
+    loadPage(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const transactions = allTransactions ?? [];
 
   const filtered = useMemo(() => {
     let list = [...transactions];
@@ -56,7 +72,11 @@ export default function TransactionsPage() {
 
   const groups = useMemo(() => groupByDate(filtered), [filtered]);
 
-  const handleRefresh = useCallback(() => fetch(), [fetch]);
+  const handleRefresh = useCallback(() => {
+    resetPagination();
+    loadPage(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSetSortField = useCallback((field: SortField) => {
     setSortField(field);
@@ -199,6 +219,11 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
               {filtered.length} {filtered.length === 1 ? "transação" : "transações"}
+              {totalElements > transactions.length && (
+                <span className="text-slate-400 font-medium text-sm ml-1">
+                  de {totalElements}
+                </span>
+              )}
             </h2>
             <div className="flex items-center gap-1.5 bg-[rgba(0,60,195,0.06)] px-2.5 py-1.5 rounded-full">
               <ChevronRight className="w-3 h-3 text-[#003cc3]" />
@@ -236,6 +261,26 @@ export default function TransactionsPage() {
               </div>
             ))}
           </div>
+
+          {/* Load more */}
+          {!isLastPage && (
+            <div className="px-5 pb-5">
+              <button
+                onClick={() => loadMore()}
+                disabled={isLoadingMore}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#003cc3]/20 bg-[rgba(0,60,195,0.04)] text-[#003cc3] font-bold text-sm hover:bg-[rgba(0,60,195,0.08)] transition-all duration-150 disabled:opacity-60"
+              >
+                {isLoadingMore ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+                {isLoadingMore
+                  ? "A carregar…"
+                  : "Ver mais transações"}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
