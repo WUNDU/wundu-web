@@ -1,5 +1,3 @@
-import { unformatPhoneNumber } from "./format-phone";
-
 export interface PasswordValidation {
   isValid: boolean;
   criteria: {
@@ -15,8 +13,8 @@ export interface PasswordValidation {
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PASSWORD_STRONG_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-export const PASSWORD_MEDIUM_REGEX = /^.{6,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{4,6}$/;
+export const PASSWORD_MEDIUM_REGEX = /^.{4,}$/;
 export const NAME_REGEX = /^[a-zA-ZÀ-ÿ\s]{4,}$/;
 
 export const validateEmail = (email: string): boolean => EMAIL_REGEX.test(email);
@@ -26,8 +24,8 @@ export const validatePassword = (password: string, strong = false): boolean =>
 
 export const validatePasswordDetailed = (password: string): PasswordValidation => {
   const criteria = {
-    minLength: password.length >= 8,
-    maxLength: password.length <= 12,
+    minLength: password.length >= 4,
+    maxLength: password.length <= 6,
     hasLowercase: /[a-z]/.test(password),
     hasUppercase: /[A-Z]/.test(password),
     hasNumber: /\d/.test(password),
@@ -35,8 +33,8 @@ export const validatePasswordDetailed = (password: string): PasswordValidation =
   };
 
   const messages: string[] = [];
-  if (!criteria.minLength) messages.push("Mínimo de 8 caracteres");
-  if (!criteria.maxLength) messages.push("Máximo de 12 caracteres");
+  if (!criteria.minLength) messages.push("Mínimo de 4 caracteres");
+  if (!criteria.maxLength) messages.push("Máximo de 6 caracteres");
   if (!criteria.hasLowercase) messages.push("Pelo menos uma letra minúscula");
   if (!criteria.hasUppercase) messages.push("Pelo menos uma letra maiúscula");
   if (!criteria.hasNumber) messages.push("Pelo menos um número");
@@ -48,9 +46,9 @@ export const validatePasswordDetailed = (password: string): PasswordValidation =
 export const validateName = (name: string): boolean => NAME_REGEX.test(name.trim());
 
 export const validatePhone = (phone: string): boolean => {
-  const digits = unformatPhoneNumber(phone).replace(/\D/g, "");
-  // Angola: +244 9XX XXX XXX — 12 digits, starts with 2449
-  return digits.length === 12 && digits.startsWith("2449");
+  // Strip +244 or 244 prefix (with optional space) then validate 9-digit local number
+  const cleaned = phone.trim().replace(/^\+?244\s?/, "").replace(/\s/g, "");
+  return /^(9\d{8}|2\d{8})$/.test(cleaned);
 };
 
 export const validatePhoneNumber = (number: string): boolean => validatePhone(number);
@@ -60,8 +58,8 @@ export const getEmailErrorMessage = (): string =>
 
 export const getPasswordErrorMessage = (strong = false): string =>
   strong
-    ? "Senha deve ter no mínimo 8 caracteres, incluindo maiúscula, minúscula e número"
-    : "Senha deve ter no mínimo 6 caracteres";
+    ? "Senha deve ter entre 4 e 6 caracteres, incluindo maiúscula, minúscula, número e caractere especial (@$!%*?&)"
+    : "Senha deve ter no mínimo 4 caracteres";
 
 export const getNameErrorMessage = (): string =>
   "Nome deve ter no mínimo 4 caracteres";

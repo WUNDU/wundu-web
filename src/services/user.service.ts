@@ -4,10 +4,26 @@ import type { UserRequest } from "@/types/dtos/user.dto";
 
 interface LoginResponse {
   accessToken: string;
+  expiresIn: number;
 }
 
 interface RefreshResponse {
   accessToken: string;
+  expiresIn: number;
+}
+
+export interface SessionInfo {
+  id: string;
+  userAgent: string;
+  ipAddress: string;
+  issuedAt: string;
+  expiresAt: string;
+}
+
+export interface EmailVerificationStatus {
+  emailVerified: boolean;
+  email: string;
+  isActive: boolean;
 }
 
 class UserService {
@@ -17,7 +33,6 @@ class UserService {
       email: data.email,
       phoneNumber: data.phone?.replace(/\s+/g, ""),
       password: data.password,
-      planType: "FREE",
     };
     const { data: response } = await apiClient.post<User>("/users", payload, { skipAuth: true });
     return response;
@@ -55,6 +70,23 @@ class UserService {
 
   async update(id: string, payload: Partial<UserRequest>): Promise<User> {
     const { data } = await apiClient.put<User>(`/users/${id}`, payload);
+    return data;
+  }
+  async logoutAll(): Promise<void> {
+    await apiClient.post("/auth/logout-all", undefined, { withCredentials: true });
+  }
+
+  async getSessions(): Promise<SessionInfo[]> {
+    const { data } = await apiClient.get<SessionInfo[]>("/auth/sessions");
+    return data;
+  }
+
+  async revokeSession(sessionId: string): Promise<void> {
+    await api.delete(`/auth/sessions/${sessionId}`);
+  }
+
+  async getEmailVerificationStatus(): Promise<EmailVerificationStatus> {
+    const { data } = await apiClient.get<EmailVerificationStatus>("/auth/email-verification-status");
     return data;
   }
 }

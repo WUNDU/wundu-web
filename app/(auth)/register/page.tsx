@@ -318,12 +318,12 @@ const RegisterPage = () => {
   const passwordCriteriaList = [
     {
       key: "minLength",
-      label: "8+ chars",
+      label: "4+ chars",
       isValid: passwordValidation.criteria.minLength,
     },
     {
       key: "maxLength",
-      label: "≤12 chars",
+      label: "≤6 chars",
       isValid: passwordValidation.criteria.maxLength,
     },
     {

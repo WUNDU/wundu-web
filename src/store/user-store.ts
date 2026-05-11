@@ -42,6 +42,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  retryAfterSeconds: number | null;
   user: User | null;
 
   // Registration multi-step state
@@ -75,6 +76,7 @@ export const useUserStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
       error: null,
+      retryAfterSeconds: null,
       user: null,
 
       // Registration multi-step state
@@ -131,7 +133,7 @@ export const useUserStore = create<AuthState>()(
       },
 
       login: async (email: string, password: string) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, retryAfterSeconds: null });
         try {
           const response = await userService.login(email, password);
           clearUserStores();
@@ -151,13 +153,27 @@ export const useUserStore = create<AuthState>()(
 
           return true;
         } catch (error: any) {
-          const err = getApiErrorMessage(
-            error,
-            error?.response?.status === 500
-              ? "Não foi possível acessar o sistema. Tente mais tarde!"
-              : "Credenciais erradas"
-          );
-          set({ error: err, isLoading: false });
+          const errorCode = error?.errorCode as string | undefined;
+          let errMsg: string;
+
+          if (errorCode === "TOO_MANY_ATTEMPTS") {
+            errMsg = "Demasiadas tentativas. Aguarde antes de tentar novamente.";
+            set({ error: errMsg, isLoading: false, retryAfterSeconds: error?.retryAfterSeconds ?? 900 });
+          } else if (errorCode === "ACCOUNT_DISABLED") {
+            errMsg = "A sua conta foi desactivada. Contacte o suporte.";
+            set({ error: errMsg, isLoading: false });
+          } else if (errorCode === "EMAIL_NOT_VERIFIED") {
+            errMsg = "Por favor, verifique o seu email antes de entrar.";
+            set({ error: errMsg, isLoading: false });
+          } else {
+            errMsg = getApiErrorMessage(
+              error,
+              error?.response?.status === 500
+                ? "Não foi possível acessar o sistema. Tente mais tarde!"
+                : "Credenciais erradas"
+            );
+            set({ error: errMsg, isLoading: false });
+          }
           return false;
         }
       },
@@ -194,7 +210,7 @@ export const useUserStore = create<AuthState>()(
         await get().logout();
       },
 
-      clearError: () => set({ error: null }),
+      clearError: () => set({ error: null, retryAfterSeconds: null }),
 
       // Registration methods
       setRegisterData: (newData) => {

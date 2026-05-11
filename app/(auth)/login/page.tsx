@@ -31,7 +31,7 @@ function getInitials(name: string): string {
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { isAuthenticated, login, error } = useAuth();
+  const { isAuthenticated, login, error, retryAfterSeconds } = useAuth();
 
   const errorRef = useRef<string | null>(null);
   errorRef.current = error ?? null;
@@ -42,8 +42,36 @@ const LoginPage: React.FC = () => {
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const hasError = !!(errors.email || errors.password || loginError);
+  const isBlocked = countdown !== null && countdown > 0;
+
+  const formatCountdown = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  };
+
+  useEffect(() => {
+    if (retryAfterSeconds && retryAfterSeconds > 0) {
+      setCountdown(retryAfterSeconds);
+    }
+  }, [retryAfterSeconds]);
+
+  useEffect(() => {
+    if (!countdown || countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   useEffect(() => {
     if (isAuthenticated) router.push(ROUTES.HOME);
@@ -72,6 +100,7 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (isBlocked) return;
     setErrors({ email: "", password: "" });
     setLoginError(null);
 
@@ -198,27 +227,36 @@ const LoginPage: React.FC = () => {
                   </div>
 
                   <div className="min-h-17 py-3 flex items-center">
-                    {(errors.password || loginError) && (
+                    {isBlocked ? (
+                      <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
+                        <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
+                        <p className="text-xs font-bold text-orange-600">
+                          Demasiadas tentativas. Tente novamente em {formatCountdown(countdown!)}
+                        </p>
+                      </div>
+                    ) : (errors.password || loginError) ? (
                       <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
                         <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                         <p className="text-xs font-bold text-red-600">
                           {errors.password || loginError}
                         </p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   <Button
                     variant="warning"
                     type="submit"
                     fullWidth
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isBlocked}
                     className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <LoadingSpinner size="sm" />A verificar...
                       </span>
+                    ) : isBlocked ? (
+                      `Aguarde ${formatCountdown(countdown!)}`
                     ) : (
                       "Entrar no Wundu"
                     )}
@@ -275,27 +313,36 @@ const LoginPage: React.FC = () => {
                     </div>
 
                     <div className="min-h-17 py-3 flex items-center">
-                      {(errors.email || errors.password || loginError) && (
+                      {isBlocked ? (
+                        <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
+                          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
+                          <p className="text-xs font-bold text-orange-600">
+                            Demasiadas tentativas. Tente novamente em {formatCountdown(countdown!)}
+                          </p>
+                        </div>
+                      ) : (errors.email || errors.password || loginError) ? (
                         <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
                           <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                           <p className="text-xs font-bold text-red-600">
                             {errors.email || errors.password || loginError}
                           </p>
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
                     <Button
                       variant="warning"
                       type="submit"
                       fullWidth
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isBlocked}
                       className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <LoadingSpinner size="sm" />A verificar...
                         </span>
+                      ) : isBlocked ? (
+                        `Aguarde ${formatCountdown(countdown!)}`
                       ) : (
                         "Entrar no Wundu"
                       )}
