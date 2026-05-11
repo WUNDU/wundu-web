@@ -9,7 +9,7 @@ import { ROUTES } from "@/constants/routes";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
-import { validateEmail, validatePasswordDetailed } from "@/utils/validation";
+import { validateEmail } from "@/utils/validation";
 import posthog from "posthog-js";
 
 const LoginPage: React.FC = () => {
@@ -34,7 +34,8 @@ const LoginPage: React.FC = () => {
   }, [isAuthenticated, router]);
 
   const setField = (field: "email" | "password", value: string) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
+    const normalized = field === "email" ? value.toLowerCase() : value;
+    setFormState((prev) => ({ ...prev, [field]: normalized }));
     // Clear field-level and API errors as user types
     setErrors((prev) => ({ ...prev, [field]: "" }));
     setLoginError(null);
@@ -59,13 +60,6 @@ const LoginPage: React.FC = () => {
     if (!form.password) {
       nextErrors.password = "Por favor, insira a sua palavra-passe";
       valid = false;
-    } else {
-      const passwordValidation = validatePasswordDetailed(form.password);
-      if (!passwordValidation.isValid) {
-        nextErrors.password =
-          "Senha deve ter entre 8 e 12 caracteres, com letras maiúsculas, minúsculas, números e caractere especial";
-        valid = false;
-      }
     }
 
     if (!valid) {

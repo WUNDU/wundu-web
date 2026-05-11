@@ -49,7 +49,8 @@ export const validateName = (name: string): boolean => NAME_REGEX.test(name.trim
 
 export const validatePhone = (phone: string): boolean => {
   const digits = unformatPhoneNumber(phone).replace(/\D/g, "");
-  return digits.length === 12 && digits.startsWith("244");
+  // Angola: +244 9XX XXX XXX — 12 digits, starts with 2449
+  return digits.length === 12 && digits.startsWith("2449");
 };
 
 export const validatePhoneNumber = (number: string): boolean => validatePhone(number);

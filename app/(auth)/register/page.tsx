@@ -120,7 +120,8 @@ const RegisterPage = () => {
     field: "name" | "email" | "phone",
     value: string,
   ) => {
-    setPersonalFormState((prev) => ({ ...prev, [field]: value }));
+    const normalized = field === "email" ? value.toLowerCase() : value;
+    setPersonalFormState((prev) => ({ ...prev, [field]: normalized }));
     if (personalErrors[field]) {
       setPersonalErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -147,8 +148,12 @@ const RegisterPage = () => {
       nextErrors.email = "Por favor, insira um email válido";
       valid = false;
     }
-    if (!validatePhoneNumber(personalForm.phone)) {
-      nextErrors.phone = "Por favor, insira um número de telefone válido";
+    const phoneDigits = personalForm.phone.replace(/\D/g, "");
+    if (!personalForm.phone.trim() || phoneDigits.length <= 3) {
+      nextErrors.phone = "Por favor, insira o seu número de telefone";
+      valid = false;
+    } else if (!validatePhoneNumber(personalForm.phone)) {
+      nextErrors.phone = "Número inválido. Use formato angolano: +244 9XX XXX XXX";
       valid = false;
     }
 
@@ -449,7 +454,7 @@ const RegisterPage = () => {
                         label="Nº de telefone"
                         value={personalForm.phone}
                         onChange={(value) => setPersonalField("phone", value)}
-                        placeholder="Seu número"
+                        placeholder="9XX XXX XXX"
                         required
                         isError={!!personalErrors.phone}
                       />
