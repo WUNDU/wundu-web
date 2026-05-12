@@ -18,6 +18,15 @@ interface StatsCardProps {
 
 import { formatAOA } from "@/lib/currency";
 
+function valueFontClass(val: string | number): string {
+  const len = String(val).length;
+  if (len <= 5) return "text-xl lg:text-2xl";
+  if (len <= 8) return "text-lg lg:text-xl";
+  if (len <= 11) return "text-base lg:text-lg";
+  if (len <= 13) return "text-sm lg:text-base";
+  return "text-xs lg:text-sm";
+}
+
 const StatsCard: FC<StatsCardProps> = ({
   icon: Icon,
   value,
@@ -59,7 +68,7 @@ const StatsCard: FC<StatsCardProps> = ({
 
     <div className="relative z-10">
       <h3
-        className={`mb-0.5 text-base font-bold tracking-tight transition-colors duration-150 sm:mb-1 sm:text-lg lg:text-xl ${
+        className={`mb-0.5 font-bold tracking-tight transition-all duration-150 sm:mb-1 leading-tight ${valueFontClass(value)} ${
           isPrimary ? "text-white" : "text-[#1e293b] group-hover:text-[#003cc3]"
         }`}
       >

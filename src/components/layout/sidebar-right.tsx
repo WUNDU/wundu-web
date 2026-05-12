@@ -160,15 +160,23 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                   {[
                     { label: "Metas", value: goals.length.toString() },
                     { label: "Transações", value: transactions.length.toString() },
-                    { label: "Economizado", value: formatAOA(totalSaved), small: true },
-                  ].map((stat, i) => (
-                    <div key={i} className="flex flex-col items-center gap-0.5 py-3 px-1">
-                      <span className={`font-bold text-white ${stat.small ? "text-sm" : "text-base"}`}>
-                        {stat.value}
-                      </span>
-                      <span className="text-[10px] text-white/55 text-center leading-tight">{stat.label}</span>
-                    </div>
-                  ))}
+                    { label: "Economizado", value: formatAOA(totalSaved) },
+                  ].map((stat, i) => {
+                    const len = stat.value.length;
+                    const fontSize =
+                      len <= 4 ? "text-base" :
+                      len <= 7 ? "text-sm" :
+                      len <= 10 ? "text-xs" :
+                      "text-[10px]";
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-0.5 py-3 px-1 min-w-0">
+                        <span className={`font-bold text-white leading-tight text-center ${fontSize}`}>
+                          {stat.value}
+                        </span>
+                        <span className="text-[10px] text-white/55 text-center leading-tight">{stat.label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.div>
 
