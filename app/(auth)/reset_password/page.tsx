@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Button, Input, TextInput } from "@/components/ui";
+import { Button, Input, LogoType, TextInput } from "@/components/ui";
 import { PasswordResetData } from "@/types/ui";
 
 interface CodeInputProps {
@@ -15,20 +15,39 @@ interface CodeInputProps {
   isSuccess?: boolean;
 }
 
-const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError = false, isSuccess = false }) => {
+const CodeInput: React.FC<CodeInputProps> = ({
+  length,
+  value,
+  onChange,
+  isError = false,
+  isSuccess = false,
+}) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  useEffect(() => { inputRefs.current = inputRefs.current.slice(0, length); }, [length]);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  useEffect(() => {
+    inputRefs.current = inputRefs.current.slice(0, length);
+  }, [length]);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number,
+  ) => {
     const val = e.target.value;
     if (/[^0-9]/.test(val)) return;
     const newValue = value.slice(0, index) + val + value.slice(index + 1);
     onChange(newValue);
     if (val && index < length - 1) inputRefs.current[index + 1]?.focus();
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === "Backspace" && !e.currentTarget.value && index > 0) inputRefs.current[index - 1]?.focus();
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
+    if (e.key === "Backspace" && !e.currentTarget.value && index > 0)
+      inputRefs.current[index - 1]?.focus();
   };
-  const borderColorClass = isError ? "border-red-500" : isSuccess ? "border-green-500" : "border-gray-300";
+  const borderColorClass = isError
+    ? "border-red-500"
+    : isSuccess
+      ? "border-green-500"
+      : "border-gray-300";
   return (
     <div className="flex flex-row gap-2.5 justify-center">
       {[...Array(length)].map((_, index) => (
@@ -41,7 +60,9 @@ const CodeInput: React.FC<CodeInputProps> = ({ length, value, onChange, isError 
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          ref={(el) => { inputRefs.current[index] = el; }}
+          ref={(el) => {
+            inputRefs.current[index] = el;
+          }}
           maxLength={1}
           inputMode="numeric"
         />
@@ -75,9 +96,21 @@ const CTA: React.FC<CTAProps> = ({
   variant = "default",
   className,
 }) => {
-  const containerClasses = ["flex flex-col items-center text-center", variant === "landing" ? "gap-6" : "gap-4", className || ""].filter(Boolean).join(" ");
-  const titleClasses = ["font-bold text-gray-900", variant === "landing" ? "text-3xl md:text-4xl" : "text-xl md:text-2xl"].join(" ");
-  const subtitleClasses = ["text-gray-600", variant === "landing" ? "text-base md:text-lg" : "text-sm md:text-base"].join(" ");
+  const containerClasses = [
+    "flex flex-col items-center text-center",
+    variant === "landing" ? "gap-6" : "gap-4",
+    className || "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const titleClasses = [
+    "font-bold text-gray-900",
+    variant === "landing" ? "text-3xl md:text-4xl" : "text-xl md:text-2xl",
+  ].join(" ");
+  const subtitleClasses = [
+    "text-gray-600",
+    variant === "landing" ? "text-base md:text-lg" : "text-sm md:text-base",
+  ].join(" ");
   const buttonVariant = variant === "landing" ? "landing" : "primary";
   return (
     <div className={containerClasses}>
@@ -85,14 +118,19 @@ const CTA: React.FC<CTAProps> = ({
       {subtitle && <p className={subtitleClasses}>{subtitle}</p>}
       {showButton && (
         <div className="mt-2">
-          <Button variant={buttonVariant as any} onClick={onButtonClick}>{buttonText}</Button>
+          <Button variant={buttonVariant as any} onClick={onButtonClick}>
+            {buttonText}
+          </Button>
         </div>
       )}
     </div>
   );
 };
 
-const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({ prev, color }) => {
+const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({
+  prev,
+  color,
+}) => {
   const router = useRouter();
   return (
     <button
@@ -100,8 +138,18 @@ const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({ prev,
       className={`p-2 -ml-2 ${color ?? "text-gray-700"} hover:bg-gray-100 rounded-full transition-colors`}
       aria-label="Voltar"
     >
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      <svg
+        className="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 19l-7-7 7-7"
+        />
       </svg>
     </button>
   );
@@ -197,7 +245,10 @@ function StepVerification({
   setIsCodeIncorrect: (v: boolean) => void;
   data: PasswordResetData;
   setResetData: (d: PasswordResetData) => void;
-  verifyOtp: (d: { email: string; otp: string }) => Promise<{ success: boolean; errorMessage?: string }>;
+  verifyOtp: (d: {
+    email: string;
+    otp: string;
+  }) => Promise<{ success: boolean; errorMessage?: string }>;
 }) {
   const [code, setCode] = useState("");
   const [isCodeCorrect, setIsCodeCorrect] = useState(false);
@@ -288,7 +339,11 @@ function StepNewPassword({
   nextStep: () => void;
   setResetData: (d: PasswordResetData) => void;
   data: PasswordResetData;
-  resetPassword: (d: { email: string; newPassword: string; confirmPassword: string }) => Promise<boolean>;
+  resetPassword: (d: {
+    email: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => Promise<boolean>;
 }) {
   const [form, setFormState] = useState({ password: "", confirmPassword: "" });
   const [passwordsMatch, setPasswordsMatch] = useState(true);
@@ -417,21 +472,55 @@ export default function PasswordReset() {
     if (currentStep === 2 && timer > 0) {
       countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
     }
-    return () => { if (countdown) clearInterval(countdown); };
+    return () => {
+      if (countdown) clearInterval(countdown);
+    };
   }, [currentStep, timer]);
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} sendRequestEmail={sendRequestEmail} />;
+        return (
+          <StepEmailPhone
+            setResetData={setResetData}
+            nextStep={nextStep}
+            sendRequestEmail={sendRequestEmail}
+          />
+        );
       case 2:
-        return <StepVerification prevStep={prevStep} nextStep={nextStep} timer={timer} resetTimer={resetTimer} isCodeIncorrect={isCodeIncorrect} setIsCodeIncorrect={setIsCodeIncorrect} data={data} setResetData={setResetData} verifyOtp={verifyOtp} />;
+        return (
+          <StepVerification
+            prevStep={prevStep}
+            nextStep={nextStep}
+            timer={timer}
+            resetTimer={resetTimer}
+            isCodeIncorrect={isCodeIncorrect}
+            setIsCodeIncorrect={setIsCodeIncorrect}
+            data={data}
+            setResetData={setResetData}
+            verifyOtp={verifyOtp}
+          />
+        );
       case 3:
-        return <StepNewPassword prevStep={prevStep} nextStep={nextStep} setResetData={setResetData} data={data} resetPassword={resetPassword} />;
+        return (
+          <StepNewPassword
+            prevStep={prevStep}
+            nextStep={nextStep}
+            setResetData={setResetData}
+            data={data}
+            resetPassword={resetPassword}
+          />
+        );
       case 4:
         return <StepSuccess />;
       default:
-        return <StepEmailPhone setResetData={setResetData} nextStep={nextStep} sendRequestEmail={sendRequestEmail} />;
+        return (
+          <StepEmailPhone
+            setResetData={setResetData}
+            nextStep={nextStep}
+            sendRequestEmail={sendRequestEmail}
+          />
+        );
     }
   };
 
@@ -440,8 +529,9 @@ export default function PasswordReset() {
       <div className="block md:hidden h-screen">{renderStep()}</div>
       <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">
         <div className="absolute top-8 left-8 flex items-center gap-2">
-          <Image src={logo} alt="Login Illustration" className="w-full" />
-          <span className="text-2xl font-bold text-gray-800">WUNDU</span>
+          <div className="w-30">
+            <LogoType />
+          </div>
         </div>
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
           {renderStep()}

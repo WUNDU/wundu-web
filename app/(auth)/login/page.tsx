@@ -142,7 +142,8 @@ const LoginPage: React.FC = () => {
         posthog.identify(form.email, { email: form.email });
         posthog.capture("user_signed_in", { method: "email" });
       } else {
-        const errMsg = errorRef.current || "Credenciais incorretas. Tente novamente.";
+        const errMsg =
+          errorRef.current || "Credenciais incorretas. Tente novamente.";
         setLoginError(errMsg);
         posthog.capture("user_sign_in_failed", { reason: errMsg });
       }
@@ -168,7 +169,10 @@ const LoginPage: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
       <header className="flex h-16 shrink-0 items-center justify-start px-8 md:justify-start md:px-12">
-        <Link href={ROUTES.LANDINGPAGE} className="transition-opacity hover:opacity-80">
+        <Link
+          href={ROUTES.LANDINGPAGE}
+          className="transition-opacity hover:opacity-80"
+        >
           <div className="w-30">
             <LogoType />
           </div>
@@ -231,10 +235,11 @@ const LoginPage: React.FC = () => {
                       <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
                         <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
                         <p className="text-xs font-bold text-orange-600">
-                          Demasiadas tentativas. Tente novamente em {formatCountdown(countdown!)}
+                          Demasiadas tentativas. Tente novamente em{" "}
+                          {formatCountdown(countdown!)}
                         </p>
                       </div>
-                    ) : (errors.password || loginError) ? (
+                    ) : errors.password || loginError ? (
                       <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
                         <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                         <p className="text-xs font-bold text-red-600">
@@ -310,6 +315,14 @@ const LoginPage: React.FC = () => {
                         disabled={isSubmitting}
                         className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
                       />
+                      <div className="flex justify-end">
+                        <Link
+                          href={ROUTES.RESET_PASSWORD}
+                          className="text-xs font-bold text-slate-500 transition-colors hover:text-slate-900"
+                        >
+                          Esqueceu a senha?
+                        </Link>
+                      </div>
                     </div>
 
                     <div className="min-h-17 py-3 flex items-center">
@@ -317,10 +330,11 @@ const LoginPage: React.FC = () => {
                         <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
                           <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
                           <p className="text-xs font-bold text-orange-600">
-                            Demasiadas tentativas. Tente novamente em {formatCountdown(countdown!)}
+                            Demasiadas tentativas. Tente novamente em{" "}
+                            {formatCountdown(countdown!)}
                           </p>
                         </div>
-                      ) : (errors.email || errors.password || loginError) ? (
+                      ) : errors.email || errors.password || loginError ? (
                         <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
                           <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                           <p className="text-xs font-bold text-red-600">
@@ -368,11 +382,17 @@ const LoginPage: React.FC = () => {
           <footer className="mt-8 px-8 text-center">
             <p className="text-[10px] leading-relaxed text-slate-400 font-medium max-w-sm mx-auto">
               Ao acessar, você aceita nossos{" "}
-              <Link href={ROUTES.LEGAL} className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2">
+              <Link
+                href={ROUTES.LEGAL}
+                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+              >
                 Termos
               </Link>{" "}
               e{" "}
-              <Link href={ROUTES.LEGAL} className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2">
+              <Link
+                href={ROUTES.LEGAL}
+                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+              >
                 Privacidade
               </Link>
               .
@@ -385,4 +405,3 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
-

@@ -43,5 +43,5 @@ next-env.d.ts
 /skills
 /figma
 /example
-/FRONTEND_UPLOAD_OCR_GUIDE.md
+/.guides
 .env.local
