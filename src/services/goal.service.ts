@@ -53,6 +53,22 @@ class GoalService {
     const { data } = await apiClient.post<GoalProgress>(`/goals/${goalId}/progress`, body);
     return data;
   }
+
+  async updateProgress(
+    goalId: string,
+    progressId: string,
+    amount: number,
+    progressDate?: string,
+  ): Promise<GoalProgress> {
+    const body: { amount: number; progressDate?: string } = { amount };
+    if (progressDate) body.progressDate = progressDate;
+    const { data } = await apiClient.patch<GoalProgress>(`/goals/${goalId}/progress/${progressId}`, body);
+    return data;
+  }
+
+  async deleteProgress(goalId: string, progressId: string): Promise<void> {
+    await apiClient.delete(`/goals/${goalId}/progress/${progressId}`);
+  }
 }
 
 export const goalService = new GoalService();

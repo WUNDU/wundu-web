@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTransaction } from "@/hooks/use-transaction";
+import { useAiQuery } from "@/hooks/use-ai-query";
 import type { TransactionDTO } from "@/types/dtos/transaction.dto";
 import { TransactionDetailPanel } from "@/components/ui/transaction-detail-panel";
 import {
@@ -13,6 +14,8 @@ import {
   Filter,
   X,
   Loader2,
+  Sparkles,
+  SendHorizontal,
 } from "lucide-react";
 import { CalendarIcon, ArrowRotateIcon, NoMovementIcon } from "@/constants/icons";
 import { TransactionItem } from "@/components/transactions/transaction-item";
@@ -35,8 +38,21 @@ export default function TransactionsPage() {
     resetPagination,
   } = useTransaction();
 
+  const {
+    query: aiQuery,
+    results: aiResults,
+    filter: aiFilter,
+    isLoading: aiLoading,
+    error: aiError,
+    rateLimitSeconds: aiRateLimit,
+    hasQueried,
+    reset: aiReset,
+  } = useAiQuery();
+
   const [search, setSearch]               = useState("");
   const [showSearch, setShowSearch]       = useState(false);
+  const [showAiSearch, setShowAiSearch]   = useState(false);
+  const [aiInput, setAiInput]             = useState("");
   const [filterOpen, setFilterOpen]       = useState(false);
   const [sortField, setSortField]         = useState<SortField>("date");
   const [sortDir, setSortDir]             = useState<SortDir>("desc");
@@ -93,6 +109,21 @@ export default function TransactionsPage() {
     posthog.capture("transaction_filter_applied", { sort_field: sortField, sort_dir: sortDir, type_filter: type });
   }, [sortField, sortDir]);
 
+  const handleAiSearch = useCallback(() => {
+    const q = aiInput.trim();
+    if (!q) return;
+    posthog.capture("ai_transaction_query", { query_length: q.length });
+    aiQuery(q);
+  }, [aiInput, aiQuery]);
+
+  const handleToggleAiSearch = useCallback(() => {
+    setShowAiSearch((v) => {
+      if (v) { aiReset(); setAiInput(""); }
+      return !v;
+    });
+    setShowSearch(false);
+  }, [aiReset]);
+
   let runningIdx = 0;
 
   return (
@@ -123,7 +154,19 @@ export default function TransactionsPage() {
               <ArrowRotateIcon className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setShowSearch(v => !v)}
+              onClick={handleToggleAiSearch}
+              title="Pesquisa inteligente com IA"
+              className={`p-2 rounded-xl border transition-all duration-200 ${
+                showAiSearch
+                  ? "bg-[rgba(0,60,195,0.08)] border-[#003cc3]/20 text-[#003cc3]"
+                  : "bg-white border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20"
+              }`}
+              aria-label="Pesquisa IA"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => { setShowSearch(v => !v); if (showAiSearch) handleToggleAiSearch(); }}
               className={`p-2 rounded-xl border transition-all duration-200 ${
                 showSearch
                   ? "bg-[rgba(0,60,195,0.08)] border-[#003cc3]/20 text-[#003cc3]"
@@ -142,6 +185,54 @@ export default function TransactionsPage() {
             </button>
           </div>
         </div>
+
+        {/* AI Search bar */}
+        <AnimatePresence>
+          {showAiSearch && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: EASE_OUT }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 pb-4">
+                <div className="flex items-center gap-2 bg-[rgba(0,60,195,0.04)] border border-[#003cc3]/20 rounded-xl px-4 py-2.5 focus-within:border-[#003cc3]/40 focus-within:bg-white transition-all duration-150">
+                  <Sparkles className="w-4 h-4 text-[#003cc3] flex-shrink-0" />
+                  <input
+                    autoFocus
+                    value={aiInput}
+                    onChange={e => setAiInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") handleAiSearch(); }}
+                    placeholder="Pergunta em linguagem natural… ex: Quanto gastei em alimentação este mês?"
+                    className="flex-1 text-sm text-[#1e293b] placeholder:text-slate-400 outline-none bg-transparent"
+                    disabled={aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
+                  />
+                  {aiInput && (
+                    <button onClick={() => { setAiInput(""); aiReset(); }} className="p-0.5 text-slate-400 hover:text-slate-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={handleAiSearch}
+                    disabled={!aiInput.trim() || aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
+                    className="p-1 text-[#003cc3] disabled:opacity-30 hover:text-[#001a66] transition-colors"
+                  >
+                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendHorizontal className="w-4 h-4" />}
+                  </button>
+                </div>
+                {aiRateLimit != null && aiRateLimit > 0 && (
+                  <p className="text-xs text-amber-600 font-medium mt-1.5 px-1">
+                    Limite atingido. Tenta em {aiRateLimit}s.
+                  </p>
+                )}
+                {aiError && (
+                  <p className="text-xs text-red-500 mt-1.5 px-1">{aiError}</p>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search bar */}
         <AnimatePresence>
@@ -192,6 +283,74 @@ export default function TransactionsPage() {
           </div>
         )}
       </div>
+
+      {/* ── AI Results card ───────────────────────────────────────────── */}
+      <AnimatePresence>
+        {hasQueried && (
+          <motion.div
+            key="ai-results"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease: EASE_OUT }}
+            className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#003cc3]" />
+                <h2 className="font-bold text-[#1e293b] text-sm">Resultados IA</h2>
+                <span className="text-xs text-slate-400 font-medium">{aiResults.length} encontradas</span>
+              </div>
+              <button
+                onClick={() => { aiReset(); setAiInput(""); }}
+                className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label="Fechar resultados IA"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {aiFilter && Object.keys(aiFilter).some(k => aiFilter[k] != null && aiFilter[k] !== "") && (
+              <div className="flex flex-wrap gap-1.5 px-5 pb-3">
+                {aiFilter.type && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(0,60,195,0.08)] text-[#003cc3]">
+                    {aiFilter.type === "EXPENSE" ? "Despesas" : "Receitas"}
+                  </span>
+                )}
+                {aiFilter.categoryName && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                    {aiFilter.categoryName}
+                  </span>
+                )}
+                {aiFilter.startDate && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    Desde {aiFilter.startDate}
+                  </span>
+                )}
+                {aiFilter.endDate && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    Até {aiFilter.endDate}
+                  </span>
+                )}
+              </div>
+            )}
+            {aiResults.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-3 text-center px-5">
+                <NoMovementIcon className="w-10 h-10 text-slate-300" />
+                <p className="text-sm text-slate-400">Nenhuma transação encontrada para esta consulta.</p>
+              </div>
+            ) : (
+              <div className="pb-3">
+                {aiResults.map((tx, i) => (
+                  <React.Fragment key={tx.id ?? i}>
+                    {i > 0 && <div className="h-px mx-5 bg-[rgba(0,33,107,0.05)]" />}
+                    <TransactionItem tx={tx as TransactionDTO} index={i} onClick={() => setSelected(tx as TransactionDTO)} />
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Transaction list card ────────────────────────────────────── */}
       {isLoading ? (

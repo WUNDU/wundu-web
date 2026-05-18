@@ -8,7 +8,7 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   RESET_PASSWORD: "/reset_password",
-  RESEND_CODE: "/.....",
+  RESEND_CODE: "/reset_password",
   FINANCIAL: "/home/goals",
   FINANCIAL_OBJECTIVE: "/home/goals/objective",
   FINANCIAL_NEW_OBJECTIVE: "/home/goals/new",

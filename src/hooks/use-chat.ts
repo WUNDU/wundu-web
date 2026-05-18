@@ -8,12 +8,14 @@ export function useChat() {
   const isSending = useChatStore((s) => s.isSending);
   const isLoadingConversation = useChatStore((s) => s.isLoadingConversation);
   const error = useChatStore((s) => s.error);
+  const rateLimitSeconds = useChatStore((s) => s.rateLimitSeconds);
   const sendMessage = useChatStore((s) => s.sendMessage);
   const fetchHistory = useChatStore((s) => s.fetchHistory);
   const loadConversation = useChatStore((s) => s.loadConversation);
   const deleteConversation = useChatStore((s) => s.deleteConversation);
   const setConversationId = useChatStore((s) => s.setConversationId);
   const clearConversation = useChatStore((s) => s.clearConversation);
+  const clearRateLimit = useChatStore((s) => s.clearRateLimit);
 
   return {
     conversationId,
@@ -23,11 +25,13 @@ export function useChat() {
     isSending,
     isLoadingConversation,
     error,
+    rateLimitSeconds,
     sendMessage,
     fetchHistory,
     loadConversation,
     deleteConversation,
     setConversationId,
     clearConversation,
+    clearRateLimit,
   };
 }

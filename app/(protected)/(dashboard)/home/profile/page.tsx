@@ -10,6 +10,7 @@ import { useGoalStore } from "@/store/goal-store";
 import { useTransactionStore } from "@/store/transaction-store";
 import { formatAOA } from "@/lib/currency";
 import posthog from "posthog-js";
+import { useSessions } from "@/hooks/use-sessions";
 
 function PhoneIcon({ className }: { className?: string }) {
   return (
@@ -56,6 +57,7 @@ export default function Profile() {
   const { goals } = useGoalStore();
   const { transactions } = useTransactionStore();
   const [monthlyReports, setMonthlyReports] = useState(false);
+  const { sessions, isLoading: sessionsLoading, revokingId, isRevokingAll, revokeSession, logoutAll } = useSessions();
 
   const totalSaved = goals.reduce((acc, g) => acc + (g.currentAmount ?? 0), 0);
   const isPremium = user?.planType === "PREMIUM";
@@ -246,6 +248,57 @@ export default function Profile() {
                 </div>
               ))}
             </div>
+          </motion.div>
+
+          {/* Sessões Activas */}
+          <motion.div variants={FADE_UP} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_2px_12px_rgba(0,60,195,0.05)]">
+            <div className="flex items-center justify-between border-b border-slate-50 px-5 py-4">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-800">Sessões Activas</h2>
+                <p className="mt-0.5 text-xs text-slate-400">Dispositivos com sessão iniciada na sua conta</p>
+              </div>
+              <button
+                onClick={logoutAll}
+                disabled={isRevokingAll || sessions.length === 0}
+                className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isRevokingAll ? "A terminar..." : "Terminar todas"}
+              </button>
+            </div>
+
+            {sessionsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-[#003cc3]" />
+              </div>
+            ) : sessions.length === 0 ? (
+              <p className="px-5 py-6 text-center text-sm text-slate-400">Nenhuma sessão encontrada.</p>
+            ) : (
+              <div className="divide-y divide-slate-50">
+                {sessions.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100">
+                        <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-medium text-slate-700">{session.userAgent || "Dispositivo desconhecido"}</p>
+                        <p className="text-[11px] text-slate-400">{session.ipAddress} · Expira {new Date(session.expiresAt).toLocaleDateString("pt-AO")}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => revokeSession(session.id)}
+                      disabled={revokingId === session.id}
+                      className="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:border-red-200 hover:text-red-500 disabled:opacity-40"
+                    >
+                      {revokingId === session.id ? "..." : "Terminar"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

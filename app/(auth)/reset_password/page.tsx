@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { Button, Input, LogoType, TextInput } from "@/components/ui";
 import { PasswordResetData } from "@/types/ui";
 
@@ -236,6 +235,7 @@ function StepVerification({
   data,
   setResetData,
   verifyOtp,
+  sendRequestEmail,
 }: {
   prevStep: () => void;
   nextStep: () => void;
@@ -249,10 +249,12 @@ function StepVerification({
     email: string;
     otp: string;
   }) => Promise<{ success: boolean; errorMessage?: string }>;
+  sendRequestEmail: (email: string) => Promise<boolean>;
 }) {
   const [code, setCode] = useState("");
   const [isCodeCorrect, setIsCodeCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -303,13 +305,20 @@ function StepVerification({
           </p>
         )}
         <div className="flex items-center justify-between">
-          <Link
-            href={ROUTES.RESEND_CODE}
-            className="text-sm text-gray-600"
-            onClick={resetTimer}
+          <button
+            type="button"
+            disabled={isResending || timer > 0}
+            onClick={async () => {
+              if (!data.phoneOrEmail) return;
+              setIsResending(true);
+              const ok = await sendRequestEmail(data.phoneOrEmail);
+              setIsResending(false);
+              if (ok) resetTimer();
+            }}
+            className="text-sm text-gray-600 disabled:opacity-50"
           >
-            Não recebi o código
-          </Link>
+            {isResending ? "A reenviar..." : "Não recebi o código"}
+          </button>
           <div
             className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}
           >
@@ -499,6 +508,7 @@ export default function PasswordReset() {
             data={data}
             setResetData={setResetData}
             verifyOtp={verifyOtp}
+            sendRequestEmail={sendRequestEmail}
           />
         );
       case 3:

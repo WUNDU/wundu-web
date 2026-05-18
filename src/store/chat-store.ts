@@ -10,12 +10,14 @@ interface ChatStore {
   isSending: boolean;
   isLoadingConversation: boolean;
   error: string | null;
+  rateLimitSeconds: number | null;
   sendMessage(message: string): Promise<void>;
   fetchHistory(): Promise<void>;
   loadConversation(id: string): Promise<void>;
   deleteConversation(id: string): Promise<void>;
   setConversationId(id: string | null): void;
   clearConversation(): void;
+  clearRateLimit(): void;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -26,6 +28,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   isSending: false,
   isLoadingConversation: false,
   error: null,
+  rateLimitSeconds: null,
 
   sendMessage: async (message: string) => {
     const optimisticUserMsg: ChatMessage = {
@@ -48,9 +51,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Refresh history so the new/updated conversation appears
       get().fetchHistory();
     } catch (error: any) {
-      const err = error?.response?.data?.message || "Erro ao enviar mensagem";
-      set({ messages: prevMessages, error: err, isSending: false });
-      import("@/hooks/use-notification").then(({ notify }) => notify.error(err));
+      if (error?.response?.status === 429) {
+        const retryAfter = error?.response?.data?.retryAfterSeconds ?? 60;
+        set({ messages: prevMessages, error: null, isSending: false, rateLimitSeconds: retryAfter });
+      } else {
+        const err = error?.response?.data?.message || "Erro ao enviar mensagem";
+        set({ messages: prevMessages, error: err, isSending: false });
+        import("@/hooks/use-notification").then(({ notify }) => notify.error(err));
+      }
     }
   },
 
@@ -98,4 +106,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   setConversationId: (id: string | null) => set({ conversationId: id }),
 
   clearConversation: () => set({ conversationId: null, messages: [], error: null }),
+
+  clearRateLimit: () => set({ rateLimitSeconds: null }),
 }));

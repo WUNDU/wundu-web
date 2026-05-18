@@ -364,6 +364,20 @@ class TransactionService {
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/transactions/${id}`);
   }
+
+  async getByStatus(status: string): Promise<{ count: number; transactions: TransactionResponse[] }> {
+    const { data } = await apiClient.get<{ count: number; transactions: TransactionResponse[] }>(
+      `/transactions/by-status/${status}`,
+    );
+    return data;
+  }
+
+  async getBySource(source: string): Promise<{ count: number; transactions: TransactionResponse[] }> {
+    const { data } = await apiClient.get<{ count: number; transactions: TransactionResponse[] }>(
+      `/transactions/by-source/${source}`,
+    );
+    return data;
+  }
 }
 
 export const transactionService = new TransactionService();

@@ -26,5 +26,14 @@ export async function POST(req: NextRequest) {
     maxAge: 0,
   });
 
+  // Clear session indicator
+  nextRes.cookies.set("wundu_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
+
   return nextRes;
 }

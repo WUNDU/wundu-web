@@ -82,7 +82,7 @@ class UserService {
   }
 
   async revokeSession(sessionId: string): Promise<void> {
-    await api.delete(`/auth/sessions/${sessionId}`);
+    await apiClient.delete(`/auth/sessions/${sessionId}`);
   }
 
   async getEmailVerificationStatus(): Promise<EmailVerificationStatus> {

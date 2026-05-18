@@ -114,6 +114,11 @@ export const useUserStore = create<AuthState>()(
           await get().checkAuthStatus();
         } catch {
           set({ token: null, isAuthenticated: false, isLoading: false, user: null });
+          // Clear the wundu_session cookie so middleware no longer blocks /login redirect
+          await userService.logoutApi().catch(() => {});
+          if (typeof window !== "undefined" && window.location.pathname.startsWith("/home")) {
+            window.location.href = "/login";
+          }
         }
       },
 
@@ -197,8 +202,9 @@ export const useUserStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // Notifica o backend para revogar o cookie de refresh (fire and forget)
-        userService.logoutApi().catch(() => {});
+        // Await cookie clearing so wundu_session is gone before the browser
+        // makes the next request — prevents middleware from redirecting /login back to /home
+        await userService.logoutApi().catch(() => {});
         clearUserStores();
         set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });
         if (typeof window !== "undefined") {

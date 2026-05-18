@@ -42,6 +42,14 @@ export async function POST(req: NextRequest) {
         path: COOKIE_PATH,
         maxAge: maxAge ?? 30 * 24 * 60 * 60,
       });
+      // Session indicator for middleware (non-sensitive, broad path)
+      nextRes.cookies.set("wundu_session", "1", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: maxAge ?? 30 * 24 * 60 * 60,
+      });
     }
   }
 

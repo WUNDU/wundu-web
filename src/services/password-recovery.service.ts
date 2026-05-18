@@ -9,7 +9,6 @@ class PasswordRecoveryService {
   }
 
   async verifyOtp(data: VerifyOtpRequest) {
-    console.log("PayLoad", data);
     return await apiClient.post("/notification/otp/verify", data);
   }
 

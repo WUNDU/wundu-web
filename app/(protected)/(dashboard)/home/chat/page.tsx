@@ -38,14 +38,17 @@ const Chat: React.FC = () => {
     isSending,
     isLoadingConversation,
     error,
+    rateLimitSeconds,
     sendMessage,
     clearConversation,
+    clearRateLimit,
     fetchHistory,
   } = useChat();
 
   const [input, setInput] = useState("");
   const [showWelcome, setShowWelcome] = useState(() => apiMessages.length === 0);
   const [typingIdx, setTypingIdx] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const prevCountRef = useRef(apiMessages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -53,6 +56,22 @@ const Chat: React.FC = () => {
   const isNearBottomRef = useRef(true);
   // Track if the next message batch comes from history load (not a live AI response)
   const wasLoadingConversationRef = useRef(false);
+
+  // Rate-limit countdown: tick every second
+  useEffect(() => {
+    if (rateLimitSeconds != null) {
+      setCountdown(rateLimitSeconds);
+    }
+  }, [rateLimitSeconds]);
+
+  useEffect(() => {
+    if (countdown == null || countdown <= 0) {
+      if (countdown === 0) clearRateLimit();
+      return;
+    }
+    const t = setTimeout(() => setCountdown((c) => (c != null ? c - 1 : null)), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, clearRateLimit]);
 
   // Fetch history on mount (defense in depth for mobile where sidebar may not run effects)
   useEffect(() => {
@@ -129,7 +148,7 @@ const Chat: React.FC = () => {
 
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
-    if (!msg) return;
+    if (!msg || countdown != null && countdown > 0) return;
     if (text !== undefined) posthog.capture("ai_topic_selected", { topic: text });
     else posthog.capture("ai_message_sent", { message_length: msg.length });
     sendMessage(msg);
@@ -293,20 +312,34 @@ const Chat: React.FC = () => {
 
       {/* Input */}
       <div className="flex-shrink-0 bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-4 py-3 mt-3">
+        <AnimatePresence>
+          {countdown != null && countdown > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="mb-2 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-700 font-medium"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+              Limite de mensagens atingido. Podes enviar em <span className="font-bold">{countdown}s</span>.
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex items-end gap-3">
           <textarea
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Escreva a sua pergunta…"
+            placeholder={countdown != null && countdown > 0 ? `Aguarda ${countdown}s…` : "Escreva a sua pergunta…"}
             rows={1}
-            disabled={isSending || isLoadingConversation}
+            disabled={isSending || isLoadingConversation || (countdown != null && countdown > 0)}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none overflow-y-auto leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <motion.button
             onClick={() => handleSend()}
-            disabled={!input.trim() || isSending || isLoadingConversation}
+            disabled={!input.trim() || isSending || isLoadingConversation || (countdown != null && countdown > 0)}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"

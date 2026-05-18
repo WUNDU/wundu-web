@@ -64,6 +64,8 @@ interface GoalState {
   create(payload: GoalPayload): Promise<boolean>;
   update(id: Goal["id"], payload: GoalPayload): Promise<boolean>;
   addProgress(goalId: string, amount: number, progressDate?: string): Promise<boolean>;
+  updateProgress(goalId: string, progressId: string, amount: number, progressDate?: string): Promise<boolean>;
+  deleteProgress(goalId: string, progressId: string): Promise<boolean>;
   remove(id: string): Promise<boolean>;
   clearAll(): void;
 }
@@ -163,6 +165,40 @@ export const useGoalStore = create<GoalState>()(
         } catch (error: any) {
           const err =
             error instanceof Error ? error.message : "Erro ao registrar progresso";
+          useUiStore.getState().showNotification("error", "Erro", err);
+          return false;
+        }
+      },
+
+      updateProgress: async (goalId: string, progressId: string, amount: number, progressDate?: string): Promise<boolean> => {
+        try {
+          await goalService.updateProgress(goalId, progressId, amount, progressDate);
+          const updated = await goalService.getById(goalId);
+          set((s) => ({
+            goals: s.goals.map((g) => (g.id === goalId ? updated : g)),
+          }));
+          useUiStore.getState().showNotification("success", "Progresso atualizado", "Progresso editado com sucesso!");
+          return true;
+        } catch (error: any) {
+          const err =
+            error instanceof Error ? error.message : "Erro ao editar progresso";
+          useUiStore.getState().showNotification("error", "Erro", err);
+          return false;
+        }
+      },
+
+      deleteProgress: async (goalId: string, progressId: string): Promise<boolean> => {
+        try {
+          await goalService.deleteProgress(goalId, progressId);
+          const updated = await goalService.getById(goalId);
+          set((s) => ({
+            goals: s.goals.map((g) => (g.id === goalId ? updated : g)),
+          }));
+          useUiStore.getState().showNotification("success", "Progresso removido", "Progresso removido com sucesso!");
+          return true;
+        } catch (error: any) {
+          const err =
+            error instanceof Error ? error.message : "Erro ao remover progresso";
           useUiStore.getState().showNotification("error", "Erro", err);
           return false;
         }
