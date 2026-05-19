@@ -1,7 +1,7 @@
 "use client";
 
 import type { TransactionResponse } from "@/types/dtos/transaction.dto";
-import { X, TrendingUp, TrendingDown, Sparkles, BarChart2, Calendar } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Sparkles, BarChart2, Calendar, Clock } from "lucide-react";
 import { useMemo } from "react";
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ function buildInsight(stats: PeriodStats, prev: PeriodStats, period: "week" | "m
   } else if (diffPct > 10) {
     text = `Gastaste **${formatCurrency(stats.totalExpense)}**, **${diffPct.toFixed(0)}% mais** do que no período anterior. Atenção!`;
   } else if (diffPct < -10) {
-    text = `Excelente! **${formatCurrency(stats.totalExpense)}** — **${Math.abs(diffPct).toFixed(0)}% menos** do que antes. 🎉`;
+    text = `Excelente! **${formatCurrency(stats.totalExpense)}** — **${Math.abs(diffPct).toFixed(0)}% menos** do que antes.`;
   } else {
     text = `Gastaste **${formatCurrency(stats.totalExpense)}**, semelhante ao período anterior.`;
   }
@@ -281,7 +281,7 @@ export function WeeklyReportModal({ period, transactions, onClose }: WeeklyRepor
           {stats.peakHour !== null && (
             <div className="flex items-center gap-3 bg-purple-50 rounded-xl p-4">
               <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-lg">🕐</span>
+                <Clock size={18} className="text-purple-600" />
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-semibold">Hora de pico</p>
