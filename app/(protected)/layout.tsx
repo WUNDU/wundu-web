@@ -5,7 +5,6 @@ import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { useUserStore } from "@/store/user-store";
 import { useTransactionStore } from "@/store/transaction-store";
 import EmailVerificationBanner from "@/components/email-verification-banner";
-import { useNotificationWs } from "@/hooks/use-notification-ws";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
@@ -83,11 +82,6 @@ function hasTransactionsInPeriod(
 
 // ── Sub-providers ─────────────────────────────────────────────────────────────
 
-function WsProvider() {
-  useNotificationWs();
-  return null;
-}
-
 function PushProvider({ userId }: { userId: string }) {
   usePushNotifications(userId);
   return null;
@@ -147,7 +141,6 @@ export default function ProtectedLayout({
 
   return (
     <>
-      <WsProvider />
       {user?.id && <PushProvider userId={user.id} />}
       <EmailVerificationBanner />
       {children}
