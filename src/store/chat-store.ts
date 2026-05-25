@@ -4,6 +4,7 @@ import { chatService } from "@/services/chat.service";
 
 interface ChatStore {
   conversationId: string | null;
+  lastConversationId: string | null;
   messages: ChatMessage[];
   history: ChatConversationSummary[];
   isLoading: boolean;
@@ -12,7 +13,7 @@ interface ChatStore {
   error: string | null;
   rateLimitSeconds: number | null;
   sendMessage(message: string): Promise<void>;
-  fetchHistory(): Promise<void>;
+  fetchHistory(options?: { silent?: boolean }): Promise<void>;
   loadConversation(id: string): Promise<void>;
   deleteConversation(id: string): Promise<void>;
   setConversationId(id: string | null): void;
@@ -22,6 +23,7 @@ interface ChatStore {
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   conversationId: null,
+  lastConversationId: null,
   messages: [],
   history: [],
   isLoading: false,
@@ -31,6 +33,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   rateLimitSeconds: null,
 
   sendMessage: async (message: string) => {
+    const activeConversationId = get().conversationId ?? get().lastConversationId ?? undefined;
     const optimisticUserMsg: ChatMessage = {
       role: "user",
       content: message,
@@ -40,16 +43,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isSending: true, error: null, messages: [...prevMessages, optimisticUserMsg] });
     try {
       const response = await chatService.sendMessage({
-        conversationId: get().conversationId ?? undefined,
+        conversationId: activeConversationId,
         message,
       });
       set({
         conversationId: response.conversationId,
+        lastConversationId: response.conversationId,
         messages: response.messages,
         isSending: false,
       });
-      // Refresh history so the new/updated conversation appears
-      get().fetchHistory();
+      // Refresh history without sidebar loading flicker.
+      get().fetchHistory({ silent: true });
     } catch (error: any) {
       if (error?.response?.status === 429) {
         const retryAfter = error?.response?.data?.retryAfterSeconds ?? 60;
@@ -62,23 +66,26 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  fetchHistory: async () => {
-    set({ isLoading: true });
+  fetchHistory: async (options) => {
+    const silent = options?.silent ?? false;
+    if (!silent) set({ isLoading: true });
     try {
       const history = await chatService.getHistory();
-      set({ history, isLoading: false });
+      set({ history, ...(silent ? {} : { isLoading: false }) });
     } catch (error: any) {
       const err = error?.response?.data?.message || "Erro ao carregar histórico";
-      set({ error: err, isLoading: false });
+      set({ error: err, ...(silent ? {} : { isLoading: false }) });
     }
   },
 
   loadConversation: async (id: string) => {
-    set({ isLoadingConversation: true, error: null, conversationId: id });
+    set({ isLoadingConversation: true, error: null, conversationId: id, lastConversationId: id });
     try {
       const response = await chatService.getConversation(id);
+      const resolvedConversationId = response.conversationId ?? id;
       set({
-        conversationId: response.conversationId ?? id,
+        conversationId: resolvedConversationId,
+        lastConversationId: resolvedConversationId,
         messages: response.messages,
         isLoadingConversation: false,
       });
@@ -95,7 +102,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const current = get().conversationId;
       set((s) => ({
         history: s.history.filter((h) => h.id !== id),
-        ...(current === id ? { conversationId: null, messages: [] } : {}),
+        ...(current === id ? { conversationId: null, lastConversationId: null, messages: [] } : {}),
       }));
     } catch (error: any) {
       const err = error?.response?.data?.message || "Erro ao apagar conversa";
@@ -103,9 +110,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  setConversationId: (id: string | null) => set({ conversationId: id }),
+  setConversationId: (id: string | null) =>
+    set((s) => ({
+      conversationId: id,
+      lastConversationId: id ?? s.lastConversationId,
+    })),
 
-  clearConversation: () => set({ conversationId: null, messages: [], error: null }),
+  clearConversation: () =>
+    set({ conversationId: null, lastConversationId: null, messages: [], error: null }),
 
   clearRateLimit: () => set({ rateLimitSeconds: null }),
 }));

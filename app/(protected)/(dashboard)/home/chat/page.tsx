@@ -17,6 +17,7 @@ import { Loader2, Plus } from "lucide-react";
 import posthog from "posthog-js";
 
 type LocalMessage = { text: string; isUser: boolean };
+type ApiMessage = { role: string; content: string; timestamp: string };
 
 const INITIAL_MESSAGES: LocalMessage[] = [
   { text: "Olá! Sou a Wundu AI.\nEm que posso ajudar hoje?", isUser: false },
@@ -31,6 +32,7 @@ const CHAT_OPTIONS = [
 ];
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const messageKey = (m: ApiMessage) => `${m.role}|${m.timestamp}|${m.content}`;
 
 const Chat: React.FC = () => {
   const {
@@ -47,15 +49,16 @@ const Chat: React.FC = () => {
 
   const [input, setInput] = useState("");
   const [showWelcome, setShowWelcome] = useState(() => apiMessages.length === 0);
-  const [typingIdx, setTypingIdx] = useState<number | null>(null);
+  const [typingMessageKey, setTypingMessageKey] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const prevCountRef = useRef(apiMessages.length);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isNearBottomRef = useRef(true);
-  // Track if the next message batch comes from history load (not a live AI response)
-  const wasLoadingConversationRef = useRef(false);
+  const prevIsLoadingConversationRef = useRef(isLoadingConversation);
+  const seenAssistantKeysRef = useRef<Set<string>>(
+    new Set(apiMessages.filter((m) => m.role !== "user").map((m) => messageKey(m)))
+  );
 
   // Rate-limit countdown: tick every second
   useEffect(() => {
@@ -87,30 +90,32 @@ const Chat: React.FC = () => {
   }, [input]);
 
   useEffect(() => {
-    if (isLoadingConversation) wasLoadingConversationRef.current = true;
-  }, [isLoadingConversation]);
+    const wasLoadingConversation = prevIsLoadingConversationRef.current;
+    prevIsLoadingConversationRef.current = isLoadingConversation;
 
-  // Reset wasLoadingConversationRef if loading ended but messages didn't change (error case)
-  useEffect(() => {
-    if (!isLoadingConversation && wasLoadingConversationRef.current) {
-      const t = setTimeout(() => { wasLoadingConversationRef.current = false; }, 50);
-      return () => clearTimeout(t);
+    if (isLoadingConversation) {
+      setTypingMessageKey(null);
+      return;
     }
-  }, [isLoadingConversation]);
 
-  useEffect(() => {
-    const prev = prevCountRef.current;
-    prevCountRef.current = apiMessages.length;
-    if (apiMessages.length > prev) {
-      // Skip typing animation if messages came from loading a past conversation
-      if (wasLoadingConversationRef.current) {
-        wasLoadingConversationRef.current = false;
-        return;
-      }
-      const last = apiMessages[apiMessages.length - 1];
-      if (last.role !== "user") setTypingIdx(apiMessages.length - 1);
+    if (wasLoadingConversation) {
+      // Loaded history should never trigger typing animation.
+      apiMessages
+        .filter((m) => m.role !== "user")
+        .forEach((m) => seenAssistantKeysRef.current.add(messageKey(m)));
+      setTypingMessageKey(null);
+      return;
     }
-  }, [apiMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const last = apiMessages[apiMessages.length - 1];
+    if (!last || last.role === "user") return;
+
+    const key = messageKey(last);
+    if (seenAssistantKeysRef.current.has(key)) return;
+
+    seenAssistantKeysRef.current.add(key);
+    setTypingMessageKey(key);
+  }, [apiMessages, isLoadingConversation]);
 
   // Welcome bubble only on new/empty conversations — never on loaded history
   const isNewConversation = apiMessages.length === 0;
@@ -162,12 +167,13 @@ const Chat: React.FC = () => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleTypingComplete = useCallback(() => setTypingIdx(null), []);
+  const handleTypingComplete = useCallback(() => setTypingMessageKey(null), []);
 
   const handleNewConversation = () => {
     clearConversation();
     setShowWelcome(true);
-    prevCountRef.current = 0;
+    setTypingMessageKey(null);
+    seenAssistantKeysRef.current.clear();
     isNearBottomRef.current = true;
   };
 
@@ -236,6 +242,7 @@ const Chat: React.FC = () => {
                 const key = isInitMsg
                   ? `init-${i}`
                   : `api-${apiIdx}-${apiMessages[apiIdx]?.timestamp ?? i}`;
+                const apiMessage = apiIdx >= 0 ? apiMessages[apiIdx] : null;
                 return (
                   <motion.div
                     key={key}
@@ -246,7 +253,12 @@ const Chat: React.FC = () => {
                     <Message
                       isUser={msg.isUser}
                       text={msg.text}
-                      isTyping={!msg.isUser && !isInitMsg && typingIdx === apiIdx}
+                      isTyping={
+                        !msg.isUser &&
+                        !isInitMsg &&
+                        apiMessage != null &&
+                        typingMessageKey === messageKey(apiMessage)
+                      }
                       onTypingComplete={handleTypingComplete}
                     />
                   </motion.div>
