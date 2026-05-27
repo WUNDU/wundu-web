@@ -36,7 +36,7 @@ export default function TransactionsPage() {
     loadPage,
     loadMore,
     resetPagination,
-  } = useTransaction();
+  } = useTransaction({ autoFetch: false });
 
   const {
     query: aiQuery,
@@ -60,10 +60,10 @@ export default function TransactionsPage() {
   const [selected, setSelected]           = useState<TransactionDTO | null>(null);
 
   useEffect(() => {
-    resetPagination();
-    loadPage(0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!allTransactions || allTransactions.length === 0) {
+      loadPage(0);
+    }
+  }, [allTransactions, loadPage]);
 
   const transactions = allTransactions ?? [];
 
@@ -90,9 +90,8 @@ export default function TransactionsPage() {
 
   const handleRefresh = useCallback(() => {
     resetPagination();
-    loadPage(0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    loadPage(0, true);
+  }, [loadPage, resetPagination]);
 
   const handleSetSortField = useCallback((field: SortField) => {
     setSortField(field);

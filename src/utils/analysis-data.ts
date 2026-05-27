@@ -1,4 +1,5 @@
 import type { TransactionResponse } from "@/types/dtos/transaction.dto";
+import { isExpense } from "@/utils/transaction-type";
 
 export type ChartData = { label: string; amount: number };
 export type CategoryData = {
@@ -52,7 +53,7 @@ function filterByPeriod(
 ): TransactionResponse[] {
   const now = new Date();
   const isCurrentYear = year === now.getFullYear();
-  const expenses = txs.filter((t) => t.type === "EXPENSE");
+  const expenses = txs.filter((t) => isExpense(t.type));
 
   switch (filter) {
     case "1D": {

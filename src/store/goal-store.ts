@@ -79,7 +79,7 @@ export const useGoalStore = create<GoalState>()(
       hasFetched: false,
 
       fetch: async () => {
-        if (get().hasFetched) return;
+        if (get().hasFetched || get().isLoading) return;
         set({ isLoading: true, error: null });
         try {
           const data = await goalService.list();
@@ -227,7 +227,13 @@ export const useGoalStore = create<GoalState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         goals: state.goals,
+        hasFetched: state.hasFetched,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.hasFetched = state.hasFetched && state.goals.length > 0;
+        }
+      },
     },
   ),
 );

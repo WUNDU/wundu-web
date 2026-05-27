@@ -1,8 +1,9 @@
 "use client";
 
-import type { TransactionResponse } from "@/types/dtos/transaction.dto";
 import { X, TrendingUp, TrendingDown, Sparkles, BarChart2, Calendar, Clock } from "lucide-react";
 import { useMemo } from "react";
+
+import { isExpense } from "@/utils/transaction-type";
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
@@ -43,8 +44,16 @@ interface PeriodStats {
   peakHour: number | null;
 }
 
-function computeStats(transactions: TransactionResponse[], from: Date, to: Date): PeriodStats {
+export interface SummaryTransaction {
+  type: "INCOME" | "EXPENSE";
+  amount: number;
+  transactionDate?: string;
+  category?: { name?: string } | null;
+}
+
+function computeStats(transactions: SummaryTransaction[], from: Date, to: Date): PeriodStats {
   const inPeriod = transactions.filter((t) => {
+    if (!t.transactionDate) return false;
     const d = new Date(t.transactionDate);
     return d >= from && d <= to;
   });
@@ -55,9 +64,10 @@ function computeStats(transactions: TransactionResponse[], from: Date, to: Date)
   const catMap: Record<string, number> = {};
 
   for (const t of inPeriod) {
-    if (t.type === "EXPENSE") {
+    if (isExpense(t.type)) {
       totalExpense += t.amount;
-      hourCount[new Date(t.transactionDate).getHours()]++;
+      const hour = t.transactionDate ? new Date(t.transactionDate).getHours() : 0;
+      hourCount[hour]++;
       const cat = t.category?.name ?? "Outros";
       catMap[cat] = (catMap[cat] ?? 0) + t.amount;
     } else {
@@ -76,7 +86,7 @@ function computeStats(transactions: TransactionResponse[], from: Date, to: Date)
   return {
     totalExpense,
     totalIncome,
-    count: inPeriod.filter((t) => t.type === "EXPENSE").length,
+    count: inPeriod.filter((t) => isExpense(t.type)).length,
     topCategories,
     peakHour,
   };
@@ -132,7 +142,7 @@ function renderInsight(text: string) {
 
 interface WeeklyReportModalProps {
   period: "week" | "month";
-  transactions: TransactionResponse[];
+  transactions: SummaryTransaction[];
   onClose: () => void;
 }
 

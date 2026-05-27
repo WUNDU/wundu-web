@@ -16,6 +16,7 @@ import {
   MAX_UPLOAD_FILE_SIZE_MB,
 } from "@/constants/upload";
 import { Category } from "@/types/dtos/category.dto";
+import { isIncome } from "@/utils/transaction-type";
 
 import UploadSection from "@/components/home/upload-section";
 import UploadOptions from "@/components/home/upload-options";
@@ -34,18 +35,23 @@ const HomeScreen = () => {
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const {
-    transactions: rawTransactions,
+    allTransactions,
     isLoading: isTransactionsLoading,
-    isRefreshing: isTransactionsRefreshing,
+    isLoadingMore: isTransactionsRefreshing,
     error: transactionsError,
-    getTransactions: fetchTransactions,
-    refreshTransactions,
-  } = useTransaction();
+    loadPage,
+    resetPagination,
+  } = useTransaction({ autoFetch: false });
+
+  const refreshTransactions = useCallback(async () => {
+    resetPagination();
+    await loadPage(0);
+  }, [loadPage, resetPagination]);
 
   const documents = useMemo<Document[]>(
     () => [
       ...pendingDocs,
-      ...rawTransactions.map((tx, index) => ({
+      ...(allTransactions ?? []).map((tx, index) => ({
         id: tx.id,
         type: "transaction" as const,
         name: tx.description || tx.category?.name || `Transação ${index + 1}`,
@@ -53,10 +59,10 @@ const HomeScreen = () => {
         amount: tx.amount,
         category: tx.category?.name ?? undefined,
         timestamp: tx.transactionDate,
-        isIncome: tx.type === "INCOME",
+        isIncome: isIncome(tx.type),
       })),
     ],
-    [rawTransactions, pendingDocs],
+    [allTransactions, pendingDocs],
   );
   const { showNotification } = useUiStore();
   const {
@@ -79,8 +85,10 @@ const HomeScreen = () => {
   });
 
   useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+    if (!allTransactions || allTransactions.length === 0) {
+      loadPage(0);
+    }
+  }, [allTransactions, loadPage]);
 
   const handleTransactionSubmit = useCallback(async () => {
     const success = await handleSubmit();

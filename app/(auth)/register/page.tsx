@@ -15,7 +15,6 @@ import {
   validatePhoneNumber,
   validatePasswordDetailed,
   validateName,
-  type PasswordValidation,
 } from "@/utils/validation";
 import posthog from "posthog-js";
 import {
@@ -174,9 +173,7 @@ const RegisterPage = () => {
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordValidation, setPasswordValidation] =
-    useState<PasswordValidation>(
-      validatePasswordDetailed(data.password || ""),
-    );
+    useState(() => validatePasswordDetailed(data.password || ""));
   const contextError = submitError || error;
 
   const setSecurityField = (
@@ -314,31 +311,8 @@ const RegisterPage = () => {
     }
   };
 
-  // ── Inline PasswordValidationFeedback ──
-  const passwordCriteriaList = [
-    {
-      key: "hasLowercase",
-      label: "a-z",
-      isValid: passwordValidation.criteria.hasLowercase,
-    },
-    {
-      key: "hasUppercase",
-      label: "A-Z",
-      isValid: passwordValidation.criteria.hasUppercase,
-    },
-    {
-      key: "hasNumber",
-      label: "0-9",
-      isValid: passwordValidation.criteria.hasNumber,
-    },
-    {
-      key: "hasSpecialChar",
-      label: "!@#",
-      isValid: passwordValidation.criteria.hasSpecialChar,
-    },
-  ];
-  const showPasswordCriteria =
-    isPasswordFocused || securityForm.password.length > 0;
+  // ── Password hint ──
+  const showPasswordHint = isPasswordFocused || securityForm.password.length > 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
@@ -522,46 +496,24 @@ const RegisterPage = () => {
                         isError={!!passwordError || !!contextError}
                         className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
                       />
-                      {/* Inline PasswordValidationFeedback */}
+                      {/* Password hint */}
                       <div className="mt-2 px-1">
                         <AnimatePresence initial={false}>
-                          {showPasswordCriteria && (
-                            <motion.div
+                          {showPasswordHint && (
+                            <motion.p
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -5 }}
-                              className="flex flex-wrap gap-x-3 gap-y-1.5"
+                              className={`text-[11px] font-semibold ${
+                                passwordValidation.isValid
+                                  ? "text-green-600"
+                                  : "text-slate-400"
+                              }`}
                             >
-                              {passwordCriteriaList.map((criterion) => (
-                                <div
-                                  key={criterion.key}
-                                  className="flex items-center gap-1.5"
-                                >
-                                  <div
-                                    className={`flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors duration-300 ${
-                                      criterion.isValid
-                                        ? "bg-green-500 text-white"
-                                        : "bg-slate-200 text-slate-400"
-                                    }`}
-                                  >
-                                    {criterion.isValid ? (
-                                      <CheckmarkIcon className="h-2 w-2" />
-                                    ) : (
-                                      <div className="h-1 w-1 rounded-full bg-current" />
-                                    )}
-                                  </div>
-                                  <span
-                                    className={`text-[10px] font-bold uppercase tracking-tight transition-colors duration-300 ${
-                                      criterion.isValid
-                                        ? "text-green-600"
-                                        : "text-slate-400"
-                                    }`}
-                                  >
-                                    {criterion.label}
-                                  </span>
-                                </div>
-                              ))}
-                            </motion.div>
+                              {passwordValidation.isValid
+                                ? "✓ Senha válida"
+                                : "Mínimo 4 caracteres"}
+                            </motion.p>
                           )}
                         </AnimatePresence>
                       </div>

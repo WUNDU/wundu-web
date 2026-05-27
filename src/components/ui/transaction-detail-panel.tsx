@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { isExpense as isExpenseFn } from "@/utils/transaction-type";
 import type { TransactionDTO, TransactionStatus } from "@/types/dtos/transaction.dto";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -280,7 +281,7 @@ function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose:
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTx.id]);
 
-  const isExpense = tx.type === "EXPENSE";
+  const isExpense = isExpenseFn(tx.type);
   const categoryName = tx.category?.name || "Outro";
   const { icon: CategoryIcon } = getCategoryStyle(categoryName);
   const statusCfg = STATUS_CONFIG[tx.status as string] ?? DEFAULT_STATUS;

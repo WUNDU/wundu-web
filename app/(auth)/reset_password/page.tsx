@@ -365,7 +365,7 @@ function StepNewPassword({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword || form.password.length === 0) {
+    if (form.password.length < 4 || form.password !== form.confirmPassword) {
       setPasswordsMatch(false);
       return;
     }

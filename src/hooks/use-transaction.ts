@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTransactionStore } from "@/store/transaction-store";
+import type { NonPaginatedQueryOptions } from "@/services/transaction.service";
 import type {
   DefineCategoryRequest,
   TransactionPatchPayload,
@@ -7,7 +8,11 @@ import type {
   TransactionUpdateRequest,
 } from "@/types/dtos/transaction.dto";
 
-export function useTransaction() {
+interface UseTransactionOptions {
+  autoFetch?: boolean;
+}
+
+export function useTransaction({ autoFetch = true }: UseTransactionOptions = {}) {
   const transactions = useTransactionStore((s) => s.transactions);
   const notPaginated = useTransactionStore((s) => s.notPaginated);
   const allTransactions = useTransactionStore((s) => s.allTransactions);
@@ -36,10 +41,10 @@ export function useTransaction() {
   const clearAll = useTransactionStore((s) => s.clearAll);
 
   useEffect(() => {
-    if (!hasFetched) {
+    if (autoFetch && !hasFetched) {
       fetch();
     }
-  }, [hasFetched, fetch]);
+  }, [autoFetch, hasFetched, fetch]);
 
   return {
     transactions,
@@ -65,7 +70,7 @@ export function useTransaction() {
     updateTransaction: (id: string, payload: TransactionPatchPayload) => update(id, payload),
     defineCategoryTransaction: (id: string, payload: DefineCategoryRequest) => defineCategory(id, payload),
     removeTransaction: (id: string) => remove(id),
-    getAllNotPaginated,
+    getAllNotPaginated: (options?: NonPaginatedQueryOptions) => getAllNotPaginated(options),
     loadPage,
     loadMore,
     resetPagination,

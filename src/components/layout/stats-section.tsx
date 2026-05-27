@@ -7,6 +7,19 @@ import { FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
 import { useTransactionStore } from "@/store/transaction-store";
 
+// Session-level cache: avoids redundant API call on every home mount
+let _docCountCache: { value: number; at: number } | null = null;
+const DOC_CACHE_TTL_MS = 5 * 60 * 1000; // 5 min
+
+async function getCachedDocCount(): Promise<number> {
+  if (_docCountCache && Date.now() - _docCountCache.at < DOC_CACHE_TTL_MS) {
+    return _docCountCache.value;
+  }
+  const value = await documentService.getTotalDocuments();
+  _docCountCache = { value, at: Date.now() };
+  return value;
+}
+
 interface StatsCardProps {
   icon: ElementType;
   value: string | number;
@@ -87,20 +100,22 @@ const StatsCard: FC<StatsCardProps> = ({
 
 const StatsSection: FC = () => {
   const [totalDocuments, setTotalDocuments] = useState<number | null>(null);
-  const { transactions, fetch: fetchTransactions } = useTransactionStore();
+  const transactions = useTransactionStore((s) => s.transactions);
+  const hasFetched = useTransactionStore((s) => s.hasFetched);
+  const fetchTransactions = useTransactionStore((s) => s.fetch);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       await Promise.allSettled([
-        documentService.getTotalDocuments().then(setTotalDocuments).catch(() => {}),
-        fetchTransactions(),
+        getCachedDocCount().then(setTotalDocuments).catch(() => {}),
+        hasFetched ? Promise.resolve() : fetchTransactions(),
       ]);
       setIsLoading(false);
     };
     fetchData();
-  }, [fetchTransactions]);
+  }, [fetchTransactions, hasFetched]);
 
   const stats = useMemo(() => {
     const totalSpent = transactions.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
@@ -133,6 +148,28 @@ const StatsSection: FC = () => {
       },
     ];
   }, [isLoading, totalDocuments, transactions]);
+
+  if (isLoading) {
+    return (
+      <motion.div
+        className="grid h-full w-full grid-cols-3 items-stretch gap-2 sm:gap-2.5 lg:gap-3"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+      >
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="animate-pulse rounded-xl border border-slate-100 bg-white p-3 sm:min-h-[96px] sm:p-3 lg:p-4"
+          >
+            <div className="mb-3 h-8 w-8 rounded-lg bg-slate-200" />
+            <div className="h-6 w-20 rounded bg-slate-200" />
+            <div className="mt-2 h-3 w-24 rounded bg-slate-100" />
+          </div>
+        ))}
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

@@ -70,6 +70,11 @@ type PaginationMeta = {
   totalPages?: number;
 };
 
+export interface NonPaginatedQueryOptions {
+  startDate?: string;
+  endDate?: string;
+}
+
 const normalizeTransactionsResponse = (payload: unknown): TransactionDTO[] => {
   if (Array.isArray(payload)) return payload as TransactionDTO[];
   if (payload && typeof payload === "object") {
@@ -98,16 +103,23 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
 };
 
 class TransactionService {
-  async add(data: TransactionDTO): Promise<boolean> {
+  async add(data: TransactionDTO): Promise<TransactionDTO | null> {
     try {
-      await apiClient.post("/transactions", data);
-      return true;
+      const { data: created } = await apiClient.post<TransactionDTO>("/transactions", data);
+      return created;
     } catch {
-      return false;
+      return null;
     }
   }
 
   async get(): Promise<TransactionDTO[]> {
+    try {
+      const { data } = await apiClient.get<unknown>("/transactions/me");
+      return normalizeTransactionsResponse(data);
+    } catch {
+      // fallback for environments where /transactions/me is unavailable
+    }
+
     const aggregated: TransactionDTO[] = [];
     let page = 0;
     let shouldContinue = true;
@@ -300,9 +312,32 @@ class TransactionService {
     return data as Page<TransactionResponse>;
   }
 
-  async getAllNotPaginated(): Promise<TransactionResponse[]> {
-    const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
-    return Array.isArray(data) ? data : [];
+  async getAllNotPaginated(options?: NonPaginatedQueryOptions): Promise<TransactionResponse[]> {
+    if (!options?.startDate && !options?.endDate) {
+      const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
+      return Array.isArray(data) ? data : [];
+    }
+
+    const aggregated: TransactionResponse[] = [];
+    let page = 0;
+    let shouldContinue = true;
+
+    while (shouldContinue) {
+      const pageData = await this.getFiltered(page, 100, {
+        startDate: options.startDate,
+        endDate: options.endDate,
+      });
+      aggregated.push(...pageData.content);
+
+      const done =
+        pageData.content.length === 0 ||
+        pageData.last ||
+        page + 1 >= pageData.totalPages;
+      if (done) shouldContinue = false;
+      else page += 1;
+    }
+
+    return aggregated;
   }
 
   async getById(id: string): Promise<TransactionResponse> {

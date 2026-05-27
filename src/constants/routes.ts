@@ -18,7 +18,7 @@ export const ROUTES = {
   PROFILE: "/home/profile",
   CATEGORIES: "/home/categories",
   CHAT_IA: "/home/chat",
-  CONTROL_PANEL: "/home/profile/control_panel",
+  CONTROL_PANEL: "/home/analytics",
   SUPPORT: "/home/profile/support",
   SCAN: "/home/scan",
   VERIFY_PENDING: "/verify-pending",

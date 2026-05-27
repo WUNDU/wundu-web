@@ -13,6 +13,7 @@ import { useUserStore } from "@/store/user-store";
 import { useTransactionStore } from "@/store/transaction-store";
 import { getCategoryStyle } from "@/utils/category-style";
 import { formatCurrency } from "@/utils/format-currency";
+import { isExpense } from "@/utils/transaction-type";
 import type { Category } from "@/types/dtos/category.dto";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -28,6 +29,39 @@ function progressColor(pct: number) {
   if (pct >= 100) return "#ef4444";
   if (pct >= 80) return "#f59e0b";
   return "#10b981";
+}
+
+function CategoryCardsSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-2 animate-pulse">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-[13px] bg-slate-200" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-28 rounded bg-slate-200" />
+              <div className="h-2.5 w-40 rounded bg-slate-100" />
+            </div>
+            <div className="h-8 w-14 rounded-xl bg-slate-200" />
+          </div>
+          <div className="mt-3 h-1.5 rounded-full bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ResumoSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="rounded-2xl bg-[#003cc3] p-5">
+        <div className="h-3 w-28 rounded bg-white/30" />
+        <div className="mt-3 h-8 w-44 rounded bg-white/30" />
+        <div className="mt-2 h-3 w-36 rounded bg-white/25" />
+      </div>
+      <CategoryCardsSkeleton count={3} />
+    </div>
+  );
 }
 
 // ─── Limit dialog ─────────────────────────────────────────────────────────────
@@ -105,10 +139,22 @@ function ResumoTab({
   getLimitKey: (id: string) => { monthlyLimit: number } | undefined;
   onSetLimit: (cat: Category) => void;
 }) {
-  const total = Object.values(monthlySpendByName).reduce((s, v) => s + v, 0);
+  const displayTotal = Object.values(monthlySpendByName).reduce((s, v) => s + v, 0);
   const sorted = Object.entries(monthlySpendByName)
     .filter(([k, v]) => k !== "__none__" && v > 0)
     .sort((a, b) => b[1] - a[1]);
+
+  // Percentage sum guaranteed = 100 via Largest Remainder Method
+  const sortedTotal = sorted.reduce((s, [, v]) => s + v, 0);
+  const rawPcts = sorted.map(([, amount]) => sortedTotal > 0 ? (amount / sortedTotal) * 100 : 0);
+  const floors = rawPcts.map(Math.floor);
+  const remainder = 100 - floors.reduce((s, v) => s + v, 0);
+  rawPcts
+    .map((v, i) => ({ i, frac: v - floors[i] }))
+    .sort((a, b) => b.frac - a.frac)
+    .slice(0, remainder)
+    .forEach(({ i }) => floors[i]++);
+  const pcts = floors;
 
   // all categories with limit and spending — for alert section
   const atRisk = [...systemCategories, ...myCategories].filter((c) => {
@@ -125,7 +171,7 @@ function ResumoTab({
       {/* Total card */}
       <div className="bg-gradient-to-br from-[#001a4d] to-[#003cc3] rounded-2xl p-5 text-white">
         <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Total gasto este mês</p>
-        <p className="text-3xl font-black tracking-tight">KZ {formatCurrency(total)}</p>
+        <p className="text-3xl font-black tracking-tight">KZ {formatCurrency(displayTotal)}</p>
         <p className="text-white/50 text-xs font-medium mt-1">
           {sorted.length} categori{sorted.length !== 1 ? "as" : "a"} com actividade
         </p>
@@ -176,7 +222,7 @@ function ResumoTab({
         <div className="space-y-2">
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Distribuição</p>
           {sorted.map(([name, amount], i) => {
-            const pct = total > 0 ? Math.round((amount / total) * 100) : 0;
+            const pct = pcts[i];
             const { icon: Icon, color, bg } = getCategoryStyle(name);
             return (
               <motion.div key={name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -348,33 +394,50 @@ function CustomCategoryCard({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
-  const { categories, isLoading, hasFetched, fetchActive, create } = useCategoryStore();
+  const { categories, isLoading: isCategoriesLoading, hasFetched, fetchActive, create } = useCategoryStore();
   const { limits, define, fetchLimit } = useLimitStore();
   const userId = useUserStore((s) => s.user?.id);
-  const { notPaginated, hasFetchedAll, getAllNotPaginated } = useTransactionStore();
+  const notPaginated = useTransactionStore((s) => s.notPaginated);
+  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
+  const isTransactionsLoading = useTransactionStore((s) => s.isLoading);
+  const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
 
   const [tab, setTab] = useState<"resumo" | "sistema" | "custom">("resumo");
   const [newName, setNewName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [limitTarget, setLimitTarget] = useState<Category | null>(null);
+  const monthRange = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return {
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
+    };
+  }, []);
 
   useEffect(() => { if (!hasFetched) fetchActive(); }, [hasFetched, fetchActive]);
-  useEffect(() => { if (!hasFetchedAll) getAllNotPaginated(); }, [hasFetchedAll, getAllNotPaginated]);
+  useEffect(() => {
+    // Re-run when hasFetchedAll is invalidated by mutations (add/create)
+    const queryKey = `${monthRange.startDate}|${monthRange.endDate}`;
+    if (hasFetchedAll && useTransactionStore.getState().notPaginatedQueryKey === queryKey) return;
+    getAllNotPaginated(monthRange);
+  }, [getAllNotPaginated, monthRange, hasFetchedAll]);
   useEffect(() => {
     if (!categories.length) return;
     categories.forEach((c) => fetchLimit(c.id));
-  }, [categories]);
+  }, [categories, fetchLimit]);
 
   const monthlySpendByName = useMemo(() => {
     const now = new Date();
     const result: Record<string, number> = {};
     (notPaginated ?? []).forEach((t) => {
-      if (t.type !== "EXPENSE") return;
+      if (!isExpense(t.type)) return;
       const d = new Date(t.transactionDate);
       if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
       const name = t.category?.name ?? "__none__";
-      result[name] = (result[name] ?? 0) + t.amount;
+      result[name] = (result[name] ?? 0) + Math.abs(t.amount);
     });
     return result;
   }, [notPaginated]);
@@ -382,6 +445,7 @@ export default function CategoriesPage() {
   const systemCategories = categories.filter((c) => !c.userId);
   const myCategories = categories.filter((c) => !!c.userId);
   const getLimitKey = (id: string) => limits[id];
+  const isPageLoading = isCategoriesLoading || isTransactionsLoading || !hasFetchedAll;
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -442,13 +506,17 @@ export default function CategoriesPage() {
       {/* ── Tab content ─────────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         {tab === "resumo" && (
-          <ResumoTab
-            monthlySpendByName={monthlySpendByName}
-            systemCategories={systemCategories}
-            myCategories={myCategories}
-            getLimitKey={getLimitKey}
-            onSetLimit={setLimitTarget}
-          />
+          isPageLoading ? (
+            <ResumoSkeleton />
+          ) : (
+            <ResumoTab
+              monthlySpendByName={monthlySpendByName}
+              systemCategories={systemCategories}
+              myCategories={myCategories}
+              getLimitKey={getLimitKey}
+              onSetLimit={setLimitTarget}
+            />
+          )
         )}
 
         {tab === "sistema" && (
@@ -460,8 +528,8 @@ export default function CategoriesPage() {
                 Categorias de sistema são somente leitura. Define um <span className="font-bold">limite mensal</span> para monitorar os gastos.
               </p>
             </div>
-            {isLoading ? (
-              <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
+            {isPageLoading ? (
+              <CategoryCardsSkeleton count={5} />
             ) : (
               <div className="space-y-2">
                 {systemCategories.map((cat, i) => (
@@ -498,8 +566,8 @@ export default function CategoriesPage() {
               </div>
               {createError && <p className="text-red-500 text-xs mt-2">{createError}</p>}
             </div>
-            {isLoading ? (
-              <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
+            {isPageLoading ? (
+              <CategoryCardsSkeleton count={4} />
             ) : myCategories.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
                 <FolderPlus className="w-10 h-10 opacity-25" />

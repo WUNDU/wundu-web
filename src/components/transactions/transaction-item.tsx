@@ -7,10 +7,12 @@ import type { TransactionDTO } from "@/types/dtos/transaction.dto";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
+import { isExpense } from "@/utils/transaction-type";
+
 export function TransactionItem({ tx, index, onClick }: { tx: TransactionDTO; index: number; onClick: () => void }) {
-  const isExpense = tx.type === "EXPENSE";
-  const amountColor = isExpense ? "#EF4444" : "#10B981";
-  const amountBg   = isExpense ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)";
+  const isExpenseTx = isExpense(tx.type);
+  const amountColor = isExpenseTx ? "#EF4444" : "#10B981";
+  const amountBg   = isExpenseTx ? "rgba(239,68,68,0.08)" : "rgba(16,185,129,0.08)";
   const categoryName = tx.category?.name || "Outro";
   const { icon: Icon, color, bg } = getCategoryStyle(categoryName);
   const time = tx.transactionDate
@@ -45,7 +47,7 @@ export function TransactionItem({ tx, index, onClick }: { tx: TransactionDTO; in
 
       <div className="flex-shrink-0 px-2.5 py-1.5 rounded-full" style={{ backgroundColor: amountBg }}>
         <span className="text-[13px] font-extrabold" style={{ color: amountColor }}>
-          {isExpense ? "-" : "+"}{formatAOA(Math.abs(tx.amount))}
+          {isExpenseTx ? "-" : "+"}{formatAOA(Math.abs(tx.amount))}
         </span>
       </div>
     </motion.div>

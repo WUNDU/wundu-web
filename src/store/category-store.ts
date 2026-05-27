@@ -38,7 +38,7 @@ export const useCategoryStore = create<CategoryState>()(
       },
 
       fetchActive: async () => {
-        if (get().hasFetched) return;
+        if (get().hasFetched || get().isLoading) return;
         set({ isLoading: true, error: null });
         try {
           const data = await categoryService.getActive();
@@ -92,7 +92,13 @@ export const useCategoryStore = create<CategoryState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         categories: state.categories,
+        hasFetched: state.hasFetched,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.hasFetched = state.hasFetched && state.categories.length > 0;
+        }
+      },
     },
   ),
 );

@@ -6,9 +6,10 @@ import { Tab } from "@/components/ui/tab";
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from "@/constants/icons";
 import { tabRanges } from "@/constants/mock-data";
 import { StatsSection } from "@/components/layout";
-import { useTransaction } from "@/hooks/use-transaction";
-import type { TransactionDTO } from "@/types/dtos/transaction.dto";
+import { useTransactionStore } from "@/store/transaction-store";
+import type { TransactionResponse } from "@/types/dtos/transaction.dto";
 import type { TimeRange, TransactionProps, ViewMode } from "@/types/ui";
+import { isIncome } from "@/utils/transaction-type";
 import {
   BarChart,
   LineChart,
@@ -18,6 +19,19 @@ import {
   buildChartData,
   type NormalizedTransaction,
 } from "@/components/charts";
+
+const EMPTY_TRANSACTIONS: TransactionResponse[] = [];
+
+const AnalyticsSkeleton: React.FC = () => (
+  <div className="space-y-3 p-4 animate-pulse">
+    <div className="h-20 rounded-xl border border-slate-100 bg-white" />
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+      <div className="h-36 rounded-xl bg-white lg:col-span-4" />
+      <div className="h-36 rounded-xl bg-white lg:col-span-8" />
+    </div>
+    <div className="h-96 rounded-xl border border-slate-100 bg-white" />
+  </div>
+);
 
 // ── HeaderSection ─────────────────────────────────────────────────────────────
 
@@ -125,26 +139,32 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isCredit] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
-  const { transactions: rawTransactions, getTransactions: fetch } = useTransaction();
+  const rawTransactions = useTransactionStore((s) => s.notPaginated ?? EMPTY_TRANSACTIONS);
+  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
+  const isTransactionsLoading = useTransactionStore((s) => s.isLoading);
+  const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    // Re-run when hasFetchedAll is invalidated by mutations
+    if (!hasFetchedAll) getAllNotPaginated();
+  }, [getAllNotPaginated, hasFetchedAll]);
+
+  const isAnalyticsLoading = isTransactionsLoading || !hasFetchedAll;
 
   const normalizedTransactions = useMemo<NormalizedTransaction[]>(() => {
     return rawTransactions
-      .map((tx: TransactionDTO) => {
+      .map((tx: TransactionResponse) => {
         const rawAmount = typeof tx.amount === "number" ? tx.amount : 0;
         const timestamp = tx.transactionDate
           ? new Date(tx.transactionDate)
           : new Date();
         if (Number.isNaN(timestamp.getTime()) || rawAmount === 0) return null;
-        const isIncome = tx.type === "INCOME";
-        const amount = isIncome ? Math.abs(rawAmount) : -Math.abs(rawAmount);
+        const isIncomeTx = isIncome(tx.type);
+        const amount = isIncomeTx ? Math.abs(rawAmount) : -Math.abs(rawAmount);
         return {
           amount,
-          category: tx.category?.name ?? (isIncome ? "Receitas" : "Outros"),
-          isIncome,
+          category: tx.category?.name ?? (isIncomeTx ? "Receitas" : "Outros"),
+          isIncome: isIncomeTx,
           timestamp,
         };
       })
@@ -352,6 +372,10 @@ const ControlPanelDashboardScreen: React.FC = () => {
       </button>
     </div>
   );
+
+  if (isAnalyticsLoading) {
+    return <AnalyticsSkeleton />;
+  }
 
   return (
     <>

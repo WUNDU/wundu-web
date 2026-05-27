@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { transactionService } from "@/services/transaction.service";
+import type { NonPaginatedQueryOptions } from "@/services/transaction.service";
 import type {
   DefineCategoryRequest,
   TransactionDTO,
@@ -28,6 +29,7 @@ interface TransactionState {
   isLoadingMore: boolean;
   isLastPage: boolean;
   hasFetchedAll: boolean;
+  notPaginatedQueryKey: string | null;
 
   fetch(): Promise<void>;
   refresh(): Promise<void>;
@@ -35,8 +37,8 @@ interface TransactionState {
   clearAll(): void;
 
   // Paginated operations
-  getAllNotPaginated(): Promise<void>;
-  loadPage(page: number): Promise<void>;
+  getAllNotPaginated(options?: NonPaginatedQueryOptions): Promise<void>;
+  loadPage(page: number, force?: boolean): Promise<void>;
   loadMore(): Promise<void>;
   resetPagination(): void;
 
@@ -47,6 +49,9 @@ interface TransactionState {
   defineCategory(id: string, payload: DefineCategoryRequest): Promise<boolean>;
   remove(id: string): Promise<boolean>;
 }
+
+const MAX_PERSISTED_TRANSACTIONS = 200;
+const PAGE_SIZE = 20;
 
 const sortByDate = (items: TransactionDTO[]): TransactionDTO[] =>
   [...items].sort((a, b) => {
@@ -83,14 +88,15 @@ export const useTransactionStore = create<TransactionState>()(
       isLoadingMore: false,
       isLastPage: false,
       hasFetchedAll: false,
+      notPaginatedQueryKey: null,
 
       fetch: async () => {
-        if (get().hasFetched) return;
+        if (get().hasFetched || get().isLoading) return;
         set({ isLoading: true, error: null });
         try {
-          const data = await transactionService.get();
+          const response = await transactionService.getAll(0, PAGE_SIZE);
           set({
-            transactions: sortByDate(data),
+            transactions: sortByDate(response.content as unknown as TransactionDTO[]),
             isLoading: false,
             hasFetched: true,
           });
@@ -103,11 +109,12 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       refresh: async () => {
+        if (get().isRefreshing) return;
         set({ isRefreshing: true, error: null });
         try {
-          const data = await transactionService.get();
+          const response = await transactionService.getAll(0, PAGE_SIZE);
           set({
-            transactions: sortByDate(data),
+            transactions: sortByDate(response.content as unknown as TransactionDTO[]),
             isRefreshing: false,
             hasFetched: true,
           });
@@ -120,9 +127,18 @@ export const useTransactionStore = create<TransactionState>()(
       },
 
       add: async (data) => {
-        const success = await transactionService.add(data);
-        if (success) {
-          await get().refresh();
+        const created = await transactionService.add(data);
+        if (created) {
+          // Optimistic insert — no refresh(), no visible flash
+          set((s) => ({
+            transactions: sortByDate([created, ...s.transactions]),
+            allTransactions: s.allTransactions
+              ? [created as unknown as TransactionResponse, ...s.allTransactions]
+              : null,
+            // Invalidate non-paginated cache so category/analytics pages refetch
+            hasFetchedAll: false,
+            notPaginatedQueryKey: null,
+          }));
           useUiStore
             .getState()
             .showNotification(
@@ -139,7 +155,7 @@ export const useTransactionStore = create<TransactionState>()(
               "Não foi possível concluir o registo.",
             );
         }
-        return success;
+        return !!created;
       },
 
       clearAll: () => {
@@ -153,6 +169,7 @@ export const useTransactionStore = create<TransactionState>()(
           notPaginated: null,
           isLoadingMore: false,
           hasFetchedAll: false,
+          notPaginatedQueryKey: null,
           currentPage: 0,
           totalPages: 0,
           totalElements: 0,
@@ -162,12 +179,24 @@ export const useTransactionStore = create<TransactionState>()(
 
       // ── Paginated / bulk fetches ─────────────────────────────────────────────
 
-      getAllNotPaginated: async () => {
-        if (get().hasFetchedAll) return;
-        set({ isLoading: true });
+      getAllNotPaginated: async (options) => {
+        const queryKey = `${options?.startDate ?? "all"}|${options?.endDate ?? "all"}`;
+        const { hasFetchedAll, notPaginatedQueryKey, isLoading } = get();
+        if (isLoading) return;
+        if (hasFetchedAll && queryKey === notPaginatedQueryKey) return;
+
+        set({
+          isLoading: true,
+          ...(queryKey !== notPaginatedQueryKey ? { notPaginated: null, hasFetchedAll: false } : {}),
+        });
         try {
-          const data = await transactionService.getAllNotPaginated();
-          set({ notPaginated: data, isLoading: false, hasFetchedAll: true });
+          const data = await transactionService.getAllNotPaginated(options);
+          set({
+            notPaginated: data,
+            isLoading: false,
+            hasFetchedAll: true,
+            notPaginatedQueryKey: queryKey,
+          });
         } catch (error: any) {
           const err =
             error instanceof Error ? error.message : "Erro ao carregar transações";
@@ -176,22 +205,38 @@ export const useTransactionStore = create<TransactionState>()(
         }
       },
 
-      loadPage: async (page: number) => {
-        set({ isLoadingMore: true, error: null });
+      loadPage: async (page: number, force = false) => {
+        const current = get();
+        if (
+          !force &&
+          current.currentPage === page &&
+          current.allTransactions !== null &&
+          current.allTransactions.length > 0
+        ) {
+          return;
+        }
+        const isInitialPage = page === 0;
+        set({ isLoadingMore: true, isLoading: isInitialPage, error: null });
         try {
-          const response = await transactionService.getAll(page, 20);
+          const response = await transactionService.getAll(page, PAGE_SIZE);
           set({
             allTransactions: response.content,
+            transactions:
+              page === 0
+                ? sortByDate(response.content as unknown as TransactionDTO[])
+                : get().transactions,
             currentPage: response.number,
             totalPages: response.totalPages,
             totalElements: response.totalElements,
             isLastPage: response.last,
             isLoadingMore: false,
+            isLoading: false,
+            hasFetched: page === 0 ? true : get().hasFetched,
           });
         } catch (error: any) {
           const err =
             error instanceof Error ? error.message : "Erro ao carregar transações";
-          set({ error: err, isLoadingMore: false });
+          set({ error: err, isLoadingMore: false, isLoading: false });
           useUiStore.getState().showNotification("error", "Erro", err);
         }
       },
@@ -202,7 +247,7 @@ export const useTransactionStore = create<TransactionState>()(
         set({ isLoadingMore: true });
         try {
           const nextPage = currentPage + 1;
-          const response = await transactionService.getAll(nextPage, 20);
+          const response = await transactionService.getAll(nextPage, PAGE_SIZE);
           set((s) => ({
             allTransactions: [...(s.allTransactions ?? []), ...response.content],
             currentPage: response.number,
@@ -227,6 +272,7 @@ export const useTransactionStore = create<TransactionState>()(
           totalElements: 0,
           isLastPage: false,
           isLoadingMore: false,
+          isLoading: false,
         });
       },
 
@@ -237,7 +283,9 @@ export const useTransactionStore = create<TransactionState>()(
           const newTx = await transactionService.create(payload);
           set((s) => ({
             transactions: sortByDate([newTx as unknown as TransactionDTO, ...s.transactions]),
-            notPaginated: s.notPaginated ? [newTx, ...s.notPaginated] : [newTx],
+            // Invalidate non-paginated cache — date-range aware pages will refetch
+            hasFetchedAll: false,
+            notPaginatedQueryKey: null,
           }));
           useUiStore.getState().showNotification("success", "Transação registrada", "Transação registrada com sucesso!");
           return true;
@@ -253,6 +301,9 @@ export const useTransactionStore = create<TransactionState>()(
         try {
           const updated = await transactionService.complete(id, payload);
           set((s) => ({
+            transactions: sortByDate(
+              patchList(s.transactions as unknown as TransactionResponse[], id, updated) as unknown as TransactionDTO[],
+            ),
             allTransactions: patchList(s.allTransactions, id, updated),
             notPaginated: patchList(s.notPaginated, id, updated),
           }));
@@ -294,6 +345,9 @@ export const useTransactionStore = create<TransactionState>()(
         try {
           const updated = await transactionService.defineCategory(id, payload);
           set((s) => ({
+            transactions: sortByDate(
+              patchList(s.transactions as unknown as TransactionResponse[], id, updated) as unknown as TransactionDTO[],
+            ),
             allTransactions: patchList(s.allTransactions, id, updated),
             notPaginated: patchList(s.notPaginated, id, updated),
           }));
@@ -329,9 +383,13 @@ export const useTransactionStore = create<TransactionState>()(
       name: "wundu-transactions-cache",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        transactions: state.transactions,
-        notPaginated: state.notPaginated,
+        transactions: state.transactions.slice(0, MAX_PERSISTED_TRANSACTIONS),
+        hasFetched: state.hasFetched,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        state.hasFetched = state.hasFetched && state.transactions.length > 0;
+      },
     },
   ),
 );
