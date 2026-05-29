@@ -14,7 +14,6 @@ type EditFormState = {
   title: string;
   description: string;
   targetAmount: string;
-  currentAmount: string;
   startDate: string;
   endDate: string;
   type: GoalType;
@@ -52,7 +51,6 @@ const buildInitialFormData = (
   title: objective?.title ?? "",
   description: objective?.description ?? "",
   targetAmount: objective?.targetAmount?.toString() ?? "",
-  currentAmount: objective?.currentAmount?.toString() ?? "",
   startDate: toDateInputValue(objective?.startDate),
   endDate: toDateInputValue(objective?.endDate),
   type: (objective?.type as GoalType) ?? "SHORT_TERM",
@@ -78,16 +76,12 @@ const EditModal: React.FC<EditModalProps> = ({
   const [targetAmountDisplay, setTargetAmountDisplay] = useState(() =>
     objective?.targetAmount ? formatAOA(objective.targetAmount) : "",
   );
-  const [currentAmountDisplay, setCurrentAmountDisplay] = useState(() =>
-    objective?.currentAmount ? formatAOA(objective.currentAmount) : "",
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     setFormData(buildInitialFormData(objective));
     setTargetAmountDisplay(objective?.targetAmount ? formatAOA(objective.targetAmount) : "");
-    setCurrentAmountDisplay(objective?.currentAmount ? formatAOA(objective.currentAmount) : "");
     setSubmitError("");
   }, [objective]);
 
@@ -140,9 +134,6 @@ const EditModal: React.FC<EditModalProps> = ({
         startDate: formData.startDate,
         endDate: formData.endDate,
         categoryId: selectedCategoryValue,
-        currentAmount: formData.currentAmount
-          ? Number(formData.currentAmount)
-          : undefined,
       };
 
       await update(objective.id, payload);
@@ -259,25 +250,6 @@ const EditModal: React.FC<EditModalProps> = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="0,00"
                 required
-                disabled={disableInputs}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Valor arrecadado
-              </label>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={currentAmountDisplay}
-                onChange={(e) => {
-                  const masked = maskAOAInput(e.target.value);
-                  setCurrentAmountDisplay(masked);
-                  handleChange("currentAmount", parseAOA(masked));
-                }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="0,00"
                 disabled={disableInputs}
               />
             </div>

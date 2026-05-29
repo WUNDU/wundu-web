@@ -163,8 +163,10 @@ export const useGoalStore = create<GoalState>()(
           useUiStore.getState().showNotification("success", "Progresso registrado", "Progresso adicionado com sucesso!");
           return true;
         } catch (error: any) {
-          const err =
-            error instanceof Error ? error.message : "Erro ao registrar progresso";
+          const is422 = error?.response?.status === 422;
+          const err = is422
+            ? (error.response?.data?.message ?? "Valor excede o disponível para este objectivo.")
+            : (error instanceof Error ? error.message : "Erro ao registrar progresso");
           useUiStore.getState().showNotification("error", "Erro", err);
           return false;
         }

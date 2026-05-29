@@ -136,10 +136,12 @@ function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number
 // ── Add savings sheet ─────────────────────────────────────────────────────────
 function AddSavingsSheet({
   goalTitle,
+  availableAmount,
   onClose,
   onSave,
 }: {
   goalTitle: string;
+  availableAmount: number;
   onClose: () => void;
   onSave: (amount: number, date: string) => Promise<void>;
 }) {
@@ -151,7 +153,8 @@ function AddSavingsSheet({
   useEffect(() => { setTimeout(() => inputRef.current?.focus(), 120); }, []);
 
   const numeric = parseFloat(parseAOA(display));
-  const canSave = numeric > 0;
+  const exceedsMax = availableAmount > 0 && numeric > availableAmount;
+  const canSave = numeric > 0 && !exceedsMax;
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDisplay(maskAOAInput(e.target.value));
@@ -243,8 +246,14 @@ function AddSavingsSheet({
 
           {/* Amount validation hint */}
           <p className="text-center text-[11px] font-semibold mt-2.5 transition-colors duration-200"
-            style={{ color: canSave ? "rgba(255,212,0,0.7)" : "rgba(255,255,255,0.25)" }}>
-            {canSave ? `${display} Kz a registar` : "Insere o valor poupado"}
+            style={{ color: exceedsMax ? "#ff6b6b" : canSave ? "rgba(255,212,0,0.7)" : "rgba(255,255,255,0.25)" }}>
+            {exceedsMax
+              ? `Máximo disponível: ${formatAOA(availableAmount)} Kz`
+              : canSave
+              ? `${display} Kz a registar`
+              : availableAmount > 0
+              ? `Máx. ${formatAOA(availableAmount)} Kz`
+              : "Insere o valor poupado"}
           </p>
         </div>
 
@@ -398,9 +407,17 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
 
           {/* Stats row — inside hero */}
           <div className="flex gap-2 mt-3 sm:mt-4">
-            <StatChip label="Falta" value={formatAOA(missing)} accent="#ff6b6b" />
-            <StatChip label="Dias" value={String(daysLeft)} accent="#7dd3fc" />
-            <StatChip label="Por dia" value={dailySuggestion > 0 ? formatAOA(dailySuggestion) : "—"} accent="#fbbf24" />
+            <StatChip label="Falta" value={done ? "—" : formatAOA(missing)} accent="#ff6b6b" />
+            {done ? (
+              <StatChip
+                label="Concluído em"
+                value={goal.completedAt ? formatDate(goal.completedAt) : formatDate(goal.endDate)}
+                accent="#34D399"
+              />
+            ) : (
+              <StatChip label="Dias" value={String(daysLeft)} accent="#7dd3fc" />
+            )}
+            <StatChip label="Por dia" value={!done && dailySuggestion > 0 ? formatAOA(dailySuggestion) : "—"} accent="#fbbf24" />
           </div>
         </div>
 
@@ -477,6 +494,7 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
           {showSheet && (
             <AddSavingsSheet
               goalTitle={goal.title}
+              availableAmount={missing}
               onClose={() => setShowSheet(false)}
               onSave={handleSave}
             />

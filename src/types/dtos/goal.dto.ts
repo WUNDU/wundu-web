@@ -8,7 +8,6 @@ export interface GoalRequest {
   description?: string;
   type: GoalType;
   targetAmount: number;
-  currentAmount?: number;
   startDate: string;
   endDate: string;
   categoryId: string;
@@ -41,6 +40,7 @@ export interface GoalResponse {
   startDate: string;
   endDate: string;
   status: GoalStatus;
+  completedAt?: string;
   createdAt: string;
   categoryId: string;
   category?: CategoryResponse;
