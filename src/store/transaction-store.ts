@@ -135,6 +135,7 @@ export const useTransactionStore = create<TransactionState>()(
             allTransactions: s.allTransactions
               ? [created as unknown as TransactionResponse, ...s.allTransactions]
               : null,
+            totalElements: s.totalElements + 1,
             // Invalidate non-paginated cache so category/analytics pages refetch
             hasFetchedAll: false,
             notPaginatedQueryKey: null,
@@ -207,6 +208,10 @@ export const useTransactionStore = create<TransactionState>()(
 
       loadPage: async (page: number, force = false) => {
         const current = get();
+
+        // Guard: skip if already loading (unless forcing a refresh)
+        if (!force && (current.isLoading || current.isLoadingMore)) return;
+
         if (
           !force &&
           current.currentPage === page &&
@@ -215,8 +220,17 @@ export const useTransactionStore = create<TransactionState>()(
         ) {
           return;
         }
+
         const isInitialPage = page === 0;
-        set({ isLoadingMore: true, isLoading: isInitialPage, error: null });
+        // Silent refresh (force + page 0): keep existing list visible, use isRefreshing flag
+        const isSilentRefresh = force && isInitialPage;
+
+        set({
+          isLoadingMore: !isSilentRefresh,
+          isLoading: isInitialPage && !isSilentRefresh,
+          isRefreshing: isSilentRefresh,
+          error: null,
+        });
         try {
           const response = await transactionService.getAll(page, PAGE_SIZE);
           set({
@@ -231,12 +245,13 @@ export const useTransactionStore = create<TransactionState>()(
             isLastPage: response.last,
             isLoadingMore: false,
             isLoading: false,
+            isRefreshing: false,
             hasFetched: page === 0 ? true : get().hasFetched,
           });
         } catch (error: any) {
           const err =
             error instanceof Error ? error.message : "Erro ao carregar transações";
-          set({ error: err, isLoadingMore: false, isLoading: false });
+          set({ error: err, isLoadingMore: false, isLoading: false, isRefreshing: false });
           useUiStore.getState().showNotification("error", "Erro", err);
         }
       },
@@ -283,6 +298,10 @@ export const useTransactionStore = create<TransactionState>()(
           const newTx = await transactionService.create(payload);
           set((s) => ({
             transactions: sortByDate([newTx as unknown as TransactionDTO, ...s.transactions]),
+            allTransactions: s.allTransactions
+              ? [newTx, ...s.allTransactions]
+              : null,
+            totalElements: s.totalElements + 1,
             // Invalidate non-paginated cache — date-range aware pages will refetch
             hasFetchedAll: false,
             notPaginatedQueryKey: null,

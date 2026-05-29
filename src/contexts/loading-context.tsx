@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useMemo } from "react";
+import React, { createContext, useContext, useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/user-store";
+import { usePathname } from "next/navigation";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -41,11 +42,18 @@ export function useLoading() {
 function GlobalLoadingOverlay() {
   const context = useContext(LoadingContext);
   const authIsLoading = useUserStore((state) => state.isLoading);
+  const user = useUserStore((state) => state.user);
+  const pathname = usePathname();
 
   if (!context) return null;
 
   const { isLoading: globalIsLoading, message } = context;
-  const isAnyLoading = globalIsLoading || authIsLoading;
+  
+  // Do not show any loading overlay on the Landing Page
+  if (pathname === "/") return null;
+
+  // Only block UI when no cached user — silent re-auth never shows overlay
+  const isAnyLoading = globalIsLoading || (authIsLoading && !user);
 
   return (
     <AnimatePresence>

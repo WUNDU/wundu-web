@@ -5,6 +5,7 @@ import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { useUserStore } from "@/store/user-store";
 import { useTransactionStore } from "@/store/transaction-store";
 import EmailVerificationBanner from "@/components/email-verification-banner";
+import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
@@ -131,7 +132,7 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading, user } = useUserStore();
+  const { isAuthenticated, isLoading, user, initializeAuth } = useUserStore();
   const notPaginated = useTransactionStore((s) => s.notPaginated);
   const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
   const [checked, setChecked] = useState(false);
@@ -140,6 +141,10 @@ export default function ProtectedLayout({
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState<SummaryPeriod>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -183,11 +188,11 @@ export default function ProtectedLayout({
     setSummaryPeriod(null);
   };
 
-  if (isLoading || !checked) return <ProtectedLoadingSkeleton />;
+  if (isLoading || !checked) return <LoadingProvider><ProtectedLoadingSkeleton /></LoadingProvider>;
   if (!isAuthenticated) return null;
 
   return (
-    <>
+    <LoadingProvider>
       {user?.id && <PushProvider userId={user.id} />}
       <EmailVerificationBanner />
       {children}
@@ -198,6 +203,6 @@ export default function ProtectedLayout({
           onClose={handleCloseSummary}
         />
       )}
-    </>
+    </LoadingProvider>
   );
 }

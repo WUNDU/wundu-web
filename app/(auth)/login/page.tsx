@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
@@ -196,19 +197,28 @@ const LoginPage: React.FC = () => {
             <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 md:px-14 lg:px-16">
               {mode === "quick" && savedUser ? (
                 /* ── Quick Login ── */
-                <form onSubmit={handleLogin} className="flex w-full flex-col">
-                  <div className="mb-8 flex flex-col items-center gap-3">
+                <motion.form
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  onSubmit={handleLogin}
+                  className="flex w-full flex-col"
+                >
+                  <div className="mb-10 flex flex-col items-center gap-4">
                     {/* Avatar */}
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 shadow-sm">
-                      <span className="text-xl font-black tracking-tight text-slate-900">
-                        {getInitials(savedUser.name)}
-                      </span>
+                    <div className="relative group cursor-default">
+                      <div className="absolute inset-0 bg-yellow-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                      <div className="relative flex h-20 w-20 items-center justify-center rounded-[24px] bg-yellow-400 shadow-lg border-4 border-white">
+                        <span className="text-2xl font-black tracking-tight text-slate-900">
+                          {getInitials(savedUser.name)}
+                        </span>
+                      </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold tracking-tight text-slate-900">
+                      <p className="text-xl font-bold tracking-tight text-slate-900">
                         {savedUser.name.split(" ")[0]}
                       </p>
-                      <p className="text-sm font-medium text-slate-400">
+                      <p className="text-sm font-semibold text-slate-400 tracking-tight">
                         {savedUser.email}
                       </p>
                     </div>
@@ -226,27 +236,41 @@ const LoginPage: React.FC = () => {
                       isError={!!errors.password || !!loginError}
                       disabled={isSubmitting}
                       autoFocus
-                      className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                      className="h-12 border-slate-200 bg-slate-50/40 transition-all focus:border-slate-900 focus:bg-white"
                     />
                   </div>
 
-                  <div className="min-h-17 py-3 flex items-center">
-                    {isBlocked ? (
-                      <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
-                        <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
-                        <p className="text-xs font-bold text-orange-600">
-                          Demasiadas tentativas. Tente novamente em{" "}
-                          {formatCountdown(countdown!)}
-                        </p>
-                      </div>
-                    ) : errors.password || loginError ? (
-                      <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
-                        <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                        <p className="text-xs font-bold text-red-600">
-                          {errors.password || loginError}
-                        </p>
-                      </div>
-                    ) : null}
+                  <div className="min-h-17 py-4 flex items-center">
+                    <AnimatePresence mode="wait">
+                      {isBlocked ? (
+                        <motion.div
+                          key="blocked"
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          className="flex w-full items-center gap-3 rounded-xl border border-orange-100 bg-orange-50/40 p-3.5"
+                        >
+                          <div className="h-2 w-2 shrink-0 rounded-full bg-orange-500 animate-pulse" />
+                          <p className="text-xs font-bold text-orange-600">
+                            Demasiadas tentativas. Tente novamente em{" "}
+                            {formatCountdown(countdown!)}
+                          </p>
+                        </motion.div>
+                      ) : (errors.password || loginError) ? (
+                        <motion.div
+                          key="error"
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          className="flex w-full items-center gap-3 rounded-xl border border-red-100 bg-red-50/30 p-3.5"
+                        >
+                          <div className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                          <p className="text-xs font-bold text-red-600">
+                            {errors.password || loginError}
+                          </p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
                   </div>
 
                   <Button
@@ -254,7 +278,7 @@ const LoginPage: React.FC = () => {
                     type="submit"
                     fullWidth
                     disabled={isSubmitting || isBlocked}
-                    className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+                    className="h-12 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
@@ -267,20 +291,24 @@ const LoginPage: React.FC = () => {
                     )}
                   </Button>
 
-                  <div className="mt-6 border-t border-slate-100 pt-6 text-center">
+                  <div className="mt-8 border-t border-slate-100 pt-6 text-center">
                     <button
                       type="button"
                       onClick={handleSwitchAccount}
-                      className="text-sm font-bold text-slate-500 transition-colors hover:text-slate-900"
+                      className="text-sm font-bold text-slate-400 transition-colors hover:text-slate-900"
                     >
                       Usar outra conta
                     </button>
                   </div>
-                </form>
+                </motion.form>
               ) : (
                 /* ── Full Login ── */
-                <>
-                  <header className="mb-6">
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <header className="mb-8">
                     <h1 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
                       Acesse sua conta
                     </h1>
@@ -301,47 +329,63 @@ const LoginPage: React.FC = () => {
                         placeholder="exemplo@email.com"
                         disabled={isSubmitting}
                         isError={!!errors.email || !!loginError}
-                        className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12 border-slate-200 bg-slate-50/40 transition-all focus:border-slate-900 focus:bg-white"
                       />
-                      <Input
-                        id="password"
-                        label="Palavra-passe"
-                        type="password"
-                        leftIcon={<SecurityIcon className="w-5 h-5" />}
-                        value={form.password}
-                        onChange={(e) => setField("password", e.target.value)}
-                        placeholder="A tua senha"
-                        isError={!!errors.password || !!loginError}
-                        disabled={isSubmitting}
-                        className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
-                      />
-                      <div className="flex justify-end">
-                        <Link
-                          href={ROUTES.RESET_PASSWORD}
-                          className="text-xs font-bold text-slate-500 transition-colors hover:text-slate-900"
-                        >
-                          Esqueceu a senha?
-                        </Link>
+                      <div className="space-y-2">
+                        <Input
+                          id="password"
+                          label="Palavra-passe"
+                          type="password"
+                          leftIcon={<SecurityIcon className="w-5 h-5" />}
+                          value={form.password}
+                          onChange={(e) => setField("password", e.target.value)}
+                          placeholder="A tua senha"
+                          isError={!!errors.password || !!loginError}
+                          disabled={isSubmitting}
+                          className="h-12 border-slate-200 bg-slate-50/40 transition-all focus:border-slate-900 focus:bg-white"
+                        />
+                        <div className="flex justify-end">
+                          <Link
+                            href={ROUTES.RESET_PASSWORD}
+                            className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-900"
+                          >
+                            Esqueceu a senha?
+                          </Link>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="min-h-17 py-3 flex items-center">
-                      {isBlocked ? (
-                        <div className="flex w-full items-center gap-3 rounded-lg border border-orange-100 bg-orange-50/40 p-3 animate-in fade-in slide-in-from-top-1">
-                          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
-                          <p className="text-xs font-bold text-orange-600">
-                            Demasiadas tentativas. Tente novamente em{" "}
-                            {formatCountdown(countdown!)}
-                          </p>
-                        </div>
-                      ) : errors.email || errors.password || loginError ? (
-                        <div className="flex w-full items-center gap-3 rounded-lg border border-red-100 bg-red-50/30 p-3 animate-in fade-in slide-in-from-top-1">
-                          <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                          <p className="text-xs font-bold text-red-600">
-                            {errors.email || errors.password || loginError}
-                          </p>
-                        </div>
-                      ) : null}
+                    <div className="min-h-17 py-4 flex items-center">
+                      <AnimatePresence mode="wait">
+                        {isBlocked ? (
+                          <motion.div
+                            key="blocked-full"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            className="flex w-full items-center gap-3 rounded-xl border border-orange-100 bg-orange-50/40 p-3.5"
+                          >
+                            <div className="h-2 w-2 shrink-0 rounded-full bg-orange-500 animate-pulse" />
+                            <p className="text-xs font-bold text-orange-600">
+                              Demasiadas tentativas. Tente novamente em{" "}
+                              {formatCountdown(countdown!)}
+                            </p>
+                          </motion.div>
+                        ) : (errors.email || errors.password || loginError) ? (
+                          <motion.div
+                            key="error-full"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            className="flex w-full items-center gap-3 rounded-xl border border-red-100 bg-red-50/30 p-3.5"
+                          >
+                            <div className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                            <p className="text-xs font-bold text-red-600">
+                              {errors.email || errors.password || loginError}
+                            </p>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
                     </div>
 
                     <Button
@@ -349,7 +393,7 @@ const LoginPage: React.FC = () => {
                       type="submit"
                       fullWidth
                       disabled={isSubmitting || isBlocked}
-                      className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+                      className="h-12 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
@@ -362,19 +406,19 @@ const LoginPage: React.FC = () => {
                       )}
                     </Button>
 
-                    <footer className="mt-6 border-t border-slate-100 pt-6 text-center">
+                    <footer className="mt-8 border-t border-slate-100 pt-8 text-center">
                       <p className="text-sm font-medium text-slate-500">
                         Novo por aqui?{" "}
                         <Link
                           href={ROUTES.REGISTER}
-                          className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline"
+                          className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline transition-all"
                         >
                           Crie uma conta
                         </Link>
                       </p>
                     </footer>
                   </form>
-                </>
+                </motion.div>
               )}
             </div>
           </div>

@@ -6,6 +6,8 @@ export function useChat() {
   const history = useChatStore((s) => s.history);
   const isLoading = useChatStore((s) => s.isLoading);
   const isSending = useChatStore((s) => s.isSending);
+  const isStreaming = useChatStore((s) => s.isStreaming);
+  const streamingContent = useChatStore((s) => s.streamingContent);
   const isLoadingConversation = useChatStore((s) => s.isLoadingConversation);
   const error = useChatStore((s) => s.error);
   const rateLimitSeconds = useChatStore((s) => s.rateLimitSeconds);
@@ -23,6 +25,8 @@ export function useChat() {
     history,
     isLoading,
     isSending,
+    isStreaming,
+    streamingContent,
     isLoadingConversation,
     error,
     rateLimitSeconds,

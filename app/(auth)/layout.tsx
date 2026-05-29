@@ -3,6 +3,7 @@ import { useUserStore } from "@/store/user-store";
 import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
+import { LoadingProvider } from "@/contexts/loading-context";
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, ArrowRight } from "lucide-react";
 
@@ -65,7 +66,7 @@ const MaintenanceOverlay: React.FC = () => {
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useUserStore();
+  const { isAuthenticated, isLoading, initializeAuth } = useUserStore();
   const router = useRouter();
   const pathname = usePathname();
   const [checked, setChecked] = useState(false);
@@ -76,6 +77,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   // These pages must remain accessible even when authenticated
   const isVerifyPage =
     pathname === ROUTES.VERIFY_PENDING || pathname === ROUTES.VERIFY_EMAIL;
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -94,5 +99,5 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     return <MaintenanceOverlay />;
   }
 
-  return <>{children}</>;
+  return <LoadingProvider>{children}</LoadingProvider>;
 }

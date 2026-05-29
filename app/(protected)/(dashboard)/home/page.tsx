@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Document } from "@/types/ui";
-import { LoadingSpinner } from "@/components/ui";
 import { StatsSection } from "@/components/layout";
 
 import { useUiStore } from "@/store/ui-store";
@@ -37,16 +36,14 @@ const HomeScreen = () => {
   const {
     allTransactions,
     isLoading: isTransactionsLoading,
-    isLoadingMore: isTransactionsRefreshing,
+    isRefreshing: isTransactionsRefreshing,
     error: transactionsError,
     loadPage,
-    resetPagination,
   } = useTransaction({ autoFetch: false });
 
   const refreshTransactions = useCallback(async () => {
-    resetPagination();
-    await loadPage(0);
-  }, [loadPage, resetPagination]);
+    await loadPage(0, true);
+  }, [loadPage]);
 
   const documents = useMemo<Document[]>(
     () => [
@@ -85,19 +82,18 @@ const HomeScreen = () => {
   });
 
   useEffect(() => {
-    if (!allTransactions || allTransactions.length === 0) {
+    if (allTransactions === null && !isTransactionsLoading) {
       loadPage(0);
     }
-  }, [allTransactions, loadPage]);
+  }, [allTransactions, isTransactionsLoading, loadPage]);
 
   const handleTransactionSubmit = useCallback(async () => {
     const success = await handleSubmit();
     if (success) {
       setPendingDocs([]);
-      await refreshTransactions();
     }
     return success;
-  }, [handleSubmit, refreshTransactions]);
+  }, [handleSubmit]);
 
   const handleOpenTransactionModal = () => {
     openModal();
@@ -122,7 +118,7 @@ const HomeScreen = () => {
       showNotification(
         "error",
         "Arquivo muito grande",
-        `O PDF deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`,
+        `O ficheiro deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`,
       );
       return;
     }
@@ -175,16 +171,11 @@ const HomeScreen = () => {
         </p>
       </motion.div>
 
-      {isUploading ? (
-        <div className="flex flex-1 items-center justify-center min-h-[400px]">
-          <LoadingSpinner />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
           {/* Grid de Cards Superiores - Alinhados e Proporcionais */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
             <div className="lg:col-span-4 flex">
-              <UploadSection onUploadClick={toggleUploadOptions} />
+              <UploadSection onUploadClick={toggleUploadOptions} isUploading={isUploading} />
             </div>
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -216,7 +207,6 @@ const HomeScreen = () => {
             />
           </motion.div>
         </div>
-      )}
 
       <AddTransactionModal
         isOpen={isTransactionModalOpen}
@@ -283,14 +273,14 @@ const MainContent = ({
         {showUploadOptions && (
           <motion.div
             key="upload-options-panel"
-            initial={{ opacity: 0, x: -14 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -14 }}
-            transition={{ duration: 0.24, ease: EASE_OUT }}
-            className="w-full xl:w-[300px] flex-shrink-0"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2, ease: EASE_OUT }}
+            className="w-full xl:w-[280px] flex-shrink-0"
           >
-            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em] mb-4 text-center lg:text-left">
+            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm h-full">
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em] mb-4 text-center lg:text-left">
                 Opções de Envio
               </h3>
               <UploadOptions

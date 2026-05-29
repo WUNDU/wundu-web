@@ -3,7 +3,6 @@ import { Inter, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
 import "@/public/styles/landing.css";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-import { AuthInitializer } from "@/components/auth-initializer";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { Toaster } from "sonner";
 
@@ -64,7 +63,6 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <CookieConsentProvider>
-            <AuthInitializer />
             {children}
             <CookieConsent />
             <Toaster position="top-right" closeButton richColors={false} theme="light" expand={false} gap={12} />

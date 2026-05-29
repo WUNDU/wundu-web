@@ -19,7 +19,7 @@ import {
 } from "@/utils/pending-verification";
 import { getEmailErrorMessage, validateEmail } from "@/utils/validation";
 
-const RESEND_COOLDOWN = 120;
+const RESEND_COOLDOWN = 300;
 
 export default function VerifyPendingPage() {
   const router = useRouter();

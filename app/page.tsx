@@ -1,5 +1,7 @@
 "use client";
 import { Navbar } from "@/components/layout";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 import {
   RefreshCw,
   BarChart3,
@@ -279,9 +281,11 @@ export default function WunduPage() {
           </p>
 
           {/* CTA */}
-          <button className="bg-yellow-400 text-white px-10 py-4 rounded-full font-black text-lg hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl mb-16 inline-flex items-center gap-2">
-            comece aqui
-          </button>
+          <Link href={ROUTES.REGISTER}>
+            <button className="bg-yellow-400 text-white px-10 py-4 rounded-full font-black text-lg hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-xl mb-16 inline-flex items-center gap-2">
+              comece aqui
+            </button>
+          </Link>
 
           {/* Dashboard screenshot */}
           <div className="relative max-w-5xl mx-auto rounded-2xl overflow-hidden border-2 border-yellow-400 shadow-2xl shadow-yellow-400/10">

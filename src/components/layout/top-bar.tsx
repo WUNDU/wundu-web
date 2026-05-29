@@ -220,8 +220,8 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
           </div>
         </div>
       </motion.header>
-      {/* Brand accent line — matches mobile header signature */}
-      <div style={{ height: 2, backgroundColor: "#ffd400", opacity: 0.6 }} />
+      {/* Brand accent line — subtle indicator instead of fixed heavy bar */}
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#ffd400]/40 to-transparent opacity-60" />
 
       <NotificationModal />
     </>

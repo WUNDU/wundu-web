@@ -37,6 +37,7 @@ interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElemen
 const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
   ({ label, placeholder = "Digite seu número de telefone", value = "", onChange, isError = false, required = false, ...props }, ref) => {
     const [selectedCountry, setSelectedCountry] = useState("+244");
+    const [isFocused, setIsFocused] = useState(false);
     const countries = [{ code: "+244", name: "Angola", flag: "🇦🇴" }];
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,30 +54,49 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
-    const borderClass = isError ? "border-red-500" : "border-slate-200";
-    const ringClass = isError ? "focus:ring-red-500" : "focus:ring-[#003cc3]";
+    
+    const stateClasses = isError 
+      ? "border-red-500 bg-red-50/30" 
+      : isFocused 
+        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]" 
+        : "border-slate-200 bg-slate-50/50 hover:border-slate-300";
 
     return (
-      <div className="flex w-full flex-col gap-2">
-        {label && <label className="text-slate-500 text-sm font-semibold">{label}</label>}
-        <div className="flex">
-          <select
-            value={selectedCountry}
-            onChange={handleCountryChange}
-            className={`rounded-l-xl border ${borderClass} px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 ${ringClass} bg-slate-50/50 min-w-[100px]`}
-          >
-            {countries.map((country) => (
-              <option key={country.code} value={country.code}>{country.flag} {country.code}</option>
-            ))}
-          </select>
+      <div className="flex w-full flex-col gap-2 group">
+        {label && (
+          <label className={`text-sm font-semibold transition-colors duration-150 ${
+            isError ? "text-red-600" : isFocused ? "text-[#003cc3]" : "text-slate-500"
+          }`}>
+            {label}
+          </label>
+        )}
+        <div className={`flex rounded-xl border transition-all duration-150 overflow-hidden ${stateClasses}`}>
+          <div className="relative border-r border-slate-100 bg-slate-50/30">
+            <select
+              value={selectedCountry}
+              onChange={handleCountryChange}
+              className="appearance-none bg-transparent px-3 py-3 text-sm font-bold text-slate-800 focus:outline-none cursor-pointer pr-8"
+            >
+              {countries.map((country) => (
+                <option key={country.code} value={country.code}>{country.flag} {country.code}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-400">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
           <input
             ref={ref}
             type="tel"
             placeholder={placeholder}
             value={phoneOnly}
             onChange={handlePhoneChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             required={required}
-            className={`w-full rounded-r-xl border-l-0 border ${borderClass} px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 ${ringClass}`}
+            className="w-full bg-transparent px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
             {...props}
           />
         </div>
@@ -353,13 +373,17 @@ const RegisterPage = () => {
 
               {/* ── Step 1: Personal Data ── */}
               {currentStep === 1 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
                   <header className="mb-8">
                     <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
                       Criar conta
                     </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      Inicie sua jornada para a liberdade financeira.
+                    <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
+                      Inicie sua jornada para a liberdade financeira com gestão de alta precisão.
                     </p>
                   </header>
 
@@ -368,7 +392,7 @@ const RegisterPage = () => {
                     className="flex flex-col gap-5"
                     noValidate
                   >
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <Input
                         id="name"
                         label="Nome completo"
@@ -381,16 +405,22 @@ const RegisterPage = () => {
                         placeholder="Seu nome"
                         required
                         isError={!!personalErrors.name}
-                        className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
                       />
-                      {personalErrors.name && (
-                        <p className="text-[11px] font-bold text-red-600">
-                          {personalErrors.name}
-                        </p>
-                      )}
+                      <AnimatePresence>
+                        {personalErrors.name && (
+                          <motion.p 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="text-[11px] font-bold text-red-600 px-1"
+                          >
+                            {personalErrors.name}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <Input
                         id="email"
                         label="Email"
@@ -403,16 +433,22 @@ const RegisterPage = () => {
                         placeholder="exemplo@email.com"
                         required
                         isError={!!personalErrors.email}
-                        className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
                       />
-                      {personalErrors.email && (
-                        <p className="text-[11px] font-bold text-red-600">
-                          {personalErrors.email}
-                        </p>
-                      )}
+                      <AnimatePresence>
+                        {personalErrors.email && (
+                          <motion.p 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="text-[11px] font-bold text-red-600 px-1"
+                          >
+                            {personalErrors.email}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <PhoneInput
                         id="phone"
                         label="Nº de telefone"
@@ -422,17 +458,23 @@ const RegisterPage = () => {
                         required
                         isError={!!personalErrors.phone}
                       />
-                      {personalErrors.phone && (
-                        <p className="text-[11px] font-bold text-red-600">
-                          {personalErrors.phone}
-                        </p>
-                      )}
+                      <AnimatePresence>
+                        {personalErrors.phone && (
+                          <motion.p 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="text-[11px] font-bold text-red-600 px-1"
+                          >
+                            {personalErrors.phone}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <Button
                       type="submit"
                       variant="warning"
-                      className="h-11 mt-4 font-extrabold shadow-sm active:scale-[0.98]"
+                      className="h-12 mt-6 rounded-xl font-extrabold shadow-sm active:scale-[0.98] transition-all"
                     >
                       Próximo passo
                     </Button>
@@ -449,17 +491,21 @@ const RegisterPage = () => {
                       </Link>
                     </p>
                   </footer>
-                </div>
+                </motion.div>
               )}
 
               {/* ── Step 2: Security ── */}
               {currentStep === 2 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
                   <button
                     type="button"
                     onClick={prevStep}
                     disabled={isSubmitting}
-                    className="group mb-8 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-900 transition-colors disabled:opacity-50"
+                    className="group mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors disabled:opacity-50"
                   >
                     <ArrowLeftIcon className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                     Voltar
@@ -469,17 +515,17 @@ const RegisterPage = () => {
                     <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
                       Segurança
                     </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      Proteja sua conta com uma senha forte.
+                    <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
+                      Proteja sua conta com uma senha forte para garantir a segurança dos seus dados financeiros.
                     </p>
                   </header>
 
                   <form
                     onSubmit={submitSecurity}
-                    className="flex flex-col gap-5"
+                    className="flex flex-col gap-6"
                     noValidate
                   >
-                    <div className="relative space-y-2">
+                    <div className="relative space-y-2.5">
                       <Input
                         id="password"
                         label="Crie uma senha"
@@ -494,53 +540,61 @@ const RegisterPage = () => {
                         placeholder="Sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
                       />
                       {/* Password hint */}
-                      <div className="mt-2 px-1">
-                        <AnimatePresence initial={false}>
-                          {showPasswordHint && (
-                            <motion.p
+                      <div className="px-1">
+                        <AnimatePresence initial={false} mode="wait">
+                          {showPasswordHint ? (
+                            <motion.div
+                              key="hint"
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -5 }}
-                              className={`text-[11px] font-semibold ${
-                                passwordValidation.isValid
-                                  ? "text-green-600"
-                                  : "text-slate-400"
-                              }`}
+                              className="flex items-center gap-2"
                             >
-                              {passwordValidation.isValid
-                                ? "✓ Senha válida"
-                                : "Mínimo 4 caracteres"}
-                            </motion.p>
-                          )}
+                              <div className="h-1 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                                <motion.div 
+                                  className={`h-full transition-all duration-500 ${passwordValidation.isValid ? 'bg-green-500' : 'bg-yellow-400'}`}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: passwordValidation.isValid ? '100%' : '40%' }}
+                                />
+                              </div>
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${passwordValidation.isValid ? "text-green-600" : "text-slate-400"}`}>
+                                {passwordValidation.isValid ? "Senha Forte" : "Mín. 4 caracteres"}
+                              </span>
+                            </motion.div>
+                          ) : null}
                         </AnimatePresence>
                       </div>
                     </div>
 
-                    <Input
-                      id="confirmPassword"
-                      label="Confirme a senha"
-                      type="password"
-                      leftIcon={<SecurityIcon className="w-5 h-5" />}
-                      value={securityForm.confirmPassword}
-                      onChange={(e) =>
-                        setSecurityField("confirmPassword", e.target.value)
-                      }
-                      placeholder="Repita sua senha"
-                      required
-                      isError={!!passwordError || !!contextError}
-                      className="h-11 border-slate-200 bg-slate-50/50 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
-                    />
-
-                    {/* Reserved Space for Feedback */}
-                    <div className="min-h-8 flex items-center">
-                      {(passwordError || contextError) && (
-                        <p className="text-[11px] font-bold text-red-600">
-                          {passwordError || contextError}
-                        </p>
-                      )}
+                    <div className="space-y-1.5">
+                      <Input
+                        id="confirmPassword"
+                        label="Confirme a senha"
+                        type="password"
+                        leftIcon={<SecurityIcon className="w-5 h-5" />}
+                        value={securityForm.confirmPassword}
+                        onChange={(e) =>
+                          setSecurityField("confirmPassword", e.target.value)
+                        }
+                        placeholder="Repita sua senha"
+                        required
+                        isError={!!passwordError || !!contextError}
+                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
+                      />
+                      <AnimatePresence>
+                        {(passwordError || contextError) && (
+                          <motion.p 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="text-[11px] font-bold text-red-600 px-1"
+                          >
+                            {passwordError || contextError}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <Button
@@ -548,91 +602,103 @@ const RegisterPage = () => {
                       variant="warning"
                       loading={isSubmitting}
                       disabled={isSubmitting}
-                      className="h-11 font-extrabold shadow-sm active:scale-[0.98]"
+                      className="h-12 mt-4 rounded-xl font-extrabold shadow-sm active:scale-[0.98] transition-all"
                     >
                       {isSubmitting ? "A processar..." : "Finalizar cadastro"}
                     </Button>
                   </form>
-                </div>
+                </motion.div>
               )}
 
               {/* ── Step 3: Success ── */}
               {currentStep === 3 && (
-                <div className="flex flex-col items-center text-center gap-6 py-4 animate-in fade-in zoom-in-95 duration-700">
-                  <div
-                    className={`transition-all duration-1000 ${
-                      isVisible ? "scale-100 opacity-100" : "scale-75 opacity-0"
-                    }`}
+                <div className="flex flex-col items-center text-center gap-8 py-6">
+                  <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 260, 
+                      damping: 20,
+                      delay: 0.1 
+                    }}
+                    className="relative"
                   >
-                    <div className="w-24 h-24 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                      <CheckmarkIcon className="w-10 h-10 text-slate-900" />
+                    <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-20 animate-pulse" />
+                    <div className="relative w-28 h-28 flex items-center justify-center rounded-[32px] bg-white border-2 border-slate-50 shadow-2xl">
+                      <div className="w-20 h-20 rounded-[24px] bg-yellow-400 flex items-center justify-center text-slate-900">
+                        <CheckmarkIcon className="w-10 h-10" />
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div
-                    className={`transition-all duration-1000 delay-300 ${
-                      isVisible
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-4"
-                    }`}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
                   >
-                    <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
-                      Cadastro concluído!
+                    <h2 className="text-3xl font-black tracking-tighter text-slate-900 md:text-4xl">
+                      Bem-vindo!
                     </h2>
-                    <p className="mt-3 text-sm font-medium text-slate-500 max-w-xs mx-auto">
-                      Bem-vindo,{" "}
-                      <span className="font-bold text-slate-900">
-                        {data.name}
-                      </span>
-                      . Sua jornada financeira começa agora.
+                    <p className="mt-4 text-base font-medium text-slate-500 max-w-xs mx-auto leading-relaxed">
+                      Olá, <span className="font-bold text-slate-900">{data.name?.split(' ')[0] || "Usuário"}</span>. Sua conta Wundu foi criada com sucesso.
                     </p>
-                  </div>
+                  </motion.div>
 
-                  <div
-                    className={`flex gap-4 transition-all duration-1000 delay-500 ${
-                      isVisible
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-4"
-                    }`}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.8 }}
+                    className="flex gap-4"
                   >
                     {(
                       [
-                        { Icon: MoneyBagIcon, color: "text-slate-600" },
-                        { Icon: ChartIcon, color: "text-slate-600" },
-                        { Icon: GoalsIcon, color: "text-slate-600" },
+                        { Icon: MoneyBagIcon, label: "Ganhos" },
+                        { Icon: ChartIcon, label: "Análises" },
+                        { Icon: GoalsIcon, label: "Metas" },
                       ] as const
-                    ).map(({ Icon, color }, i) => (
+                    ).map(({ Icon, label }, i) => (
                       <div
                         key={i}
-                        className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm transition-transform hover:scale-110"
+                        className="group flex flex-col items-center gap-2"
                       >
-                        <Icon className={`w-6 h-6 ${color}`} />
+                        <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 shadow-sm transition-all group-hover:bg-[#003cc3]/5 group-hover:border-[#003cc3]/20 group-hover:scale-110">
+                          <Icon className="w-6 h-6 text-slate-400 transition-colors group-hover:text-[#003cc3]" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
+                          {label}
+                        </span>
                       </div>
                     ))}
-                  </div>
+                  </motion.div>
 
-                  {autoLoginError && (
-                    <div className="rounded-lg bg-red-50 p-3">
-                      <p className="text-xs font-bold text-red-600">
-                        {autoLoginError}
-                      </p>
-                    </div>
-                  )}
-
-                  <div
-                    className={`w-full mt-4 transition-all duration-1000 delay-700 ${
-                      isVisible
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-4"
-                    }`}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 1.2 }}
+                    className="w-full mt-6"
                   >
+                    <AnimatePresence>
+                      {autoLoginError && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="rounded-xl bg-red-50 p-4 mb-4 border border-red-100"
+                        >
+                          <p className="text-xs font-bold text-red-600">
+                            {autoLoginError}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                     <Button
                       onClick={handleContinue}
                       type="button"
                       variant="warning"
                       loading={isLoggingIn}
                       disabled={isLoggingIn}
-                      className="w-full h-12 font-extrabold shadow-sm active:scale-[0.98]"
+                      className="w-full h-14 rounded-xl font-extrabold text-lg shadow-xl shadow-yellow-400/20 active:scale-[0.98] transition-all"
                     >
                       {isLoggingIn ? (
                         <LoadingSpinner size="sm" />
@@ -640,7 +706,7 @@ const RegisterPage = () => {
                         "Aceder à plataforma"
                       )}
                     </Button>
-                  </div>
+                  </motion.div>
                 </div>
               )}
             </div>

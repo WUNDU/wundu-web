@@ -40,7 +40,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect, onManualCli
         </div>
         <div>
           <p className="text-sm font-bold text-slate-900">Enviar Comprovativo</p>
-          <p className="text-xs text-slate-400">PDF do seu banco</p>
+          <p className="text-xs text-slate-400">PDF, JPG ou PNG do seu banco</p>
         </div>
       </button>
 
@@ -65,7 +65,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect, onManualCli
       <input
         type="file"
         ref={fileInputRef}
-        accept="application/pdf"
+        accept="application/pdf,image/jpeg,image/png"
         onChange={(e) => handleFileChange(e, "document")}
         style={{ display: "none" }}
       />

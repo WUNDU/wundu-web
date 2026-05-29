@@ -95,7 +95,7 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
           paddingRight: 10,
           paddingTop: 6,
           paddingBottom: 6,
-          borderRadius: 20,
+          borderRadius: 12,
         }}
       >
         <span
@@ -103,7 +103,7 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
             fontWeight: 800,
             color: isIncome ? "#10B981" : "#EF4444",
           }}
-          className="text-[12px] sm:text-[13px]"
+          className="text-[12px] sm:text-[13px] tabular-nums"
         >
           {isIncome ? "+" : "-"} {formattedAmount}
         </span>

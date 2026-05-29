@@ -38,6 +38,8 @@ const Chat: React.FC = () => {
   const {
     messages: apiMessages,
     isSending,
+    isStreaming,
+    streamingContent,
     isLoadingConversation,
     error,
     rateLimitSeconds,
@@ -56,6 +58,7 @@ const Chat: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isNearBottomRef = useRef(true);
   const prevIsLoadingConversationRef = useRef(isLoadingConversation);
+  const prevIsStreamingRef = useRef(isStreaming);
   const seenAssistantKeysRef = useRef<Set<string>>(
     new Set(apiMessages.filter((m) => m.role !== "user").map((m) => messageKey(m)))
   );
@@ -89,6 +92,19 @@ const Chat: React.FC = () => {
     el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
   }, [input]);
 
+  // When streaming ends, pre-seed the final message key so typing animation doesn't re-trigger
+  useEffect(() => {
+    const wasStreaming = prevIsStreamingRef.current;
+    prevIsStreamingRef.current = isStreaming;
+
+    if (wasStreaming && !isStreaming) {
+      const last = apiMessages[apiMessages.length - 1];
+      if (last && last.role !== "user") {
+        seenAssistantKeysRef.current.add(messageKey(last));
+      }
+    }
+  }, [isStreaming, apiMessages]);
+
   useEffect(() => {
     const wasLoadingConversation = prevIsLoadingConversationRef.current;
     prevIsLoadingConversationRef.current = isLoadingConversation;
@@ -118,10 +134,14 @@ const Chat: React.FC = () => {
   }, [apiMessages, isLoadingConversation]);
 
   // Welcome bubble only on new/empty conversations — never on loaded history
-  const isNewConversation = apiMessages.length === 0;
-  const displayMessages: LocalMessage[] = [
+  const isNewConversation = apiMessages.length === 0 && !isStreaming;
+  type DisplayMessage = LocalMessage & { isStreaming?: boolean };
+  const displayMessages: DisplayMessage[] = [
     ...(isNewConversation ? INITIAL_MESSAGES : []),
     ...apiMessages.map((m) => ({ text: m.content, isUser: m.role === "user" })),
+    ...(streamingContent !== null
+      ? [{ text: streamingContent, isUser: false, isStreaming: true }]
+      : []),
   ];
 
   // Track if user is near bottom to decide whether to autoscroll
@@ -136,7 +156,7 @@ const Chat: React.FC = () => {
     if (isNearBottomRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [displayMessages.length, isSending]);
+  }, [displayMessages.length, isSending, streamingContent]);
 
   // On history load complete: instant jump to bottom regardless of scroll position
   useEffect(() => {
@@ -147,9 +167,9 @@ const Chat: React.FC = () => {
 
   // Sync welcome state: hide during load, show only when truly no messages
   useEffect(() => {
-    if (isLoadingConversation) { setShowWelcome(false); return; }
+    if (isLoadingConversation || isStreaming) { setShowWelcome(false); return; }
     setShowWelcome(apiMessages.length === 0);
-  }, [apiMessages.length, isLoadingConversation]);
+  }, [apiMessages.length, isLoadingConversation, isStreaming]);
 
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
@@ -237,12 +257,15 @@ const Chat: React.FC = () => {
 
             <AnimatePresence initial={false}>
               {displayMessages.map((msg, i) => {
+                const isStreamingMsg = !!(msg as DisplayMessage).isStreaming;
                 const isInitMsg = isNewConversation && i < INITIAL_MESSAGES.length;
                 const apiIdx = isInitMsg ? -1 : i - (isNewConversation ? INITIAL_MESSAGES.length : 0);
-                const key = isInitMsg
+                const key = isStreamingMsg
+                  ? "streaming-bubble"
+                  : isInitMsg
                   ? `init-${i}`
                   : `api-${apiIdx}-${apiMessages[apiIdx]?.timestamp ?? i}`;
-                const apiMessage = apiIdx >= 0 ? apiMessages[apiIdx] : null;
+                const apiMessage = apiIdx >= 0 && !isStreamingMsg ? apiMessages[apiIdx] : null;
                 return (
                   <motion.div
                     key={key}
@@ -253,7 +276,9 @@ const Chat: React.FC = () => {
                     <Message
                       isUser={msg.isUser}
                       text={msg.text}
+                      isStreaming={isStreamingMsg}
                       isTyping={
+                        !isStreamingMsg &&
                         !msg.isUser &&
                         !isInitMsg &&
                         apiMessage != null &&
@@ -266,7 +291,7 @@ const Chat: React.FC = () => {
               })}
             </AnimatePresence>
 
-            {isSending && (
+            {isSending && !isStreaming && (
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -346,12 +371,12 @@ const Chat: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder={countdown != null && countdown > 0 ? `Aguarda ${countdown}s…` : "Escreva a sua pergunta…"}
             rows={1}
-            disabled={isSending || isLoadingConversation || (countdown != null && countdown > 0)}
+            disabled={isSending || isStreaming || isLoadingConversation || (countdown != null && countdown > 0)}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none overflow-y-auto leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <motion.button
             onClick={() => handleSend()}
-            disabled={!input.trim() || isSending || isLoadingConversation || (countdown != null && countdown > 0)}
+            disabled={!input.trim() || isSending || isStreaming || isLoadingConversation || (countdown != null && countdown > 0)}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"

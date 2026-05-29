@@ -142,8 +142,9 @@ const Message: React.FC<{
   text: string;
   isUser: boolean;
   isTyping?: boolean;
+  isStreaming?: boolean;
   onTypingComplete?: () => void;
-}> = ({ text, isUser, isTyping, onTypingComplete }) => {
+}> = ({ text, isUser, isTyping, isStreaming, onTypingComplete }) => {
   if (isUser) {
     return (
       <div className="mb-3">
@@ -190,6 +191,11 @@ const Message: React.FC<{
         <div className="bg-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tl-sm sm:rounded-tl-2xl sm:rounded-bl-sm w-full sm:max-w-[72%] shadow-[0_2px_8px_rgba(0,60,195,0.08)] border border-slate-100">
           {isTyping ? (
             <TypingText text={text} onComplete={onTypingComplete} />
+          ) : isStreaming ? (
+            <div>
+              <MarkdownContent text={text} />
+              <span className="inline-block w-[2px] h-[14px] bg-slate-400 ml-0.5 align-middle animate-pulse" />
+            </div>
           ) : (
             <MarkdownContent text={text} />
           )}

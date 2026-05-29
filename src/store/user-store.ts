@@ -107,6 +107,7 @@ export const useUserStore = create<AuthState>()(
       // Tenta refresh silencioso no arranque. Se o cookie de refresh ainda for válido,
       // o backend devolve um novo accessToken sem pedir password.
       initializeAuth: async () => {
+        if (get().isLoading && get().isAuthenticated) return;
         set({ isLoading: true });
         try {
           const { accessToken } = await userService.refresh();
@@ -150,7 +151,7 @@ export const useUserStore = create<AuthState>()(
           const user = get().user;
           if (user && !user.isActive && typeof window !== "undefined") {
             setPendingVerificationEmail(user.email);
-            setPendingVerificationCooldown(120);
+            setPendingVerificationCooldown(300);
             window.location.href = "/verify-pending";
           } else {
             clearPendingVerificationContext();

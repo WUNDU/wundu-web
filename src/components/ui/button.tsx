@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "rounded-xl bg-slate-900 text-white border border-slate-900 hover:bg-white hover:text-slate-900 hover:shadow-lg",
+          "rounded-xl bg-slate-900 text-white border border-transparent hover:bg-slate-800 hover:shadow-md active:scale-[0.98]",
         secondary:
-          "rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50",
+          "rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-300",
         google:
-          "rounded-xl bg-white border border-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 hover:border-blue-300 hover:shadow-lg",
-        destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600",
-        success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600",
+          "rounded-xl bg-white border border-gray-200 text-gray-800 hover:bg-slate-50 hover:border-gray-300 hover:shadow-sm",
+        destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600 active:scale-[0.98]",
+        success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 active:scale-[0.98]",
         warning:
-          "rounded-xl bg-yellow-400 text-white hover:bg-white hover:text-yellow-500 hover:border hover:border-yellow-400 hover:shadow-lg",
+          "rounded-xl bg-yellow-400 text-white border border-transparent hover:bg-yellow-500 hover:shadow-md active:scale-[0.98]",
         fab:
           "rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-yellow-300 p-0",
         fabCircle:

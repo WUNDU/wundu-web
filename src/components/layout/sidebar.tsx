@@ -252,7 +252,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
       <motion.aside
         animate={{ width: sidebarWidth }}
         transition={{ duration: 0.2, ease: EASE_OUT_QUART }}
-        className="hidden lg:flex flex-col h-full bg-white border-r border-white/30 flex-shrink-0 overflow-hidden z-40 shadow-[1px_0_0_rgba(0,0,0,0.04)]"
+        className="hidden lg:flex flex-col h-full bg-white border-r border-slate-100 flex-shrink-0 overflow-hidden z-40 shadow-[1px_0_0_rgba(0,0,0,0.02)]"
       >
         {renderContent(false)}
       </motion.aside>

@@ -205,12 +205,12 @@ const MovementSection: React.FC<MovementSectionProps> = ({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: EASE_OUT }}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-3 h-full"
     >
-      <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-100 shadow-[0_2px_8px_rgba(0,60,195,0.04)] overflow-hidden flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <h2 className="text-sm font-bold text-slate-900">
             Transações
           </h2>
           <div className="flex items-center gap-2">

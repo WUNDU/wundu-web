@@ -81,7 +81,7 @@ const StatsCard: FC<StatsCardProps> = ({
 
     <div className="relative z-10">
       <h3
-        className={`mb-0.5 font-bold tracking-tight transition-all duration-150 sm:mb-1 leading-tight ${valueFontClass(value)} ${
+        className={`mb-0.5 font-bold tracking-tight transition-all duration-150 sm:mb-1 leading-tight tabular-nums ${valueFontClass(value)} ${
           isPrimary ? "text-white" : "text-[#1e293b] group-hover:text-[#003cc3]"
         }`}
       >
