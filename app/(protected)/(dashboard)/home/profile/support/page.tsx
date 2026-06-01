@@ -49,7 +49,7 @@ export default function Support() {
 
   const supportChannels = [
     {
-      icon: <EmailIcon className="w-5 h-5 text-[#003cc3]" />,
+      icon: <EmailIcon className="w-5 h-5 text-secondary" />,
       title: "Email",
       description: "Envie-nos um email detalhando a sua questão",
       actionLabel: "Support@wundu.tech",
@@ -82,7 +82,7 @@ export default function Support() {
             <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <h1 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <HelpIcon className="w-5 h-5 text-[#ffd400]" />
+                  <HelpIcon className="w-5 h-5 text-primary" />
                   Suporte & Feedback
                 </h1>
                 <p className="text-sm text-slate-500">
@@ -162,7 +162,7 @@ export default function Support() {
                   value={form.message}
                   onChange={(event) => handleChange("message", event.target.value)}
                   placeholder="Explique como podemos ajudar"
-                  className="min-h-32 md:min-h-40 rounded-xl border border-slate-200 px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003cc3]/35 resize-none bg-slate-50"
+                  className="min-h-32 md:min-h-40 rounded-xl border border-slate-200 px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-secondary/35 resize-none bg-slate-50"
                 />
               </div>
 
@@ -177,7 +177,7 @@ export default function Support() {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  className="flex-1 min-w-40 bg-[#003cc3] text-white hover:bg-[#002fa0]"
+                  className="flex-1 min-w-40 bg-secondary text-white hover:bg-secondary-dark"
                   loading={isSubmitting}
                   disabled={!isFormValid || isSubmitting}
                 >

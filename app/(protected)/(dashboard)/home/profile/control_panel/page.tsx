@@ -19,6 +19,7 @@ import {
   buildChartData,
   type NormalizedTransaction,
 } from "@/components/charts";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 const EMPTY_TRANSACTIONS: TransactionResponse[] = [];
 
@@ -42,7 +43,7 @@ const HeaderSection: React.FC<{
   viewMode: ViewMode;
 }> = ({ isCredit, headerText, headerAmount, viewMode }) => (
   <div
-    className={`p-3 sm:p-4 bg-[#003cc3] text-white rounded-xl shadow-sm ${
+    className={`p-3 sm:p-4 bg-secondary text-white rounded-xl shadow-sm ${
       viewMode === "pie" ? "hidden lg:block" : ""
     } lg:col-span-4`}
   >
@@ -273,9 +274,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
         disabled={!canGoPrev}
         className="w-7 h-7 flex items-center justify-center rotate-180 disabled:opacity-40"
       >
-        {chevronSvg(canGoPrev ? "#00216b" : "#c0c0c0")}
+        {chevronSvg(canGoPrev ? BRAND_COLORS.blueDark : "#c0c0c0")}
       </button>
-      <span className="w-11 text-center text-[15px] font-extrabold text-[#00216b] select-none">
+      <span className="w-11 text-center text-[15px] font-extrabold text-secondary-dark select-none">
         {selectedYear}
       </span>
       <button
@@ -283,7 +284,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
         disabled={!canGoNext}
         className="w-7 h-7 flex items-center justify-center disabled:opacity-40"
       >
-        {chevronSvg(canGoNext ? "#00216b" : "#c0c0c0")}
+        {chevronSvg(canGoNext ? BRAND_COLORS.blueDark : "#c0c0c0")}
       </button>
     </div>
   );
@@ -296,7 +297,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           onClick={() => setViewMode(mode)}
           className={`p-1.5 rounded-[10px] transition-colors duration-200 ${
             viewMode === mode
-              ? "bg-[#003cc3] text-white shadow-sm"
+              ? "bg-secondary text-white shadow-sm"
               : "text-slate-950 hover:bg-slate-200/50"
           }`}
         >
@@ -339,7 +340,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
 
   const filterPills = (
     <div className="overflow-x-auto flex justify-center">
-      <div className="flex min-w-max bg-[#F1F5F9] p-1 rounded-xl">
+      <div className="flex min-w-max bg-slate-100 p-1 rounded-xl">
         {tabRanges.map((range) => (
           <Tab
             key={range}
@@ -365,10 +366,10 @@ const ControlPanelDashboardScreen: React.FC = () => {
       </div>
       <button
         onClick={() => router.push("/home/transactions")}
-        className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-[#00216b]"
+        className="flex items-center gap-1 bg-[rgba(0,33,107,0.06)] rounded-xl px-3 py-1.5 text-xs font-bold text-secondary-dark"
       >
         Ver todos
-        {chevronSvg("#00216b")}
+        {chevronSvg(BRAND_COLORS.blueDark)}
       </button>
     </div>
   );
@@ -404,7 +405,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
         >
           {/* Period summary */}
-          <div className="bg-[#003cc3] text-white px-4 py-3">
+          <div className="bg-secondary text-white px-4 py-3">
             <p className="text-xs text-white/60 text-center">{headerText}</p>
             <p className="text-base font-bold text-center mt-0.5">
               {headerAmount.toLocaleString("pt-AO")},00KZ
@@ -417,7 +418,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           </div>
           {chartArea}
           <div className="px-3 sm:px-5 py-3 sm:py-4">{filterPills}</div>
-          <div className="h-px bg-[#F1F5F9] mx-4" />
+          <div className="h-px bg-slate-100 mx-4" />
           <div className="px-3 sm:px-5 pt-4 sm:pt-5 pb-4 sm:pb-6">
             {categoriesHeader()}
             <div className="relative">
@@ -460,7 +461,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
             </div>
             {chartArea}
             <div className="flex justify-center py-4">{filterPills}</div>
-            <div className="h-px bg-[#F1F5F9] mx-5" />
+            <div className="h-px bg-slate-100 mx-5" />
             <div className="px-5 pt-5 pb-6">
               {categoriesHeader(true)}
               <div className="relative">

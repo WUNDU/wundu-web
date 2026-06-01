@@ -99,8 +99,14 @@ export const useUserStore = create<AuthState>()(
             set({ isLoading: false });
             return;
           }
-          get().setToken(null);
-          set({ isAuthenticated: false, isLoading: false, user: null });
+          // Only log out on explicit auth rejection (401/403), not network errors
+          const status = error?.response?.status;
+          if (status === 401 || status === 403) {
+            get().setToken(null);
+            set({ isAuthenticated: false, isLoading: false, user: null });
+          } else {
+            set({ isLoading: false });
+          }
         }
       },
 
@@ -113,12 +119,21 @@ export const useUserStore = create<AuthState>()(
           const { accessToken } = await userService.refresh();
           set({ token: accessToken });
           await get().checkAuthStatus();
-        } catch {
-          set({ token: null, isAuthenticated: false, isLoading: false, user: null });
-          // Clear the wundu_session cookie so middleware no longer blocks /login redirect
-          await userService.logoutApi().catch(() => {});
-          if (typeof window !== "undefined" && window.location.pathname.startsWith("/home")) {
-            window.location.href = "/login";
+        } catch (error: any) {
+          const status = error?.response?.status;
+          const isAuthError = status === 401 || status === 403;
+
+          if (isAuthError) {
+            // Session expired → full logout
+            set({ token: null, isAuthenticated: false, isLoading: false, user: null });
+            await userService.logoutApi().catch(() => {});
+            if (typeof window !== "undefined" && window.location.pathname.startsWith("/home")) {
+              window.location.href = "/login";
+            }
+          } else {
+            // Network error or server error (5xx, timeout) → keep user state intact.
+            // Don't log out — the backend may be momentarily unreachable.
+            set({ isLoading: false });
           }
         }
       },

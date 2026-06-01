@@ -8,7 +8,7 @@ import {
   HomeDeskIcon,
   IAIcon,
 } from "@/constants/icons";
-import { Tag, Trash2, Plus, Loader2 } from "lucide-react";
+import { Tag, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import { logo, logotype } from "@/constants/images";
 import { ROUTES } from "@/constants/routes";
@@ -114,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-[#003cc3]/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
+            <div className="w-9 h-9 rounded-xl bg-secondary/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
               <Image src={logo} alt="Wundu" width={32} height={32} className="w-8 h-8 object-contain" priority />
             </div>
           )}
@@ -134,12 +134,12 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                     onClick={isMobile ? onCloseMobile : undefined}
                     className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200
                       ${active
-                        ? "bg-[#003cc3]/10 text-[#003cc3] font-bold"
-                        : "font-medium text-slate-500 hover:bg-[#003cc3]/5 hover:text-slate-900"
+                        ? "bg-secondary/10 text-secondary font-bold"
+                        : "font-medium text-slate-500 hover:bg-secondary/5 hover:text-slate-900"
                       }`}
                   >
                     <item.icon
-                      className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${active ? "text-[#003cc3]" : "text-slate-400 group-hover:text-[#003cc3]"}`}
+                      className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${active ? "text-secondary" : "text-slate-400 group-hover:text-secondary"}`}
                     />
                     {(isMobile || !collapsed) && (
                       <AnimatePresence>
@@ -165,12 +165,12 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
           {isInChatPage && (isMobile || !collapsed) && (
             <div className="mt-3 px-2">
               <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Conversas
                 </span>
                 <button
                   onClick={handleNewConversation}
-                  className="flex items-center gap-1 text-xs font-semibold text-[#003cc3] transition-colors hover:text-[#003cc3]/70"
+                  className="flex items-center gap-1 text-xs font-semibold text-secondary transition-colors hover:text-secondary/70"
                 >
                   <Plus className="w-3 h-3" />
                   Nova
@@ -178,8 +178,13 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
               </div>
 
               {isLoadingHistory ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
+                <div className="space-y-1 animate-pulse">
+                  {[72, 60, 80, 55].map((w, i) => (
+                    <div key={i} className="flex items-center gap-2 px-2 py-2 rounded-lg">
+                      <div className="w-3.5 h-3.5 rounded bg-slate-100 flex-shrink-0" />
+                      <div className="h-3 rounded bg-slate-100" style={{ width: `${w}%` }} />
+                    </div>
+                  ))}
                 </div>
               ) : sortedHistory.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-4 px-2">
@@ -195,11 +200,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                         key={conv.id}
                         onClick={() => !isConfirming && handleSelectConversation(conv.id)}
                         className={`group flex cursor-pointer items-center rounded-lg px-2 py-2 transition-colors ${
-                          isActiveConv ? "bg-[#003cc3]/10" : "hover:bg-slate-50"
+                          isActiveConv ? "bg-secondary/10" : "hover:bg-slate-50"
                         }`}
                       >
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-semibold truncate ${isActiveConv ? "text-[#003cc3]" : "text-gray-800"}`}>
+                          <p className={`text-xs font-semibold truncate ${isActiveConv ? "text-secondary" : "text-slate-700"}`}>
                             {formatConvoDate(conv.updatedAt)}
                           </p>
                           {isConfirming ? (
@@ -219,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                               </button>
                             </div>
                           ) : (
-                            <p className="text-[10px] text-gray-400 truncate mt-0.5">Conversa</p>
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">Conversa</p>
                           )}
                         </div>
                         {!isConfirming && (
@@ -227,7 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                             onClick={(e) => handleAskConfirm(e, conv.id)}
                             className="ml-1 rounded p-1 opacity-0 transition-all hover:bg-slate-200 group-hover:opacity-100"
                           >
-                            <Trash2 className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
+                            <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-red-400" />
                           </button>
                         )}
                       </div>
@@ -239,7 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
           )}
 
           {/* Gradient separator */}
-          <div className="mx-3 h-px bg-gradient-to-r from-transparent via-[#003cc3]/20 to-transparent" />
+          <div className="mx-3 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
         </nav>
       </>
     ),

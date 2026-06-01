@@ -53,7 +53,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
 
   const icon = () => {
     if (entry.isPolling || !isTerminal) {
-      return <Loader2 className="w-4 h-4 text-[#003cc3] animate-spin flex-shrink-0" />;
+      return <Loader2 className="w-4 h-4 text-secondary animate-spin flex-shrink-0" />;
     }
     if (status === "PROCESSED") return <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />;
     if (status === "NEEDS_MANUAL_CATEGORY") return <AlertCircle className="w-4 h-4 text-violet-500 flex-shrink-0" />;
@@ -62,7 +62,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
   };
 
   const borderColor = () => {
-    if (!isTerminal || entry.isPolling) return "border-[#003cc3]/20";
+    if (!isTerminal || entry.isPolling) return "border-secondary/20";
     if (status === "PROCESSED") return "border-emerald-200";
     if (status === "NEEDS_MANUAL_CATEGORY") return "border-violet-200";
     if (status === "DUPLICATE") return "border-amber-200";
@@ -86,7 +86,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
       <div className="flex items-center gap-2.5 px-3.5 py-3">
         {icon()}
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-[#1e293b] truncate leading-tight">{shortName}</p>
+          <p className="text-xs font-bold text-slate-900 truncate leading-tight">{shortName}</p>
           <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{statusLabel(status)}</p>
         </div>
         <div className="flex items-center gap-1">
@@ -114,7 +114,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
         <div className="px-3.5 pb-3 flex gap-2">
           <button
             onClick={() => onRetry(entry.id)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#003cc3] text-white text-[11px] font-bold hover:bg-[#002ea0] transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary text-white text-[11px] font-bold hover:bg-secondary-dark transition-colors"
           >
             <RefreshCw className="w-3 h-3" /> Tentar novamente
           </button>
@@ -154,7 +154,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
               <select
                 value={selectedCategoryId}
                 onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#003cc3]/40"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-secondary/40"
               >
                 <option value="">Selecionar…</option>
                 {categories.map((cat) => (
@@ -168,7 +168,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
                 <button
                   onClick={() => onCategorize(entry.id, selectedCategoryId)}
                   disabled={!selectedCategoryId || entry.isCategorizing}
-                  className="flex-1 py-2 rounded-xl bg-[#003cc3] text-white text-[11px] font-bold disabled:opacity-50 hover:bg-[#002ea0] transition-colors"
+                  className="flex-1 py-2 rounded-xl bg-secondary text-white text-[11px] font-bold disabled:opacity-50 hover:bg-secondary-dark transition-colors"
                 >
                   {entry.isCategorizing ? (
                     <span className="flex items-center justify-center gap-1">
@@ -192,7 +192,7 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
       {entry.isPolling && (
         <div className="h-0.5 bg-slate-100 overflow-hidden">
           <motion.div
-            className="h-full bg-[#003cc3]/40"
+            className="h-full bg-secondary/40"
             initial={{ x: "-100%" }}
             animate={{ x: "100%" }}
             transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}

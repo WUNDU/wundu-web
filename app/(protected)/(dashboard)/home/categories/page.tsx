@@ -54,7 +54,7 @@ function CategoryCardsSkeleton({ count = 4 }: { count?: number }) {
 function ResumoSkeleton() {
   return (
     <div className="space-y-4 animate-pulse">
-      <div className="rounded-2xl bg-[#003cc3] p-5">
+      <div className="rounded-2xl bg-secondary p-5">
         <div className="h-3 w-28 rounded bg-white/30" />
         <div className="mt-3 h-8 w-44 rounded bg-white/30" />
         <div className="mt-2 h-3 w-36 rounded bg-white/25" />
@@ -94,7 +94,7 @@ function LimitDialog({
             initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: "spring", damping: 30, stiffness: 450, mass: 0.8 }}>
-            <div className="bg-gradient-to-r from-[#001a4d] to-[#003cc3] px-6 py-5 flex items-start justify-between">
+            <div className="bg-gradient-to-r from-secondary-dark to-secondary px-6 py-5 flex items-start justify-between">
               <div>
                 <h3 className="text-white font-black text-lg tracking-tight">Definir Limite</h3>
                 <p className="text-white/60 text-sm font-medium mt-0.5">{categoryName}</p>
@@ -106,15 +106,15 @@ function LimitDialog({
             <div className="p-6 space-y-4">
               <div>
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Limite Mensal (KZ)</label>
-                <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus-within:border-[#003cc3]/40 focus-within:bg-white transition-all">
+                <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus-within:border-secondary/40 focus-within:bg-white transition-all">
                   <Wallet className="w-4 h-4 text-slate-400 flex-shrink-0" />
                   <input autoFocus inputMode="numeric" value={centsToDisplay(cents)}
                     onChange={() => {}} onKeyDown={handleKey} placeholder="0,00"
-                    className="flex-1 text-sm text-[#1e293b] bg-transparent outline-none placeholder:text-slate-400 font-semibold tracking-wide" />
+                    className="flex-1 text-sm text-slate-900 bg-transparent outline-none placeholder:text-slate-400 font-semibold tracking-wide" />
                 </div>
               </div>
               <button onClick={() => canConfirm && onConfirm(amount)} disabled={!canConfirm}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#001a4d] to-[#003cc3] text-white font-bold rounded-2xl disabled:opacity-40 hover:opacity-90 active:opacity-80 transition-all">
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-secondary-dark to-secondary text-white font-bold rounded-2xl disabled:opacity-40 hover:opacity-90 active:opacity-80 transition-all">
                 <CheckCircle2 className="w-4 h-4" />Confirmar
               </button>
             </div>
@@ -169,7 +169,7 @@ function ResumoTab({
       exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }} className="space-y-4">
 
       {/* Total card */}
-      <div className="bg-gradient-to-br from-[#001a4d] to-[#003cc3] rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-br from-secondary-dark to-secondary rounded-2xl p-5 text-white">
         <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Total gasto este mês</p>
         <p className="text-3xl font-black tracking-tight">KZ {formatCurrency(displayTotal)}</p>
         <p className="text-white/50 text-xs font-medium mt-1">
@@ -195,7 +195,7 @@ function ResumoTab({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-bold text-[#1e293b]">{cat.name}</p>
+                    <p className="text-sm font-bold text-slate-900">{cat.name}</p>
                     <span className="text-xs font-bold" style={{ color: col }}>{pct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -233,8 +233,8 @@ function ResumoTab({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-bold text-[#1e293b] truncate">{name}</p>
-                    <p className="text-sm font-black text-[#1e293b] ml-2 flex-shrink-0">KZ {formatCurrency(amount)}</p>
+                    <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
+                    <p className="text-sm font-black text-slate-900 ml-2 flex-shrink-0">KZ {formatCurrency(amount)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -281,7 +281,7 @@ function SystemCategoryCard({
           <Icon className="w-4.5 h-4.5" style={{ color }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#1e293b] truncate">{cat.name}</p>
+          <p className="text-sm font-bold text-slate-900 truncate">{cat.name}</p>
           {spent > 0 ? (
             <p className="text-xs font-semibold mt-0.5 text-slate-500">KZ {formatCurrency(spent)} gastos este mês</p>
           ) : (
@@ -346,7 +346,7 @@ function CustomCategoryCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-bold text-[#1e293b] truncate">{cat.name}</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{cat.name}</p>
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: bg, color }}>
               PESSOAL
             </span>
@@ -479,8 +479,8 @@ export default function CategoriesPage() {
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 pt-4 pb-4">
-        <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm flex-shrink-0">
-          <Tag className="w-5 h-5 text-[#ffd400]" />
+        <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm flex-shrink-0">
+          <Tag className="w-5 h-5 text-primary" />
         </div>
         <div>
           <h1 className="text-base font-black text-slate-900 tracking-tight">Categorias</h1>
@@ -495,7 +495,7 @@ export default function CategoriesPage() {
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 ${
-              tab === id ? "bg-white text-[#001a4d] shadow-sm" : "text-slate-400 hover:text-slate-600"
+              tab === id ? "bg-white text-secondary-dark shadow-sm" : "text-slate-400 hover:text-slate-600"
             }`}>
             <Icon className="w-3.5 h-3.5" />
             {label}
@@ -522,9 +522,9 @@ export default function CategoriesPage() {
         {tab === "sistema" && (
           <motion.div key="sistema" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }} className="space-y-3">
-            <div className="flex items-start gap-3 bg-[rgba(0,60,195,0.04)] border border-[#003cc3]/10 rounded-2xl px-4 py-3">
-              <ShieldAlert className="w-4 h-4 text-[#003cc3] mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-[#003cc3] font-medium leading-relaxed">
+            <div className="flex items-start gap-3 bg-[rgba(0,60,195,0.04)] border border-secondary/10 rounded-2xl px-4 py-3">
+              <ShieldAlert className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-secondary font-medium leading-relaxed">
                 Categorias de sistema são somente leitura. Define um <span className="font-bold">limite mensal</span> para monitorar os gastos.
               </p>
             </div>
@@ -549,17 +549,17 @@ export default function CategoriesPage() {
             exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.15 }} className="space-y-4">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(0,60,195,0.06)] p-5">
               <div className="flex items-center gap-2 mb-3">
-                <FolderPlus className="w-4 h-4 text-[#003cc3]" />
-                <h2 className="text-sm font-bold text-[#1e293b]">Nova categoria</h2>
+                <FolderPlus className="w-4 h-4 text-secondary" />
+                <h2 className="text-sm font-bold text-slate-900">Nova categoria</h2>
               </div>
               <div className="flex gap-2">
                 <input type="text" value={newName}
                   onChange={(e) => { setNewName(e.target.value); setCreateError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                   placeholder="Ex: Viagens, Animais..." maxLength={30}
-                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#1e293b] placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white transition-all" />
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-secondary/40 focus:bg-white transition-all" />
                 <button onClick={handleCreate} disabled={!newName.trim() || isCreating}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-[#ffd400] text-[#1e293b] rounded-xl text-sm font-bold hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap">
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-primary text-slate-900 rounded-xl text-sm font-bold hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap">
                   {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   Criar
                 </button>

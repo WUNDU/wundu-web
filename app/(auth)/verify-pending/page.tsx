@@ -191,15 +191,15 @@ export default function VerifyPendingPage() {
                   <motion.div
                     animate={{ scale: [1, 1.06, 1] }}
                     transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                    className="flex h-28 w-28 items-center justify-center rounded-full bg-[#0048f0]/8"
+                    className="flex h-28 w-28 items-center justify-center rounded-full bg-secondary/8 motion-reduce:animate-none"
                   >
                     <motion.div
                       animate={{ scale: [1, 1.04, 1] }}
                       transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-                      className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0048f0]/12"
+                      className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary/12 motion-reduce:animate-none"
                     >
                       <svg
-                        className="h-10 w-10 text-[#0048f0]"
+                        className="h-10 w-10 text-secondary"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -218,14 +218,14 @@ export default function VerifyPendingPage() {
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0"
+                    className="absolute inset-0 motion-reduce:hidden"
                   >
-                    <div className="absolute -top-1 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-[#ffd400]" />
+                    <div className="absolute -top-1 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-primary" />
                   </motion.div>
                 </div>
 
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-400">
+                  <p className="text-sm font-semibold text-slate-600">
                     Verifica a tua caixa de entrada
                   </p>
                 </div>
@@ -305,7 +305,7 @@ export default function VerifyPendingPage() {
                   <div className="mt-1 text-center">
                     <button
                       onClick={() => setShowEmailChange((v) => !v)}
-                      className="text-xs font-bold text-slate-400 transition-colors hover:text-slate-700"
+                      className="text-xs font-bold text-slate-600 transition-colors hover:text-slate-900"
                     >
                       Email errado?
                     </button>

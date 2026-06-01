@@ -121,8 +121,9 @@ const FinancialObjectiveScreen: React.FC = () => {
               style={{ animationDelay: "0.3s" }}
             >
               {/* FinancialObjectiveCard: Criar objectivo */}
-              <div
-                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+              <button
+                type="button"
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] text-left w-full ${
                   showForm ? "ring-1 ring-yellow-200 bg-yellow-50/60" : ""
                 }`}
                 onClick={handleFinancialNewObjective}
@@ -140,10 +141,11 @@ const FinancialObjectiveScreen: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
               {/* FinancialObjectiveCard: Meus objectivos */}
-              <div
-                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] ${
+              <button
+                type="button"
+                className={`rounded-2xl bg-transparent p-0.5 md:p-2 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] active:scale-[0.99] text-left w-full ${
                   !showForm ? "ring-1 ring-rose-200 bg-rose-50/60" : ""
                 }`}
                 onClick={handleFinancialObjective}
@@ -161,7 +163,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
 
             <div
@@ -255,7 +257,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                               allObjectives.map((obj, index) => (
                                 <div
                                   key={obj.id}
-                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  className="cursor-pointer transition-[transform,box-shadow] duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
                                   style={{ animationDelay: `${0.6 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
@@ -295,7 +297,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                               fulfilledObjectives.map((obj, index) => (
                                 <div
                                   key={obj.id}
-                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  className="cursor-pointer transition-[transform,box-shadow] duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
                                   style={{ animationDelay: `${0.8 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">
@@ -335,7 +337,7 @@ const FinancialObjectiveScreen: React.FC = () => {
                               unfulfilledObjectives.map((obj, index) => (
                                 <div
                                   key={obj.id}
-                                  className="cursor-pointer transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
+                                  className="cursor-pointer transition-[transform,box-shadow] duration-150 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-md hover:-translate-y-1"
                                   style={{ animationDelay: `${1.0 + index * 0.1}s` }}
                                 >
                                   <div className="rounded-2xl p-3 transition-all duration-300 ease-out">

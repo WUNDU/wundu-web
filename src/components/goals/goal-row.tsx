@@ -35,16 +35,18 @@ export function GoalRow({ data, index, onEdit }: GoalRowProps) {
   const typeLabel = data.goal.type === "SHORT_TERM" ? "Curto prazo" : "Longo prazo";
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       whileTap={{ scale: 0.97 }}
       transition={{ duration: 0.22, ease: EASE_OUT, delay: Math.min(index * 0.05, 0.3) }}
-      className="relative bg-white rounded-[20px] p-[18px] cursor-pointer overflow-hidden"
+      className="relative bg-white rounded-[20px] p-[18px] cursor-pointer overflow-hidden w-full text-left"
       style={{
         boxShadow: `0 4px 16px ${accent.color}1f`,
       }}
       onClick={onEdit}
+      aria-label={`Editar objectivo: ${data.title}`}
     >
       {/* Completed glow pulse */}
       {done && (
@@ -69,7 +71,7 @@ export function GoalRow({ data, index, onEdit }: GoalRowProps) {
         <div className="flex-1 min-w-0 flex flex-col gap-1.5">
           {/* Title row */}
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[15px] font-bold text-[#1e293b] truncate flex-1 min-w-0">{data.title}</p>
+            <p className="text-[15px] font-bold text-slate-900 truncate flex-1 min-w-0">{data.title}</p>
             <div
               className="flex-shrink-0 px-2.5 py-[3px] rounded-full"
               style={{ backgroundColor: accent.bg }}
@@ -79,8 +81,8 @@ export function GoalRow({ data, index, onEdit }: GoalRowProps) {
           </div>
 
           {/* Saved / target */}
-          <p className="text-[11px] font-medium text-[#64748b] truncate">
-            <span className="font-bold text-[#475569]">{data.valorPoupado}</span>
+          <p className="text-[11px] font-medium text-slate-500 truncate">
+            <span className="font-bold text-slate-600">{data.valorPoupado}</span>
             {" "}de{" "}
             {data.valorAlvo} Kz
             <span
@@ -103,6 +105,6 @@ export function GoalRow({ data, index, onEdit }: GoalRowProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }

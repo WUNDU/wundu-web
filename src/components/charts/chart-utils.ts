@@ -47,8 +47,12 @@ export function getCutoffDate(timeRange: TimeRange, refDate?: Date): Date {
   switch (timeRange) {
     case "1D":
       return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    case "1S":
-      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    case "1S": {
+      // Start of current calendar week (Monday), same as how 1M starts on day 1
+      const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, …, 6=Sat
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysFromMonday);
+    }
     case "1M":
       return new Date(now.getFullYear(), now.getMonth(), 1);
     case "6M":
@@ -70,8 +74,10 @@ function getChartLabel(
       return { label: `${hour}h`, orderKey: date.getHours() };
     }
     case "1S": {
-      const day = date.getDay();
-      return { label: WEEK_LABELS[day], orderKey: day };
+      const day = date.getDay(); // 0=Sun, 1=Mon, …, 6=Sat
+      // Monday-based order: Mon=0, Tue=1, …, Sat=5, Sun=6
+      const mondayBased = day === 0 ? 6 : day - 1;
+      return { label: WEEK_LABELS[day], orderKey: mondayBased };
     }
     case "1M": {
       const day = date.getDate();

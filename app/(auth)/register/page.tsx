@@ -405,7 +405,7 @@ const RegisterPage = () => {
                         placeholder="Seu nome"
                         required
                         isError={!!personalErrors.name}
-                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12"
                       />
                       <AnimatePresence>
                         {personalErrors.name && (
@@ -433,7 +433,7 @@ const RegisterPage = () => {
                         placeholder="exemplo@email.com"
                         required
                         isError={!!personalErrors.email}
-                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12"
                       />
                       <AnimatePresence>
                         {personalErrors.email && (
@@ -540,7 +540,7 @@ const RegisterPage = () => {
                         placeholder="Sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12"
                       />
                       {/* Password hint */}
                       <div className="px-1">
@@ -582,7 +582,7 @@ const RegisterPage = () => {
                         placeholder="Repita sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-12 border-slate-200 bg-slate-50/50 transition-all focus:border-slate-900 focus:bg-white"
+                        className="h-12"
                       />
                       <AnimatePresence>
                         {(passwordError || contextError) && (

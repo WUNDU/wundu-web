@@ -44,7 +44,7 @@ function MarkdownContent({ text }: { text: string }) {
         const h1 = line.match(/^#\s+(.+)$/);
         if (h3) {
           return (
-            <div key={i} className="font-bold text-[#003cc3] text-[13px] mt-3 mb-1 first:mt-0">
+            <div key={i} className="font-bold text-secondary text-[13px] mt-3 mb-1 first:mt-0">
               {renderInline(h3[1])}
             </div>
           );
@@ -63,7 +63,7 @@ function MarkdownContent({ text }: { text: string }) {
         if (numMatch) {
           return (
             <div key={i} className="flex gap-2 items-baseline mt-0.5">
-              <span className="text-[#003cc3] text-xs font-bold flex-shrink-0 min-w-[18px]">
+              <span className="text-secondary text-xs font-bold flex-shrink-0 min-w-[18px]">
                 {numMatch[1]}.
               </span>
               <span className="text-slate-800">{renderInline(numMatch[2])}</span>
@@ -76,7 +76,7 @@ function MarkdownContent({ text }: { text: string }) {
           const content = line.slice(2);
           return (
             <div key={i} className="flex gap-2 items-baseline mt-0.5">
-              <span className="text-[#003cc3] flex-shrink-0 select-none font-bold text-xs">
+              <span className="text-secondary flex-shrink-0 select-none font-bold text-xs">
                 •
               </span>
               <span className="text-slate-800">{renderInline(content)}</span>
@@ -159,7 +159,7 @@ const Message: React.FC<{
         </div>
         {/* Bubble: full-width self-end on mobile, capped on desktop */}
         <div className="flex sm:justify-end sm:items-end sm:gap-2.5">
-          <div className="bg-gradient-to-br from-[#003cc3] to-[#001a66] px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tr-sm sm:rounded-tr-2xl sm:rounded-br-sm w-full sm:w-auto sm:max-w-[72%] shadow-sm">
+          <div className="bg-gradient-to-br from-secondary to-secondary-dark px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tr-sm sm:rounded-tr-2xl sm:rounded-br-sm w-full sm:w-auto sm:max-w-[72%] shadow-sm">
             <p className="text-sm text-white leading-relaxed whitespace-pre-wrap">{text}</p>
           </div>
           {/* Desktop avatar */}
@@ -177,7 +177,7 @@ const Message: React.FC<{
     <div className="mb-3">
       {/* Mobile: avatar + label stacked above bubble */}
       <div className="flex items-center gap-2 mb-1 sm:hidden">
-        <div className="w-6 h-6 flex-shrink-0 rounded-[8px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
+        <div className="w-6 h-6 flex-shrink-0 rounded-[8px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm">
           <IAIcon className="w-3 h-3 text-white" />
         </div>
         <span className="text-[10px] text-slate-400 font-medium">Wundu AI</span>
@@ -185,7 +185,7 @@ const Message: React.FC<{
       {/* Bubble */}
       <div className="flex sm:items-start sm:gap-2.5">
         {/* Desktop avatar */}
-        <div className="hidden sm:flex w-8 h-8 flex-shrink-0 rounded-[10px] bg-gradient-to-br from-[#003cc3] to-[#001a66] items-center justify-center shadow-sm">
+        <div className="hidden sm:flex w-8 h-8 flex-shrink-0 rounded-[10px] bg-gradient-to-br from-secondary to-secondary-dark items-center justify-center shadow-sm">
           <IAIcon className="w-4 h-4 text-white" />
         </div>
         <div className="bg-white px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl rounded-tl-sm sm:rounded-tl-2xl sm:rounded-bl-sm w-full sm:max-w-[72%] shadow-[0_2px_8px_rgba(0,60,195,0.08)] border border-slate-100">

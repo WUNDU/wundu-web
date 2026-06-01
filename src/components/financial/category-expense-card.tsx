@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 interface CategoryExpenseCardProps {
   categoryName: string;
@@ -16,7 +17,7 @@ const CategoryExpenseCard: React.FC<CategoryExpenseCardProps> = ({
   icon,
   percentage,
   amount,
-  color = "#003cc3",
+  color = BRAND_COLORS.blue,
   backgroundColor = "rgba(0, 60, 195, 0.08)",
 }) => {
   return (

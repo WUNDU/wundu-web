@@ -32,11 +32,11 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className={`${sizeClasses[size]} rounded-full border-[#ffd400]/15 border-t-[#ffd400]`}
+          className={`${sizeClasses[size]} rounded-full border-primary/15 border-t-primary`}
         />
 
         {/* Subtle center dot or small logo element if needed */}
-        <div className="absolute h-1 w-1 rounded-full bg-[#ffd400]/60" />
+        <div className="absolute h-1 w-1 rounded-full bg-primary/60" />
       </div>
 
       {message && (

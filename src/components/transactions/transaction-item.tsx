@@ -34,14 +34,14 @@ export function TransactionItem({ tx, index, onClick }: { tx: TransactionDTO; in
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-[#1e293b] truncate leading-snug">{primary}</p>
+        <p className="text-sm font-bold text-slate-900 truncate leading-snug">{primary}</p>
         <div className="flex items-center gap-1.5 mt-0.5">
           {secondary && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: bg, color }}>
               {secondary}
             </span>
           )}
-          {time && <span className="text-[10px] text-[#94a3b8]">{time}</span>}
+          {time && <span className="text-[10px] text-slate-400">{time}</span>}
         </div>
       </div>
 

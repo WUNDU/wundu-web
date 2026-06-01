@@ -128,8 +128,8 @@ const CategoryScreen = ({
                   onClick={() => handleCategorySelect(category)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-[#003cc3] text-white shadow-sm scale-105"
-                      : "bg-blue-50 text-[#003cc3] border border-blue-100 hover:bg-blue-100"
+                      ? "bg-secondary text-white shadow-sm scale-105"
+                      : "bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" />

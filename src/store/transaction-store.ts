@@ -16,6 +16,7 @@ interface TransactionState {
   // Legacy flat list (used by existing home/financial screens)
   transactions: TransactionDTO[];
   isLoading: boolean;
+  isLoadingAll: boolean; // separate flag for getAllNotPaginated — avoids blocking loadPage/fetch
   isRefreshing: boolean;
   error: string | null;
   hasFetched: boolean;
@@ -76,6 +77,7 @@ export const useTransactionStore = create<TransactionState>()(
     (set, get) => ({
       transactions: [],
       isLoading: false,
+      isLoadingAll: false,
       isRefreshing: false,
       error: null,
       hasFetched: false,
@@ -163,6 +165,7 @@ export const useTransactionStore = create<TransactionState>()(
         set({
           transactions: [],
           isLoading: false,
+          isLoadingAll: false,
           isRefreshing: false,
           error: null,
           hasFetched: false,
@@ -182,26 +185,26 @@ export const useTransactionStore = create<TransactionState>()(
 
       getAllNotPaginated: async (options) => {
         const queryKey = `${options?.startDate ?? "all"}|${options?.endDate ?? "all"}`;
-        const { hasFetchedAll, notPaginatedQueryKey, isLoading } = get();
-        if (isLoading) return;
+        const { hasFetchedAll, notPaginatedQueryKey, isLoadingAll } = get();
+        if (isLoadingAll) return;
         if (hasFetchedAll && queryKey === notPaginatedQueryKey) return;
 
         set({
-          isLoading: true,
+          isLoadingAll: true,
           ...(queryKey !== notPaginatedQueryKey ? { notPaginated: null, hasFetchedAll: false } : {}),
         });
         try {
           const data = await transactionService.getAllNotPaginated(options);
           set({
             notPaginated: data,
-            isLoading: false,
+            isLoadingAll: false,
             hasFetchedAll: true,
             notPaginatedQueryKey: queryKey,
           });
         } catch (error: any) {
           const err =
             error instanceof Error ? error.message : "Erro ao carregar transações";
-          set({ error: err, isLoading: false });
+          set({ error: err, isLoadingAll: false });
           useUiStore.getState().showNotification("error", "Erro", err);
         }
       },

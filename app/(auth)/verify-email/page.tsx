@@ -103,7 +103,7 @@ function StateIllustration({ status }: { status: VerifyState["status"] }) {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="h-14 w-14 rounded-full border-4 border-slate-200 border-t-[#0048f0]"
+            className="h-14 w-14 rounded-full border-4 border-slate-200 border-t-secondary"
           />
         </div>
         <p className="text-sm font-medium text-slate-400">A verificar...</p>
@@ -172,11 +172,11 @@ function StateIllustration({ status }: { status: VerifyState["status"] }) {
           transition={{ duration: 0.35 }}
           className="flex h-28 w-28 items-center justify-center rounded-full bg-blue-50"
         >
-          <svg className="h-14 w-14 text-[#0048f0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg className="h-14 w-14 text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
           </svg>
         </motion.div>
-        <p className="text-sm font-semibold text-[#0048f0]">Já verificado</p>
+        <p className="text-sm font-semibold text-secondary">Já verificado</p>
       </div>
     );
   }

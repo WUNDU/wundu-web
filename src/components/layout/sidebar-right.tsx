@@ -20,6 +20,7 @@ import { useTransactionStore } from "@/store/transaction-store";
 import { formatAOA } from "@/lib/currency";
 import { ROUTES } from "@/constants/routes";
 import posthog from "posthog-js";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 const EASE_IN: [number, number, number, number] = [0, 0, 0.2, 1];
 const EASE_OUT: [number, number, number, number] = [0.4, 0, 1, 1];
@@ -82,7 +83,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
           transition={{ duration: 0.15 }}
         >
           <motion.aside
-            className="flex h-full w-full max-w-sm flex-col overflow-hidden border-l border-slate-200/60 bg-[#F1F5FA] shadow-xl"
+            className="flex h-full w-full max-w-sm flex-col overflow-hidden border-l border-slate-200/60 bg-slate-100 shadow-xl"
             onClick={(e) => e.stopPropagation()}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -127,7 +128,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                       animate={{ scale: [1, 1.14, 1], opacity: [0.55, 0.2, 0.55] }}
                       transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
                     />
-                    <div className="rounded-full border-2 p-0.5" style={{ borderColor: "#ffd400" }}>
+                    <div className="rounded-full border-2 p-0.5" style={{ borderColor: BRAND_COLORS.yellow }}>
                       <Image
                         src={avatar}
                         alt={user?.name || "Usuário"}
@@ -143,7 +144,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                     <div className="mt-1 flex items-center justify-center gap-1.5">
                       <div
                         className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                        style={{ backgroundColor: isPremium ? "#ffd400" : "rgba(255,255,255,0.15)", color: isPremium ? "#001a4d" : "rgba(255,255,255,0.7)" }}
+                        style={{ backgroundColor: isPremium ? BRAND_COLORS.yellow : "rgba(255,255,255,0.15)", color: isPremium ? "#001a4d" : "rgba(255,255,255,0.7)" }}
                       >
                         {isPremium ? "Premium" : "Free"}
                       </div>
@@ -190,7 +191,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                 >
                   {[
                     {
-                      icon: <ProfileIcon className="h-5 w-5 text-[#003cc3]" />,
+                      icon: <ProfileIcon className="h-5 w-5 text-secondary" />,
                       label: "Meus Dados",
                       sublabel: "Informações pessoais",
                       action: handleMyData,
@@ -223,7 +224,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                           {item.icon}
                         </div>
                         <div className="text-left">
-                          <p className={`text-sm font-medium ${item.accent ? "text-[#003cc3]" : "text-slate-800"}`}>
+                          <p className={`text-sm font-medium ${item.accent ? "text-secondary" : "text-slate-800"}`}>
                             {item.label}
                           </p>
                           <p className="text-[11px] text-slate-400">{item.sublabel}</p>

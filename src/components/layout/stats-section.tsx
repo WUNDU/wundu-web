@@ -51,8 +51,8 @@ const StatsCard: FC<StatsCardProps> = ({
   <motion.div
     className={`group relative flex h-full min-h-0 flex-1 flex-col justify-between overflow-hidden rounded-xl border p-3 shadow-sm transition-all duration-300 sm:min-h-[96px] sm:p-3 lg:p-4 ${
       isPrimary
-        ? "border-[#003cc3] bg-[#003cc3] text-white sm:col-span-2 md:col-span-1"
-        : "border-white/60 bg-white/80 text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:border-[#003cc3]/20 hover:shadow-[0_4px_14px_rgba(0,60,195,0.08)]"
+        ? "border-secondary bg-secondary text-white sm:col-span-2 md:col-span-1"
+        : "border-white/60 bg-white/80 text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:border-secondary/20 hover:shadow-[0_4px_14px_rgba(0,60,195,0.08)]"
     }`}
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
@@ -74,15 +74,15 @@ const StatsCard: FC<StatsCardProps> = ({
       <div
         className={`rounded-lg p-1.5 transition-colors duration-150 sm:p-2 ${isPrimary ? "bg-white/10" : color}`}
       >
-        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${isPrimary ? "text-[#ffd400]" : iconColor}`} />
+        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${isPrimary ? "text-primary" : iconColor}`} />
       </div>
-      {!isPrimary && <span className="h-2 w-2 rounded-full bg-[#ffd400]" />}
+      {!isPrimary && <span className="h-2 w-2 rounded-full bg-primary" />}
     </div>
 
     <div className="relative z-10">
       <h3
         className={`mb-0.5 font-bold tracking-tight transition-all duration-150 sm:mb-1 leading-tight tabular-nums ${valueFontClass(value)} ${
-          isPrimary ? "text-white" : "text-[#1e293b] group-hover:text-[#003cc3]"
+          isPrimary ? "text-white" : "text-slate-900 group-hover:text-secondary"
         }`}
       >
         {value}
@@ -100,41 +100,56 @@ const StatsCard: FC<StatsCardProps> = ({
 
 const StatsSection: FC = () => {
   const [totalDocuments, setTotalDocuments] = useState<number | null>(null);
+  const notPaginated = useTransactionStore((s) => s.notPaginated);
+  const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
+  const isLoadingAll = useTransactionStore((s) => s.isLoadingAll);
+  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
   const transactions = useTransactionStore((s) => s.transactions);
   const hasFetched = useTransactionStore((s) => s.hasFetched);
   const fetchTransactions = useTransactionStore((s) => s.fetch);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Only show skeleton if store is truly empty — cached data shows immediately
+  const hasAnyData = transactions.length > 0 || notPaginated !== null;
+  const [isLoading, setIsLoading] = useState(!hasAnyData);
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
+      // Only block UI if we have no data at all — otherwise refresh silently
+      if (!hasAnyData) setIsLoading(true);
       await Promise.allSettled([
         getCachedDocCount().then(setTotalDocuments).catch(() => {}),
         hasFetched ? Promise.resolve() : fetchTransactions(),
+        hasFetchedAll ? Promise.resolve() : getAllNotPaginated(),
       ]);
       setIsLoading(false);
     };
     fetchData();
-  }, [fetchTransactions, hasFetched]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchTransactions, hasFetched, getAllNotPaginated, hasFetchedAll]);
 
   const stats = useMemo(() => {
-    const totalSpent = transactions.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
-    const count = transactions.length;
+    // Prefer the full dataset (notPaginated) for accurate all-time totals.
+    // Fall back to the paginated list while the full fetch is in progress.
+    const source = notPaginated ?? transactions;
+    const totalSpent = source
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+    const count = notPaginated?.length ?? transactions.length;
 
     return [
       {
         icon: FileIcon,
         value: isLoading ? "—" : (totalDocuments ?? 0),
         label: "Documentos",
-        color: "bg-[#003cc3]/10",
-        iconColor: "text-[#003cc3]",
+        color: "bg-secondary/10",
+        iconColor: "text-secondary",
       },
       {
         icon: PaymentIcon,
         value: isLoading ? "—" : count,
         label: "Transações",
-        color: "bg-[#ffd400]/25",
-        iconColor: "text-[#003cc3]",
+        color: "bg-primary/25",
+        iconColor: "text-secondary",
       },
       {
         icon: MoneyIcon,

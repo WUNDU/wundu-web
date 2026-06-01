@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 const PrivacyPolicy = () => (
-  <div className="space-y-10 animate-in fade-in duration-500">
+  <div className="space-y-10 animate-in fade-in duration-300">
     <section>
       <h2 className="text-xl font-bold mb-4 text-slate-900">1. Introdução</h2>
       <p className="text-slate-600 leading-relaxed">
@@ -220,7 +220,7 @@ const PrivacyPolicy = () => (
       </ul>
       <p className="text-slate-600 leading-relaxed">
         Para exercer qualquer um destes direitos, contacte-nos através de{" "}
-        <span className="text-[#003cc3] font-semibold">support@wundu.tech</span>
+        <span className="text-secondary font-semibold">support@wundu.tech</span>
         .
       </p>
     </section>
@@ -256,7 +256,7 @@ const PrivacyPolicy = () => (
 );
 
 const CookiesPolicy = () => (
-  <div className="space-y-10 animate-in fade-in duration-500">
+  <div className="space-y-10 animate-in fade-in duration-300">
     <section>
       <h2 className="text-xl font-bold mb-4 text-slate-900">
         1. O que são cookies?
@@ -345,7 +345,7 @@ const CookiesPolicy = () => (
 );
 
 const TermsOfUse = () => (
-  <div className="space-y-10 animate-in fade-in duration-500">
+  <div className="space-y-10 animate-in fade-in duration-300">
     <section>
       <h2 className="text-xl font-bold mb-4 text-slate-900">
         1. Aceitação dos Termos
@@ -548,7 +548,7 @@ export default function LegalPage() {
     <div className="bg-white min-h-screen p-6 md:px-24 md:py-12 font-sans selection:bg-yellow-100">
       <div className="max-w-4xl mx-auto">
         {/* Signature Line */}
-        <div className="h-0.5 w-12 bg-[#ffd400] mb-8" />
+        <div className="h-0.5 w-12 bg-primary mb-8" />
 
         {/* Tab Navigation - Subtle & Side-by-side */}
         <div className="flex border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
@@ -562,20 +562,20 @@ export default function LegalPage() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-8 py-4 text-sm font-bold transition-all relative whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "text-[#003cc3]"
+                  ? "text-secondary"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
               {tab.label}
               {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#003cc3]" />
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-secondary" />
               )}
             </button>
           ))}
         </div>
 
         <div className="mb-12 flex items-center justify-between border-b border-slate-50 pb-4">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ffd400]">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
             Informação Jurídica
           </span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 italic">

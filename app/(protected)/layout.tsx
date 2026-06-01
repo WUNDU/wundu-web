@@ -1,13 +1,18 @@
 "use client";
 
 import { WeeklyReportModal } from "@/components/weekly-report-modal";
+import { ReportNotificationModal } from "@/components/report-notification-modal";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import { useReportNotifications } from "@/hooks/use-report-notifications";
 import { useUserStore } from "@/store/user-store";
 import { useTransactionStore } from "@/store/transaction-store";
+import { useApiNotificationStore } from "@/store/api-notification-store";
+import { useCategoryStore } from "@/store/category-store";
+import { useGoalStore } from "@/store/goal-store";
 import EmailVerificationBanner from "@/components/email-verification-banner";
 import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import type { SummaryTransaction } from "@/components/weekly-report-modal";
 import { isExpense } from "@/utils/transaction-type";
@@ -110,16 +115,69 @@ function PushProvider({ userId }: { userId: string }) {
   return null;
 }
 
+function SidebarSkeleton() {
+  return (
+    <div className="hidden lg:flex flex-col h-full w-[220px] bg-white border-r border-slate-100 flex-shrink-0 animate-pulse">
+      {/* Logo area */}
+      <div className="flex items-center justify-center h-14 border-b border-slate-100/60 px-3">
+        <div className="h-6 w-24 rounded-lg bg-slate-100" />
+      </div>
+      {/* Nav items */}
+      <nav className="flex-1 py-4 px-2.5 space-y-1.5">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
+            <div className="w-5 h-5 rounded-md bg-slate-100 flex-shrink-0" />
+            <div className="h-3.5 rounded bg-slate-100 flex-1" style={{ width: `${50 + i * 10}%` }} />
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function TopBarSkeleton() {
+  return (
+    <div className="z-30 h-14 flex-shrink-0 bg-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] animate-pulse">
+      <div className="mx-auto flex h-full w-full max-w-[1280px] items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-slate-100" />
+          <div className="h-4 w-28 rounded-lg bg-slate-100" />
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-slate-100" />
+          <div className="flex items-center gap-2 py-1 pl-2 pr-1">
+            <div className="h-3.5 w-16 rounded bg-slate-100 hidden md:block" />
+            <div className="w-8 h-8 rounded-lg bg-slate-100" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedLoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F1F5FA] p-4 animate-pulse">
-      <div className="mx-auto max-w-[1360px] space-y-3">
-        <div className="h-12 rounded-xl bg-white" />
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-          <div className="h-36 rounded-xl bg-white lg:col-span-4" />
-          <div className="h-36 rounded-xl bg-white lg:col-span-8" />
-        </div>
-        <div className="h-80 rounded-xl bg-white" />
+    <div className="flex h-screen overflow-hidden bg-slate-100">
+      <SidebarSkeleton />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <TopBarSkeleton />
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+        <main className="flex-1 overflow-hidden p-3 lg:p-4">
+          <div className="mx-auto max-w-[1280px] space-y-3 animate-pulse">
+            {/* Stats row */}
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-24 rounded-2xl bg-white" />
+              ))}
+            </div>
+            {/* Main content area */}
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+              <div className="h-72 rounded-2xl bg-white lg:col-span-8" />
+              <div className="h-72 rounded-2xl bg-white lg:col-span-4" />
+            </div>
+            <div className="h-48 rounded-2xl bg-white" />
+          </div>
+        </main>
       </div>
     </div>
   );
@@ -135,12 +193,26 @@ export default function ProtectedLayout({
   const { isAuthenticated, isLoading, user, initializeAuth } = useUserStore();
   const notPaginated = useTransactionStore((s) => s.notPaginated);
   const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const [checked, setChecked] = useState(false);
+  const prefetchTransactions = useTransactionStore((s) => s.fetch);
+  const prefetchCategories = useCategoryStore((s) => s.fetch);
+  const prefetchGoals = useGoalStore((s) => s.fetch);
+  const fetchUnreadCount = useApiNotificationStore((s) => s.fetchUnreadCount);
+  // Optimistic auth: user is persisted in localStorage → show real layout immediately.
+  // initializeAuth() runs the refresh/validate in background; redirects to login if it fails.
+  // Only block with skeleton on first visit (no cached user) or after logout.
+  const isOptimisticReady = !!user;
+  const [checked, setChecked] = useState(false); // only becomes true after initializeAuth resolves
   const [summaryPeriod, setSummaryPeriod] = useState<SummaryPeriod>(null);
   // Pending period: set when we triggered the fetch, cleared once data arrives
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState<SummaryPeriod>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Report notifications from API (WEEKLY_REPORT | BIWEEKLY_REPORT | MONTHLY_REPORT)
+  const { current: reportNotification, dismiss: dismissReport } = useReportNotifications(
+    isAuthenticated && checked
+  );
 
   useEffect(() => {
     initializeAuth();
@@ -154,6 +226,35 @@ export default function ProtectedLayout({
       setChecked(true);
     }
   }, [isAuthenticated, isLoading, router]);
+
+  // Fetch unread count for badge once auth is ready
+  useEffect(() => {
+    if (isAuthenticated && checked) fetchUnreadCount();
+  }, [isAuthenticated, checked, fetchUnreadCount]);
+
+  // Prefetch all stores in parallel — only after auth is confirmed (token is valid in memory)
+  useEffect(() => {
+    if (!isAuthenticated || !checked) return;
+    prefetchTransactions();
+    prefetchCategories();
+    prefetchGoals();
+  }, [isAuthenticated, checked, prefetchTransactions, prefetchCategories, prefetchGoals]);
+
+  // Re-fetch unread count when user returns to tab (foreground)
+  useEffect(() => {
+    if (!isAuthenticated || !checked) return;
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") fetchUnreadCount();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [isAuthenticated, checked, fetchUnreadCount]);
+
+  // Re-fetch unread count when user navigates to the main screen
+  useEffect(() => {
+    if (isAuthenticated && checked && pathname === ROUTES.HOME) fetchUnreadCount();
+  }, [pathname, isAuthenticated, checked, fetchUnreadCount]);
+
 
   // Effect 1: decide if summary is due and trigger data fetch.
   // Does NOT include `notPaginated` in deps — avoids re-running when data arrives.
@@ -188,15 +289,42 @@ export default function ProtectedLayout({
     setSummaryPeriod(null);
   };
 
-  if (isLoading || !checked) return <LoadingProvider><ProtectedLoadingSkeleton /></LoadingProvider>;
-  if (!isAuthenticated) return null;
+  // Optimistic auth: moved above effects — see declaration near top of component.
+
+  // With cached user (isOptimisticReady): render layout immediately, wait for initializeAuth in background.
+  // Without cached user: show skeleton until checked (initializeAuth resolved).
+  if (!isOptimisticReady && (isLoading || !checked)) return <LoadingProvider><ProtectedLoadingSkeleton /></LoadingProvider>;
+  // After auth resolves: redirect if not authenticated (covers both optimistic + first-visit paths).
+  if (!isAuthenticated && checked) return null;
 
   return (
     <LoadingProvider>
       {user?.id && <PushProvider userId={user.id} />}
       <EmailVerificationBanner />
-      {children}
-      {summaryPeriod && notPaginated && (
+      {/* Defer page content until auth is confirmed (token in memory).
+          Shell (sidebar/topbar) already rendered by dashboard layout — this only gates page children. */}
+      {checked ? children : (
+        <div className="flex-1 overflow-y-auto p-3 lg:p-4 animate-pulse">
+          <div className="mx-auto max-w-[1280px] space-y-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-2xl bg-white" />)}
+            </div>
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+              <div className="h-72 rounded-2xl bg-white lg:col-span-8" />
+              <div className="h-72 rounded-2xl bg-white lg:col-span-4" />
+            </div>
+            <div className="h-48 rounded-2xl bg-white" />
+          </div>
+        </div>
+      )}
+      {/* API-driven report popup — takes priority over local summary modal */}
+      {reportNotification && (
+        <ReportNotificationModal
+          notification={reportNotification}
+          onClose={dismissReport}
+        />
+      )}
+      {!reportNotification && summaryPeriod && notPaginated && (
         <WeeklyReportModal
           period={summaryPeriod}
           transactions={notPaginated}

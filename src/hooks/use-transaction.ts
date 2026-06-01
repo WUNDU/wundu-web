@@ -17,6 +17,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   const notPaginated = useTransactionStore((s) => s.notPaginated);
   const allTransactions = useTransactionStore((s) => s.allTransactions);
   const isLoading = useTransactionStore((s) => s.isLoading);
+  const isLoadingAll = useTransactionStore((s) => s.isLoadingAll);
   const isRefreshing = useTransactionStore((s) => s.isRefreshing);
   const isLoadingMore = useTransactionStore((s) => s.isLoadingMore);
   const error = useTransactionStore((s) => s.error);
@@ -51,6 +52,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
     notPaginated,
     allTransactions,
     isLoading,
+    isLoadingAll,
     isRefreshing,
     isLoadingMore,
     error,

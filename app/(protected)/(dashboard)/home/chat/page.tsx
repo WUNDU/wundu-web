@@ -24,8 +24,8 @@ const INITIAL_MESSAGES: LocalMessage[] = [
 ];
 
 const CHAT_OPTIONS = [
-  { label: "Investimentos", message: "Como posso começar a investir o meu dinheiro de forma segura?", bg: "bg-[#003cc3]/5", text: "text-[#003cc3]", icon: <MoneyBagIcon /> },
-  { label: "Finanças", message: "Como posso melhorar a gestão das minhas finanças pessoais?", bg: "bg-[#ffd400]/15", text: "text-amber-700", icon: <CoinIcon /> },
+  { label: "Investimentos", message: "Como posso começar a investir o meu dinheiro de forma segura?", bg: "bg-secondary/5", text: "text-secondary", icon: <MoneyBagIcon /> },
+  { label: "Finanças", message: "Como posso melhorar a gestão das minhas finanças pessoais?", bg: "bg-primary/15", text: "text-amber-700", icon: <CoinIcon /> },
   { label: "Poupanças", message: "Quais as melhores estratégias de poupança para o meu perfil?", bg: "bg-emerald-50", text: "text-emerald-700", icon: <MoneyManagerIcon /> },
   { label: "Gestão", message: "Como posso organizar melhor o meu orçamento mensal?", bg: "bg-violet-50", text: "text-violet-700", icon: <MoneyPotIcon /> },
   { label: "Dinheiro", message: "Dá-me dicas práticas para controlar melhor o meu dinheiro.", bg: "bg-rose-50", text: "text-rose-600", icon: <MoneySignIcon /> },
@@ -202,11 +202,11 @@ const Chat: React.FC = () => {
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] px-5 py-4 mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
+          <div className="w-11 h-11 rounded-[13px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm">
             <IAIcon className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-[#1e293b]">Wundu AI</h1>
+            <h1 className="text-sm font-bold text-slate-900">Wundu AI</h1>
             <p className="text-xs text-slate-400">Assistente financeiro</p>
           </div>
         </div>
@@ -233,7 +233,7 @@ const Chat: React.FC = () => {
       >
         {isLoadingConversation ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
-            <Loader2 className="w-6 h-6 animate-spin text-[#003cc3]/40" />
+            <Loader2 className="w-6 h-6 animate-spin text-secondary/40" />
             <p className="text-xs text-slate-400">A carregar conversa…</p>
           </div>
         ) : (
@@ -329,7 +329,7 @@ const Chat: React.FC = () => {
                         onClick={() => handleSend(opt.message)}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.97 }}
-                        className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-[#003cc3]/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
+                        className="flex items-center gap-2.5 px-3 py-3 bg-white rounded-[14px] shadow-[0_2px_8px_rgba(0,60,195,0.06)] border border-slate-100 text-left hover:border-secondary/20 hover:shadow-[0_4px_12px_rgba(0,60,195,0.1)] transition-all duration-200"
                       >
                         <div className={`w-8 h-8 rounded-[10px] ${opt.bg} flex items-center justify-center flex-shrink-0`}>
                           <span className={`w-4 h-4 ${opt.text}`}>{opt.icon}</span>
@@ -372,14 +372,14 @@ const Chat: React.FC = () => {
             placeholder={countdown != null && countdown > 0 ? `Aguarda ${countdown}s…` : "Escreva a sua pergunta…"}
             rows={1}
             disabled={isSending || isStreaming || isLoadingConversation || (countdown != null && countdown > 0)}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#003cc3]/40 focus:bg-white resize-none overflow-y-auto leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-secondary/40 focus:bg-white resize-none overflow-y-auto leading-relaxed transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <motion.button
             onClick={() => handleSend()}
             disabled={!input.trim() || isSending || isStreaming || isLoadingConversation || (countdown != null && countdown > 0)}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.95 }}
-            className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+            className="flex-shrink-0 w-10 h-10 rounded-[12px] flex items-center justify-center bg-gradient-to-br from-secondary to-secondary-dark text-white shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
           >
             <SendIcon className="w-4 h-4" />
           </motion.button>

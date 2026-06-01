@@ -133,21 +133,21 @@ export default function TransactionsPage() {
       className="flex flex-col gap-3 pb-6"
     >
       {/* ── Top card: back + title + actions ─────────────────────────── */}
-      <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-4">
           <Link
             href="/home"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-200"
+            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
           >
             <ChevronLeft className="w-4 h-4" />
           </Link>
 
-          <h1 className="flex-1 text-base font-bold text-[#1e293b]">Transações</h1>
+          <h1 className="flex-1 text-base font-bold text-slate-900">Transações</h1>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleRefresh}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-200"
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
               aria-label="Atualizar"
             >
               <ArrowRotateIcon className="w-4 h-4" />
@@ -157,8 +157,8 @@ export default function TransactionsPage() {
               title="Pesquisa inteligente com IA"
               className={`p-2 rounded-xl border transition-all duration-200 ${
                 showAiSearch
-                  ? "bg-[rgba(0,60,195,0.08)] border-[#003cc3]/20 text-[#003cc3]"
-                  : "bg-white border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20"
+                  ? "bg-secondary/8 border-secondary/20 text-secondary"
+                  : "bg-white border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20"
               }`}
               aria-label="Pesquisa IA"
             >
@@ -168,8 +168,8 @@ export default function TransactionsPage() {
               onClick={() => { setShowSearch(v => !v); if (showAiSearch) handleToggleAiSearch(); }}
               className={`p-2 rounded-xl border transition-all duration-200 ${
                 showSearch
-                  ? "bg-[rgba(0,60,195,0.08)] border-[#003cc3]/20 text-[#003cc3]"
-                  : "bg-white border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20"
+                  ? "bg-secondary/8 border-secondary/20 text-secondary"
+                  : "bg-white border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20"
               }`}
               aria-label="Pesquisar"
             >
@@ -177,7 +177,7 @@ export default function TransactionsPage() {
             </button>
             <button
               onClick={() => setFilterOpen(true)}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-200"
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
               aria-label="Filtros"
             >
               <Filter className="w-4 h-4" />
@@ -196,15 +196,15 @@ export default function TransactionsPage() {
               className="overflow-hidden"
             >
               <div className="px-4 pb-4">
-                <div className="flex items-center gap-2 bg-[rgba(0,60,195,0.04)] border border-[#003cc3]/20 rounded-xl px-4 py-2.5 focus-within:border-[#003cc3]/40 focus-within:bg-white transition-all duration-150">
-                  <Sparkles className="w-4 h-4 text-[#003cc3] flex-shrink-0" />
+                <div className="flex items-center gap-2 bg-[rgba(0,60,195,0.04)] border border-secondary/20 rounded-xl px-4 py-2.5 focus-within:border-secondary/40 focus-within:bg-white transition-all duration-150">
+                  <Sparkles className="w-4 h-4 text-secondary flex-shrink-0" />
                   <input
                     autoFocus
                     value={aiInput}
                     onChange={e => setAiInput(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") handleAiSearch(); }}
                     placeholder="Pergunta em linguagem natural… ex: Quanto gastei em alimentação este mês?"
-                    className="flex-1 text-sm text-[#1e293b] placeholder:text-slate-400 outline-none bg-transparent"
+                    className="flex-1 text-sm text-slate-900 placeholder:text-slate-400 outline-none bg-transparent"
                     disabled={aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
                   />
                   {aiInput && (
@@ -215,7 +215,7 @@ export default function TransactionsPage() {
                   <button
                     onClick={handleAiSearch}
                     disabled={!aiInput.trim() || aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
-                    className="p-1 text-[#003cc3] disabled:opacity-30 hover:text-[#001a66] transition-colors"
+                    className="p-1 text-secondary disabled:opacity-30 hover:text-secondary-dark transition-colors"
                   >
                     {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendHorizontal className="w-4 h-4" />}
                   </button>
@@ -244,14 +244,14 @@ export default function TransactionsPage() {
               className="overflow-hidden"
             >
               <div className="px-4 pb-4">
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus-within:border-[#003cc3]/40 focus-within:bg-white transition-all duration-150">
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus-within:border-secondary/40 focus-within:bg-white transition-all duration-150">
                   <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
                   <input
                     autoFocus
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Pesquisar por descrição ou categoria…"
-                    className="flex-1 text-sm text-[#1e293b] placeholder:text-slate-400 outline-none bg-transparent"
+                    className="flex-1 text-sm text-slate-900 placeholder:text-slate-400 outline-none bg-transparent"
                   />
                   {search && (
                     <button onClick={() => setSearch("")} className="p-0.5 text-slate-400 hover:text-slate-600">
@@ -268,13 +268,13 @@ export default function TransactionsPage() {
         {(typeFilter !== "all" || sortField !== "date" || sortDir !== "desc") && (
           <div className="flex items-center gap-2 px-4 pb-3 flex-wrap">
             {typeFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[rgba(0,60,195,0.08)] text-[#003cc3]">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary/8 text-secondary">
                 {typeFilter === "EXPENSE" ? "Despesas" : "Receitas"}
                 <button onClick={() => setTypeFilter("all")}><X className="w-3 h-3" /></button>
               </span>
             )}
             {(sortField !== "date" || sortDir !== "desc") && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[rgba(0,60,195,0.08)] text-[#003cc3]">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary/8 text-secondary">
                 {sortField === "amount" ? "Por valor" : "Por data"} · {sortDir === "desc" ? "↓" : "↑"}
                 <button onClick={() => { setSortField("date"); setSortDir("desc"); }}><X className="w-3 h-3" /></button>
               </span>
@@ -292,12 +292,12 @@ export default function TransactionsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2, ease: EASE_OUT }}
-            className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden"
+            className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden"
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#003cc3]" />
-                <h2 className="font-bold text-[#1e293b] text-sm">Resultados IA</h2>
+                <Sparkles className="w-4 h-4 text-secondary" />
+                <h2 className="font-bold text-slate-900 text-sm">Resultados IA</h2>
                 <span className="text-xs text-slate-400 font-medium">{aiResults.length} encontradas</span>
               </div>
               <button
@@ -311,7 +311,7 @@ export default function TransactionsPage() {
             {aiFilter && Object.keys(aiFilter).some(k => aiFilter[k] != null && aiFilter[k] !== "") && (
               <div className="flex flex-wrap gap-1.5 px-5 pb-3">
                 {aiFilter.type && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(0,60,195,0.08)] text-[#003cc3]">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary/8 text-secondary">
                     {aiFilter.type === "EXPENSE" ? "Despesas" : "Receitas"}
                   </span>
                 )}
@@ -353,14 +353,25 @@ export default function TransactionsPage() {
 
       {/* ── Transaction list card ────────────────────────────────────── */}
       {isLoading ? (
-        <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <div className="w-8 h-8 border-[3px] border-[#003cc3] border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-slate-400 font-medium">A carregar…</span>
+        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden" aria-label="A carregar transações" aria-busy="true">
+          <div className="px-5 pt-5 pb-3">
+            <div className="h-5 bg-slate-100 rounded-full w-1/3 animate-pulse" />
+          </div>
+          <div className="pb-3 space-y-0">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-5 py-3.5 animate-pulse">
+                <div className="w-9 h-9 rounded-full bg-slate-100 flex-shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 bg-slate-100 rounded-full w-2/3" />
+                  <div className="h-3 bg-slate-100 rounded-full w-1/3" />
+                </div>
+                <div className="h-4 bg-slate-100 rounded-full w-16" />
+              </div>
+            ))}
           </div>
         </div>
       ) : groups.length === 0 ? (
-        <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
           <div className="flex flex-col items-center justify-center py-16 gap-4 text-center px-5">
             <NoMovementIcon className="w-12 h-12 text-slate-300" />
             <div>
@@ -372,10 +383,10 @@ export default function TransactionsPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
           {/* Summary bar */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
-            <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+            <h2 className="text-base font-bold text-slate-900">
               {filtered.length} {filtered.length === 1 ? "transação" : "transações"}
               {totalElements > transactions.length && (
                 <span className="text-slate-400 font-medium text-sm ml-1">
@@ -384,8 +395,8 @@ export default function TransactionsPage() {
               )}
             </h2>
             <div className="flex items-center gap-1.5 bg-[rgba(0,60,195,0.06)] px-2.5 py-1.5 rounded-full">
-              <ChevronRight className="w-3 h-3 text-[#003cc3]" />
-              <span className="text-[#003cc3] font-bold text-xs">Lista completa</span>
+              <ChevronRight className="w-3 h-3 text-secondary" />
+              <span className="text-secondary font-bold text-xs">Lista completa</span>
             </div>
           </div>
 
@@ -396,9 +407,9 @@ export default function TransactionsPage() {
                 {/* Date badge */}
                 <div className="px-5 py-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 bg-[rgba(0,60,195,0.06)]">
-                    <CalendarIcon className="w-[11px] h-[11px] text-[#003cc3]" />
-                    <span className="text-[#003cc3] font-bold text-xs">{group.label}</span>
-                    <span className="text-[#003cc3]/50 text-[10px] font-medium">
+                    <CalendarIcon className="w-[11px] h-[11px] text-secondary" />
+                    <span className="text-secondary font-bold text-xs">{group.label}</span>
+                    <span className="text-secondary/50 text-[10px] font-medium">
                       · {group.items.length}
                     </span>
                   </span>
@@ -426,7 +437,7 @@ export default function TransactionsPage() {
               <button
                 onClick={() => loadMore()}
                 disabled={isLoadingMore}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#003cc3]/20 bg-[rgba(0,60,195,0.04)] text-[#003cc3] font-bold text-sm hover:bg-[rgba(0,60,195,0.08)] transition-all duration-150 disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-secondary/20 bg-[rgba(0,60,195,0.04)] text-secondary font-bold text-sm hover:bg-secondary/8 transition-all duration-150 disabled:opacity-60"
               >
                 {isLoadingMore ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

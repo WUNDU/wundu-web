@@ -11,6 +11,7 @@ import { useTransactionStore } from "@/store/transaction-store";
 import { formatAOA } from "@/lib/currency";
 import posthog from "posthog-js";
 import { useSessions } from "@/hooks/use-sessions";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 function PhoneIcon({ className }: { className?: string }) {
   return (
@@ -35,7 +36,7 @@ function Toggle({ enabled, onChange, disabled }: { enabled: boolean; onChange: (
     <button
       onClick={disabled ? undefined : onChange}
       disabled={disabled}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed ${enabled ? "bg-[#003cc3]" : "bg-slate-200"}`}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed ${enabled ? "bg-secondary" : "bg-slate-200"}`}
     >
       <motion.span
         className="inline-block h-4 w-4 rounded-full bg-white shadow-sm"
@@ -77,7 +78,7 @@ export default function Profile() {
         </div>
         <span
           className="rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-widest"
-          style={{ backgroundColor: isPremium ? "#ffd400" : "#e2e8f0", color: isPremium ? "#001a4d" : "#64748b" }}
+          style={{ backgroundColor: isPremium ? BRAND_COLORS.yellow : "#e2e8f0", color: isPremium ? "#001a4d" : "#64748b" }}
         >
           {isPremium ? "Premium" : "Free"}
         </span>
@@ -94,7 +95,7 @@ export default function Profile() {
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #003cc3 0%, #ffd400 100%)" }} />
             <div className="flex flex-col items-center gap-3 px-5 py-6">
               <div className="relative">
-                <div className="rounded-full border-2 p-0.5" style={{ borderColor: "#ffd400" }}>
+                <div className="rounded-full border-2 p-0.5" style={{ borderColor: BRAND_COLORS.yellow }}>
                   <Image
                     src={avatar}
                     alt={user?.name || "Usuário"}
@@ -154,7 +155,7 @@ export default function Profile() {
             </p>
             {!isPremium && (
               <button
-                className="mt-3 w-full rounded-xl bg-[#003cc3] py-2 text-sm font-semibold text-white transition-colors hover:bg-[#00216b]"
+                className="mt-3 w-full rounded-xl bg-secondary py-2 text-sm font-semibold text-white transition-colors hover:bg-secondary-dark"
                 onClick={() => posthog.capture("premium_upgrade_clicked", { current_plan: "free" })}
               >
                 Actualizar para Premium
@@ -174,13 +175,13 @@ export default function Profile() {
             <div className="divide-y divide-slate-50">
               {[
                 {
-                  icon: <EmailIcon className="h-5 w-5 text-[#003cc3]" />,
+                  icon: <EmailIcon className="h-5 w-5 text-secondary" />,
                   label: "Endereço de email",
                   value: user?.email || "—",
                   hint: "Usado para entrar na conta",
                 },
                 {
-                  icon: <PhoneIcon className="h-5 w-5 text-[#003cc3]" />,
+                  icon: <PhoneIcon className="h-5 w-5 text-secondary" />,
                   label: "Número de telefone",
                   value: user?.phoneNumber || "—",
                   hint: "Número de contacto principal",
@@ -188,7 +189,7 @@ export default function Profile() {
               ].map((row, i) => (
                 <div key={i} className="flex items-center justify-between px-5 py-4">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#EEF3FF]">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-secondary/10">
                       {row.icon}
                     </div>
                     <div>
@@ -197,7 +198,7 @@ export default function Profile() {
                       <p className="text-[11px] text-slate-300">{row.hint}</p>
                     </div>
                   </div>
-                  <button className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all duration-150 hover:border-[#003cc3]/30 hover:bg-[#003cc3]/5 hover:text-[#003cc3]">
+                  <button className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all duration-150 hover:border-secondary/30 hover:bg-secondary/5 hover:text-secondary">
                     <EditIcon className="h-3.5 w-3.5" />
                     Editar
                   </button>
@@ -268,7 +269,7 @@ export default function Profile() {
 
             {sessionsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-[#003cc3]" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-secondary" />
               </div>
             ) : sessions.length === 0 ? (
               <p className="px-5 py-6 text-center text-sm text-slate-400">Nenhuma sessão encontrada.</p>

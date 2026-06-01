@@ -127,7 +127,7 @@ function renderInsight(text: string) {
     <span>
       {parts.map((p, i) =>
         i % 2 === 1 ? (
-          <strong key={i} className="font-bold text-[#00216b]">
+          <strong key={i} className="font-bold text-secondary-dark">
             {p}
           </strong>
         ) : (
@@ -233,10 +233,10 @@ export function WeeklyReportModal({ period, transactions, onClose }: WeeklyRepor
 
         <div className="p-5 space-y-5">
           {/* Insight */}
-          <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-[#003cc3]">
+          <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-secondary">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles size={14} className="text-[#003cc3]" />
-              <span className="text-xs font-bold text-[#00216b]">Análise do período</span>
+              <Sparkles size={14} className="text-secondary" />
+              <span className="text-xs font-bold text-secondary-dark">Análise do período</span>
             </div>
             <p className="text-sm text-slate-600 leading-relaxed">{renderInsight(insight)}</p>
           </div>
@@ -255,14 +255,14 @@ export function WeeklyReportModal({ period, transactions, onClose }: WeeklyRepor
             </div>
             <div className="bg-slate-50 rounded-xl p-3 text-center">
               <p className="text-xs text-slate-400 font-semibold">Transacções</p>
-              <p className="text-sm font-black text-[#003cc3] mt-1">{stats.count}</p>
+              <p className="text-sm font-black text-secondary mt-1">{stats.count}</p>
             </div>
           </div>
 
           {/* Top categories */}
           {stats.topCategories.length > 0 && (
             <div>
-              <p className="text-xs font-bold text-[#00216b] mb-3">Por categoria</p>
+              <p className="text-xs font-bold text-secondary-dark mb-3">Por categoria</p>
               <div className="space-y-3">
                 {stats.topCategories.map((cat, i) => (
                   <div key={cat.name}>
@@ -274,7 +274,7 @@ export function WeeklyReportModal({ period, transactions, onClose }: WeeklyRepor
                     </div>
                     <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
-                        className="h-1.5 rounded-full transition-all duration-700"
+                        className="h-1.5 rounded-full transition-all duration-300"
                         style={{
                           width: `${((cat.total / stats.topCategories[0].total) * 100).toFixed(0)}%`,
                           backgroundColor: getCatColor(cat.name),

@@ -22,10 +22,10 @@ export interface AddTransactionModalProps {
 }
 
 const inputCls = (hasError: boolean) =>
-  `w-full rounded-xl border px-4 py-3 text-sm text-[#1e293b] placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
+  `w-full rounded-xl border px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
     hasError
       ? "border-red-300 focus:border-red-400"
-      : "border-slate-200 focus:border-[#003cc3]/40"
+      : "border-slate-200 focus:border-secondary/40"
   }`;
 
 /** Parse a datetime string (ISO or datetime-local) into [date, time] parts */
@@ -97,6 +97,15 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   const maxDate = formatDateTimeLocal().split("T")[0];
 
   return (
@@ -113,6 +122,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         >
           <motion.div
             key="panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-tx-title"
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -128,11 +140,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-4 pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
-                  <LucideReceipt className="w-4 h-4 text-[#ffd400]" />
+                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm">
+                  <LucideReceipt className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-[#1e293b] leading-tight">Nova Transação</h2>
+                  <h2 id="add-tx-title" className="text-sm font-bold text-slate-900 leading-tight">Nova Transação</h2>
                   <p className="text-xs text-slate-400">Registe um novo gasto</p>
                 </div>
               </div>
@@ -146,7 +158,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
+                  aria-label="Fechar"
+                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 >
                   <CloseIcon className="w-4 h-4" />
                 </button>
@@ -165,9 +178,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
               {/* Amount */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
+                <label htmlFor="tx-amount" className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
                 <div className="relative">
                   <input
+                    id="tx-amount"
                     type="text"
                     inputMode="decimal"
                     placeholder="0,00"
@@ -186,8 +200,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               {/* Date + Time */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Data</label>
+                  <label htmlFor="tx-date" className="block text-xs font-bold text-slate-500 mb-1.5">Data</label>
                   <input
+                    id="tx-date"
                     type="date"
                     max={maxDate}
                     value={dateVal}
@@ -197,8 +212,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Hora</label>
+                  <label htmlFor="tx-time" className="block text-xs font-bold text-slate-500 mb-1.5">Hora</label>
                   <input
+                    id="tx-time"
                     type="time"
                     value={timeVal}
                     onChange={(e) => handleTimeChange(e.target.value)}
@@ -213,8 +229,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
+                <label htmlFor="tx-description" className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
                 <input
+                  id="tx-description"
                   type="text"
                   placeholder="Ex: Compra no supermercado"
                   value={formData.description}
@@ -250,7 +267,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 rounded-xl bg-gradient-to-br from-[#003cc3] to-[#001a66] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                  className="flex-1 rounded-xl bg-gradient-to-br from-secondary to-secondary-dark px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
                   {isLoading ? "A adicionar…" : "Adicionar"}
                 </button>

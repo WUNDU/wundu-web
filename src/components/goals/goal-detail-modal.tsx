@@ -7,6 +7,7 @@ import { useGoalStore } from "@/store/goal-store";
 import { goalService } from "@/services/goal.service";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 import type { Goal, GoalProgress } from "@/types/dtos/goal.dto";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -39,13 +40,13 @@ function ProgressRing({ pct, done }: { pct: number; done: boolean }) {
             transition: "stroke-dashoffset 1.3s cubic-bezier(0.22,1,0.36,1)" }}
         />
         <circle cx={64} cy={64} r={r} strokeWidth={7} strokeLinecap="round"
-          stroke={done ? "#34D399" : "#ffd400"}
+          stroke={done ? "#34D399" : BRAND_COLORS.yellow}
           style={{ strokeDasharray: c, strokeDashoffset: offset,
             transition: "stroke-dashoffset 1.3s cubic-bezier(0.22,1,0.36,1)" }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-        <span className={`text-[20px] sm:text-[28px] font-black leading-none ${done ? "text-emerald-300" : "text-[#ffd400]"}`}>{pct}%</span>
+        <span className={`text-[20px] sm:text-[28px] font-black leading-none ${done ? "text-emerald-300" : "text-primary"}`}>{pct}%</span>
         <span className="text-[7px] sm:text-[8px] uppercase tracking-[1.4px] sm:tracking-[1.8px] font-bold text-white/40">{done ? "meta!" : "completo"}</span>
       </div>
     </div>
@@ -93,7 +94,7 @@ function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number
         <div className={`w-2 h-2 rounded-full flex-shrink-0 ring-4 ${
           isAdjustment
             ? "bg-amber-400 ring-amber-400/20"
-            : "bg-[#003cc3] ring-[#003cc3]/10"
+            : "bg-secondary ring-secondary/10"
         }`} />
         {!isLast && <div className="flex-1 w-px bg-slate-100 mt-1" />}
       </div>
@@ -110,21 +111,21 @@ function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number
               <p className="text-xs text-slate-500 font-medium leading-relaxed">
                 {item.note ?? `Valor alvo alterado para ${formatAOA(item.amount)}`}
               </p>
-              <p className="text-[10px] text-[#94a3b8] font-medium mt-0.5">{formatDate(item.progressDate)}</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-0.5">{formatDate(item.progressDate)}</p>
             </div>
           </div>
         ) : (
           /* CONTRIBUTION — original layout */
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-[#1e293b] truncate">{formatAOA(item.amount)}</p>
-              <p className="text-[11px] text-[#94a3b8] font-medium mt-0.5">{formatDate(item.progressDate)}</p>
+              <p className="text-sm font-bold text-slate-900 truncate">{formatAOA(item.amount)}</p>
+              <p className="text-[11px] text-slate-400 font-medium mt-0.5">{formatDate(item.progressDate)}</p>
             </div>
             <div className="text-right flex-shrink-0">
-              <span className="inline-block text-[11px] font-black text-[#003cc3] bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
+              <span className="inline-block text-[11px] font-black text-secondary bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
                 {Math.round(item.progressPercent ?? 0)}%
               </span>
-              <p className="text-[10px] text-[#94a3b8] mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
+              <p className="text-[10px] text-slate-400 mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
             </div>
           </div>
         )}
@@ -229,7 +230,7 @@ function AddSavingsSheet({
               onChange={handleAmountChange}
               placeholder="0,00"
               className="text-[42px] sm:text-[50px] font-black text-white text-center bg-transparent outline-none tracking-tight min-w-0 w-full max-w-[260px]"
-              style={{ caretColor: "#ffd400" }}
+              style={{ caretColor: BRAND_COLORS.yellow }}
             />
           </div>
 
@@ -239,7 +240,7 @@ function AddSavingsSheet({
               className="h-[2px] rounded-full transition-all duration-300"
               style={{
                 width: canSave ? "72px" : "44px",
-                background: canSave ? "#ffd400" : "rgba(255,255,255,0.18)",
+                background: canSave ? BRAND_COLORS.yellow : "rgba(255,255,255,0.18)",
               }}
             />
           </div>
@@ -266,17 +267,17 @@ function AddSavingsSheet({
               className="w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: "rgba(0,60,195,0.07)" }}
             >
-              <Calendar className="w-4 h-4 text-[#003cc3]" />
+              <Calendar className="w-4 h-4 text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-bold uppercase tracking-[1.2px] text-[#94a3b8] mb-0.5">
+              <p className="text-[9px] font-bold uppercase tracking-[1.2px] text-slate-400 mb-0.5">
                 Data da poupança
               </p>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="text-sm font-bold text-[#1e293b] bg-transparent outline-none w-full"
+                className="text-sm font-bold text-slate-900 bg-transparent outline-none w-full"
               />
             </div>
           </div>
@@ -441,10 +442,10 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
           {/* Savings history */}
           <div className="px-5 pt-4 pb-6">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-4 h-4 text-[#003cc3]" />
-              <h3 className="text-sm font-bold text-[#1e293b]">Histórico de poupança</h3>
+              <TrendingUp className="w-4 h-4 text-secondary" />
+              <h3 className="text-sm font-bold text-slate-900">Histórico de poupança</h3>
               {history.length > 0 && (
-                <span className="ml-auto text-[10px] font-bold text-[#94a3b8] bg-slate-100 px-2 py-0.5 rounded-full">
+                <span className="ml-auto text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
                   {history.length}
                 </span>
               )}
@@ -452,15 +453,15 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
 
             {loadingGoal ? (
               <div className="flex justify-center py-8">
-                <div className="w-5 h-5 border-2 border-[#003cc3] border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
               </div>
             ) : history.length === 0 ? (
               <div className="flex flex-col items-center py-8 gap-2">
                 <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-slate-200" />
                 </div>
-                <p className="text-sm text-[#94a3b8] font-semibold">Sem poupanças registadas</p>
-                <p className="text-xs text-[#cbd5e1]">Adiciona a primeira poupança acima</p>
+                <p className="text-sm text-slate-400 font-semibold">Sem poupanças registadas</p>
+                <p className="text-xs text-slate-300">Adiciona a primeira poupança acima</p>
               </div>
             ) : (
               <div>
@@ -476,14 +477,14 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
         <div className="flex-shrink-0 px-5 py-3 border-t border-slate-100 flex gap-2 bg-white">
           <button
             onClick={onEdit}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-[#003cc3] bg-[rgba(0,60,195,0.06)] hover:bg-[rgba(0,60,195,0.10)] transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-secondary bg-[rgba(0,60,195,0.06)] hover:bg-[rgba(0,60,195,0.10)] transition-colors"
           >
             <Edit2 className="w-3.5 h-3.5" />
             Editar
           </button>
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-[#64748b] bg-slate-100 hover:bg-slate-200 transition-colors"
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
           >
             Fechar
           </button>

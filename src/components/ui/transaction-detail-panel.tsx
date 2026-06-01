@@ -89,11 +89,11 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3 py-3.5">
-      <div className="w-9 h-9 rounded-[10px] bg-[#F8FAFC] flex items-center justify-center flex-shrink-0">
-        <Icon className="w-[17px] h-[17px] text-[#94a3b8]" />
+      <div className="w-9 h-9 rounded-[10px] bg-slate-50 flex items-center justify-center flex-shrink-0">
+        <Icon className="w-[17px] h-[17px] text-slate-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider mb-0.5">
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
           {label}
         </p>
         {badge ? (
@@ -183,11 +183,11 @@ function EditForm({
   };
 
   const inputCls =
-    "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#1e293b] focus:outline-none focus:border-[#003cc3]/40 focus:ring-4 focus:ring-[#003cc3]/[0.06] transition-all";
+    "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-secondary/40 focus:ring-4 focus:ring-secondary/[0.06] transition-all";
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-5 pt-6 pb-8">
-      <h3 className="text-sm font-bold text-[#1e293b] mb-1">Editar transação</h3>
+      <h3 className="text-sm font-bold text-slate-900 mb-1">Editar transação</h3>
 
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-slate-600">Montante (Kz)</label>
@@ -247,7 +247,7 @@ function EditForm({
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 py-3 rounded-xl bg-[#003cc3] text-sm font-bold text-white hover:bg-[#0033a8] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+          className="flex-1 py-3 rounded-xl bg-secondary text-sm font-bold text-white hover:bg-secondary-dark transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
         >
           {saving ? (
             <>
@@ -543,7 +543,7 @@ export function TransactionDetailPanel({ transaction, isOpen, onClose }: Transac
             animate={{ y: 0 }}
             exit={{ y: "100%", transition: { duration: 0.22, ease: PANEL_EXIT } }}
             transition={{ duration: 0.35, ease: PANEL_ENTER }}
-            className="fixed inset-0 z-[201] bg-[#F1F5FA] flex flex-col lg:hidden overflow-hidden"
+            className="fixed inset-0 z-[201] bg-slate-100 flex flex-col lg:hidden overflow-hidden"
           >
             <PanelContent tx={transaction} onClose={onClose} />
           </motion.div>

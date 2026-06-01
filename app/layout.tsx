@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
-import "@/public/styles/landing.css";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { Toaster } from "sonner";
@@ -17,7 +16,6 @@ const openSans = Open_Sans({
   variable: "--font-open-sans",
   preload: false,
 });
-
 
 export const metadata: Metadata = {
   title: "Wundu | O Futuro das Tuas Finanças",
@@ -63,10 +61,17 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <CookieConsentProvider>
-            {children}
-            <CookieConsent />
-            <Toaster position="top-right" closeButton richColors={false} theme="light" expand={false} gap={12} />
-          </CookieConsentProvider>
+          {children}
+          <CookieConsent />
+          <Toaster
+            position="top-right"
+            closeButton
+            richColors={false}
+            theme="light"
+            expand={false}
+            gap={12}
+          />
+        </CookieConsentProvider>
       </body>
     </html>
   );

@@ -164,7 +164,7 @@ const HomeScreen = () => {
         className="flex flex-col gap-1"
       >
         <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-          Olá, {user?.name?.split(" ")[0] || "Usuário"}! 👋
+          Olá, {user?.name?.split(" ")[0] || "Usuário"}! <span aria-hidden="true">👋</span>
         </h2>
         <p className="text-sm text-slate-500 font-medium">
           Aqui está o que está acontecendo com suas finanças hoje.

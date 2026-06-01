@@ -47,7 +47,7 @@ const LandingHeader: React.FC = () => {
   };
   return (
     <header
-      className={`bg-white/95 border-2 m-2 border-gray-100 shadow-2xs rounded-2xl z-50 transition-all duration-500 ${
+      className={`bg-white/95 border-2 m-2 border-gray-100 shadow-2xs rounded-2xl z-50 transition-all duration-200 ${
         isScrolled
           ? "fixed top-2 left-0 right-0 shadow-xl scale-[0.98] bg-white/98"
           : "absolute top-2 left-0 right-0 shadow-2xs"
@@ -86,7 +86,7 @@ const LandingHeader: React.FC = () => {
               className="relative px-6 py-2.5 text-secondary font-semibold rounded-xl gradient-border hover:bg-secondary hover:text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95 hover:shadow-glow-secondary group overflow-hidden"
             >
               <span className="relative z-10">Entrar</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary/0 via-secondary/10 to-secondary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary/0 via-secondary/10 to-secondary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-300" />
             </button>
             <button
               onClick={handleRegister}

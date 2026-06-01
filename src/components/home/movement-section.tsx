@@ -150,7 +150,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
       <section className="flex flex-col flex-1 min-h-0 pb-5 overflow-hidden">
         <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
-            <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+            <h2 className="font-bold text-slate-900" style={{ fontSize: 16 }}>
               Transações
             </h2>
           </div>
@@ -180,7 +180,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
       <section className="flex flex-col flex-1 min-h-full pb-5">
         <div className="bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
-            <h2 className="font-bold text-[#1e293b]" style={{ fontSize: 16 }}>
+            <h2 className="font-bold text-slate-900" style={{ fontSize: 16 }}>
               Transações
             </h2>
           </div>
@@ -217,7 +217,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
             <button
               type="button"
               onClick={() => onRefresh?.()}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-300"
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-300"
               aria-label="Atualizar lista"
             >
               <ArrowRotateIcon className="w-4 h-4" />
@@ -225,14 +225,14 @@ const MovementSection: React.FC<MovementSectionProps> = ({
             <button
               type="button"
               onClick={() => setIsFilterOpen(true)}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-[#003cc3] hover:border-[#003cc3]/20 transition-all duration-300"
+              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-300"
             >
               <Filter className="w-4 h-4" />
             </button>
             {totalTransactions > 10 && (
               <Link
                 href="/home/transactions"
-                className="inline-flex items-center gap-1 bg-[rgba(0,60,195,0.08)] text-[#003cc3] text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-[rgba(0,60,195,0.12)] transition-colors"
+                className="inline-flex items-center gap-1 bg-secondary/8 text-secondary text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-[rgba(0,60,195,0.12)] transition-colors"
               >
                 Ver todas
                 <ChevronRight className="w-3 h-3" />
@@ -250,8 +250,8 @@ const MovementSection: React.FC<MovementSectionProps> = ({
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5"
                   style={{ backgroundColor: "rgba(0,60,195,0.06)" }}
                 >
-                  <CalendarIcon className="w-[11px] h-[11px] text-[#003cc3]" />
-                  <span className="text-[#003cc3] font-bold text-xs">
+                  <CalendarIcon className="w-[11px] h-[11px] text-secondary" />
+                  <span className="text-secondary font-bold text-xs">
                     {label}
                   </span>
                 </span>
@@ -341,13 +341,13 @@ const MovementSection: React.FC<MovementSectionProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => { setSortField("date"); setSortDirection("desc"); }}
-                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "date" ? "bg-[#003cc3] border-[#003cc3] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-[#003cc3]/20"}`}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "date" ? "bg-secondary border-secondary text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-secondary/20"}`}
                   >
                     Mais recentes
                   </button>
                   <button
                     onClick={() => { setSortField("amount"); setSortDirection("desc"); }}
-                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "amount" ? "bg-[#003cc3] border-[#003cc3] text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-[#003cc3]/20"}`}
+                    className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all ${sortField === "amount" ? "bg-secondary border-secondary text-white shadow-sm" : "bg-white border-slate-200 text-slate-600 hover:border-secondary/20"}`}
                   >
                     Maior valor
                   </button>
@@ -385,7 +385,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
               </button>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="flex-1 px-3 py-2.5 rounded-xl bg-[#003cc3] text-white text-sm font-bold hover:bg-[#0033a8] transition-colors shadow-sm"
+                className="flex-1 px-3 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold hover:bg-secondary-dark transition-colors shadow-sm"
               >
                 Aplicar
               </button>

@@ -63,8 +63,8 @@ export function CategorySelect({
       : error
       ? "border-red-300 hover:border-red-400"
       : open
-      ? "border-[#003cc3]/40 bg-white ring-4 ring-[#003cc3]/[0.06]"
-      : "border-slate-200 hover:border-[#003cc3]/30",
+      ? "border-secondary/40 bg-white ring-4 ring-secondary/[0.06]"
+      : "border-slate-200 hover:border-secondary/30",
   ].join(" ");
 
   return (
@@ -85,7 +85,7 @@ export function CategorySelect({
             A carregar…
           </span>
         ) : selectedCat ? (
-          <span className="flex items-center gap-2 text-[#1e293b]">
+          <span className="flex items-center gap-2 text-slate-900">
             {(() => { const s = getCategoryStyle(selectedCat.name); const Icon = s.icon; return <Icon className="w-4 h-4 flex-shrink-0" style={{ color: s.color }} />; })()}
             {displayName}
           </span>
@@ -121,11 +121,11 @@ export function CategorySelect({
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
-                    <h3 className="text-sm font-bold text-[#1e293b]">{label}</h3>
+                    <h3 className="text-sm font-bold text-slate-900">{label}</h3>
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
-                      className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -148,8 +148,8 @@ export function CategorySelect({
                             onClick={() => handleSelect(cat)}
                             className={`w-full flex items-center justify-between px-5 py-3 text-sm transition-colors ${
                               isSelected(cat)
-                                ? "text-[#003cc3] font-semibold bg-blue-50/60"
-                                : "text-[#1e293b] hover:bg-slate-50"
+                                ? "text-secondary font-semibold bg-blue-50/60"
+                                : "text-slate-900 hover:bg-slate-50"
                             }`}
                           >
                             <span className="flex items-center gap-2.5">
@@ -157,7 +157,7 @@ export function CategorySelect({
                               {cat.name}
                             </span>
                             {isSelected(cat) && (
-                              <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />
+                              <Check className="w-3.5 h-3.5 text-secondary flex-shrink-0" />
                             )}
                           </button>
                           );
@@ -183,8 +183,8 @@ export function CategorySelect({
                             onClick={() => handleSelect(cat)}
                             className={`w-full flex items-center justify-between px-5 py-3 text-sm transition-colors ${
                               isSelected(cat)
-                                ? "text-[#003cc3] font-semibold bg-blue-50/60"
-                                : "text-[#1e293b] hover:bg-blue-50/40"
+                                ? "text-secondary font-semibold bg-blue-50/60"
+                                : "text-slate-900 hover:bg-blue-50/40"
                             }`}
                           >
                             <span className="flex items-center gap-2.5">
@@ -192,7 +192,7 @@ export function CategorySelect({
                               {cat.name}
                             </span>
                             {isSelected(cat) && (
-                              <Check className="w-3.5 h-3.5 text-[#003cc3] flex-shrink-0" />
+                              <Check className="w-3.5 h-3.5 text-secondary flex-shrink-0" />
                             )}
                           </button>
                           );

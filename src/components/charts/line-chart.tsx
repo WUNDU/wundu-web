@@ -199,7 +199,7 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
       )}
       <canvas
         ref={canvasRef}
-        className="w-full h-full transition-transform duration-500 ease-out"
+        className="w-full h-full transition-transform duration-200 ease-out"
       />
     </div>
   );

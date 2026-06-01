@@ -153,6 +153,15 @@ const EditModal: React.FC<EditModalProps> = ({
   const disableInputs = isSubmitting || isCompleted;
   const selectedCategoryValue = formData.categoryId || resolvedCategoryId || "";
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!objective) {
     return null;
   }
@@ -168,6 +177,9 @@ const EditModal: React.FC<EditModalProps> = ({
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/15"
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-modal-title"
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -176,7 +188,7 @@ const EditModal: React.FC<EditModalProps> = ({
           >
         <form className="p-6 md:p-8 space-y-6" onSubmit={handleSubmit}>
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-[16px] font-bold text-gray-900">
+            <h2 id="edit-modal-title" className="text-[16px] font-bold text-gray-900">
               Editar objetivo financeiro
             </h2>
             <button
@@ -197,10 +209,11 @@ const EditModal: React.FC<EditModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-title" className="block text-sm font-medium text-gray-700 mb-2">
                 Nome do objetivo
               </label>
               <input
+                id="edit-goal-title"
                 type="text"
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
@@ -222,10 +235,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-description" className="block text-sm font-medium text-gray-700 mb-2">
                 Descrição
               </label>
               <textarea
+                id="edit-goal-description"
                 value={formData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -235,10 +249,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-amount" className="block text-sm font-medium text-gray-700 mb-2">
                 Valor necessário
               </label>
               <input
+                id="edit-goal-amount"
                 type="text"
                 inputMode="decimal"
                 value={targetAmountDisplay}
@@ -255,10 +270,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-start" className="block text-sm font-medium text-gray-700 mb-2">
                 Data de início
               </label>
               <input
+                id="edit-goal-start"
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => handleChange("startDate", e.target.value)}
@@ -269,10 +285,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-end" className="block text-sm font-medium text-gray-700 mb-2">
                 Data limite
               </label>
               <input
+                id="edit-goal-end"
                 type="date"
                 value={formData.endDate}
                 onChange={(e) => handleChange("endDate", e.target.value)}
@@ -308,7 +325,7 @@ const EditModal: React.FC<EditModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-[#003cc3] text-white rounded-lg font-medium hover:bg-[#002fa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-secondary text-white rounded-lg font-medium hover:bg-secondary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={disableInputs}
             >
               {isSubmitting ? "Salvando..." : "Salvar Alterações"}

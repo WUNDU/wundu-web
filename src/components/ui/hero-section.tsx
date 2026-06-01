@@ -45,7 +45,7 @@ export default function HeroSection({
         {/* Main text content */}
         <div className="flex flex-col items-center text-center px-6 pt-36 md:pt-44 pb-10 md:pb-8 flex-1 justify-center">
           {/* Social proof badge */}
-          <div className="inline-flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs px-3 py-2 rounded-xl mb-8 relative z-20 animate-in fade-in slide-in-from-top duration-700">
+          <div className="inline-flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs px-3 py-2 rounded-xl mb-8 relative z-20 animate-in fade-in slide-in-from-top duration-300">
             <div className="flex -space-x-3">
               {avatars.map((avatar, i) => (
                 <div
@@ -72,11 +72,11 @@ export default function HeroSection({
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] tracking-tighter relative z-20 animate-in fade-in slide-in-from-bottom duration-700">
+          <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] tracking-tighter relative z-20 animate-in fade-in slide-in-from-bottom duration-300">
             O futuro das suas <span className="text-yellow-400">finanças</span>
           </h1>
 
-          <p className="text-white/90 max-w-xl mx-auto mb-10 text-base md:text-xl leading-relaxed font-medium relative z-20 animate-in fade-in slide-in-from-bottom duration-700 delay-150">
+          <p className="text-white/90 max-w-xl mx-auto mb-10 text-base md:text-xl leading-relaxed font-medium relative z-20 animate-in fade-in slide-in-from-bottom duration-300 delay-150">
             Com o WUNDU, controlar os teus gastos, definir metas e organizar os
             teus cartões torna-se simples e{" "}
             <span className="text-yellow-400 font-bold italic underline decoration-yellow-400/30 underline-offset-4">
@@ -85,7 +85,7 @@ export default function HeroSection({
             .
           </p>
 
-          <div className="relative z-20 animate-in fade-in slide-in-from-bottom duration-700 delay-300 w-full flex justify-center">
+          <div className="relative z-20 animate-in fade-in slide-in-from-bottom duration-300 delay-300 w-full flex justify-center">
             <Link href="/register" className="bg-yellow-400 text-white px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-lg sm:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl hover:shadow-yellow-400/20">
               Comece aqui
             </Link>
@@ -93,7 +93,7 @@ export default function HeroSection({
         </div>
 
         {/* App mockups — pinned to bottom of hero */}
-        <div className="hidden sm:flex mt-auto items-end justify-center gap-4 lg:gap-10 px-8 pb-0 relative z-20 animate-in fade-in slide-in-from-bottom duration-1000 delay-500">
+        <div className="hidden sm:flex mt-auto items-end justify-center gap-4 lg:gap-10 px-8 pb-0 relative z-20 animate-in fade-in slide-in-from-bottom duration-400 delay-500">
           {/* Left: AI screen — desktop only */}
           <div className="hidden lg:block w-52 xl:w-64 flex-shrink-0 drop-shadow-2xl self-end -translate-y-8 rotate-[-6deg] origin-bottom opacity-90">
             <Image

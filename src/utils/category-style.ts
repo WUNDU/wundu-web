@@ -1,4 +1,5 @@
 import type { ComponentType, CSSProperties } from "react";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 import {
   Apple,
   BookOpen,
@@ -52,7 +53,7 @@ const EXACT: Record<string, CategoryStyle> = {
 
 const DEFAULT_STYLE: CategoryStyle = {
   icon: Receipt,
-  color: "#00216b",
+  color: BRAND_COLORS.blueDark,
   bg: "rgba(0,33,107,0.08)",
 };
 
@@ -100,7 +101,7 @@ export function getCategoryStyle(name: string): CategoryStyle {
   if (/viagem|férias|ferias|turismo/.test(lower))
     return { icon: Plane,      color: "#8B5CF6", bg: "rgba(139,92,246,0.1)" };
   if (/invest/.test(lower))
-    return { icon: TrendingUp, color: "#003cc3", bg: "rgba(0,60,195,0.1)"   };
+    return { icon: TrendingUp, color: BRAND_COLORS.blue, bg: "rgba(0,60,195,0.1)"   };
 
   return DEFAULT_STYLE;
 }

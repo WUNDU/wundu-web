@@ -112,8 +112,8 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
           <div className="px-6 py-6 flex flex-col items-center gap-5 text-center">
             {/* Icon */}
             {(isPolling || !isTerminal) && !needsCategory && (
-              <div className="w-14 h-14 rounded-full bg-[#003cc3]/8 flex items-center justify-center">
-                <Loader2 className="w-7 h-7 text-[#003cc3] animate-spin" />
+              <div className="w-14 h-14 rounded-full bg-secondary/8 flex items-center justify-center">
+                <Loader2 className="w-7 h-7 text-secondary animate-spin" />
               </div>
             )}
             {status === "PROCESSED" && (
@@ -155,7 +155,7 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
                 <select
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#003cc3]/40"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-secondary/40"
                 >
                   <option value="">Selecione uma categoria…</option>
                   {categories.length === 0 ? (
@@ -174,7 +174,7 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
                 <button
                   onClick={handleCategorize}
                   disabled={!selectedCategoryId || isCategorizing}
-                  className="w-full py-3 rounded-xl bg-[#003cc3] text-white text-sm font-bold disabled:opacity-50 hover:bg-[#002ea0] transition-colors"
+                  className="w-full py-3 rounded-xl bg-secondary text-white text-sm font-bold disabled:opacity-50 hover:bg-secondary-dark transition-colors"
                 >
                   {isCategorizing ? (
                     <span className="flex items-center justify-center gap-2">
@@ -201,7 +201,7 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
               <div className="w-full flex flex-col gap-2">
                 <button
                   onClick={onRetry}
-                  className="w-full py-3 rounded-xl bg-[#003cc3] text-white text-sm font-bold hover:bg-[#002ea0] transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-secondary text-white text-sm font-bold hover:bg-secondary-dark transition-colors flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" /> Tentar novamente
                 </button>
