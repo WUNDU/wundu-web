@@ -8,6 +8,7 @@ interface LimitStore {
   error: string | null;
   define(payload: UserCategoryLimitRequest): Promise<boolean>;
   fetchLimit(categoryId: string): Promise<void>;
+  fetchMultipleLimits(categoryIds: string[]): Promise<void>;
   clearAll(): void;
 }
 
@@ -40,6 +41,26 @@ export const useLimitStore = create<LimitStore>((set, get) => ({
       const result = await limitService.getByCategory(categoryId);
       set((s) => ({ limits: { ...s.limits, [categoryId]: result }, isLoading: false }));
     } catch (error: any) {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchMultipleLimits: async (categoryIds: string[]) => {
+    const { limits } = get();
+    const missing = categoryIds.filter((id) => !limits[id]);
+    if (missing.length === 0) return;
+
+    set({ isLoading: true });
+    try {
+      const results = await Promise.all(
+        missing.map((id) => limitService.getByCategory(id).catch(() => null))
+      );
+      const newLimits = { ...limits };
+      results.forEach((res) => {
+        if (res) newLimits[res.categoryId] = res;
+      });
+      set({ limits: newLimits, isLoading: false });
+    } catch {
       set({ isLoading: false });
     }
   },

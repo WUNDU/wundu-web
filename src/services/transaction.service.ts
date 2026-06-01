@@ -318,24 +318,36 @@ class TransactionService {
       return Array.isArray(data) ? data : [];
     }
 
-    const aggregated: TransactionResponse[] = [];
-    let page = 0;
-    let shouldContinue = true;
+    // 1. Fetch first page to get metadata (total pages)
+    const firstPage = await this.getFiltered(0, 100, {
+      startDate: options.startDate,
+      endDate: options.endDate,
+    });
 
-    while (shouldContinue) {
-      const pageData = await this.getFiltered(page, 100, {
-        startDate: options.startDate,
-        endDate: options.endDate,
-      });
-      aggregated.push(...pageData.content);
-
-      const done =
-        pageData.content.length === 0 ||
-        pageData.last ||
-        page + 1 >= pageData.totalPages;
-      if (done) shouldContinue = false;
-      else page += 1;
+    if (!firstPage.content.length || firstPage.last || firstPage.totalPages <= 1) {
+      return firstPage.content;
     }
+
+    // 2. Fetch remaining pages in parallel
+    const remainingPageNumbers = Array.from(
+      { length: firstPage.totalPages - 1 },
+      (_, i) => i + 1,
+    );
+
+    const remainingPages = await Promise.all(
+      remainingPageNumbers.map((page) =>
+        this.getFiltered(page, 100, {
+          startDate: options.startDate,
+          endDate: options.endDate,
+        }),
+      ),
+    );
+
+    // 3. Aggregate all results
+    const aggregated = [...firstPage.content];
+    remainingPages.forEach((page) => {
+      aggregated.push(...page.content);
+    });
 
     return aggregated;
   }

@@ -395,11 +395,12 @@ function CustomCategoryCard({
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
   const { categories, isLoading: isCategoriesLoading, hasFetched, fetchActive, create } = useCategoryStore();
-  const { limits, define, fetchLimit } = useLimitStore();
+  const { limits, define, fetchMultipleLimits } = useLimitStore();
   const userId = useUserStore((s) => s.user?.id);
+  const transactions = useTransactionStore((s) => s.allTransactions ?? s.transactions);
   const notPaginated = useTransactionStore((s) => s.notPaginated);
   const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const isTransactionsLoading = useTransactionStore((s) => s.isLoading);
+  const isTransactionsLoading = useTransactionStore((s) => s.isLoadingAll);
   const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
 
   const [tab, setTab] = useState<"resumo" | "sistema" | "custom">("resumo");
@@ -424,28 +425,34 @@ export default function CategoriesPage() {
     if (hasFetchedAll && useTransactionStore.getState().notPaginatedQueryKey === queryKey) return;
     getAllNotPaginated(monthRange);
   }, [getAllNotPaginated, monthRange, hasFetchedAll]);
+
   useEffect(() => {
     if (!categories.length) return;
-    categories.forEach((c) => fetchLimit(c.id));
-  }, [categories, fetchLimit]);
+    fetchMultipleLimits(categories.map((c) => c.id));
+  }, [categories, fetchMultipleLimits]);
 
   const monthlySpendByName = useMemo(() => {
     const now = new Date();
     const result: Record<string, number> = {};
-    (notPaginated ?? []).forEach((t) => {
+    const source = notPaginated ?? transactions;
+
+    (source ?? []).forEach((t) => {
       if (!isExpense(t.type)) return;
-      const d = new Date(t.transactionDate);
+      const d = new Date(t.transactionDate ?? 0);
       if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
       const name = t.category?.name ?? "__none__";
       result[name] = (result[name] ?? 0) + Math.abs(t.amount);
     });
     return result;
-  }, [notPaginated]);
+  }, [notPaginated, transactions]);
 
   const systemCategories = categories.filter((c) => !c.userId);
   const myCategories = categories.filter((c) => !!c.userId);
   const getLimitKey = (id: string) => limits[id];
-  const isPageLoading = isCategoriesLoading || isTransactionsLoading || !hasFetchedAll;
+
+  // decouple categories list from totals loading
+  const isInitialLoading = isCategoriesLoading && !categories.length;
+  const isSpendingLoading = isTransactionsLoading || !hasFetchedAll;
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -506,7 +513,7 @@ export default function CategoriesPage() {
       {/* ── Tab content ─────────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         {tab === "resumo" && (
-          isPageLoading ? (
+          isSpendingLoading ? (
             <ResumoSkeleton />
           ) : (
             <ResumoTab
@@ -528,7 +535,7 @@ export default function CategoriesPage() {
                 Categorias de sistema são somente leitura. Define um <span className="font-bold">limite mensal</span> para monitorar os gastos.
               </p>
             </div>
-            {isPageLoading ? (
+            {isInitialLoading ? (
               <CategoryCardsSkeleton count={5} />
             ) : (
               <div className="space-y-2">
@@ -566,7 +573,7 @@ export default function CategoriesPage() {
               </div>
               {createError && <p className="text-red-500 text-xs mt-2">{createError}</p>}
             </div>
-            {isPageLoading ? (
+            {isInitialLoading ? (
               <CategoryCardsSkeleton count={4} />
             ) : myCategories.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-slate-400">

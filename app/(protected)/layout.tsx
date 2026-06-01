@@ -9,6 +9,7 @@ import { useTransactionStore } from "@/store/transaction-store";
 import { useApiNotificationStore } from "@/store/api-notification-store";
 import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore } from "@/store/goal-store";
+import { useShallow } from "zustand/shallow";
 import EmailVerificationBanner from "@/components/email-verification-banner";
 import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
@@ -190,13 +191,27 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading, user, initializeAuth } = useUserStore();
-  const notPaginated = useTransactionStore((s) => s.notPaginated);
-  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const prefetchTransactions = useTransactionStore((s) => s.fetch);
+  const { isAuthenticated, isLoading, user, initializeAuth } = useUserStore(
+    useShallow((s) => ({
+      isAuthenticated: s.isAuthenticated,
+      isLoading: s.isLoading,
+      user: s.user,
+      initializeAuth: s.initializeAuth,
+    })),
+  );
+
+  const { notPaginated, getAllNotPaginated, prefetchTransactions } = useTransactionStore(
+    useShallow((s) => ({
+      notPaginated: s.notPaginated,
+      getAllNotPaginated: s.getAllNotPaginated,
+      prefetchTransactions: s.fetch,
+    })),
+  );
+
   const prefetchCategories = useCategoryStore((s) => s.fetch);
   const prefetchGoals = useGoalStore((s) => s.fetch);
   const fetchUnreadCount = useApiNotificationStore((s) => s.fetchUnreadCount);
+
   // Optimistic auth: user is persisted in localStorage → show real layout immediately.
   // initializeAuth() runs the refresh/validate in background; redirects to login if it fails.
   // Only block with skeleton on first visit (no cached user) or after logout.

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND = process.env.BACKEND_API_BASE_URL ?? "";
 const COOKIE_NAME = "refresh_token";
-const COOKIE_PATH = "/api/proxy/auth";
+const COOKIE_PATH = "/";
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   nextRes.cookies.set(COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: COOKIE_PATH,
     maxAge: 0,
   });
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   nextRes.cookies.set("wundu_session", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     maxAge: 0,
   });

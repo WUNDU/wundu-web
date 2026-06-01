@@ -4,7 +4,7 @@ const BACKEND = process.env.BACKEND_API_BASE_URL ?? "";
 const COOKIE_NAME = "refresh_token";
 // Must match the path prefix for all auth proxy routes so the browser
 // sends the cookie on /api/proxy/auth/refresh and /api/proxy/auth/logout
-const COOKIE_PATH = "/api/proxy/auth";
+const COOKIE_PATH = "/";
 
 function parseCookieValue(header: string, name: string): string | null {
   const match = header.match(new RegExp(`(?:^|,)\\s*${name}=([^;,]+)`));
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       nextRes.cookies.set(COOKIE_NAME, value, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         path: COOKIE_PATH,
         maxAge: maxAge ?? 30 * 24 * 60 * 60,
       });
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       nextRes.cookies.set("wundu_session", "1", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         path: "/",
         maxAge: maxAge ?? 30 * 24 * 60 * 60,
       });

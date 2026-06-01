@@ -100,7 +100,7 @@ export const useUserStore = create<AuthState>()(
             return;
           }
           // Only log out on explicit auth rejection (401/403), not network errors
-          const status = error?.response?.status;
+          const status = error?.status || error?.response?.status;
           if (status === 401 || status === 403) {
             get().setToken(null);
             set({ isAuthenticated: false, isLoading: false, user: null });
@@ -120,7 +120,7 @@ export const useUserStore = create<AuthState>()(
           set({ token: accessToken });
           await get().checkAuthStatus();
         } catch (error: any) {
-          const status = error?.response?.status;
+          const status = error?.status || error?.response?.status;
           const isAuthError = status === 401 || status === 403;
 
           if (isAuthError) {
@@ -187,9 +187,10 @@ export const useUserStore = create<AuthState>()(
             errMsg = "Por favor, verifique o seu email antes de entrar.";
             set({ error: errMsg, isLoading: false });
           } else {
+            const status = error?.status || error?.response?.status;
             errMsg = getApiErrorMessage(
               error,
-              error?.response?.status === 500
+              status === 500
                 ? "Não foi possível acessar o sistema. Tente mais tarde!"
                 : "Credenciais erradas"
             );
@@ -206,9 +207,10 @@ export const useUserStore = create<AuthState>()(
           // Após registro, fazer login automático
           return await get().login(payload.email ?? "", payload.password ?? "");
         } catch (error: any) {
+          const status = error?.status || error?.response?.status;
           const err = getApiErrorMessage(
             error,
-            error?.response?.status === 500
+            status === 500
               ? "Não foi possível acessar o sistema. Tente mais tarde!"
               : "Erro ao criar conta"
           );
@@ -255,9 +257,10 @@ export const useUserStore = create<AuthState>()(
           set({ isLoading: false });
           return true;
         } catch (error: any) {
+          const status = error?.status || error?.response?.status;
           const err = getApiErrorMessage(
             error,
-            error?.response?.status === 500
+            status === 500
               ? "Não foi possível acessar o sistema. Tente mais tarde!"
               : "Erro ao criar conta"
           );

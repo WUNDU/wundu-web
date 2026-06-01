@@ -185,9 +185,22 @@ export const useTransactionStore = create<TransactionState>()(
 
       getAllNotPaginated: async (options) => {
         const queryKey = `${options?.startDate ?? "all"}|${options?.endDate ?? "all"}`;
-        const { hasFetchedAll, notPaginatedQueryKey, isLoadingAll } = get();
+        const { hasFetchedAll, notPaginatedQueryKey, isLoadingAll, transactions, totalElements, hasFetched } = get();
         if (isLoadingAll) return;
         if (hasFetchedAll && queryKey === notPaginatedQueryKey) return;
+
+        // Optimization: if we already have the first page and total items fit in it,
+        // we have everything. No need for a fresh "bulk" fetch if no dates are requested
+        // or if we can just filter locally.
+        const isAllTime = !options?.startDate && !options?.endDate;
+        if (hasFetched && totalElements <= PAGE_SIZE && isAllTime) {
+          set({
+            notPaginated: transactions as unknown as TransactionResponse[],
+            hasFetchedAll: true,
+            notPaginatedQueryKey: queryKey,
+          });
+          return;
+        }
 
         set({
           isLoadingAll: true,
