@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
 import { useTransactionStore } from "@/store/transaction-store";
+import { isExpense } from "@/utils/transaction-type";
 
 // Session-level cache: avoids redundant API call on every home mount
 let _docCountCache: { value: number; at: number } | null = null;
@@ -132,7 +133,7 @@ const StatsSection: FC = () => {
     // Fall back to the paginated list while the full fetch is in progress.
     const source = notPaginated ?? transactions;
     const totalSpent = source
-      .filter((t) => t.type === "EXPENSE")
+      .filter((t) => isExpense(t.type))
       .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
     const count = notPaginated?.length ?? transactions.length;
 

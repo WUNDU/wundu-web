@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTransaction } from "@/hooks/use-transaction";
 import { useAiQuery } from "@/hooks/use-ai-query";
+import { isExpense, isIncome } from "@/utils/transaction-type";
 import type { TransactionDTO } from "@/types/dtos/transaction.dto";
 import { TransactionDetailPanel } from "@/components/ui/transaction-detail-panel";
 import {
@@ -69,7 +70,11 @@ export default function TransactionsPage() {
 
   const filtered = useMemo(() => {
     let list = [...transactions];
-    if (typeFilter !== "all") list = list.filter(t => t.type === typeFilter);
+    if (typeFilter !== "all") {
+      list = list.filter((t) =>
+        typeFilter === "EXPENSE" ? isExpense(t.type) : isIncome(t.type),
+      );
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(t =>
@@ -312,7 +317,7 @@ export default function TransactionsPage() {
               <div className="flex flex-wrap gap-1.5 px-5 pb-3">
                 {aiFilter.type && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary/8 text-secondary">
-                    {aiFilter.type === "EXPENSE" ? "Despesas" : "Receitas"}
+                    {isExpense(aiFilter.type) ? "Despesas" : "Receitas"}
                   </span>
                 )}
                 {aiFilter.categoryName && (
