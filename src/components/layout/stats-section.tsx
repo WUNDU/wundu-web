@@ -175,7 +175,7 @@ const StatsSection: FC = () => {
         isPrimary: true,
       },
     ];
-  }, [isLoading, totalDocuments, transactions]);
+  }, [isLoading, totalDocuments, transactions, notPaginated]);
 
   if (isLoading) {
     return (

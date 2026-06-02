@@ -99,6 +99,7 @@ export const useTransactionStore = create<TransactionState>()(
           const response = await transactionService.getAll(0, PAGE_SIZE);
           set({
             transactions: sortByDate(response.content as unknown as TransactionDTO[]),
+            totalElements: response.totalElements,
             isLoading: false,
             hasFetched: true,
           });
@@ -117,6 +118,7 @@ export const useTransactionStore = create<TransactionState>()(
           const response = await transactionService.getAll(0, PAGE_SIZE);
           set({
             transactions: sortByDate(response.content as unknown as TransactionDTO[]),
+            totalElements: response.totalElements,
             isRefreshing: false,
             hasFetched: true,
           });
@@ -193,7 +195,13 @@ export const useTransactionStore = create<TransactionState>()(
         // we have everything. No need for a fresh "bulk" fetch if no dates are requested
         // or if we can just filter locally.
         const isAllTime = !options?.startDate && !options?.endDate;
-        if (hasFetched && totalElements <= PAGE_SIZE && isAllTime) {
+        if (
+          hasFetched &&
+          totalElements > 0 &&
+          transactions.length >= totalElements &&
+          totalElements <= PAGE_SIZE &&
+          isAllTime
+        ) {
           set({
             notPaginated: transactions as unknown as TransactionResponse[],
             hasFetchedAll: true,
@@ -423,7 +431,10 @@ export const useTransactionStore = create<TransactionState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        state.hasFetched = state.hasFetched && state.transactions.length > 0;
+        // Cached transactions are only a warm UI snapshot. After a full page
+        // reload the access token is recreated via refresh, so force the
+        // transaction fetchers to validate/refetch from the API.
+        state.hasFetched = false;
       },
     },
   ),
