@@ -1,3 +1,4 @@
+export { default as AppleIcon } from "../icons/apple";
 export { default as ArrowLeftIcon } from "../icons/arrow-left";
 export { default as ArrowRotateIcon } from "../icons/arrow-rotate";
 export { default as ArrowsLeftIcon } from "../icons/arrows-left";
@@ -56,6 +57,7 @@ export { default as NotificationRightBarIcon } from "../icons/notification-right
 export { default as ObjectiveIcon } from "../icons/objective";
 export { default as PaymentIcon } from "../icons/payment";
 export { default as PhoneIcon } from "../icons/phone";
+export { default as PlayStoreIcon } from "../icons/play-store";
 export { default as PlusIcon } from "../icons/plus";
 export { default as PlusFileIcon } from "../icons/plus-file";
 export { default as ProfileIcon } from "../icons/profile";

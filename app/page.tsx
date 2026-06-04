@@ -21,14 +21,22 @@ import {
   Coins,
 } from "lucide-react";
 import { LogoType } from "@/components/ui";
-import { SettingsRightBarIcon } from "@/constants/icons";
+import {
+  AppleIcon,
+  PlayStoreIcon,
+  SettingsRightBarIcon,
+} from "@/constants/icons";
 import HeroSection from "@/components/ui/hero-section";
 import { Footer } from "@/components/layout";
 import { useCountUp } from "@/hooks/use-count-up";
+import { useCountdown } from "@/hooks/use-countdown";
 import { ScrollAnimationWrapper } from "@/components/layout";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { imgDashboard } from "@/constants/images";
+import { Smartphone } from "lucide-react";
+
+const LAUNCH_DATE = new Date("2026-06-08T00:00:00");
 
 const StatCounter = ({ end, label }: { end: string; label: string }) => {
   const [startCount, setStartCount] = useState(false);
@@ -187,8 +195,50 @@ const nucleusNodes = [
   },
 ];
 
+const CountdownDisplay = () => {
+  const { timeLeft, isLaunched, isLoading } = useCountdown(LAUNCH_DATE);
+
+  if (isLoading || isLaunched) return null;
+
+  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="w-14 h-14 md:w-18 md:h-18 bg-gray-900 rounded-xl flex items-center justify-center mb-2 shadow-inner relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-b from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <span className="text-lg md:text-xl font-black text-white tabular-nums leading-none relative z-10 font-mono">
+          {value.toString().padStart(2, "0")}
+        </span>
+      </div>
+      <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">
+        {label}
+      </span>
+    </div>
+  );
+
+  return (
+    <div className="flex gap-3 md:gap-5 justify-center items-end">
+      <TimeUnit value={timeLeft.days} label="Dias" />
+      <div className="flex flex-col items-center mb-2">
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
+      </div>
+      <TimeUnit value={timeLeft.hours} label="Hrs" />
+      <div className="flex flex-col items-center mb-2">
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
+      </div>
+      <TimeUnit value={timeLeft.minutes} label="Mins" />
+      <div className="flex flex-col items-center mb-2">
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
+      </div>
+      <TimeUnit value={timeLeft.seconds} label="Segs" />
+    </div>
+  );
+};
+
 export default function WunduPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isLaunched } = useCountdown(LAUNCH_DATE);
 
   return (
     <div className="font-sans bg-white text-gray-800 selection:bg-yellow-100 selection:text-yellow-900 overflow-x-hidden">
@@ -409,6 +459,95 @@ export default function WunduPage() {
               </div>
             ))}
           </div>
+        </ScrollAnimationWrapper>
+      </section>
+
+      {/* ── APP DOWNLOAD & COUNTDOWN ── */}
+      <section className="py-20 md:py-24 px-4 md:px-8 bg-gray-50/50 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-full pointer-events-none">
+          <div className="absolute top-1/4 -left-20 w-72 h-72 bg-yellow-100/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-20 w-72 h-72 bg-blue-100/20 rounded-full blur-3xl" />
+        </div>
+
+        <ScrollAnimationWrapper className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-12 md:mb-16">
+            <div className="inline-flex items-center gap-2 bg-white border border-gray-100 shadow-sm text-yellow-600 text-[10px] font-black px-4 py-2 rounded-full mb-6 uppercase tracking-[0.2em]">
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Plataforma em Evolução</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black mb-6 text-gray-900 tracking-tighter">
+              Aguarde a grande <span className="text-yellow-400">estreia</span>
+            </h2>
+            <p className="text-gray-500 text-base md:text-lg font-medium leading-relaxed max-w-2xl mx-auto">
+              Estamos a reconstruir a Wundu. No dia 08 de Junho, a nossa
+              infraestrutura financeira web e mobile estará disponível para todos.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
+            {/* Ultra Compact Play Store */}
+            <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px]">
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-yellow-50 transition-colors">
+                <div className="scale-110">
+                  <PlayStoreIcon />
+                </div>
+              </div>
+              <div className="text-left">
+                <p className="text-[7px] font-black text-yellow-600 uppercase tracking-widest leading-none mb-1">
+                  Android & Web
+                </p>
+                <h3 className="text-xs font-black text-gray-900 leading-none">
+                  Google Play
+                </h3>
+              </div>
+            </div>
+
+            {/* Ultra Compact App Store */}
+            <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px] opacity-60">
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                <div className="scale-110">
+                  <AppleIcon />
+                </div>
+              </div>
+              <div className="text-left">
+                <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                  iOS em breve
+                </p>
+                <h3 className="text-xs font-black text-gray-900 leading-none">
+                  App Store
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Dedicated Countdown Card */}
+          {!isLaunched && (
+            <div className="max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-soft-lg relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="relative z-10 text-center">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-10">
+                  Lançamento Oficial em
+                </p>
+                
+                <CountdownDisplay />
+                
+                <div className="mt-12 flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-tighter">
+                      08 de Junho, 2026
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-medium">
+                    Site Oficial & Google Play Store
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </ScrollAnimationWrapper>
       </section>
 

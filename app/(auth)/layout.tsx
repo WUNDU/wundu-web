@@ -75,7 +75,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   // Alterar para false quando os problemas técnicos forem resolvidos
-  const isMaintenance = false;
+  const launchDate = new Date("2026-06-08T00:00:00");
+  const isMaintenance = new Date() < launchDate;
 
   // These pages must remain accessible even when authenticated
   const isVerifyPage =
