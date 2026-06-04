@@ -30,7 +30,11 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
 }) => {
   const [description, setDescription] = useState("");
   const [displayAmount, setDisplayAmount] = useState("");
-  const [transactionDate, setTransactionDate] = useState("");
+  const [dateVal, setDateVal] = useState("");
+  const [timeVal, setTimeVal] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ description: "", amount: "", date: "" });
+
+  const transactionDate = dateVal && timeVal ? `${dateVal}T${timeVal}:00` : dateVal ? `${dateVal}T00:00:00` : "";
 
   useEffect(() => {
     if (defaults) {
@@ -40,19 +44,29 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
           ? formatAOA(defaults.amount)
           : "",
       );
-      setTransactionDate(
-        defaults.transactionDate
-          ? defaults.transactionDate.slice(0, 19)
-          : new Date().toISOString().slice(0, 19),
-      );
+      const raw = defaults.transactionDate
+        ? defaults.transactionDate.slice(0, 19)
+        : new Date().toISOString().slice(0, 19);
+      const [d, t = ""] = raw.split("T");
+      setDateVal(d ?? "");
+      setTimeVal(t.slice(0, 5));
     }
+    setFieldErrors({ description: "", amount: "", date: "" });
   }, [defaults, isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!description || !displayAmount || !transactionDate) return;
+    const errs = {
+      description: description.trim() ? "" : "Insira uma descrição",
+      amount: displayAmount.trim() ? "" : "Insira o montante",
+      date: dateVal ? "" : "Selecione uma data",
+    };
+    if (errs.description || errs.amount || errs.date) {
+      setFieldErrors(errs);
+      return;
+    }
     await onSubmit({ description, amount: parseFloat(parseAOA(displayAmount)) || 0, transactionDate });
   };
 
@@ -74,28 +88,51 @@ const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
           </p>
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <TextInput
-            label="Descrição"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <TextInput
-            label="Montante"
-            type="text"
-            inputMode="decimal"
-            value={displayAmount}
-            onChange={(e) => setDisplayAmount(maskAOAInput(e.target.value))}
-            required
-            placeholder="0,00"
-          />
-          <TextInput
-            label="Data"
-            type="datetime-local"
-            value={transactionDate}
-            onChange={(e) => setTransactionDate(e.target.value)}
-            required
-          />
+          <div className="flex flex-col gap-1">
+            <TextInput
+              label="Descrição"
+              value={description}
+              onChange={(e) => { setDescription(e.target.value); setFieldErrors((p) => ({ ...p, description: "" })); }}
+              isError={!!fieldErrors.description}
+            />
+            {fieldErrors.description && (
+              <p role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.description}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <TextInput
+              label="Montante"
+              type="text"
+              inputMode="decimal"
+              value={displayAmount}
+              onChange={(e) => { setDisplayAmount(maskAOAInput(e.target.value)); setFieldErrors((p) => ({ ...p, amount: "" })); }}
+              placeholder="0,00"
+              isError={!!fieldErrors.amount}
+            />
+            {fieldErrors.amount && (
+              <p role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.amount}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-2 gap-3">
+              <TextInput
+                label="Data"
+                type="date"
+                value={dateVal}
+                onChange={(e) => { setDateVal(e.target.value); setFieldErrors((p) => ({ ...p, date: "" })); }}
+                isError={!!fieldErrors.date}
+              />
+              <TextInput
+                label="Hora"
+                type="time"
+                value={timeVal}
+                onChange={(e) => setTimeVal(e.target.value)}
+              />
+            </div>
+            {fieldErrors.date && (
+              <p role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.date}</p>
+            )}
+          </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="secondary"

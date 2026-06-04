@@ -1,10 +1,12 @@
 "use client";
 
+import { BRAND_COLORS } from "@/constants/brand-colors";
+
 export function Ring({ pct, done }: { pct: number; done: boolean }) {
   const r = 16;
   const c = 2 * Math.PI * r;
   const trackColor = "rgba(15,23,42,0.08)";
-  const ringColor = done ? "#10b981" : "#003cc3";
+  const ringColor = done ? "#10b981" : BRAND_COLORS.blue;
 
   return (
     <svg width={40} height={40} viewBox="0 0 40 40" className="-rotate-90 flex-shrink-0">

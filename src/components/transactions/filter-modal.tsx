@@ -7,7 +7,7 @@ const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export type SortField  = "date" | "amount";
 export type SortDir    = "desc" | "asc";
-export type TypeFilter = "all" | "expense" | "income";
+export type TypeFilter = "all" | "EXPENSE" | "INCOME";
 
 export function FilterModal({
   open, onClose,
@@ -22,7 +22,7 @@ export function FilterModal({
 }) {
   const pill = (active: boolean) =>
     `px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-      active ? "bg-[#003cc3] text-white" : "bg-[rgba(0,60,195,0.06)] text-[#003cc3]"
+      active ? "bg-secondary text-white" : "bg-[rgba(0,60,195,0.06)] text-secondary"
     }`;
 
   return (
@@ -43,27 +43,27 @@ export function FilterModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-base font-extrabold text-[#1e293b]">Filtros</h3>
+              <h3 className="text-base font-extrabold text-slate-900">Filtros</h3>
               <button onClick={onClose} className="p-1.5 rounded-full hover:bg-slate-100 transition-colors">
-                <X className="w-5 h-5 text-[#64748b]" />
+                <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 
-            <p className="text-xs font-bold text-[#64748b] mb-2">Tipo</p>
+            <p className="text-xs font-bold text-slate-500 mb-2">Tipo</p>
             <div className="flex gap-2 mb-5">
-              {([["all","Todos"],["expense","Despesas"],["income","Receitas"]] as const).map(([v,l]) => (
+              {([["all","Todos"],["EXPENSE","Despesas"]] as const).map(([v,l]) => (
                 <button key={v} onClick={() => setTypeFilter(v)} className={pill(typeFilter === v)}>{l}</button>
               ))}
             </div>
 
-            <p className="text-xs font-bold text-[#64748b] mb-2">Ordenar por</p>
+            <p className="text-xs font-bold text-slate-500 mb-2">Ordenar por</p>
             <div className="flex gap-2 mb-5">
               {([["date","Data"],["amount","Valor"]] as const).map(([v,l]) => (
                 <button key={v} onClick={() => setSortField(v)} className={pill(sortField === v)}>{l}</button>
               ))}
             </div>
 
-            <p className="text-xs font-bold text-[#64748b] mb-2">Direção</p>
+            <p className="text-xs font-bold text-slate-500 mb-2">Direção</p>
             <div className="flex gap-2">
               {([["desc","Mais recente"],["asc","Mais antigo"]] as const).map(([v,l]) => (
                 <button key={v} onClick={() => setSortDir(v)} className={pill(sortDir === v)}>{l}</button>

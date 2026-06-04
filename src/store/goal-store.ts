@@ -64,6 +64,8 @@ interface GoalState {
   create(payload: GoalPayload): Promise<boolean>;
   update(id: Goal["id"], payload: GoalPayload): Promise<boolean>;
   addProgress(goalId: string, amount: number, progressDate?: string): Promise<boolean>;
+  updateProgress(goalId: string, progressId: string, amount: number, progressDate?: string): Promise<boolean>;
+  deleteProgress(goalId: string, progressId: string): Promise<boolean>;
   remove(id: string): Promise<boolean>;
   clearAll(): void;
 }
@@ -77,7 +79,7 @@ export const useGoalStore = create<GoalState>()(
       hasFetched: false,
 
       fetch: async () => {
-        if (get().hasFetched) return;
+        if (get().hasFetched || get().isLoading) return;
         set({ isLoading: true, error: null });
         try {
           const data = await goalService.list();
@@ -161,8 +163,44 @@ export const useGoalStore = create<GoalState>()(
           useUiStore.getState().showNotification("success", "Progresso registrado", "Progresso adicionado com sucesso!");
           return true;
         } catch (error: any) {
+          const is422 = error?.response?.status === 422;
+          const err = is422
+            ? (error.response?.data?.message ?? "Valor excede o disponível para este objectivo.")
+            : (error instanceof Error ? error.message : "Erro ao registrar progresso");
+          useUiStore.getState().showNotification("error", "Erro", err);
+          return false;
+        }
+      },
+
+      updateProgress: async (goalId: string, progressId: string, amount: number, progressDate?: string): Promise<boolean> => {
+        try {
+          await goalService.updateProgress(goalId, progressId, amount, progressDate);
+          const updated = await goalService.getById(goalId);
+          set((s) => ({
+            goals: s.goals.map((g) => (g.id === goalId ? updated : g)),
+          }));
+          useUiStore.getState().showNotification("success", "Progresso atualizado", "Progresso editado com sucesso!");
+          return true;
+        } catch (error: any) {
           const err =
-            error instanceof Error ? error.message : "Erro ao registrar progresso";
+            error instanceof Error ? error.message : "Erro ao editar progresso";
+          useUiStore.getState().showNotification("error", "Erro", err);
+          return false;
+        }
+      },
+
+      deleteProgress: async (goalId: string, progressId: string): Promise<boolean> => {
+        try {
+          await goalService.deleteProgress(goalId, progressId);
+          const updated = await goalService.getById(goalId);
+          set((s) => ({
+            goals: s.goals.map((g) => (g.id === goalId ? updated : g)),
+          }));
+          useUiStore.getState().showNotification("success", "Progresso removido", "Progresso removido com sucesso!");
+          return true;
+        } catch (error: any) {
+          const err =
+            error instanceof Error ? error.message : "Erro ao remover progresso";
           useUiStore.getState().showNotification("error", "Erro", err);
           return false;
         }
@@ -191,7 +229,13 @@ export const useGoalStore = create<GoalState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         goals: state.goals,
+        hasFetched: state.hasFetched,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.hasFetched = state.hasFetched && state.goals.length > 0;
+        }
+      },
     },
   ),
 );

@@ -4,15 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { EditModalProps } from "@/types/ui";
 import { type GoalPayload, type GoalType } from "@/types/dtos/goal.dto";
-import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore, getGoalProgress } from "@/store/goal-store";
+import { useCategoryStore } from "@/store/category-store";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
+import Select from "@/components/ui/select";
+import CategorySelect from "@/components/ui/category-select";
 
 type EditFormState = {
   title: string;
   description: string;
   targetAmount: string;
-  currentAmount: string;
   startDate: string;
   endDate: string;
   type: GoalType;
@@ -50,7 +51,6 @@ const buildInitialFormData = (
   title: objective?.title ?? "",
   description: objective?.description ?? "",
   targetAmount: objective?.targetAmount?.toString() ?? "",
-  currentAmount: objective?.currentAmount?.toString() ?? "",
   startDate: toDateInputValue(objective?.startDate),
   endDate: toDateInputValue(objective?.endDate),
   type: (objective?.type as GoalType) ?? "SHORT_TERM",
@@ -69,32 +69,19 @@ const EditModal: React.FC<EditModalProps> = ({
   onUpdated,
 }) => {
   const { update } = useGoalStore();
-  const {
-    categories,
-    isLoading: isCategoriesLoading,
-    error: categoriesError,
-    fetch: fetchCategories,
-  } = useCategoryStore();
+  const { categories } = useCategoryStore();
   const [formData, setFormData] = useState<EditFormState>(() =>
     buildInitialFormData(objective),
   );
   const [targetAmountDisplay, setTargetAmountDisplay] = useState(() =>
     objective?.targetAmount ? formatAOA(objective.targetAmount) : "",
   );
-  const [currentAmountDisplay, setCurrentAmountDisplay] = useState(() =>
-    objective?.currentAmount ? formatAOA(objective.currentAmount) : "",
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
     setFormData(buildInitialFormData(objective));
     setTargetAmountDisplay(objective?.targetAmount ? formatAOA(objective.targetAmount) : "");
-    setCurrentAmountDisplay(objective?.currentAmount ? formatAOA(objective.currentAmount) : "");
     setSubmitError("");
   }, [objective]);
 
@@ -127,45 +114,6 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   }, [formData.categoryId, resolvedCategoryId]);
 
-  const categoryOptions = useMemo(() => {
-    const options = [
-      {
-        value: "",
-        label: isCategoriesLoading
-          ? "Carregando categorias..."
-          : "Selecione a categoria",
-      },
-      ...categories.map((category) => ({
-        value: normalizeCategoryId(category.id),
-        label: category.name,
-      })),
-    ];
-
-    const selectedCategoryId = resolvedCategoryId;
-    const selectedCategoryName =
-      categories.find(
-        (category) => normalizeCategoryId(category.id) === selectedCategoryId,
-      )?.name ??
-      objective?.category?.name ??
-      objective?.categoryName ??
-      "Categoria atual";
-
-    if (
-      selectedCategoryId &&
-      !options.some((option) => option.value === selectedCategoryId)
-    ) {
-      options.push({ value: selectedCategoryId, label: selectedCategoryName });
-    }
-
-    return options;
-  }, [
-    categories,
-    isCategoriesLoading,
-    objective?.category,
-    objective?.categoryName,
-    resolvedCategoryId,
-  ]);
-
   const handleChange = (field: keyof EditFormState, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -186,9 +134,6 @@ const EditModal: React.FC<EditModalProps> = ({
         startDate: formData.startDate,
         endDate: formData.endDate,
         categoryId: selectedCategoryValue,
-        currentAmount: formData.currentAmount
-          ? Number(formData.currentAmount)
-          : undefined,
       };
 
       await update(objective.id, payload);
@@ -208,6 +153,15 @@ const EditModal: React.FC<EditModalProps> = ({
   const disableInputs = isSubmitting || isCompleted;
   const selectedCategoryValue = formData.categoryId || resolvedCategoryId || "";
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!objective) {
     return null;
   }
@@ -223,6 +177,9 @@ const EditModal: React.FC<EditModalProps> = ({
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/15"
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-modal-title"
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -231,7 +188,7 @@ const EditModal: React.FC<EditModalProps> = ({
           >
         <form className="p-6 md:p-8 space-y-6" onSubmit={handleSubmit}>
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-[16px] font-bold text-gray-900">
+            <h2 id="edit-modal-title" className="text-[16px] font-bold text-gray-900">
               Editar objetivo financeiro
             </h2>
             <button
@@ -252,10 +209,11 @@ const EditModal: React.FC<EditModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-title" className="block text-sm font-medium text-gray-700 mb-2">
                 Nome do objetivo
               </label>
               <input
+                id="edit-goal-title"
                 type="text"
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
@@ -267,44 +225,21 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.type}
-                  onChange={(e) =>
-                    handleChange("type", e.target.value as GoalType)
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-                >
-                  {typeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+              <Select
+                label="Tipo"
+                value={formData.type}
+                onChange={(v) => handleChange("type", v as GoalType)}
+                options={typeOptions}
+                disabled={disableInputs}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-description" className="block text-sm font-medium text-gray-700 mb-2">
                 Descrição
               </label>
               <textarea
+                id="edit-goal-description"
                 value={formData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -314,10 +249,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-amount" className="block text-sm font-medium text-gray-700 mb-2">
                 Valor necessário
               </label>
               <input
+                id="edit-goal-amount"
                 type="text"
                 inputMode="decimal"
                 value={targetAmountDisplay}
@@ -334,29 +270,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Valor arrecadado
-              </label>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={currentAmountDisplay}
-                onChange={(e) => {
-                  const masked = maskAOAInput(e.target.value);
-                  setCurrentAmountDisplay(masked);
-                  handleChange("currentAmount", parseAOA(masked));
-                }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="0,00"
-                disabled={disableInputs}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-start" className="block text-sm font-medium text-gray-700 mb-2">
                 Data de início
               </label>
               <input
+                id="edit-goal-start"
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => handleChange("startDate", e.target.value)}
@@ -367,10 +285,11 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="edit-goal-end" className="block text-sm font-medium text-gray-700 mb-2">
                 Data limite
               </label>
               <input
+                id="edit-goal-end"
                 type="date"
                 value={formData.endDate}
                 onChange={(e) => handleChange("endDate", e.target.value)}
@@ -381,42 +300,12 @@ const EditModal: React.FC<EditModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categoria
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedCategoryValue}
-                  onChange={(e) => handleChange("categoryId", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-                  disabled={disableInputs}
-                >
-                  {categoryOptions.map((option) => (
-                    <option
-                      key={option.value || "placeholder"}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-              {categoriesError && (
-                <p className="text-xs text-red-500 mt-1">{categoriesError}</p>
-              )}
+              <CategorySelect
+                label="Categoria"
+                value={selectedCategoryValue}
+                onChange={(v) => handleChange("categoryId", v)}
+                disabled={disableInputs}
+              />
             </div>
           </div>
 
@@ -436,7 +325,7 @@ const EditModal: React.FC<EditModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-[#003cc3] text-white rounded-lg font-medium hover:bg-[#002fa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-secondary text-white rounded-lg font-medium hover:bg-secondary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={disableInputs}
             >
               {isSubmitting ? "Salvando..." : "Salvar Alterações"}

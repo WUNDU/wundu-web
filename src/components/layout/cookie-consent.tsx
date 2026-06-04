@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useCookieConsent } from "@/contexts/cookie-conset-context";
 
 export function CookieConsent() {
@@ -53,7 +54,7 @@ export function CookieConsent() {
   return (
     <>
       {showBanner && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50 transition-transform duration-500 animate-in slide-in-from-bottom-full">
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50 transition-transform duration-200 animate-in slide-in-from-bottom-full">
           <div className="container mx-auto px-6 py-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex-1">
@@ -63,9 +64,9 @@ export function CookieConsent() {
                 <p className="text-gray-600 text-sm">
                   Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e
                   analisar o tráfego do site.{" "}
-                  <a href="/privacy-policy" className="text-blue-600 hover:text-blue-800">
+                  <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800">
                     Saiba mais sobre nossa política de cookies
-                  </a>
+                  </Link>
                   .
                 </p>
               </div>

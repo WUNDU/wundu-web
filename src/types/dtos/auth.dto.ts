@@ -51,5 +51,5 @@ export interface ResetPasswordRequest {
 }
 
 export interface AuthToken {
-  token: string;
+  accessToken: string;
 }

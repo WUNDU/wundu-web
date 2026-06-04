@@ -35,12 +35,12 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect, onManualCli
         onClick={handleButtonClick}
         className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 border-2 border-dashed border-[rgba(0,60,195,0.15)] bg-[rgba(0,60,195,0.025)] rounded-xl text-left hover:bg-[rgba(0,60,195,0.04)] transition-colors"
       >
-        <div className="flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-[#003cc3] to-[#001a66] rounded-[13px] sm:rounded-[15px]">
-          <CardIcon className="w-6 h-6 text-[#ffd400]" />
+        <div className="flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-secondary to-secondary-dark rounded-[13px] sm:rounded-[15px]">
+          <CardIcon className="w-6 h-6 text-primary" />
         </div>
         <div>
           <p className="text-sm font-bold text-slate-900">Enviar Comprovativo</p>
-          <p className="text-xs text-slate-400">PDF do seu banco</p>
+          <p className="text-xs text-slate-400">PDF, JPG ou PNG do seu banco</p>
         </div>
       </button>
 
@@ -65,7 +65,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect, onManualCli
       <input
         type="file"
         ref={fileInputRef}
-        accept="application/pdf"
+        accept="application/pdf,image/jpeg,image/png"
         onChange={(e) => handleFileChange(e, "document")}
         style={{ display: "none" }}
       />

@@ -3,30 +3,28 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Document } from "@/types/ui";
-import { LoadingSpinner } from "@/components/ui";
 import { StatsSection } from "@/components/layout";
 
-import {
-  ManualCompletionRequiredError,
-  transactionService,
-} from "@/services/transaction.service";
 import { useUiStore } from "@/store/ui-store";
 import { useAuth } from "@/hooks/use-auth";
 import { useTransaction } from "@/hooks/use-transaction";
+import { useDocumentQueue } from "@/hooks/use-document-queue";
+import { documentService } from "@/services/document.service";
 import {
-  ALLOWED_UPLOAD_MIME,
   MAX_UPLOAD_FILE_SIZE_BYTES,
   MAX_UPLOAD_FILE_SIZE_MB,
 } from "@/constants/upload";
 import { Category } from "@/types/dtos/category.dto";
+import { isIncome } from "@/utils/transaction-type";
 
 import UploadSection from "@/components/home/upload-section";
 import UploadOptions from "@/components/home/upload-options";
 import AddTransactionModal from "@/components/home/add-transaction-modal";
-import ManualTransactionModal from "@/components/home/manual-transaction-modal";
 import MovementSection from "@/components/home/movement-section";
 import CategoryScreen from "@/components/home/category-screen";
+import OcrToastStack from "@/components/home/ocr-toast-stack";
 import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
+import posthog from "posthog-js";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -35,39 +33,33 @@ const HomeScreen = () => {
   const [pendingDocs, setPendingDocs] = useState<Document[]>([]);
   const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [manualData, setManualData] = useState<{
-    transactionId: string;
-    defaults: {
-      description?: string;
-      amount?: number;
-      transactionDate?: string;
-      operationNumber?: string;
-    };
-  } | null>(null);
-  const [isManualSubmitting, setIsManualSubmitting] = useState(false);
   const {
-    transactions: rawTransactions,
+    allTransactions,
     isLoading: isTransactionsLoading,
     isRefreshing: isTransactionsRefreshing,
     error: transactionsError,
-    getTransactions: fetchTransactions,
-    refreshTransactions,
-  } = useTransaction();
+    loadPage,
+  } = useTransaction({ autoFetch: false });
+
+  const refreshTransactions = useCallback(async () => {
+    await loadPage(0, true);
+  }, [loadPage]);
 
   const documents = useMemo<Document[]>(
     () => [
       ...pendingDocs,
-      ...rawTransactions.map((tx, index) => ({
+      ...(allTransactions ?? []).map((tx, index) => ({
+        id: tx.id,
         type: "transaction" as const,
         name: tx.description || tx.category?.name || `Transação ${index + 1}`,
         description: tx.description ?? undefined,
         amount: tx.amount,
         category: tx.category?.name ?? undefined,
         timestamp: tx.transactionDate,
-        isIncome: tx.type === "income",
+        isIncome: isIncome(tx.type),
       })),
     ],
-    [rawTransactions, pendingDocs],
+    [allTransactions, pendingDocs],
   );
   const { showNotification } = useUiStore();
   const {
@@ -82,18 +74,26 @@ const HomeScreen = () => {
     handleSubmit,
   } = useAddTransactionModal();
 
+  const { entries: ocrEntries, startPolling, dismiss: dismissOcr, categorize: categorizeOcr } = useDocumentQueue({
+    onProcessed: (doc) => {
+      refreshTransactions();
+      posthog.capture("document_ocr_processed", { documentId: doc.id });
+    },
+  });
+
   useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+    if (allTransactions === null && !isTransactionsLoading) {
+      loadPage(0);
+    }
+  }, [allTransactions, isTransactionsLoading, loadPage]);
 
   const handleTransactionSubmit = useCallback(async () => {
     const success = await handleSubmit();
     if (success) {
       setPendingDocs([]);
-      await refreshTransactions();
     }
     return success;
-  }, [handleSubmit, refreshTransactions]);
+  }, [handleSubmit]);
 
   const handleOpenTransactionModal = () => {
     openModal();
@@ -104,11 +104,12 @@ const HomeScreen = () => {
   };
 
   const handleFileSelect = async (file: File, type: "image" | "document") => {
-    if (file.type !== ALLOWED_UPLOAD_MIME) {
+    const allowedMimes = ["application/pdf", "image/jpeg", "image/png"];
+    if (!allowedMimes.includes(file.type)) {
       showNotification(
         "error",
         "Formato inválido",
-        "Envie apenas comprovativos em PDF.",
+        "Envie comprovativos em PDF, JPG ou PNG.",
       );
       return;
     }
@@ -117,115 +118,40 @@ const HomeScreen = () => {
       showNotification(
         "error",
         "Arquivo muito grande",
-        `O PDF deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`,
+        `O ficheiro deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`,
       );
       return;
     }
 
     setIsUploading(true);
     try {
-      const result = await transactionService.processDocumentTransaction(file, {
-        documentType: type === "image" ? "IMAGE" : "DOCUMENT",
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await documentService.upload(formData);
+      posthog.capture("document_uploaded", {
+        document_type: type,
+        file_name: file.name,
+        file_size: file.size,
+        documentId: response.documentId,
       });
-
-      const extracted = result.ocr.extractedData ?? {};
-      setPendingDocs((prev) => [
-        {
-          type: "transaction",
-          name: extracted.description ?? file.name,
-          description: extracted.description,
-          amount: extracted.amount,
-          timestamp: extracted.transactionDate,
-        },
-        ...prev,
-      ]);
-      showNotification(
-        "success",
-        "Comprovativo processado",
-        "Transação criada automaticamente a partir do OCR.",
-      );
-
-      await refreshTransactions();
-      setPendingDocs([]);
+      setShowUploadOptions(false);
+      startPolling(response.documentId, file.name);
     } catch (error) {
-      if (error instanceof ManualCompletionRequiredError) {
-        setManualData({
-          transactionId: error.transactionId,
-          defaults: error.defaults,
-        });
-        showNotification(
-          "info",
-          "Dados incompletos",
-          "Revise descrição, montante e data para concluir o comprovativo.",
-        );
-      } else {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Não foi possível processar o comprovativo.";
-        showNotification("error", "Falha no processamento", message);
-      }
+      const message =
+        error instanceof Error ? error.message : "Não foi possível enviar o comprovativo.";
+      showNotification("error", "Falha no envio", message);
+      posthog.capture("document_upload_failed", { reason: message });
     } finally {
       setIsUploading(false);
     }
   };
 
+  const handleOcrRetry = (_id: string) => {
+    setShowUploadOptions(true);
+  };
+
   const handleCategoryCloseOrSuccess = () => {
     setShowUploadOptions(false);
-  };
-
-  const manualFormDefaults = manualData
-    ? {
-        description: manualData.defaults.description ?? "",
-        amount: manualData.defaults.amount ?? null,
-        transactionDate:
-          manualData.defaults.transactionDate ?? new Date().toISOString(),
-      }
-    : null;
-
-  const handleManualModalClose = () => {
-    setManualData(null);
-  };
-
-  const handleManualModalSubmit = async ({
-    description,
-    amount,
-    transactionDate,
-  }: {
-    description: string;
-    amount: number;
-    transactionDate: string;
-  }) => {
-    if (!manualData) return;
-    setIsManualSubmitting(true);
-    try {
-      await transactionService.finalizeManualTransaction(
-        manualData.transactionId,
-        {
-          description,
-          amount,
-          transactionDate,
-          operationNumber: manualData.defaults.operationNumber,
-          type: "expense",
-        },
-      );
-
-      await refreshTransactions();
-      showNotification(
-        "success",
-        "Transação completada",
-        "Os dados foram registados manualmente.",
-      );
-      setManualData(null);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Não foi possível concluir a transação.";
-      showNotification("error", "Erro ao salvar", message);
-    } finally {
-      setIsManualSubmitting(false);
-    }
   };
 
   return (
@@ -238,23 +164,18 @@ const HomeScreen = () => {
         className="flex flex-col gap-1"
       >
         <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-          Olá, {user?.name?.split(" ")[0] || "Usuário"}! 👋
+          Olá, {user?.name?.split(" ")[0] || "Usuário"}! <span aria-hidden="true">👋</span>
         </h2>
         <p className="text-sm text-slate-500 font-medium">
           Aqui está o que está acontecendo com suas finanças hoje.
         </p>
       </motion.div>
 
-      {isUploading ? (
-        <div className="flex flex-1 items-center justify-center min-h-[400px]">
-          <LoadingSpinner />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
           {/* Grid de Cards Superiores - Alinhados e Proporcionais */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
             <div className="lg:col-span-4 flex">
-              <UploadSection onUploadClick={toggleUploadOptions} />
+              <UploadSection onUploadClick={toggleUploadOptions} isUploading={isUploading} />
             </div>
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -286,15 +207,7 @@ const HomeScreen = () => {
             />
           </motion.div>
         </div>
-      )}
 
-      <ManualTransactionModal
-        isOpen={Boolean(manualData)}
-        defaults={manualFormDefaults}
-        isSubmitting={isManualSubmitting}
-        onClose={handleManualModalClose}
-        onSubmit={handleManualModalSubmit}
-      />
       <AddTransactionModal
         isOpen={isTransactionModalOpen}
         onClose={closeModal}
@@ -304,6 +217,12 @@ const HomeScreen = () => {
         isLoading={isTransactionLoading}
         submitError={submitError}
         onFormChange={handleChange}
+      />
+      <OcrToastStack
+        entries={ocrEntries}
+        onDismiss={dismissOcr}
+        onCategorize={categorizeOcr}
+        onRetry={handleOcrRetry}
       />
     </div>
   );
@@ -354,14 +273,14 @@ const MainContent = ({
         {showUploadOptions && (
           <motion.div
             key="upload-options-panel"
-            initial={{ opacity: 0, x: -14 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -14 }}
-            transition={{ duration: 0.24, ease: EASE_OUT }}
-            className="w-full xl:w-[300px] flex-shrink-0"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2, ease: EASE_OUT }}
+            className="w-full xl:w-[280px] flex-shrink-0"
           >
-            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em] mb-4 text-center lg:text-left">
+            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm h-full">
+              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em] mb-4 text-center lg:text-left">
                 Opções de Envio
               </h3>
               <UploadOptions

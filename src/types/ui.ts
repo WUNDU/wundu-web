@@ -68,6 +68,7 @@ export interface UploadProps {
 export type DocumentType = "image" | "document" | "transaction";
 
 export interface Document {
+  id?: string;
   type: DocumentType;
   name: string;
   description?: string;
@@ -398,10 +399,13 @@ export interface ProtectedRouteProps {
 export interface SelectProps {
   label: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (value: string) => void;
   options: { value: string; label: string }[];
   required?: boolean;
+  disabled?: boolean;
   className?: string;
+  /** When true, opens a centered full-screen overlay instead of an inline dropdown — best for long lists */
+  modal?: boolean;
 }
 
 // ─── sidebar ──────────────────────────────────────────────────────────────────

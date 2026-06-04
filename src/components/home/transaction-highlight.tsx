@@ -37,13 +37,14 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 12 }}
+      initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{
-        duration: 0.2,
+        duration: 0.28,
         ease: "easeOut" as const,
-        delay: Math.min(index * 0.03, 0.25),
+        delay: Math.min(index * 0.055, 0.4),
       }}
+      whileHover={{ x: 2, transition: { duration: 0.15 } }}
       className={`flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3${onClick ? " cursor-pointer hover:bg-slate-50/60 transition-colors" : ""}`}
       onClick={onClick}
     >
@@ -94,7 +95,7 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
           paddingRight: 10,
           paddingTop: 6,
           paddingBottom: 6,
-          borderRadius: 20,
+          borderRadius: 12,
         }}
       >
         <span
@@ -102,7 +103,7 @@ const TransactionHighlight: React.FC<TransactionHighlightProps> = ({
             fontWeight: 800,
             color: isIncome ? "#10B981" : "#EF4444",
           }}
-          className="text-[12px] sm:text-[13px]"
+          className="text-[12px] sm:text-[13px] tabular-nums"
         >
           {isIncome ? "+" : "-"} {formattedAmount}
         </span>

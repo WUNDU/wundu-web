@@ -1,4 +1,6 @@
 import type { TransactionResponse } from "@/types/dtos/transaction.dto";
+import { isExpense } from "@/utils/transaction-type";
+import { BRAND_COLORS } from "@/constants/brand-colors";
 
 export type ChartData = { label: string; amount: number };
 export type CategoryData = {
@@ -24,7 +26,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 const FALLBACK_COLORS = [
   "#FFC727", "#49B58F", "#9C52F1", "#66A8E3",
-  "#23ABA4", "#F97316", "#10B981", "#003cc3",
+  "#23ABA4", "#F97316", "#10B981", BRAND_COLORS.blue,
 ];
 const getColor = (name: string, idx: number) =>
   CATEGORY_COLORS[name] ?? FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
@@ -52,7 +54,7 @@ function filterByPeriod(
 ): TransactionResponse[] {
   const now = new Date();
   const isCurrentYear = year === now.getFullYear();
-  const expenses = txs.filter((t) => t.type === "expense");
+  const expenses = txs.filter((t) => isExpense(t.type));
 
   switch (filter) {
     case "1D": {

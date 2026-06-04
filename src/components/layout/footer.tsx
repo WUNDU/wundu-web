@@ -31,6 +31,8 @@ export default function Footer() {
           </a>
           <a
             href="https://www.instagram.com/onewundu/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-yellow-500 transition-colors"
             aria-label="Instagram"
           >
@@ -38,6 +40,8 @@ export default function Footer() {
           </a>
           <a
             href="https://www.linkedin.com/company/onewundu/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-yellow-500 transition-colors"
             aria-label="Linkedin"
           >
@@ -45,6 +49,8 @@ export default function Footer() {
           </a>
           <a
             href="https://x.com/onewundu"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-yellow-500 transition-colors"
             aria-label="X"
           >
@@ -52,6 +58,8 @@ export default function Footer() {
           </a>
           <a
             href="https://web.facebook.com/people/Wundu/61574847264364/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-yellow-500 transition-colors"
             aria-label="Facebook"
           >

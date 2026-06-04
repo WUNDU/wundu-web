@@ -44,17 +44,30 @@ class GoalService {
 
   async getProgress(goalId: string): Promise<GoalProgress[]> {
     const { data } = await apiClient.get<GoalProgress[]>(`/goals/${goalId}/progress`);
-    return data;
+    return Array.isArray(data) ? data : [];
   }
 
   async addProgress(goalId: string, amount: number, progressDate?: string): Promise<GoalProgress> {
-    const params = new URLSearchParams({ amount: String(amount) });
-    if (progressDate) params.append("progressDate", progressDate);
-    const { data } = await apiClient.post<GoalProgress>(
-      `/goals/${goalId}/progress?${params.toString()}`,
-      null,
-    );
+    const body: { amount: number; progressDate?: string } = { amount };
+    if (progressDate) body.progressDate = progressDate;
+    const { data } = await apiClient.post<GoalProgress>(`/goals/${goalId}/progress`, body);
     return data;
+  }
+
+  async updateProgress(
+    goalId: string,
+    progressId: string,
+    amount: number,
+    progressDate?: string,
+  ): Promise<GoalProgress> {
+    const body: { amount: number; progressDate?: string } = { amount };
+    if (progressDate) body.progressDate = progressDate;
+    const { data } = await apiClient.patch<GoalProgress>(`/goals/${goalId}/progress/${progressId}`, body);
+    return data;
+  }
+
+  async deleteProgress(goalId: string, progressId: string): Promise<void> {
+    await apiClient.delete(`/goals/${goalId}/progress/${progressId}`);
   }
 }
 

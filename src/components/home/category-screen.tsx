@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { defaultCategories } from "@/constants/mock-data";
-import { Category } from "@/types/dtos/category.dto";
+import React, { useEffect, useState } from "react";
+import { useCategoryStore } from "@/store/category-store";
+import type { Category } from "@/types/dtos/category.dto";
+import { Plus, Loader2 } from "lucide-react";
+import { getCategoryStyle } from "@/utils/category-style";
 
 export interface CategoryScreenProps {
   onCloseOrSuccess?: () => void;
@@ -23,7 +25,14 @@ const CategoryScreen = ({
   transactionDescription,
   setTransactionDescription,
 }: CategoryScreenProps) => {
+  const { categories, isLoading, fetchActive, create } = useCategoryStore();
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    fetchActive();
+  }, [fetchActive]);
 
   const handleCategorySelect = (category: Category) =>
     setSelectedCategory(category);
@@ -48,11 +57,124 @@ const CategoryScreen = ({
     onCloseOrSuccess?.();
   };
 
+  const handleCreateCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    setIsCreating(true);
+    const created = await create({ name });
+    setIsCreating(false);
+    if (created) {
+      setNewCategoryName("");
+      setSelectedCategory(created);
+    }
+  };
+
   if (!isCategoryModalOpen) return null;
+
+  const globalCategories = categories.filter((c) => !c.userId);
+  const myCategories = categories.filter((c) => !!c.userId);
+
+  const CategoryList = () => (
+    <>
+      {/* Global categories */}
+      <div className="mb-5">
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          Categorias do sistema
+        </h3>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {globalCategories.map((category) => {
+              const style = getCategoryStyle(category.name);
+              const Icon = style.icon;
+              const isActive = selectedCategory?.id === category.id;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategorySelect(category)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? "text-white shadow-sm scale-105"
+                      : "bg-white border border-slate-200 hover:bg-slate-50"
+                  }`}
+                  style={isActive ? { backgroundColor: style.color } : { color: style.color }}
+                >
+                  <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Personal categories */}
+      {myCategories.length > 0 && (
+        <div className="mb-5">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            Personalizadas
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {myCategories.map((category) => {
+              const style = getCategoryStyle(category.name);
+              const Icon = style.icon;
+              const isActive = selectedCategory?.id === category.id;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategorySelect(category)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-secondary text-white shadow-sm scale-105"
+                      : "bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Create custom category */}
+      <div className="mb-6 border-t border-gray-100 pt-5">
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          Criar categoria personalizada
+        </h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+            placeholder="Nome da categoria"
+            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+          />
+          <button
+            onClick={handleCreateCategory}
+            disabled={!newCategoryName.trim() || isCreating}
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-yellow-400 text-white rounded-xl text-sm font-semibold hover:bg-yellow-500 active:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isCreating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            Criar
+          </button>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
-      {/* Mobile: Tela inteira para definir categoria */}
+      {/* Mobile: Tela inteira */}
       <div className="fixed inset-0 bg-white z-40 md:hidden overflow-y-auto">
         <div className="min-h-screen bg-gray-50">
           <div className="flex items-center justify-between p-6 bg-gray-100 border-b border-gray-100">
@@ -79,31 +201,7 @@ const CategoryScreen = ({
           </div>
           <div className="p-4 bg-gray-100 rounded-xl">
             <div className="bg-white rounded-xl p-4">
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  Categorias padrão
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {defaultCategories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategorySelect(category)}
-                      className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${
-                        selectedCategory?.id === category.id
-                          ? "bg-yellow-400 text-white shadow-sm scale-105"
-                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                      }`}
-                      style={
-                        selectedCategory?.id === category.id && category.color
-                          ? { backgroundColor: category.color }
-                          : {}
-                      }
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <CategoryList />
               {selectedCategory && (
                 <div className="mb-8">
                   <h3 className="text-base font-medium text-gray-700 mb-4">
@@ -132,7 +230,7 @@ const CategoryScreen = ({
         </div>
       </div>
 
-      {/* Desktop: Altera o conteúdo com base no estado de sucesso */}
+      {/* Desktop */}
       <div className="hidden md:block mt-2 w-full h-full overflow-y-auto">
         {showSuccessScreen ? (
           <div className="bg-white rounded-xl shadow-sm w-full p-4 text-center flex flex-col items-center justify-center h-full">
@@ -150,53 +248,27 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">
               Categoria definida com sucesso
             </h3>
-            <p className="text-sm text-gray-600">
-              O movimento "Débito" foi definido na categoria{" "}
+            <p className="text-sm text-slate-600">
+              O movimento "{transactionDescription || "Movimento"}" foi definido na categoria{" "}
               {selectedCategory?.name.toLowerCase()}.
             </p>
           </div>
         ) : (
           <div className="bg-white rounded-xl p-4">
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-4">
-                Categorias padrão
-              </h3>
-              <div className="rounded-xl border-2 border-gray-100 p-4">
-                <div className="flex flex-wrap gap-3">
-                  {defaultCategories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategorySelect(category)}
-                      className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${
-                        selectedCategory?.id === category.id
-                          ? "bg-yellow-400 text-white shadow-sm scale-105"
-                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                      }`}
-                      style={
-                        selectedCategory?.id === category.id && category.color
-                          ? { backgroundColor: category.color }
-                          : {}
-                      }
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <CategoryList />
             {selectedCategory && (
               <div className="mb-8">
-                <h3 className="text-base font-medium text-gray-700 mb-4">
+                <h3 className="text-base font-medium text-slate-700 mb-4">
                   Descrição
                 </h3>
                 <textarea
                   value={transactionDescription}
                   onChange={(e) => setTransactionDescription(e.target.value)}
                   placeholder="Escrever"
-                  className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  className="w-full h-32 p-4 bg-white border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 />
               </div>
             )}
@@ -214,7 +286,7 @@ const CategoryScreen = ({
         )}
       </div>
 
-      {/* Modal de sucesso (overlay) */}
+      {/* Modal de sucesso (overlay mobile) */}
       {showSuccessScreen && (
         <div className="md:hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-sm w-full max-w-sm p-4 text-center">
@@ -232,11 +304,11 @@ const CategoryScreen = ({
                 />
               </svg>
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">
               Categoria definida com sucesso
             </h3>
-            <p className="text-sm text-gray-600">
-              O movimento "Débito" foi definido na categoria{" "}
+            <p className="text-sm text-slate-600">
+              O movimento "{transactionDescription || "Movimento"}" foi definido na categoria{" "}
               {selectedCategory?.name.toLowerCase()}.
             </p>
           </div>

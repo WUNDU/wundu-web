@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "rounded-xl bg-slate-900 text-white border border-slate-900 hover:bg-white hover:text-slate-900 hover:shadow-lg",
+          "rounded-xl bg-slate-900 text-white border border-transparent hover:bg-slate-800 hover:shadow-md active:scale-[0.98]",
         secondary:
-          "rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50",
+          "rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-300",
         google:
-          "rounded-xl bg-white border border-gray-200 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-blue-50 hover:border-blue-300 hover:shadow-lg",
-        destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600",
-        success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600",
+          "rounded-xl bg-white border border-gray-200 text-gray-800 hover:bg-slate-50 hover:border-gray-300 hover:shadow-sm",
+        destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600 active:scale-[0.98]",
+        success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 active:scale-[0.98]",
         warning:
-          "rounded-xl bg-yellow-400 text-white hover:bg-white hover:text-yellow-500 hover:border hover:border-yellow-400 hover:shadow-lg",
+          "rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white border border-transparent hover:brightness-110 hover:shadow-md active:scale-[0.98]",
         fab:
           "rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-yellow-300 p-0",
         fabCircle:
@@ -28,7 +28,7 @@ const buttonVariants = cva(
         option:
           "w-full flex flex-1 justify-start px-15 p-4 bg-gray-100 hover:bg-gray-200 hover:shadow-md hover:scale-105 shadow-sm",
         landing:
-          "py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-yellow-400 to-orange-300 text-blue-900 border-0",
+          "py-2 md:px-12 md:py-5 font-bold rounded-full inline-flex items-center space-x-3 md:text-lg transition-all duration-200 hover:scale-105 hover:shadow-2xl bg-gradient-to-r from-primary to-primary-dark text-white border-0",
         close: "size-8 p-0 bg-gray-100 text-gray-800 hover:bg-gray-200",
         icon: "size-10 p-2",
         more: "px-4 py-2 text-sm shadow-sm",

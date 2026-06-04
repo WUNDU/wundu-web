@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import LogoType from "@/components/ui/logo-type";
+import Link from "next/link";
 
 export const WunduLogo = () => (
   <div className="flex items-center gap-2 group cursor-pointer relative z-10">
-    <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center group-hover:rotate-12 transition-transform duration-500 shadow-sm group-hover:shadow-glow-primary border border-white/40">
+    <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center group-hover:rotate-12 transition-transform duration-200 shadow-sm group-hover:shadow-glow-primary border border-white/40">
       <span className="text-white font-black text-sm">W</span>
     </div>
     <span className="font-bold text-gray-900 text-lg tracking-tight">
@@ -45,13 +46,13 @@ export default function Navbar() {
       <nav
         className={`
         pointer-events-auto
-        w-full max-w-6xl flex items-center justify-between 
-        px-6 md:px-8 py-3 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] 
-        rounded-full border shadow-[0_8px_32px_0_rgba(255,255,255,0.08)]
+        w-full max-w-3xl flex items-center justify-between 
+        px-3 md:px-4 py-1.5 transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] 
+        rounded-full border shadow-[0_8px_32px_0_rgba(255,255,255,0.08)] backdrop-blur-xl
         ${
           scrolled
-            ? "-translate-y-1 py-2 scale-[0.98] bg-yellow-400/20 border-yellow-400/70 shadow-[0_20px_40px_rgba(255,199,39,0.15)]"
-            : "py-4 bg-white/10 border-white/20"
+            ? "-translate-y-1 scale-[0.98] bg-yellow-400/20 border-yellow-400/70 shadow-[0_20px_40px_rgba(255,199,39,0.15)]"
+            : "bg-white/10 border-white/20"
         }
       `}
       >
@@ -62,34 +63,34 @@ export default function Navbar() {
         {/* Logo */}
         <div
           onClick={handleHome}
-          className="relative z-10 transition-transform active:scale-95"
+          className="relative z-10 transition-transform active:scale-95 flex-shrink-0"
         >
-          <div>
+          <div className="h-14 overflow-hidden">
             <LogoType />
           </div>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-10 text-md font-bold text-gray-400 relative z-10">
+        <div className="hidden md:flex items-center gap-8 relative z-10">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.name}
               href={item.href}
-              className="hover:text-yellow-600 transition-all duration-300 relative group py-2"
+              className="text-[16px] font-extrabold text-secondary-dark hover:text-primary-dark transition-all duration-200 relative group py-2"
             >
               {item.name}
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-yellow-400 rounded-full transition-all duration-500 group-hover:w-1 group-hover:h-1" />
-            </a>
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-yellow-400 rounded-full transition-all duration-150 group-hover:w-1 group-hover:h-1" />
+            </Link>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-2 relative z-10">
-          <button
-            onClick={() => router.push(ROUTES.LOGIN)}
-            className="bg-gray-900 px-6 py-2.5 text-[13px] font-black text-white transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] rounded-lg hover:bg-gray-800 hover:shadow-lg active:scale-95 flex items-center gap-2"
+          <Link
+            href={ROUTES.LOGIN}
+            className="bg-gray-900 px-5 py-2 text-[14px] font-black text-white transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] rounded-lg hover:bg-gray-800 hover:shadow-lg active:scale-95 flex items-center gap-2"
           >
             Entrar
-          </button>
+          </Link>
         </div>
 
         <button
@@ -104,40 +105,35 @@ export default function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile Menu (Liquid Glass Style) */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-x-4 top-28 bg-white/40 z-40 md:hidden rounded-[2.5rem] shadow-2xl border border-white/40 p-8 pointer-events-auto animate-scale-in origin-top overflow-hidden">
-          <div className="absolute inset-0 bg-linear-to-b from-white/30 to-transparent pointer-events-none" />
-          <div className="relative z-10 flex flex-col gap-5">
+        <div className="fixed inset-x-4 top-32 bg-white/90 backdrop-blur-2xl z-40 md:hidden rounded-[2rem] shadow-2xl border border-white/60 p-5 pointer-events-auto animate-scale-in origin-top overflow-hidden">
+          <div className="relative z-10 flex flex-col gap-2">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-2xl font-black text-gray-800 hover:text-yellow-600 transition-all active:translate-x-2"
+                className="text-base font-bold text-secondary-dark hover:text-primary-dark transition-all duration-150 px-3 py-2.5 rounded-xl hover:bg-secondary/5 active:translate-x-1"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
-            <div className="pt-6 flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  router.push(ROUTES.LOGIN);
-                }}
-                className="w-full py-4 text-center font-bold text-gray-800 bg-white/20 rounded-2xl active:scale-95 transition-transform border border-white/30"
+            <div className="pt-3 flex flex-col gap-2.5 border-t border-slate-100 mt-1">
+              <Link
+                href={ROUTES.LOGIN}
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full py-3 text-center font-bold text-secondary-dark bg-white/60 rounded-xl active:scale-95 transition-transform border border-slate-200/60"
               >
                 Entrar
-              </button>
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  router.push(ROUTES.REGISTER);
-                }}
-                className="w-full py-4 text-center font-black text-white bg-yellow-400 rounded-2xl shadow-glow-primary active:scale-95 transition-transform border border-white/30"
+              </Link>
+              <Link
+                href={ROUTES.REGISTER}
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full py-3 text-center font-black text-white bg-secondary rounded-xl active:scale-95 transition-transform"
               >
                 Criar Conta
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useMemo } from "react";
+import React, { createContext, useContext, useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/user-store";
+import { usePathname } from "next/navigation";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -41,11 +42,18 @@ export function useLoading() {
 function GlobalLoadingOverlay() {
   const context = useContext(LoadingContext);
   const authIsLoading = useUserStore((state) => state.isLoading);
+  const user = useUserStore((state) => state.user);
+  const pathname = usePathname();
 
   if (!context) return null;
 
   const { isLoading: globalIsLoading, message } = context;
-  const isAnyLoading = globalIsLoading || authIsLoading;
+  
+  // Do not show any loading overlay on the Landing Page
+  if (pathname === "/") return null;
+
+  // Only block UI when no cached user — silent re-auth never shows overlay
+  const isAnyLoading = globalIsLoading || (authIsLoading && !user);
 
   return (
     <AnimatePresence>
@@ -60,20 +68,20 @@ function GlobalLoadingOverlay() {
           <div className="relative flex flex-col items-center gap-6">
             {/* CSS spinner — matches Google link page speed */}
             <div className="relative w-12 h-12">
-              <div className="absolute inset-0 border-[3px] border-[#ffd400]/15 rounded-full" />
-              <div className="absolute inset-0 border-[3px] border-t-[#ffd400] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
+              <div className="absolute inset-0 border-[3px] border-primary/15 rounded-full" />
+              <div className="absolute inset-0 border-[3px] border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
             </div>
 
             {/* Subtle Message */}
             <div className="flex flex-col items-center gap-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#003cc3]/70 italic">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary/70 italic">
                 {message || (authIsLoading ? "Autenticando" : "Carregando")}
               </p>
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1 h-1 bg-[#ffd400]/50 rounded-full"
+                    className="w-1 h-1 bg-primary/50 rounded-full"
                     animate={{ opacity: [0.2, 1, 0.2] }}
                     transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                   />

@@ -1,26 +1,29 @@
 "use client";
 import { useUserStore } from "@/store/user-store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
-import { LoadingSpinner } from "@/components/ui";
+import { LoadingProvider } from "@/contexts/loading-context";
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 const MaintenanceOverlay: React.FC = () => {
   const whatsappLink =
     "https://chat.whatsapp.com/C0gVUnIB9OaHnAZAiiLJmQ?mode=gi_t";
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#003cc3] to-[#00216b] px-6 text-center overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-secondary to-secondary-dark px-6 text-center overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,212,0,0.1)_0%,transparent_60%)] pointer-events-none" />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-12 md:mb-16 shrink-0 z-10"
       >
-        <img
+        <Image
           src="/assets/logotype.svg"
           alt="Wundu"
+          width={200}
+          height={80}
           className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto block mx-auto"
         />
       </motion.div>
@@ -32,7 +35,7 @@ const MaintenanceOverlay: React.FC = () => {
       >
         <h1 className="mb-6 text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white leading-none uppercase text-balance">
           Estamos a <br />
-          <span className="text-[#ffd400] drop-shadow-2xl">Evoluir.</span>
+          <span className="text-primary drop-shadow-2xl">Evoluir.</span>
         </h1>
         <p className="mb-12 text-base sm:text-lg md:text-xl lg:text-2xl text-blue-50/70 font-medium max-w-2xl mx-auto leading-relaxed">
           A Wundu está a implementar uma infraestrutura financeira de nova
@@ -66,33 +69,39 @@ const MaintenanceOverlay: React.FC = () => {
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useUserStore();
+  const { isAuthenticated, isLoading, initializeAuth } = useUserStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [checked, setChecked] = useState(false);
 
   // Alterar para false quando os problemas técnicos forem resolvidos
-  const isMaintenance = true;
+  const launchDate = new Date("2026-06-08T00:00:00");
+  const isMaintenance = new Date() < launchDate;
+
+  // These pages must remain accessible even when authenticated
+  const isVerifyPage =
+    pathname === ROUTES.VERIFY_PENDING || pathname === ROUTES.VERIFY_EMAIL;
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
     if (!isLoading) {
-      if (isAuthenticated) {
+      if (isAuthenticated && !isVerifyPage) {
         router.push(ROUTES.HOME);
       }
       setChecked(true);
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, isVerifyPage]);
 
-  if (!checked || isAuthenticated) {
-    return (
-      <div className="flex flex-1 justify-center h-screen items-center">
-        <LoadingSpinner />
-      </div>
-    );
+  if (!checked || (isAuthenticated && !isVerifyPage)) {
+    return null;
   }
 
   if (isMaintenance) {
     return <MaintenanceOverlay />;
   }
 
-  return <>{children}</>;
+  return <LoadingProvider>{children}</LoadingProvider>;
 }

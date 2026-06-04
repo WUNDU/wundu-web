@@ -1,6 +1,31 @@
 import axios from "axios";
+import { setPendingVerificationEmail } from "@/utils/pending-verification";
 
 const API_BASE_URL = "/api/proxy";
+
+function extractRequestEmail(data: unknown) {
+  if (!data) return "";
+
+  if (typeof data === "string") {
+    try {
+      const parsed = JSON.parse(data) as { email?: unknown };
+      return typeof parsed.email === "string" ? parsed.email.trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  if (typeof data !== "object") return "";
+
+  const email = (data as { email?: unknown }).email;
+  return typeof email === "string" ? email.trim() : "";
+}
+
+export type ApiError = Error & {
+  errorCode?: string;
+  status?: number;
+  retryAfterSeconds?: number;
+};
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,31 +36,114 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor - adiciona token de autenticação
+// Request interceptor - lê token em memória a partir do store (nunca do localStorage)
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+    const token = useUserStore.getState().token;
     if (token) {
-      config.headers.Authorization = token.startsWith("Bearer ")
-        ? token
-        : `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;
 });
 
+// Fila de pedidos que aguardam refresh silencioso
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = [];
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token!);
+    }
+  });
+  failedQueue = [];
+}
+
 // Response interceptor - trata erros globais
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    // Pass through cancelled/aborted requests without processing them as errors
+    if (axios.isCancel(error) || error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
+      return Promise.reject(error);
+    }
+
+    const originalRequest = error.config;
+
+    // Tenta refresh silencioso antes de redirecionar para login
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+        const newToken = await useUserStore.getState().refreshToken();
+        processQueue(null, newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        if (typeof window !== "undefined") {
+          const publicPaths = [
+            "/",
+            "/about",
+            "/features",
+            "/contacts",
+            "/legal",
+            "/login",
+            "/register",
+            "/verify-pending",
+            "/verify-email",
+          ];
+          const isPublicPath = publicPaths.some(
+            (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/")
+          );
+          if (!isPublicPath) {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+            useUserStore.getState().logout();
+          }
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // Redirect to email verification pending page when backend blocks unverified users
+    if (error.response?.data?.errorCode === "EMAIL_NOT_VERIFIED") {
       if (typeof window !== "undefined") {
-        const hadToken = !!localStorage.getItem("token");
-        localStorage.removeItem("token");
-        // Only redirect on session expiry (had a token). Login attempts (no token)
-        // return 401 for wrong credentials — let the error propagate to the caller.
-        if (hadToken) {
-          window.location.href = "/login";
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+        const email =
+          useUserStore.getState().user?.email || extractRequestEmail(error.config?.data);
+        if (email) {
+          setPendingVerificationEmail(email);
+        }
+        const currentPath = window.location.pathname;
+        if (currentPath !== "/verify-pending" && currentPath !== "/verify-email") {
+          window.location.href = "/verify-pending";
         }
       }
     }
@@ -49,7 +157,13 @@ api.interceptors.response.use(
         ? rawMessage
         : fallbackMessage;
 
-    return Promise.reject(new Error(message));
+    // Attach errorCode so callers can react to specific backend error codes
+    const err = new Error(message) as ApiError;
+    err.errorCode = error.response?.data?.errorCode;
+    err.status = error.response?.status;
+    err.retryAfterSeconds = error.response?.data?.retryAfterSeconds;
+
+    return Promise.reject(err);
   }
 );
 
@@ -57,6 +171,7 @@ type ApiConfig = {
   headers?: Record<string, string>;
   skipAuth?: boolean;
   params?: Record<string, unknown>;
+  withCredentials?: boolean;
 };
 
 // Wrapper para manter compatibilidade com código existente

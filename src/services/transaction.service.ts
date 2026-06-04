@@ -2,6 +2,7 @@ import { apiClient } from "@/api/api";
 import type {
   DefineCategoryRequest,
   TransactionDTO,
+  TransactionPatchPayload,
   TransactionRequest,
   TransactionResponse,
   TransactionUpdateRequest,
@@ -33,7 +34,7 @@ export type TransactionCompletionPayload = {
   amount?: number;
   transactionDate?: string;
   operationNumber?: string;
-  type?: "expense";
+  type?: "INCOME" | "EXPENSE";
 };
 
 type CategorizationResponse = {
@@ -69,6 +70,11 @@ type PaginationMeta = {
   totalPages?: number;
 };
 
+export interface NonPaginatedQueryOptions {
+  startDate?: string;
+  endDate?: string;
+}
+
 const normalizeTransactionsResponse = (payload: unknown): TransactionDTO[] => {
   if (Array.isArray(payload)) return payload as TransactionDTO[];
   if (payload && typeof payload === "object") {
@@ -97,16 +103,23 @@ const extractPaginationMeta = (payload: unknown): PaginationMeta => {
 };
 
 class TransactionService {
-  async add(data: TransactionDTO): Promise<boolean> {
+  async add(data: TransactionDTO): Promise<TransactionDTO | null> {
     try {
-      await apiClient.post("/transactions", { ...data, type: "expense" });
-      return true;
+      const { data: created } = await apiClient.post<TransactionDTO>("/transactions", data);
+      return created;
     } catch {
-      return false;
+      return null;
     }
   }
 
   async get(): Promise<TransactionDTO[]> {
+    try {
+      const { data } = await apiClient.get<unknown>("/transactions/me");
+      return normalizeTransactionsResponse(data);
+    } catch {
+      // fallback for environments where /transactions/me is unavailable
+    }
+
     const aggregated: TransactionDTO[] = [];
     let page = 0;
     let shouldContinue = true;
@@ -161,10 +174,7 @@ class TransactionService {
   ): Promise<void> {
     await apiClient.patch(
       `/transactions/${transactionId}/complete`,
-      {
-        ...payload,
-        type: "expense",
-      },
+      payload,
     );
   }
 
@@ -255,7 +265,7 @@ class TransactionService {
         extracted.operationNumber ??
         relatedTransaction?.operationNumber ??
         undefined,
-      type: "expense",
+      type: "EXPENSE",
     };
 
     if (
@@ -289,10 +299,7 @@ class TransactionService {
     transactionId: string,
     payload: TransactionCompletionPayload,
   ): Promise<CategorizationResponse> {
-    await this.completeTransaction(transactionId, {
-      ...payload,
-      type: "expense",
-    });
+    await this.completeTransaction(transactionId, payload);
 
     const categorization = await this.categorizeTransaction(transactionId);
     return categorization;
@@ -305,9 +312,44 @@ class TransactionService {
     return data as Page<TransactionResponse>;
   }
 
-  async getAllNotPaginated(): Promise<TransactionResponse[]> {
-    const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
-    return Array.isArray(data) ? data : [];
+  async getAllNotPaginated(options?: NonPaginatedQueryOptions): Promise<TransactionResponse[]> {
+    if (!options?.startDate && !options?.endDate) {
+      const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
+      return Array.isArray(data) ? data : [];
+    }
+
+    // 1. Fetch first page to get metadata (total pages)
+    const firstPage = await this.getFiltered(0, 100, {
+      startDate: options.startDate,
+      endDate: options.endDate,
+    });
+
+    if (!firstPage.content.length || firstPage.last || firstPage.totalPages <= 1) {
+      return firstPage.content;
+    }
+
+    // 2. Fetch remaining pages in parallel
+    const remainingPageNumbers = Array.from(
+      { length: firstPage.totalPages - 1 },
+      (_, i) => i + 1,
+    );
+
+    const remainingPages = await Promise.all(
+      remainingPageNumbers.map((page) =>
+        this.getFiltered(page, 100, {
+          startDate: options.startDate,
+          endDate: options.endDate,
+        }),
+      ),
+    );
+
+    // 3. Aggregate all results
+    const aggregated = [...firstPage.content];
+    remainingPages.forEach((page) => {
+      aggregated.push(...page.content);
+    });
+
+    return aggregated;
   }
 
   async getById(id: string): Promise<TransactionResponse> {
@@ -356,8 +398,32 @@ class TransactionService {
     return data;
   }
 
+  async update(id: string, payload: TransactionPatchPayload): Promise<TransactionResponse> {
+    const { data } = await apiClient.patch<TransactionResponse>(`/transactions/${id}`, payload);
+    return data;
+  }
+
+  async updateCategory(id: string, categoryId: string): Promise<TransactionResponse> {
+    const { data } = await apiClient.patch<TransactionResponse>(`/transactions/${id}/category`, { categoryId });
+    return data;
+  }
+
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/transactions/${id}`);
+  }
+
+  async getByStatus(status: string): Promise<{ count: number; transactions: TransactionResponse[] }> {
+    const { data } = await apiClient.get<{ count: number; transactions: TransactionResponse[] }>(
+      `/transactions/by-status/${status}`,
+    );
+    return data;
+  }
+
+  async getBySource(source: string): Promise<{ count: number; transactions: TransactionResponse[] }> {
+    const { data } = await apiClient.get<{ count: number; transactions: TransactionResponse[] }>(
+      `/transactions/by-source/${source}`,
+    );
+    return data;
   }
 }
 

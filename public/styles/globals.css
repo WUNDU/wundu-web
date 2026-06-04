@@ -1,9 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary:        #ffd400;
+  --color-primary-dark:   #ca6f05;
+  --color-secondary:      #003cc3;
+  --color-secondary-dark: #00216b;
+  --color-yellow-400:     #ffd400;
+  --color-yellow-600:     #ca6f05;
+  --color-blue-500:       #003cc3;
+  --color-blue-900:       #00216b;
+}
+
 /* globals.css */
 :root {
   --font-inter: "Inter", sans-serif;
   --font-open-sans: "Open Sans", sans-serif;
+
+  /* Wundu brand color tokens */
+  --color-brand-yellow:      #ffd400;
+  --color-brand-yellow-dark: #ca6f05;
+  --color-brand-blue:        #003cc3;
+  --color-brand-blue-dark:   #00216b;
 }
 
 html,
@@ -46,13 +63,13 @@ body {
 
   .gradient-border {
     background: linear-gradient(white, white) padding-box,
-      linear-gradient(45deg, #ffd400, #003cc3) border-box;
+      linear-gradient(45deg, var(--color-brand-yellow), var(--color-brand-blue)) border-box;
     border: 2px solid transparent;
   }
 
   .gradient-border-dark {
     background: linear-gradient(transparent, transparent) padding-box,
-      linear-gradient(45deg, #ffd400, #003cc3) border-box;
+      linear-gradient(45deg, var(--color-brand-yellow), var(--color-brand-blue)) border-box;
     border: 2px solid transparent;
   }
 }

@@ -1,6 +1,7 @@
 export { default as Button } from "./button";
 export { default as Input } from "./input";
 export { default as Select } from "./select";
+export { default as CategorySelect, type CategorySelectProps } from "./category-select";
 export { default as LoadingSpinner } from "./loading-spinner";
 export { default as LogoType } from "./logo-type";
 

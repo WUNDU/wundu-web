@@ -1,14 +1,11 @@
 "use client";
 import { logotype } from "@/constants/images";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 import React from "react";
 
 const NotFound = () => {
-  const router = useRouter();
-  const handleBack = () => {
-    router.back();
-  };
   return (
     <div className="flex flex-col items-center justify-center h-screen text-center">
       <Image src={logotype} alt="Wundu Logo" className="mb-8 h-10 w-auto" />
@@ -19,12 +16,12 @@ const NotFound = () => {
         Desculpe, a página que você está procurando não existe ou não está
         disponível.
       </p>
-      <button
-        onClick={handleBack}
-        className="mt-6 text-yellow-500 hover:underline"
+      <Link
+        href={ROUTES.LANDINGPAGE}
+        className="mt-6 text-slate-700 font-semibold hover:underline"
       >
         Voltar para a página inicial
-      </button>
+      </Link>
     </div>
   );
 };

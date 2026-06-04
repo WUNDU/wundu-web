@@ -61,6 +61,14 @@ class DocumentService {
     const { data } = await apiClient.get<DocumentResult>(`/documents/${id}/result`);
     return data;
   }
+
+  async categorize(id: string, categoryId: string): Promise<void> {
+    await apiClient.post(`/documents/${id}/categorize`, { categoryId });
+  }
+
+  async patchCategory(id: string, categoryId: string): Promise<void> {
+    await apiClient.patch(`/documents/${id}/category`, { categoryId });
+  }
 }
 
 export const documentService = new DocumentService();

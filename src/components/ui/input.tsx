@@ -6,6 +6,7 @@ import { SendIcon, ViewOffIcon, ViewOnIcon } from "@/constants/icons";
 interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   isError?: boolean;
+  errorMessage?: string;
   maxLength?: number;
   showSendButton?: boolean;
   leftIcon?: React.ReactNode;
@@ -20,11 +21,13 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
       value,
       onChange,
       isError = false,
+      errorMessage,
       required = false,
       maxLength,
       showSendButton = false,
       leftIcon,
       className,
+      id,
       ...props
     },
     ref
@@ -37,25 +40,28 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
 
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-    // Border and Ring logic based on project skills (Subtle & Meaningful)
+    // Border logic — light blue on focus, clean and delicate
     const stateClasses = isError 
-      ? "border-red-500 bg-red-50/30" 
+      ? "border-red-400 bg-red-50/20" 
       : isFocused 
-        ? "border-slate-900 bg-white ring-4 ring-slate-950/[0.03]" 
-        : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50";
+        ? "border-blue-300 bg-white shadow-[0_0_0_3px_rgba(147,197,253,0.2)]" 
+        : "border-slate-200 bg-white hover:border-slate-300";
 
     const iconColorClass = isError 
       ? "text-red-400" 
       : isFocused 
-        ? "text-slate-900" 
+        ? "text-blue-400" 
         : "text-slate-400";
 
     return (
       <div className="flex w-full flex-col gap-2 group">
         {label && (
-          <label className={`text-sm font-semibold transition-colors duration-150 ${
-            isError ? "text-red-600" : isFocused ? "text-slate-900" : "text-slate-500"
-          }`}>
+          <label
+            htmlFor={id}
+            className={`text-sm font-semibold transition-colors duration-150 ${
+              isError ? "text-red-500" : "text-slate-500"
+            }`}
+          >
             {label}
           </label>
         )}
@@ -71,6 +77,7 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
 
           <input
             ref={ref}
+            id={id}
             type={inputType}
             placeholder={placeholder}
             value={value}
@@ -85,9 +92,11 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
             }}
             required={required}
             maxLength={maxLength}
+            aria-invalid={isError || undefined}
+            aria-describedby={isError && errorMessage && id ? `${id}-error` : undefined}
             className={`
-              w-full rounded-xl border py-3 text-[15px] text-slate-900 
-              placeholder:text-slate-400 placeholder:font-medium
+              w-full rounded-lg border py-3 text-[15px] text-slate-900 
+              placeholder:text-slate-400 placeholder:font-normal
               transition-all duration-150 ease-in-out
               focus:outline-none
               ${stateClasses}
@@ -104,12 +113,22 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
               tabIndex={-1}
               className={`absolute inset-y-0 right-3 flex items-center justify-center p-2 transition-colors duration-150 ${iconColorClass} hover:text-slate-900`}
               onClick={togglePasswordVisibility}
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              aria-label={showPassword ? "Ocultar palavra-passe" : "Mostrar palavra-passe"}
             >
               {showPassword ? <ViewOnIcon className="w-5 h-5" /> : <ViewOffIcon className="w-5 h-5" />}
             </button>
           )}
         </div>
+
+        {isError && errorMessage && (
+          <p
+            id={id ? `${id}-error` : undefined}
+            role="alert"
+            className="text-xs font-semibold text-red-600"
+          >
+            {errorMessage}
+          </p>
+        )}
       </div>
     );
   }

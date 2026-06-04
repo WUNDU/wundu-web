@@ -8,7 +8,6 @@ export interface GoalRequest {
   description?: string;
   type: GoalType;
   targetAmount: number;
-  currentAmount?: number;
   startDate: string;
   endDate: string;
   categoryId: string;
@@ -16,10 +15,16 @@ export interface GoalRequest {
 
 export type GoalPayload = GoalRequest;
 
+export type GoalProgressChangeType = "CONTRIBUTION" | "TARGET_ADJUSTMENT";
+
 export interface GoalProgress {
   id: string;
   amount: number;
+  accumulatedAmount: number;
+  progressPercent: number;
   progressDate: string;
+  changeType: GoalProgressChangeType;
+  note?: string;
   createdAt: string;
 }
 
@@ -35,6 +40,7 @@ export interface GoalResponse {
   startDate: string;
   endDate: string;
   status: GoalStatus;
+  completedAt?: string;
   createdAt: string;
   categoryId: string;
   category?: CategoryResponse;

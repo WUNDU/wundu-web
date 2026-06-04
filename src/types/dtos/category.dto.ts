@@ -4,6 +4,7 @@ export interface CategoryRequest {
 
 export interface CategoryResponse {
   id: string;
+  userId?: string | null;
   name: string;
   color?: string;
 }

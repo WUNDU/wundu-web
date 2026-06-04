@@ -1,5 +1,4 @@
 export interface UserCategoryLimitRequest {
-  userId: string;
   categoryId: string;
   monthlyLimit: number;
 }

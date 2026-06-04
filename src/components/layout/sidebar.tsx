@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
@@ -8,23 +8,19 @@ import {
   HomeDeskIcon,
   IAIcon,
 } from "@/constants/icons";
+import { Tag, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import { logo, logotype } from "@/constants/images";
-import { TrashIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Conversation {
-  id: string;
-  title: string;
-  lastMessage: string;
-  timestamp: string;
-}
+import { useChatStore } from "@/store/chat-store";
+import { formatConvoDate, parseJavaDate } from "@/types/dtos/chat.dto";
 
 const navItems = [
   { name: "Início", path: ROUTES.HOME, icon: HomeDeskIcon, exact: true },
   { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false },
   { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false },
+  { name: "Categorias", path: ROUTES.CATEGORIES, icon: Tag, exact: false },
   { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false },
 ];
 
@@ -39,25 +35,63 @@ const EASE_OUT_QUART = [0.25, 0.46, 0.45, 0.94] as const;
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile }) => {
   const pathname = usePathname() || "";
 
+  const {
+    history,
+    conversationId,
+    isLoading: isLoadingHistory,
+    fetchHistory,
+    loadConversation,
+    deleteConversation,
+    clearConversation,
+  } = useChatStore();
+
   // Close mobile drawer on route change
   useEffect(() => {
     onCloseMobile();
   }, [pathname, onCloseMobile]);
 
-  const [conversations, setConversations] = useState<Conversation[]>([
-    { id: "1", title: "Dicas de Economia", lastMessage: "Muito obrigado Wundo AI", timestamp: "10:30" },
-    { id: "2", title: "Investimentos para Iniciantes", lastMessage: "Como posso começar a investir?", timestamp: "Ontem" },
-    { id: "3", title: "Planejamento Financeiro", lastMessage: "Preciso de ajuda com orçamento", timestamp: "2 dias" },
-    { id: "4", title: "Poupança e Metas", lastMessage: "Qual a melhor estratégia?", timestamp: "1 semana" },
-  ]);
-
   const isInChatPage = pathname.startsWith(ROUTES.CHAT_IA);
+
+  // Fetch history when entering the chat page
+  useEffect(() => {
+    if (isInChatPage) fetchHistory();
+  }, [isInChatPage, fetchHistory]);
+
+  const sortedHistory = [...history].sort((a, b) => {
+    const da = parseJavaDate(a.updatedAt)?.getTime() ?? 0;
+    const db = parseJavaDate(b.updatedAt)?.getTime() ?? 0;
+    return db - da;
+  });
+
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   const isActive = (item: (typeof navItems)[number]) =>
     item.exact ? pathname === item.path : pathname === item.path || pathname.startsWith(item.path + "/");
 
-  const deleteConversation = (id: string) =>
-    setConversations((prev) => prev.filter((c) => c.id !== id));
+  const handleNewConversation = () => {
+    clearConversation();
+  };
+
+  const handleSelectConversation = async (id: string) => {
+    setConfirmDeleteId(null);
+    await loadConversation(id);
+  };
+
+  const handleDeleteConversation = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
+    await deleteConversation(id);
+  };
+
+  const handleAskConfirm = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setConfirmDeleteId(id);
+  };
+
+  const handleCancelDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConfirmDeleteId(null);
+  };
 
   const sidebarWidth = collapsed ? 72 : 220;
 
@@ -80,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-[#003cc3]/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
+            <div className="w-9 h-9 rounded-xl bg-secondary/5 flex items-center justify-center overflow-hidden transition-transform duration-200 hover:rotate-2">
               <Image src={logo} alt="Wundu" width={32} height={32} className="w-8 h-8 object-contain" priority />
             </div>
           )}
@@ -100,12 +134,12 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                     onClick={isMobile ? onCloseMobile : undefined}
                     className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200
                       ${active
-                        ? "bg-[#003cc3]/10 text-[#003cc3] font-bold"
-                        : "font-medium text-slate-500 hover:bg-[#003cc3]/5 hover:text-slate-900"
+                        ? "bg-secondary/10 text-secondary font-bold"
+                        : "font-medium text-slate-500 hover:bg-secondary/5 hover:text-slate-900"
                       }`}
                   >
                     <item.icon
-                      className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${active ? "text-[#003cc3]" : "text-slate-400 group-hover:text-[#003cc3]"}`}
+                      className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${active ? "text-secondary" : "text-slate-400 group-hover:text-secondary"}`}
                     />
                     {(isMobile || !collapsed) && (
                       <AnimatePresence>
@@ -131,41 +165,90 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
           {isInChatPage && (isMobile || !collapsed) && (
             <div className="mt-3 px-2">
               <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Conversas
                 </span>
-                <button onClick={() => setConversations([])} className="text-xs font-medium text-[#003cc3] transition-colors hover:text-[#003cc3]/70">
-                  + Nova
+                <button
+                  onClick={handleNewConversation}
+                  className="flex items-center gap-1 text-xs font-semibold text-secondary transition-colors hover:text-secondary/70"
+                >
+                  <Plus className="w-3 h-3" />
+                  Nova
                 </button>
               </div>
-              <div className="space-y-0.5">
-                {conversations.map((c) => (
-                  <div
-                    key={c.id}
-                    className="group flex cursor-pointer items-start rounded-lg px-2 py-2 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-800 truncate">{c.title}</p>
-                      <p className="text-xs text-gray-400 truncate mt-0.5">{c.lastMessage}</p>
+
+              {isLoadingHistory ? (
+                <div className="space-y-1 animate-pulse">
+                  {[72, 60, 80, 55].map((w, i) => (
+                    <div key={i} className="flex items-center gap-2 px-2 py-2 rounded-lg">
+                      <div className="w-3.5 h-3.5 rounded bg-slate-100 flex-shrink-0" />
+                      <div className="h-3 rounded bg-slate-100" style={{ width: `${w}%` }} />
                     </div>
-                    <button
-                      onClick={() => deleteConversation(c.id)}
-                      className="ml-1 rounded p-1 opacity-0 transition-all hover:bg-slate-200 group-hover:opacity-100"
-                    >
-                      <TrashIcon className="w-3.5 h-3.5 text-gray-400 hover:text-red-400" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : sortedHistory.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-4 px-2">
+                  Sem conversas ainda
+                </p>
+              ) : (
+                <div className="space-y-0.5">
+                  {sortedHistory.map((conv) => {
+                    const isActiveConv = conv.id === conversationId;
+                    const isConfirming = confirmDeleteId === conv.id;
+                    return (
+                      <div
+                        key={conv.id}
+                        onClick={() => !isConfirming && handleSelectConversation(conv.id)}
+                        className={`group flex cursor-pointer items-center rounded-lg px-2 py-2 transition-colors ${
+                          isActiveConv ? "bg-secondary/10" : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-semibold truncate ${isActiveConv ? "text-secondary" : "text-slate-700"}`}>
+                            {formatConvoDate(conv.updatedAt)}
+                          </p>
+                          {isConfirming ? (
+                            <div className="flex items-center gap-1 mt-1" onClick={(e) => e.stopPropagation()}>
+                              <span className="text-[10px] text-red-500 font-medium">Apagar?</span>
+                              <button
+                                onClick={(e) => handleDeleteConversation(e, conv.id)}
+                                className="text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 px-1.5 py-0.5 rounded transition-colors"
+                              >
+                                Sim
+                              </button>
+                              <button
+                                onClick={handleCancelDelete}
+                                className="text-[10px] font-bold text-slate-500 hover:text-slate-700 px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 transition-colors"
+                              >
+                                Não
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">Conversa</p>
+                          )}
+                        </div>
+                        {!isConfirming && (
+                          <button
+                            onClick={(e) => handleAskConfirm(e, conv.id)}
+                            className="ml-1 rounded p-1 opacity-0 transition-all hover:bg-slate-200 group-hover:opacity-100"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-red-400" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
           {/* Gradient separator */}
-          <div className="mx-3 h-px bg-gradient-to-r from-transparent via-[#003cc3]/20 to-transparent" />
+          <div className="mx-3 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
         </nav>
       </>
     ),
-    [collapsed, conversations, isInChatPage, onCloseMobile, pathname],
+    [collapsed, history, conversationId, isInChatPage, isLoadingHistory, sortedHistory, confirmDeleteId, onCloseMobile, pathname],
   );
 
   return (
@@ -174,7 +257,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
       <motion.aside
         animate={{ width: sidebarWidth }}
         transition={{ duration: 0.2, ease: EASE_OUT_QUART }}
-        className="hidden lg:flex flex-col h-full bg-white border-r border-white/30 flex-shrink-0 overflow-hidden z-40 shadow-[1px_0_0_rgba(0,0,0,0.04)]"
+        className="hidden lg:flex flex-col h-full bg-white border-r border-slate-100 flex-shrink-0 overflow-hidden z-40 shadow-[1px_0_0_rgba(0,0,0,0.02)]"
       >
         {renderContent(false)}
       </motion.aside>

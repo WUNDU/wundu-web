@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Receipt as LucideReceipt, AlertCircle } from "lucide-react";
+import { Receipt as LucideReceipt, AlertCircle, Loader2 } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
 import type { TransactionFormData } from "@/types/dtos/transaction.dto";
+import posthog from "posthog-js";
+import CategorySelect from "@/components/ui/category-select";
 
 export interface AddTransactionModalProps {
   isOpen: boolean;
@@ -19,23 +21,19 @@ export interface AddTransactionModalProps {
   onFormChange: (field: string, value: string) => void;
 }
 
-const CATEGORIES = [
-  { id: "food",      name: "Alimentação" },
-  { id: "transport", name: "Transporte"  },
-  { id: "housing",   name: "Moradia"     },
-  { id: "health",    name: "Saúde"       },
-  { id: "education", name: "Educação"    },
-  { id: "leisure",   name: "Lazer"       },
-  { id: "services",  name: "Serviços"    },
-  { id: "others",    name: "Outros"      },
-];
-
 const inputCls = (hasError: boolean) =>
-  `w-full rounded-xl border px-4 py-3 text-sm text-[#1e293b] placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
+  `w-full rounded-xl border px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 bg-slate-50 focus:outline-none focus:bg-white transition-all ${
     hasError
       ? "border-red-300 focus:border-red-400"
-      : "border-slate-200 focus:border-[#003cc3]/40"
+      : "border-slate-200 focus:border-secondary/40"
   }`;
+
+/** Parse a datetime string (ISO or datetime-local) into [date, time] parts */
+function parseDateTime(dt: string): { date: string; time: string } {
+  if (!dt) return { date: "", time: "" };
+  const [datePart, timePart = ""] = dt.split("T");
+  return { date: datePart ?? "", time: timePart.slice(0, 5) };
+}
 
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   isOpen,
@@ -48,14 +46,38 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onFormChange,
 }) => {
   const [amountDisplay, setAmountDisplay] = useState("");
+  const [dateVal, setDateVal] = useState("");
+  const [timeVal, setTimeVal] = useState("");
+
 
   useEffect(() => {
-    if (!isOpen) setAmountDisplay("");
+    if (!isOpen) {
+      setAmountDisplay("");
+    }
   }, [isOpen]);
 
+  // Sync date+time state from formData
   useEffect(() => {
-    if (isOpen && formData.type !== "expense") onFormChange("type", "expense");
-  }, [formData.type, isOpen, onFormChange]);
+    const { date, time } = parseDateTime(formData.transactionDate);
+    setDateVal(date);
+    setTimeVal(time);
+  }, [formData.transactionDate]);
+
+  const handleDateChange = (newDate: string) => {
+    setDateVal(newDate);
+    if (newDate && timeVal) {
+      onFormChange("transactionDate", `${newDate}T${timeVal}:00`);
+    } else if (newDate) {
+      onFormChange("transactionDate", `${newDate}T00:00:00`);
+    }
+  };
+
+  const handleTimeChange = (newTime: string) => {
+    setTimeVal(newTime);
+    if (dateVal && newTime) {
+      onFormChange("transactionDate", `${dateVal}T${newTime}:00`);
+    }
+  };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const masked = maskAOAInput(e.target.value);
@@ -65,21 +87,26 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit();
+    const success = await onSubmit();
+    if (success) {
+      posthog.capture("transaction_added", {
+        category: formData.category,
+        type: formData.type,
+        amount: formData.amount,
+      });
+    }
   };
 
-  const maxTransactionDate = formatDateTimeLocal();
-  const maxLabel = new Date(maxTransactionDate).toLocaleString("pt-AO", {
-    day: "2-digit", month: "2-digit", year: "numeric",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  });
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
-  const handleDateInvalid = (e: React.InvalidEvent<HTMLInputElement>) => {
-    e.currentTarget.setCustomValidity(`Use uma data e hora iguais ou anteriores a ${maxLabel}.`);
-  };
-  const handleDateInput = (e: React.FormEvent<HTMLInputElement>) => {
-    e.currentTarget.setCustomValidity("");
-  };
+  const maxDate = formatDateTimeLocal().split("T")[0];
 
   return (
     <AnimatePresence>
@@ -95,6 +122,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         >
           <motion.div
             key="panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-tx-title"
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -110,11 +140,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-4 pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-[#003cc3] to-[#001a66] flex items-center justify-center shadow-sm">
-                  <LucideReceipt className="w-4 h-4 text-[#ffd400]" />
+                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm">
+                  <LucideReceipt className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-[#1e293b] leading-tight">Nova Transação</h2>
+                  <h2 id="add-tx-title" className="text-sm font-bold text-slate-900 leading-tight">Nova Transação</h2>
                   <p className="text-xs text-slate-400">Registe um novo gasto</p>
                 </div>
               </div>
@@ -122,10 +152,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
                   Despesa
                 </span>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
+                  Manual
+                </span>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-[#1e293b] hover:bg-slate-100 transition-colors"
+                  aria-label="Fechar"
+                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 >
                   <CloseIcon className="w-4 h-4" />
                 </button>
@@ -142,50 +176,62 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 </div>
               )}
 
-              {/* Amount + Date */}
+              {/* Amount */}
+              <div>
+                <label htmlFor="tx-amount" className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
+                <div className="relative">
+                  <input
+                    id="tx-amount"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0,00"
+                    value={amountDisplay}
+                    onChange={handleAmountChange}
+                    required
+                    className={`${inputCls(!!errors.amount)} pr-10`}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                    Kz
+                  </span>
+                </div>
+                {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
+              </div>
+
+              {/* Date + Time */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      value={amountDisplay}
-                      onChange={handleAmountChange}
-                      required
-                      className={`${inputCls(!!errors.amount)} pr-10`}
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
-                      Kz
-                    </span>
-                  </div>
-                  {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5">Data e hora</label>
+                  <label htmlFor="tx-date" className="block text-xs font-bold text-slate-500 mb-1.5">Data</label>
                   <input
-                    type="datetime-local"
-                    step={1}
-                    max={maxTransactionDate}
-                    value={formData.transactionDate}
-                    onChange={(e) => onFormChange("transactionDate", e.target.value)}
-                    onInvalid={handleDateInvalid}
-                    onInput={handleDateInput}
+                    id="tx-date"
+                    type="date"
+                    max={maxDate}
+                    value={dateVal}
+                    onChange={(e) => handleDateChange(e.target.value)}
                     required
                     className={`${inputCls(!!errors.transactionDate)} px-3`}
                   />
-                  {errors.transactionDate && (
-                    <p className="text-red-500 text-xs mt-1">{errors.transactionDate}</p>
-                  )}
+                </div>
+                <div>
+                  <label htmlFor="tx-time" className="block text-xs font-bold text-slate-500 mb-1.5">Hora</label>
+                  <input
+                    id="tx-time"
+                    type="time"
+                    value={timeVal}
+                    onChange={(e) => handleTimeChange(e.target.value)}
+                    required
+                    className={`${inputCls(!!errors.transactionDate)} px-3`}
+                  />
                 </div>
               </div>
+              {errors.transactionDate && (
+                <p className="text-red-500 text-xs -mt-2">{errors.transactionDate}</p>
+              )}
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
+                <label htmlFor="tx-description" className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
                 <input
+                  id="tx-description"
                   type="text"
                   placeholder="Ex: Compra no supermercado"
                   value={formData.description}
@@ -198,32 +244,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 )}
               </div>
 
-              {/* Category chips */}
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">Categoria</label>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {CATEGORIES.map((cat) => {
-                    const sel = formData.category === cat.name;
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => onFormChange("category", cat.name)}
-                        className={`rounded-xl py-2.5 px-1 text-[11px] font-semibold text-center transition-all ${
-                          sel
-                            ? "bg-[rgba(0,60,195,0.08)] border border-[#003cc3]/25 text-[#003cc3]"
-                            : "bg-slate-50 border border-slate-200 text-slate-500 hover:border-[#003cc3]/20 hover:text-[#003cc3]"
-                        }`}
-                      >
-                        {cat.name}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.category_id && (
-                  <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>
-                )}
-              </div>
+              {/* Category */}
+              <CategorySelect
+                value={formData.category}
+                onChange={(name) => onFormChange("category", name)}
+                valueType="name"
+                label="Categoria"
+                error={errors.category}
+              />
 
               {/* Actions */}
               <div className="h-px bg-slate-100" />
@@ -239,7 +267,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 rounded-xl bg-gradient-to-br from-[#003cc3] to-[#001a66] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                  className="flex-1 rounded-xl bg-gradient-to-br from-secondary to-secondary-dark px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
                   {isLoading ? "A adicionar…" : "Adicionar"}
                 </button>
@@ -248,6 +276,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           </motion.div>
         </motion.div>
       )}
+
     </AnimatePresence>
   );
 };

@@ -25,8 +25,8 @@ const GoalProgressCard: React.FC<GoalProgressCardProps> = ({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
-  const ringColor = isCompleted ? "stroke-emerald-500" : "stroke-[#ffd400]";
-  const progressTextColor = isCompleted ? "text-emerald-600" : "text-[#003cc3]";
+  const ringColor = isCompleted ? "stroke-emerald-500" : "stroke-primary";
+  const progressTextColor = isCompleted ? "text-emerald-600" : "text-secondary";
 
   return (
     <motion.div
@@ -43,8 +43,8 @@ const GoalProgressCard: React.FC<GoalProgressCardProps> = ({
         {/* Header: Icon + Title + Completion Badge */}
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <div className="mt-1 rounded-full bg-[#003cc3]/10 p-3 flex-shrink-0">
-              <ObjectiveIcon className="h-5 w-5 text-[#003cc3]" />
+            <div className="mt-1 rounded-full bg-secondary/10 p-3 flex-shrink-0">
+              <ObjectiveIcon className="h-5 w-5 text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-slate-900 leading-tight truncate">
@@ -114,11 +114,11 @@ const GoalProgressCard: React.FC<GoalProgressCardProps> = ({
             </div>
 
             {/* Target Amount */}
-            <div className="bg-[#003cc3]/5 rounded-lg p-4 border border-[#003cc3]/10">
-              <p className="text-xs text-[#003cc3] font-semibold uppercase tracking-wide mb-1">
+            <div className="bg-secondary/5 rounded-lg p-4 border border-secondary/10">
+              <p className="text-xs text-secondary font-semibold uppercase tracking-wide mb-1">
                 Meta
               </p>
-              <p className="text-2xl font-bold text-[#003cc3]">
+              <p className="text-2xl font-bold text-secondary">
                 {targetAmount}
               </p>
             </div>
@@ -131,7 +131,7 @@ const GoalProgressCard: React.FC<GoalProgressCardProps> = ({
             onClick={onEdit}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center justify-center gap-2 bg-[#003cc3]/8 hover:bg-[#003cc3]/12 text-[#003cc3] font-semibold py-3 rounded-lg transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-secondary/8 hover:bg-secondary/12 text-secondary font-semibold py-3 rounded-lg transition-colors duration-200"
           >
             <Edit2 className="h-4 w-4" />
             Editar Objetivo
