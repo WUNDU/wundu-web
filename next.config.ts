@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   skipTrailingSlashRedirect: true,
   images: {
+    qualities: [75, 85, 100],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },

@@ -242,11 +242,6 @@ export default function ProtectedLayout({
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Fetch unread count for badge once auth is ready
-  useEffect(() => {
-    if (isAuthenticated && checked) fetchUnreadCount();
-  }, [isAuthenticated, checked, fetchUnreadCount]);
-
   // Prefetch all stores in parallel — only after auth is confirmed (token is valid in memory)
   useEffect(() => {
     if (!isAuthenticated || !checked) return;

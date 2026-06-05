@@ -140,9 +140,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isCredit] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
-  const rawTransactions = useTransactionStore((s) => s.notPaginated ?? EMPTY_TRANSACTIONS);
+  const rawTransactions = useTransactionStore((s) => s.notPaginated ?? s.transactions ?? EMPTY_TRANSACTIONS);
   const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const isTransactionsLoading = useTransactionStore((s) => s.isLoading);
+  const isTransactionsLoading = useTransactionStore((s) => s.isLoadingAll);
   const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
 
   useEffect(() => {
@@ -150,11 +150,12 @@ const ControlPanelDashboardScreen: React.FC = () => {
     if (!hasFetchedAll) getAllNotPaginated();
   }, [getAllNotPaginated, hasFetchedAll]);
 
-  const isAnalyticsLoading = isTransactionsLoading || !hasFetchedAll;
+  // Only show skeleton if we have absolutely NO transactions to show
+  const isAnalyticsLoading = isTransactionsLoading && rawTransactions.length === 0;
 
   const normalizedTransactions = useMemo<NormalizedTransaction[]>(() => {
-    return rawTransactions
-      .map((tx: TransactionResponse) => {
+    return (rawTransactions as any[])
+      .map((tx) => {
         const rawAmount = typeof tx.amount === "number" ? tx.amount : 0;
         const timestamp = tx.transactionDate
           ? new Date(tx.transactionDate)
