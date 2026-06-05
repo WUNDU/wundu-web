@@ -40,17 +40,17 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
 
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-    // Border logic — light blue on focus, clean and delicate
+    // Border logic — consistent with PhoneInput style
     const stateClasses = isError 
-      ? "border-red-400 bg-red-50/20" 
+      ? "border-red-500 bg-red-50/30" 
       : isFocused 
-        ? "border-blue-300 bg-white shadow-[0_0_0_3px_rgba(147,197,253,0.2)]" 
-        : "border-slate-200 bg-white hover:border-slate-300";
+        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]" 
+        : "border-slate-200 bg-slate-50/50 hover:border-slate-300";
 
     const iconColorClass = isError 
-      ? "text-red-400" 
+      ? "text-red-500" 
       : isFocused 
-        ? "text-blue-400" 
+        ? "text-[#003cc3]" 
         : "text-slate-400";
 
     return (

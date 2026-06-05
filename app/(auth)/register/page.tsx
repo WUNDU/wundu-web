@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { wunduToast } from "@/utils/toast";
 import { ROUTES } from "@/constants/routes";
-import { Button, Input, LoadingSpinner, LogoType } from "@/components/ui";
+import { Button, Input, LogoType } from "@/components/ui";
 import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
@@ -23,25 +23,41 @@ import {
   ChartIcon,
   GoalsIcon,
   ProfileIcon,
-  EmailIcon,
-  SecurityIcon,
+  EmailFilledIcon,
+  KeyIcon,
   ArrowLeftIcon,
 } from "@/constants/icons";
 
-interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+// ─── PhoneInput ───────────────────────────────────────────────────────────────
+
+interface PhoneInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "onChange"
+> {
   label?: string;
   isError?: boolean;
   onChange?: (value: string) => void;
 }
 
 const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ label, placeholder = "Digite seu número de telefone", value = "", onChange, isError = false, required = false, ...props }, ref) => {
+  (
+    {
+      label,
+      placeholder = "Digite seu número de telefone",
+      value = "",
+      onChange,
+      isError = false,
+      required = false,
+      ...props
+    },
+    ref,
+  ) => {
     const [selectedCountry, setSelectedCountry] = useState("+244");
     const [isFocused, setIsFocused] = useState(false);
     const countries = [{ code: "+244", name: "Angola", flag: "🇦🇴" }];
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      let phoneNumber = e.target.value.replace(/\D/g, '');
+      let phoneNumber = e.target.value.replace(/\D/g, "");
       if (phoneNumber.length > 9) phoneNumber = phoneNumber.slice(0, 9);
       onChange?.(`${selectedCountry} ${phoneNumber}`);
     };
@@ -49,41 +65,63 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newCountryCode = e.target.value;
       setSelectedCountry(newCountryCode);
-      const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
+      const phoneOnly =
+        typeof value === "string" ? value.replace(/^\+\d+\s*/, "") : "";
       onChange?.(`${newCountryCode} ${phoneOnly}`);
     };
 
-    const phoneOnly = typeof value === 'string' ? value.replace(/^\+\d+\s*/, '') : '';
-    
-    const stateClasses = isError 
-      ? "border-red-500 bg-red-50/30" 
-      : isFocused 
-        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]" 
-        : "border-slate-200 bg-slate-50/50 hover:border-slate-300";
+    const phoneOnly =
+      typeof value === "string" ? value.replace(/^\+\d+\s*/, "") : "";
+
+    const stateClasses = isError
+      ? "border-red-500 bg-red-50/30"
+      : isFocused
+        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]"
+        : "border-slate-200 bg-slate-50/50";
 
     return (
-      <div className="flex w-full flex-col gap-2 group">
+      <div className="flex w-full flex-col gap-2">
         {label && (
-          <label className={`text-sm font-semibold transition-colors duration-150 ${
-            isError ? "text-red-600" : isFocused ? "text-[#003cc3]" : "text-slate-500"
-          }`}>
+          <label
+            className={`text-sm font-semibold transition-colors duration-150 ${
+              isError
+                ? "text-red-600"
+                : isFocused
+                  ? "text-[#003cc3]"
+                  : "text-slate-500"
+            }`}
+          >
             {label}
           </label>
         )}
-        <div className={`flex rounded-xl border transition-all duration-150 overflow-hidden ${stateClasses}`}>
+        <div
+          className={`flex h-12 rounded-lg border transition-all duration-150 overflow-hidden ${stateClasses}`}
+        >
           <div className="relative border-r border-slate-100 bg-slate-50/30">
             <select
               value={selectedCountry}
               onChange={handleCountryChange}
-              className="appearance-none bg-transparent px-3 py-3 text-sm font-bold text-slate-800 focus:outline-none cursor-pointer pr-8"
+              className="h-full appearance-none bg-transparent px-3 text-sm font-bold text-slate-800 focus:outline-none cursor-pointer pr-8"
             >
               {countries.map((country) => (
-                <option key={country.code} value={country.code}>{country.flag} {country.code}</option>
+                <option key={country.code} value={country.code}>
+                  {country.flag} {country.code}
+                </option>
               ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-400">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </div>
           </div>
@@ -96,34 +134,36 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             required={required}
-            className="w-full bg-transparent px-4 py-3 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            className="w-full bg-transparent px-4 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
             {...props}
           />
         </div>
       </div>
     );
-  }
+  },
 );
 PhoneInput.displayName = "PhoneInput";
 
-/**
- * RegisterPage - Interface Design Standard
- *
- * Signature: Multi-step stability + Unified Input Icons.
- * Intent: Secure and professional onboarding.
- * Depth: Fixed 660px height to prevent layout shifts.
- */
+// ─── Shared animation config ──────────────────────────────────────────────────
+
+const stepTransition = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
+const stepInitial = { opacity: 0, x: 20 };
+const stepAnimate = { opacity: 1, x: 0 };
+
+// ─── RegisterPage ─────────────────────────────────────────────────────────────
+
 const RegisterPage = () => {
-  const { currentStep, prevStep, nextStep, data, setRegisterData } = useUserStore();
+  const { currentStep, prevStep, nextStep, data, setRegisterData } =
+    useUserStore();
   const { login, registerUser, error, clearError } = useAuth();
   const router = useRouter();
 
-  // Clear global auth errors on mount
   useEffect(() => {
     clearError();
   }, [clearError]);
 
-  // ── Personal Data (Step 1) state ──
+  // ── Step 1: Personal Data ──────────────────────────────────────────────────
+
   const [personalForm, setPersonalFormState] = useState({
     name: data.name || "",
     email: data.email || "",
@@ -157,9 +197,11 @@ const RegisterPage = () => {
       nextErrors.name = "Por favor, insira o seu nome completo";
       valid = false;
     } else if (!validateName(personalForm.name)) {
-      nextErrors.name = "Nome deve ter pelo menos 4 letras e não pode conter números";
+      nextErrors.name =
+        "Nome deve ter pelo menos 4 letras e não pode conter números";
       valid = false;
     }
+
     if (!personalForm.email.trim()) {
       nextErrors.email = "Por favor, insira o seu e-mail";
       valid = false;
@@ -167,12 +209,14 @@ const RegisterPage = () => {
       nextErrors.email = "Por favor, insira um email válido";
       valid = false;
     }
+
     const phoneDigits = personalForm.phone.replace(/\D/g, "");
     if (!personalForm.phone.trim() || phoneDigits.length <= 3) {
       nextErrors.phone = "Por favor, insira o seu número de telefone";
       valid = false;
     } else if (!validatePhoneNumber(personalForm.phone)) {
-      nextErrors.phone = "Número inválido. Use formato angolano: +244 9XX XXX XXX";
+      nextErrors.phone =
+        "Número inválido. Use formato angolano: +244 9XX XXX XXX";
       valid = false;
     }
 
@@ -184,7 +228,8 @@ const RegisterPage = () => {
     nextStep();
   };
 
-  // ── Security Data (Step 2) state ──
+  // ── Step 2: Security ───────────────────────────────────────────────────────
+
   const [securityForm, setSecurityFormState] = useState({
     password: data.password || "",
     confirmPassword: "",
@@ -192,8 +237,11 @@ const RegisterPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordValidation, setPasswordValidation] =
-    useState(() => validatePasswordDetailed(data.password || ""));
+  const [passwordValidation, setPasswordValidation] = useState(() =>
+    validatePasswordDetailed(data.password || ""),
+  );
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
   const contextError = submitError || error;
 
   const setSecurityField = (
@@ -220,6 +268,7 @@ const RegisterPage = () => {
     clearError();
     setSubmitError("");
     setPersonalErrors({ name: "", email: "", phone: "" });
+
     const validation = validatePasswordDetailed(securityForm.password);
     if (!validation.isValid) {
       setPasswordError("A senha não cumpre todos os requisitos de segurança.");
@@ -229,18 +278,27 @@ const RegisterPage = () => {
       setPasswordError(
         !securityForm.confirmPassword
           ? "Por favor, confirme a sua senha."
-          : "As senhas digitadas não são iguais."
+          : "As senhas digitadas não são iguais.",
       );
       return;
     }
+
     setPasswordError("");
     setIsSubmitting(true);
+
     try {
-      const ok = await registerUser({ ...data, password: securityForm.password });
+      const ok = await registerUser({
+        ...data,
+        password: securityForm.password,
+      });
+
       if (ok) {
         setRegisterData({ password: securityForm.password });
         posthog.identify(data.email!, { email: data.email, name: data.name });
-        posthog.capture("user_registered", { name: data.name, email: data.email });
+        posthog.capture("user_registered", {
+          name: data.name,
+          email: data.email,
+        });
         nextStep();
       } else {
         const message =
@@ -248,7 +306,12 @@ const RegisterPage = () => {
         const field = getRegisterErrorField(message);
 
         if (field) {
-          setPersonalErrors({ name: "", email: "", phone: "", [field]: message });
+          setPersonalErrors({
+            name: "",
+            email: "",
+            phone: "",
+            [field]: message,
+          });
           setSubmitError("");
           clearError();
           prevStep();
@@ -278,13 +341,11 @@ const RegisterPage = () => {
     }
   };
 
-  // ── UI state ──
-  const [isVisible, setIsVisible] = useState(false);
+  // ── Step 3: Success ────────────────────────────────────────────────────────
+
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [autoLoginError, setAutoLoginError] = useState<string | null>(null);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-  // Announce success screen
   useEffect(() => {
     if (currentStep === 3) {
       wunduToast.success("Cadastro concluído!", {
@@ -292,16 +353,6 @@ const RegisterPage = () => {
       });
     }
   }, [currentStep, data.name]);
-
-  // Success screen animations
-  useEffect(() => {
-    if (currentStep === 3) {
-      const t = setTimeout(() => setIsVisible(true), 100);
-      return () => clearTimeout(t);
-    } else {
-      setIsVisible(false);
-    }
-  }, [currentStep]);
 
   const handleContinue = async () => {
     if (isLoggingIn) return;
@@ -331,8 +382,12 @@ const RegisterPage = () => {
     }
   };
 
-  // ── Password hint ──
-  const showPasswordHint = isPasswordFocused || securityForm.password.length > 0;
+  // ── Password strength hint visibility ─────────────────────────────────────
+
+  const showPasswordHint =
+    isPasswordFocused || securityForm.password.length > 0;
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
@@ -350,10 +405,16 @@ const RegisterPage = () => {
 
       <main className="flex flex-1 items-center justify-center p-0 md:p-8">
         <div className="w-full max-w-120">
-          {/* Surface Container - Stable height (660px) */}
-          <div className="flex w-full flex-col bg-white md:h-165 md:rounded-3xl md:border md:border-slate-200/50 md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)] overflow-hidden md:overflow-visible">
+          {/*
+           * Surface Container
+           * FIX: Removed fixed md:h-165 — height is now driven by content.
+           * The card grows naturally, preventing overflow on the success step
+           * while keeping a consistent appearance on steps 1 & 2.
+           * FIX: overflow-hidden on all breakpoints to prevent shadow clipping.
+           */}
+          <div className="flex w-full flex-col bg-white md:rounded-3xl md:border md:border-slate-200/50 md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)]">
             <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:px-12 md:px-14">
-              {/* Progress System */}
+              {/* Progress System — steps 1 & 2 only */}
               {currentStep < 3 && (
                 <div className="flex justify-center gap-2 mb-10">
                   {[1, 2].map((s) => (
@@ -361,29 +422,30 @@ const RegisterPage = () => {
                       key={s}
                       className={`h-1 rounded-full transition-all duration-300 ${
                         s === currentStep
-                          ? "w-12 bg-yellow-400"
+                          ? "w-12 bg-yellow-400" // active
                           : s < currentStep
-                            ? "w-6 bg-slate-900"
-                            : "w-6 bg-slate-100"
+                            ? "w-6 bg-slate-900" // completed
+                            : "w-6 bg-slate-100" // upcoming
                       }`}
                     />
                   ))}
                 </div>
               )}
 
-              {/* ── Step 1: Personal Data ── */}
+              {/* ── Step 1: Personal Data ────────────────────────────────── */}
               {currentStep === 1 && (
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                <motion.div
+                  initial={stepInitial}
+                  animate={stepAnimate}
+                  transition={stepTransition}
                 >
                   <header className="mb-8">
                     <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
                       Criar conta
                     </h2>
                     <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
-                      Inicie sua jornada para a liberdade financeira com gestão de alta precisão.
+                      Inicie sua jornada para a liberdade financeira com gestão
+                      de alta precisão.
                     </p>
                   </header>
 
@@ -392,6 +454,7 @@ const RegisterPage = () => {
                     className="flex flex-col gap-5"
                     noValidate
                   >
+                    {/* Name */}
                     <div className="space-y-1.5">
                       <Input
                         id="name"
@@ -405,13 +468,16 @@ const RegisterPage = () => {
                         placeholder="Seu nome"
                         required
                         isError={!!personalErrors.name}
-                        className="h-12"
+                        autoFocus // FIX: only the first field in the step receives autoFocus
+                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
                       />
                       <AnimatePresence>
                         {personalErrors.name && (
-                          <motion.p 
+                          <motion.p
+                            key="name-error"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
                             className="text-[11px] font-bold text-red-600 px-1"
                           >
                             {personalErrors.name}
@@ -420,12 +486,13 @@ const RegisterPage = () => {
                       </AnimatePresence>
                     </div>
 
+                    {/* Email */}
                     <div className="space-y-1.5">
                       <Input
                         id="email"
                         label="Email"
                         type="email"
-                        leftIcon={<EmailIcon className="w-5 h-5" />}
+                        leftIcon={<EmailFilledIcon className="w-5 h-5" />}
                         value={personalForm.email}
                         onChange={(e) =>
                           setPersonalField("email", e.target.value)
@@ -433,13 +500,16 @@ const RegisterPage = () => {
                         placeholder="exemplo@email.com"
                         required
                         isError={!!personalErrors.email}
-                        className="h-12"
+                        // FIX: removed duplicate autoFocus
+                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
                       />
                       <AnimatePresence>
                         {personalErrors.email && (
-                          <motion.p 
+                          <motion.p
+                            key="email-error"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
                             className="text-[11px] font-bold text-red-600 px-1"
                           >
                             {personalErrors.email}
@@ -448,6 +518,7 @@ const RegisterPage = () => {
                       </AnimatePresence>
                     </div>
 
+                    {/* Phone */}
                     <div className="space-y-1.5">
                       <PhoneInput
                         id="phone"
@@ -457,12 +528,15 @@ const RegisterPage = () => {
                         placeholder="9XX XXX XXX"
                         required
                         isError={!!personalErrors.phone}
+                        // FIX: removed duplicate autoFocus
                       />
                       <AnimatePresence>
                         {personalErrors.phone && (
-                          <motion.p 
+                          <motion.p
+                            key="phone-error"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
                             className="text-[11px] font-bold text-red-600 px-1"
                           >
                             {personalErrors.phone}
@@ -480,7 +554,8 @@ const RegisterPage = () => {
                     </Button>
                   </form>
 
-                  <footer className="mt-10 border-t border-slate-100 pt-8 text-center">
+                  {/* FIX: consistent footer spacing with Step 2 — mt-8 pt-6 */}
+                  <footer className="mt-8 border-t border-slate-100 pt-6 text-center">
                     <p className="text-sm font-medium text-slate-500">
                       Já possui uma conta?{" "}
                       <Link
@@ -494,12 +569,12 @@ const RegisterPage = () => {
                 </motion.div>
               )}
 
-              {/* ── Step 2: Security ── */}
+              {/* ── Step 2: Security ─────────────────────────────────────── */}
               {currentStep === 2 && (
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                <motion.div
+                  initial={stepInitial}
+                  animate={stepAnimate}
+                  transition={stepTransition}
                 >
                   <button
                     type="button"
@@ -516,21 +591,27 @@ const RegisterPage = () => {
                       Segurança
                     </h2>
                     <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
-                      Proteja sua conta com uma senha forte para garantir a segurança dos seus dados financeiros.
+                      Proteja sua conta com uma senha forte para garantir a
+                      segurança dos seus dados financeiros.
                     </p>
                   </header>
 
+                  {/*
+                   * FIX: unified gap-5 across both steps' form fields.
+                   * FIX: removed empty className="" from password Input.
+                   */}
                   <form
                     onSubmit={submitSecurity}
-                    className="flex flex-col gap-6"
+                    className="flex flex-col gap-5"
                     noValidate
                   >
-                    <div className="relative space-y-2.5">
+                    {/* Password */}
+                    <div className="space-y-2.5">
                       <Input
                         id="password"
                         label="Crie uma senha"
                         type="password"
-                        leftIcon={<SecurityIcon className="w-5 h-5" />}
+                        leftIcon={<KeyIcon className="w-5 h-5" />}
                         value={securityForm.password}
                         onChange={(e) =>
                           setSecurityField("password", e.target.value)
@@ -540,41 +621,61 @@ const RegisterPage = () => {
                         placeholder="Sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-12"
+                        autoFocus // FIX: first field of step gets autoFocus
+                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
                       />
-                      {/* Password hint */}
+
+                      {/* Strength bar */}
                       <div className="px-1">
                         <AnimatePresence initial={false} mode="wait">
-                          {showPasswordHint ? (
+                          {showPasswordHint && (
                             <motion.div
                               key="hint"
-                              initial={{ opacity: 0, y: -5 }}
+                              initial={{ opacity: 0, y: -4 }}
                               animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
+                              exit={{ opacity: 0, y: -4 }}
                               className="flex items-center gap-2"
                             >
                               <div className="h-1 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                                <motion.div 
-                                  className={`h-full transition-all duration-500 ${passwordValidation.isValid ? 'bg-green-500' : 'bg-yellow-400'}`}
+                                <motion.div
+                                  className={`h-full transition-colors duration-500 ${
+                                    passwordValidation.isValid
+                                      ? "bg-green-500"
+                                      : "bg-yellow-400"
+                                  }`}
                                   initial={{ width: 0 }}
-                                  animate={{ width: passwordValidation.isValid ? '100%' : '40%' }}
+                                  animate={{
+                                    width: passwordValidation.isValid
+                                      ? "100%"
+                                      : "40%",
+                                  }}
+                                  transition={{ duration: 0.4 }}
                                 />
                               </div>
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${passwordValidation.isValid ? "text-green-600" : "text-slate-400"}`}>
-                                {passwordValidation.isValid ? "Senha Forte" : "Mín. 4 caracteres"}
+                              <span
+                                className={`text-[10px] font-bold uppercase tracking-wider ${
+                                  passwordValidation.isValid
+                                    ? "text-green-600"
+                                    : "text-slate-400"
+                                }`}
+                              >
+                                {passwordValidation.isValid
+                                  ? "Senha Forte"
+                                  : "Mín. 4 caracteres"}
                               </span>
                             </motion.div>
-                          ) : null}
+                          )}
                         </AnimatePresence>
                       </div>
                     </div>
 
+                    {/* Confirm password */}
                     <div className="space-y-1.5">
                       <Input
                         id="confirmPassword"
                         label="Confirme a senha"
                         type="password"
-                        leftIcon={<SecurityIcon className="w-5 h-5" />}
+                        leftIcon={<KeyIcon className="w-5 h-5" />}
                         value={securityForm.confirmPassword}
                         onChange={(e) =>
                           setSecurityField("confirmPassword", e.target.value)
@@ -582,13 +683,15 @@ const RegisterPage = () => {
                         placeholder="Repita sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-12"
+                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
                       />
                       <AnimatePresence>
                         {(passwordError || contextError) && (
-                          <motion.p 
+                          <motion.p
+                            key="password-error"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
                             className="text-[11px] font-bold text-red-600 px-1"
                           >
                             {passwordError || contextError}
@@ -604,23 +707,26 @@ const RegisterPage = () => {
                       disabled={isSubmitting}
                       className="h-12 mt-4 rounded-xl font-extrabold shadow-sm active:scale-[0.98] transition-all"
                     >
+                      {/* FIX: removed redundant manual <LoadingSpinner> — Button's
+                          loading prop already handles the spinner internally */}
                       {isSubmitting ? "A processar..." : "Finalizar cadastro"}
                     </Button>
                   </form>
                 </motion.div>
               )}
 
-              {/* ── Step 3: Success ── */}
+              {/* ── Step 3: Success ──────────────────────────────────────── */}
               {currentStep === 3 && (
                 <div className="flex flex-col items-center text-center gap-8 py-6">
+                  {/* Icon */}
                   <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 260, 
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
                       damping: 20,
-                      delay: 0.1 
+                      delay: 0.1,
                     }}
                     className="relative"
                   >
@@ -632,6 +738,7 @@ const RegisterPage = () => {
                     </div>
                   </motion.div>
 
+                  {/* Heading */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -641,10 +748,15 @@ const RegisterPage = () => {
                       Bem-vindo!
                     </h2>
                     <p className="mt-4 text-base font-medium text-slate-500 max-w-xs mx-auto leading-relaxed">
-                      Olá, <span className="font-bold text-slate-900">{data.name?.split(' ')[0] || "Usuário"}</span>. Sua conta Wundu foi criada com sucesso.
+                      Olá,{" "}
+                      <span className="font-bold text-slate-900">
+                        {data.name?.split(" ")[0] || "Usuário"}
+                      </span>
+                      . Sua conta Wundu foi criada com sucesso.
                     </p>
                   </motion.div>
 
+                  {/* Feature icons */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -672,6 +784,7 @@ const RegisterPage = () => {
                     ))}
                   </motion.div>
 
+                  {/* CTA */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -680,9 +793,11 @@ const RegisterPage = () => {
                   >
                     <AnimatePresence>
                       {autoLoginError && (
-                        <motion.div 
+                        <motion.div
+                          key="login-error"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
                           className="rounded-xl bg-red-50 p-4 mb-4 border border-red-100"
                         >
                           <p className="text-xs font-bold text-red-600">
@@ -700,11 +815,9 @@ const RegisterPage = () => {
                       disabled={isLoggingIn}
                       className="w-full h-14 rounded-xl font-extrabold text-lg shadow-xl shadow-yellow-400/20 active:scale-[0.98] transition-all"
                     >
-                      {isLoggingIn ? (
-                        <LoadingSpinner size="sm" />
-                      ) : (
-                        "Aceder à plataforma"
-                      )}
+                      {/* FIX: removed redundant <LoadingSpinner> — Button's
+                          loading prop renders the spinner automatically */}
+                      {isLoggingIn ? "A entrar..." : "Aceder à plataforma"}
                     </Button>
                   </motion.div>
                 </div>
