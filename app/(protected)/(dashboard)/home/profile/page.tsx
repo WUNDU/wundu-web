@@ -36,7 +36,7 @@ function Toggle({ enabled, onChange, disabled }: { enabled: boolean; onChange: (
     <button
       onClick={disabled ? undefined : onChange}
       disabled={disabled}
-      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed ${enabled ? "bg-secondary" : "bg-slate-200"}`}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed ${enabled ? "bg-secondary" : "bg-slate-200"}`}
     >
       <motion.span
         className="inline-block h-4 w-4 rounded-full bg-white shadow-sm"
@@ -65,7 +65,7 @@ export default function Profile() {
 
   return (
     <motion.div
-      className="mx-auto flex w-full max-w-[1360px] flex-col gap-4 pb-6"
+      className="mx-auto flex w-full max-w-340 flex-col gap-4 pb-6"
       variants={STAGGER}
       initial="hidden"
       animate="visible"
@@ -189,7 +189,7 @@ export default function Profile() {
               ].map((row, i) => (
                 <div key={i} className="flex items-center justify-between px-5 py-4">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-secondary/10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10">
                       {row.icon}
                     </div>
                     <div>
@@ -278,7 +278,7 @@ export default function Profile() {
                 {sessions.map((session) => (
                   <div key={session.id} className="flex items-center justify-between gap-4 px-5 py-4">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100">
                         <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                             d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

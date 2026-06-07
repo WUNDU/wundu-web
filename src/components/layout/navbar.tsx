@@ -63,9 +63,9 @@ export default function Navbar() {
         {/* Logo */}
         <div
           onClick={handleHome}
-          className="relative z-10 transition-transform active:scale-95 flex-shrink-0"
+          className="relative z-10 transition-transform active:scale-95 shrink-0"
         >
-          <div className="h-14 overflow-hidden">
+          <div className="h-15 overflow-hidden">
             <LogoType />
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-x-4 top-32 bg-white/90 backdrop-blur-2xl z-40 md:hidden rounded-[2rem] shadow-2xl border border-white/60 p-5 pointer-events-auto animate-scale-in origin-top overflow-hidden">
+        <div className="fixed inset-x-4 top-32 bg-white/90 backdrop-blur-2xl z-40 md:hidden rounded-4xl shadow-2xl border border-white/60 p-5 pointer-events-auto animate-scale-in origin-top overflow-hidden">
           <div className="relative z-10 flex flex-col gap-2">
             {navItems.map((item) => (
               <Link

@@ -744,8 +744,8 @@ const RegisterPage = () => {
                     className="relative"
                   >
                     <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-20 animate-pulse" />
-                    <div className="relative w-28 h-28 flex items-center justify-center rounded-[32px] bg-white border-2 border-slate-50 shadow-2xl">
-                      <div className="w-20 h-20 rounded-[24px] bg-yellow-400 flex items-center justify-center text-slate-900">
+                    <div className="relative w-28 h-28 flex items-center justify-center rounded-4xl bg-white border-2 border-slate-50 shadow-2xl">
+                      <div className="w-20 h-20 rounded-3xl bg-yellow-400 flex items-center justify-center text-slate-900">
                         <CheckmarkIcon className="w-10 h-10" />
                       </div>
                     </div>
