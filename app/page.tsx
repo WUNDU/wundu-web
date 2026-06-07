@@ -36,7 +36,7 @@ import Image from "next/image";
 import { imgDashboard } from "@/constants/images";
 import { Smartphone } from "lucide-react";
 
-const LAUNCH_DATE = new Date("2026-06-08T00:00:00");
+const LAUNCH_DATE = new Date("2026-06-08T18:00:00");
 
 const StatCounter = ({ end, label }: { end: string; label: string }) => {
   const [startCount, setStartCount] = useState(false);

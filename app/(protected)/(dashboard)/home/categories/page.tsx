@@ -452,7 +452,9 @@ export default function CategoriesPage() {
 
   // decouple categories list from totals loading
   const isInitialLoading = isCategoriesLoading && !categories.length;
-  const isSpendingLoading = isTransactionsLoading || !hasFetchedAll;
+  // Use stale-while-revalidate: show summary if we have any data (cached or notPaginated)
+  const hasSpendingData = (notPaginated !== null && notPaginated.length > 0) || transactions.length > 0;
+  const isSpendingLoading = isTransactionsLoading && !hasSpendingData;
 
   const handleCreate = async () => {
     const name = newName.trim();

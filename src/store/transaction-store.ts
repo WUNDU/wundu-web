@@ -99,7 +99,11 @@ export const useTransactionStore = create<TransactionState>()(
           const response = await transactionService.getAll(0, PAGE_SIZE);
           set({
             transactions: sortByDate(response.content as unknown as TransactionDTO[]),
+            allTransactions: response.content,
             totalElements: response.totalElements,
+            totalPages: response.totalPages,
+            currentPage: 0,
+            isLastPage: response.last,
             isLoading: false,
             hasFetched: true,
           });
@@ -187,14 +191,19 @@ export const useTransactionStore = create<TransactionState>()(
 
       getAllNotPaginated: async (options) => {
         const queryKey = `${options?.startDate ?? "all"}|${options?.endDate ?? "all"}`;
-        const { hasFetchedAll, notPaginatedQueryKey, isLoadingAll, transactions, totalElements, hasFetched } = get();
+        const { hasFetchedAll, notPaginatedQueryKey, isLoadingAll, transactions, totalElements, hasFetched, notPaginated } = get();
+        
         if (isLoadingAll) return;
-        if (hasFetchedAll && queryKey === notPaginatedQueryKey) return;
+        
+        // Stale-while-revalidate: If we have data but queryKey matches or we're just starting, 
+        // keep current data but refresh in background if it's the first time in this session.
+        const isAllTime = !options?.startDate && !options?.endDate;
+        const hasData = (isAllTime ? transactions.length > 0 : notPaginated !== null);
+        
+        if (hasFetchedAll && queryKey === notPaginatedQueryKey && hasData) return;
 
         // Optimization: if we already have the first page and total items fit in it,
-        // we have everything. No need for a fresh "bulk" fetch if no dates are requested
-        // or if we can just filter locally.
-        const isAllTime = !options?.startDate && !options?.endDate;
+        // we have everything. 
         if (
           hasFetched &&
           totalElements > 0 &&
@@ -211,13 +220,16 @@ export const useTransactionStore = create<TransactionState>()(
         }
 
         set({
-          isLoadingAll: true,
+          isLoadingAll: !hasData, // Only show global loader if we have NO data
           ...(queryKey !== notPaginatedQueryKey ? { notPaginated: null, hasFetchedAll: false } : {}),
         });
+        
         try {
           const data = await transactionService.getAllNotPaginated(options);
           set({
             notPaginated: data,
+            // If fetching all-time, also sync the "warm" transaction list
+            ...(isAllTime ? { transactions: sortByDate(data.slice(0, PAGE_SIZE) as unknown as TransactionDTO[]) } : {}),
             isLoadingAll: false,
             hasFetchedAll: true,
             notPaginatedQueryKey: queryKey,
@@ -431,10 +443,10 @@ export const useTransactionStore = create<TransactionState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        // Cached transactions are only a warm UI snapshot. After a full page
-        // reload the access token is recreated via refresh, so force the
-        // transaction fetchers to validate/refetch from the API.
-        state.hasFetched = false;
+        // Keep hasFetched if we have data, allowing stale-while-revalidate pattern
+        if (state.transactions.length > 0) {
+          state.hasFetched = true;
+        }
       },
     },
   ),

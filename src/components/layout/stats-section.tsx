@@ -132,13 +132,12 @@ const StatsSection: FC = () => {
       await Promise.allSettled([
         getCachedDocCount().then(setTotalDocuments).catch(() => {}),
         hasFetched ? Promise.resolve() : fetchTransactions(),
-        hasFetchedAll ? Promise.resolve() : getAllNotPaginated(),
       ]);
       setIsLoading(false);
     };
     fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchTransactions, hasFetched, getAllNotPaginated, hasFetchedAll]);
+  }, [fetchTransactions, hasFetched]);
 
   const stats = useMemo(() => {
     // Prefer the full dataset (notPaginated) for accurate all-time totals.

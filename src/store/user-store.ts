@@ -83,42 +83,15 @@ export const useUserStore = create<AuthState>()(
       currentStep: 1,
       data: {},
 
-      checkAuthStatus: async () => {
-        set({ isLoading: true });
-        try {
-          const { token } = get();
-          if (!token) {
-            set({ isLoading: false });
-            return;
-          }
-          const user = await userService.getUser();
-          set({ user, isAuthenticated: true, isLoading: false });
-        } catch (error: any) {
-          // Don't log out on aborted/cancelled requests (e.g. StrictMode double-mount, navigation)
-          if (error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
-            set({ isLoading: false });
-            return;
-          }
-          // Only log out on explicit auth rejection (401/403), not network errors
-          const status = error?.status || error?.response?.status;
-          if (status === 401 || status === 403) {
-            get().setToken(null);
-            set({ isAuthenticated: false, isLoading: false, user: null });
-          } else {
-            set({ isLoading: false });
-          }
-        }
-      },
-
-      // Tenta refresh silencioso no arranque. Se o cookie de refresh ainda for válido,
-      // o backend devolve um novo accessToken sem pedir password.
       initializeAuth: async () => {
         if (get().isLoading && get().isAuthenticated) return;
         set({ isLoading: true });
         try {
           const { accessToken } = await userService.refresh();
-          set({ token: accessToken });
-          await get().checkAuthStatus();
+          // Token ready → allow UI to proceed immediately
+          set({ token: accessToken, isAuthenticated: true, isLoading: false });
+          // Sync user profile in background
+          get().checkAuthStatus().catch(() => {});
         } catch (error: any) {
           const status = error?.status || error?.response?.status;
           const isAuthError = status === 401 || status === 403;
@@ -134,6 +107,36 @@ export const useUserStore = create<AuthState>()(
             // Network error or server error (5xx, timeout) → keep user state intact.
             // Don't log out — the backend may be momentarily unreachable.
             set({ isLoading: false });
+          }
+        }
+      },
+
+      checkAuthStatus: async () => {
+        // Only show loading if we don't have a token/auth yet
+        const shouldShowLoading = !get().isAuthenticated;
+        if (shouldShowLoading) set({ isLoading: true });
+
+        try {
+          const { token } = get();
+          if (!token) {
+            if (shouldShowLoading) set({ isLoading: false });
+            return;
+          }
+          const user = await userService.getUser();
+          set({ user, isAuthenticated: true, isLoading: false });
+        } catch (error: any) {
+          // Don't log out on aborted/cancelled requests (e.g. StrictMode double-mount, navigation)
+          if (error?.name === "AbortError" || error?.code === "ERR_CANCELED") {
+            if (shouldShowLoading) set({ isLoading: false });
+            return;
+          }
+          // Only log out on explicit auth rejection (401/403), not network errors
+          const status = error?.status || error?.response?.status;
+          if (status === 401 || status === 403) {
+            get().setToken(null);
+            set({ isAuthenticated: false, isLoading: false, user: null });
+          } else {
+            if (shouldShowLoading) set({ isLoading: false });
           }
         }
       },
