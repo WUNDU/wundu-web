@@ -487,21 +487,44 @@ export default function WunduPage() {
 
           <div className="flex flex-wrap justify-center gap-4 mb-16">
             {/* Ultra Compact Play Store */}
-            <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px]">
-              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-yellow-50 transition-colors">
-                <div className="scale-110">
-                  <PlayStoreIcon />
+            {isLaunched ? (
+              <a
+                href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px]"
+              >
+                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-yellow-50 transition-colors">
+                  <div className="scale-110">
+                    <PlayStoreIcon />
+                  </div>
+                </div>
+                <div className="text-left">
+                  <p className="text-[7px] font-black text-yellow-600 uppercase tracking-widest leading-none mb-1">
+                    Android & Web
+                  </p>
+                  <h3 className="text-xs font-black text-gray-900 leading-none">
+                    Google Play
+                  </h3>
+                </div>
+              </a>
+            ) : (
+              <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft transition-all duration-500 flex items-center gap-3 w-full max-w-[220px] opacity-50 cursor-not-allowed">
+                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
+                  <div className="scale-110">
+                    <PlayStoreIcon />
+                  </div>
+                </div>
+                <div className="text-left">
+                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">
+                    Android & Web
+                  </p>
+                  <h3 className="text-xs font-black text-gray-900 leading-none">
+                    Google Play
+                  </h3>
                 </div>
               </div>
-              <div className="text-left">
-                <p className="text-[7px] font-black text-yellow-600 uppercase tracking-widest leading-none mb-1">
-                  Android & Web
-                </p>
-                <h3 className="text-xs font-black text-gray-900 leading-none">
-                  Google Play
-                </h3>
-              </div>
-            </div>
+            )}
 
             {/* Ultra Compact App Store */}
             <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px] opacity-60">

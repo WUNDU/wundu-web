@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button, Input, LogoType, TextInput } from "@/components/ui";
 import { PasswordResetData } from "@/types/ui";
+import { validatePasswordDetailed } from "@/utils/validation";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CodeInputProps {
   length: number;
