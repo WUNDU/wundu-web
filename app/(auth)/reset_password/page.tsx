@@ -355,21 +355,27 @@ function StepNewPassword({
   }) => Promise<boolean>;
 }) {
   const [form, setFormState] = useState({ password: "", confirmPassword: "" });
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [passwordValidation, setPasswordValidation] = useState(() =>
+    validatePasswordDetailed(""),
+  );
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const setField = (field: "password" | "confirmPassword", value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+    if (field === "password") {
+      setPasswordValidation(validatePasswordDetailed(value));
+    }
   };
+
+  const showPasswordHint = isPasswordFocused || form.password.length > 0;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password.length < 4 || form.password !== form.confirmPassword) {
-      setPasswordsMatch(false);
+    if (!passwordValidation.isValid || form.password !== form.confirmPassword) {
       return;
     }
-    setPasswordsMatch(true);
     setIsLoading(true);
     const ok = await resetPassword({
       email: data.phoneOrEmail!,
@@ -399,16 +405,72 @@ function StepNewPassword({
         onSubmit={submit}
         className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6"
       >
-        <Input
-          id="password"
-          label="Crie uma senha"
-          type="password"
-          value={form.password}
-          onChange={(e) => setField("password", e.target.value)}
-          placeholder="************"
-          required
-          isError={!passwordsMatch}
-        />
+        <div className="flex flex-col gap-2">
+          <Input
+            id="password"
+            label="Crie uma senha"
+            type="password"
+            value={form.password}
+            onChange={(e) => setField("password", e.target.value)}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+            placeholder="************"
+            required
+            isError={!passwordValidation.isValid && form.password.length > 0}
+          />
+          <AnimatePresence initial={false} mode="wait">
+            {showPasswordHint && (
+              <motion.div
+                key="hint"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="flex flex-col gap-2 mt-2"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full transition-colors duration-500 ${
+                        passwordValidation.isValid
+                          ? "bg-green-500"
+                          : "bg-yellow-400"
+                      }`}
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: passwordValidation.isValid ? "100%" : "40%",
+                      }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider ${
+                      passwordValidation.isValid ? "text-green-600" : "text-slate-400"
+                    }`}
+                  >
+                    {passwordValidation.isValid ? "Senha Forte" : "Segurança"}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px]">
+                  <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
+                    {form.password.length >= 6 ? "✓" : "○"} +6
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[A-Z]/.test(form.password) ? "✓" : "○"} A-Z
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[a-z]/.test(form.password) ? "✓" : "○"} a-z
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[0-9]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[0-9]/.test(form.password) ? "✓" : "○"} 0-9
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[@$!%*?&]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[@$!%*?&]/.test(form.password) ? "✓" : "○"} #!
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
         <Input
           id="confirmPassword"
           label="Repita a senha"
@@ -417,10 +479,10 @@ function StepNewPassword({
           onChange={(e) => setField("confirmPassword", e.target.value)}
           placeholder="************"
           required
-          isError={!passwordsMatch}
+          isError={form.confirmPassword.length > 0 && form.password !== form.confirmPassword}
         />
-        {!passwordsMatch && (
-          <p className="text-sm text-red-500 text-center">
+        {form.confirmPassword.length > 0 && form.password !== form.confirmPassword && (
+          <p className="text-sm text-red-500 text-center -mt-6">
             As senhas não correspondem.
           </p>
         )}
@@ -429,7 +491,7 @@ function StepNewPassword({
             Não foi possível redefinir a senha. Tente novamente.
           </p>
         )}
-        <Button onClick={() => {}} type="submit" loading={isLoading}>
+        <Button onClick={() => {}} type="submit" loading={isLoading} disabled={!passwordValidation.isValid || form.password !== form.confirmPassword}>
           Continuar
         </Button>
       </form>
@@ -465,7 +527,7 @@ function StepSuccess() {
 export default function PasswordReset() {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<PasswordResetData>({});
-  const [timer, setTimer] = useState(120);
+  const [timer, setTimer] = useState(300);
   const [isCodeIncorrect, setIsCodeIncorrect] = useState(false);
 
   const { sendRequestEmail, verifyOtp, resetPassword } = usePasswordRecovery();
@@ -474,7 +536,7 @@ export default function PasswordReset() {
     setData((prev) => ({ ...prev, ...newData }));
   const nextStep = () => setCurrentStep((prev) => prev + 1);
   const prevStep = () => setCurrentStep((prev) => prev - 1);
-  const resetTimer = () => setTimer(120);
+  const resetTimer = () => setTimer(300);
 
   useEffect(() => {
     let countdown: NodeJS.Timeout | null = null;

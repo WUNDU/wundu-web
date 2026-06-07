@@ -15,10 +15,24 @@ export const validatePassword = (password: string): boolean =>
   PASSWORD_MIN_REGEX.test(password);
 
 export const validatePasswordDetailed = (password: string): PasswordValidation => {
-  const isValid = password.length >= 4;
+  const minLength = password.length >= 6;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[@$!%*?&]/.test(password);
+
+  const isValid = minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+
+  const messages: string[] = [];
+  if (!minLength) messages.push("Pelo menos 6 caracteres");
+  if (!hasUpperCase) messages.push("Uma letra maiúscula");
+  if (!hasLowerCase) messages.push("Uma letra minúscula");
+  if (!hasNumber) messages.push("Um número");
+  if (!hasSpecialChar) messages.push("Um caractere especial (@$!%*?&)");
+
   return {
     isValid,
-    messages: isValid ? [] : ["A senha deve ter no mínimo 4 caracteres"],
+    messages,
   };
 };
 
@@ -36,7 +50,7 @@ export const getEmailErrorMessage = (): string =>
   "Email inválido. Use o formato: exemplo@dominio.com";
 
 export const getPasswordErrorMessage = (): string =>
-  "Senha deve ter no mínimo 4 caracteres";
+  "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial (@$!%*?&)";
 
 export const getNameErrorMessage = (): string =>
   "Nome deve ter no mínimo 4 caracteres";

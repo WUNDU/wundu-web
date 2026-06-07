@@ -634,35 +634,48 @@ const RegisterPage = () => {
                               initial={{ opacity: 0, y: -4 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -4 }}
-                              className="flex items-center gap-2"
+                              className="flex flex-col gap-2 mt-2"
                             >
-                              <div className="h-1 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                                <motion.div
-                                  className={`h-full transition-colors duration-500 ${
-                                    passwordValidation.isValid
-                                      ? "bg-green-500"
-                                      : "bg-yellow-400"
+                              <div className="flex items-center gap-2">
+                                <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                                  <motion.div
+                                    className={`h-full transition-colors duration-500 ${
+                                      passwordValidation.isValid
+                                        ? "bg-green-500"
+                                        : "bg-yellow-400"
+                                    }`}
+                                    initial={{ width: 0 }}
+                                    animate={{
+                                      width: passwordValidation.isValid ? "100%" : "40%",
+                                    }}
+                                    transition={{ duration: 0.4 }}
+                                  />
+                                </div>
+                                <span
+                                  className={`text-[10px] font-bold uppercase tracking-wider ${
+                                    passwordValidation.isValid ? "text-green-600" : "text-slate-400"
                                   }`}
-                                  initial={{ width: 0 }}
-                                  animate={{
-                                    width: passwordValidation.isValid
-                                      ? "100%"
-                                      : "40%",
-                                  }}
-                                  transition={{ duration: 0.4 }}
-                                />
+                                >
+                                  {passwordValidation.isValid ? "Senha Forte" : "Segurança"}
+                                </span>
                               </div>
-                              <span
-                                className={`text-[10px] font-bold uppercase tracking-wider ${
-                                  passwordValidation.isValid
-                                    ? "text-green-600"
-                                    : "text-slate-400"
-                                }`}
-                              >
-                                {passwordValidation.isValid
-                                  ? "Senha Forte"
-                                  : "Mín. 4 caracteres"}
-                              </span>
+                              <div className="flex flex-wrap gap-2 text-[10px]">
+                                <span className={`flex items-center gap-1 ${securityForm.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
+                                  {securityForm.password.length >= 6 ? "✓" : "○"} +6
+                                </span>
+                                <span className={`flex items-center gap-1 ${/[A-Z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
+                                  {/[A-Z]/.test(securityForm.password) ? "✓" : "○"} A-Z
+                                </span>
+                                <span className={`flex items-center gap-1 ${/[a-z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
+                                  {/[a-z]/.test(securityForm.password) ? "✓" : "○"} a-z
+                                </span>
+                                <span className={`flex items-center gap-1 ${/[0-9]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
+                                  {/[0-9]/.test(securityForm.password) ? "✓" : "○"} 0-9
+                                </span>
+                                <span className={`flex items-center gap-1 ${/[@$!%*?&]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
+                                  {/[@$!%*?&]/.test(securityForm.password) ? "✓" : "○"} #!
+                                </span>
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>

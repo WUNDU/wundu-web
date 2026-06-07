@@ -424,6 +424,14 @@ const LoginPage: React.FC = () => {
                         // FIX: removed autoFocus — only one field per form should have it
                         className="h-12 border-slate-200 bg-slate-50/40 transition-all"
                       />
+                      <div className="flex justify-end">
+                        <Link
+                          href="/reset_password"
+                          className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
+                        >
+                          Esqueceu a senha?
+                        </Link>
+                      </div>
                     </div>
 
                     <StatusBanner
