@@ -282,24 +282,6 @@ export default function VerifyPendingPage() {
                   )}
                 </Button>
 
-                {/* Already verified */}
-                <Button
-                  variant="secondary"
-                  fullWidth
-                  disabled={isChecking}
-                  onClick={handleAlreadyVerified}
-                  className="h-11 rounded-xl text-sm font-semibold transition-all active:scale-[0.98]"
-                >
-                  {isChecking ? (
-                    <span className="flex items-center gap-2">
-                      <LoadingSpinner size="sm" />
-                      A verificar...
-                    </span>
-                  ) : (
-                    "Já verifiquei"
-                  )}
-                </Button>
-
                 {/* Change email section */}
                 {canChangeEmail && (
                   <div className="mt-1 text-center">
