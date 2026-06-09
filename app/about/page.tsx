@@ -70,11 +70,11 @@ export default function AboutLandingPage() {
 
       {/* ── FOTO DA EQUIPA ── */}
       <section className="px-8 pb-24">
-        <div className="max-w-6xl mx-auto rounded-[2.5rem] overflow-hidden shadow-xl shadow-black/5 border border-black/3 relative group">
+        <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-xl shadow-black/5 border border-black/3 relative group">
           <Image
             src={imgFounders}
             alt="founders"
-            className="w-full h-auto object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            className="w-full h-auto object-cover"
             priority
           />
         </div>
@@ -92,11 +92,11 @@ export default function AboutLandingPage() {
 
       {/* ── CODEPOINT AWARD + MISSÃO ── */}
       <section className="px-8 py-24 max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/5 border border-black/3 w-full relative group hover:shadow-yellow-400/10 transition-all duration-300 animate-in fade-in slide-in-from-left">
+        <div className="rounded-xl overflow-hidden shadow-2xl shadow-black/5 border border-black/3 w-full relative group animate-in fade-in slide-in-from-left">
           <Image
             src={imgTop3}
             alt="Top 3 Codepoint"
-            className="w-full h-auto group-hover:scale-105 transition-transform duration-200 ease-out"
+            className="w-full h-auto"
             quality={100}
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -122,32 +122,32 @@ export default function AboutLandingPage() {
       <section className="px-8 py-24 bg-gray-50/50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="rounded-4xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 lg:col-span-2 group hover:shadow-xl hover:shadow-black/5 transition-all duration-300 relative animate-in fade-in zoom-in-95">
+            <div className="rounded-xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 lg:col-span-2 group relative animate-in fade-in zoom-in-95">
               <Image
                 src={imgRanking}
                 alt="Ranking"
-                className="w-full h-auto group-hover:scale-105 transition-transform duration-200 ease-out"
+                className="w-full h-auto"
                 quality={100}
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
             </div>
 
             <div className="flex flex-col gap-8 h-full animate-in fade-in zoom-in-95 duration-300 delay-150">
-              <div className="flex-1 rounded-4xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group hover:shadow-xl hover:shadow-black/5 transition-all duration-300 relative">
+              <div className="flex-1 rounded-xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group relative">
                 <Image
                   src={img2place}
                   alt="2nd Place"
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-200 ease-out"
+                  className="object-cover"
                   quality={100}
                 />
               </div>
-              <div className="flex-1 rounded-4xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group hover:shadow-xl hover:shadow-black/5 transition-all duration-300 relative">
+              <div className="flex-1 rounded-xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group relative">
                 <Image
                   src={img130}
                   alt="130"
                   fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-200 ease-out"
+                  className="object-cover"
                   quality={100}
                 />
               </div>
@@ -155,22 +155,22 @@ export default function AboutLandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div className="rounded-4xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group hover:shadow-xl hover:shadow-black/5 transition-all duration-300 relative h-80 md:h-112.5 animate-in fade-in zoom-in-95 delay-300">
+            <div className="rounded-xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group relative h-80 md:h-112.5 animate-in fade-in zoom-in-95 delay-300">
               <Image
                 src={imgGreatSolution}
                 alt="Great Solution"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-200 ease-out"
+                className="object-cover"
                 quality={100}
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
             </div>
-            <div className="rounded-4xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group hover:shadow-xl hover:shadow-black/5 transition-all duration-300 relative h-80 md:h-112.5 animate-in fade-in zoom-in-95 delay-450">
+            <div className="rounded-xl overflow-hidden bg-white border border-black/3 shadow-md shadow-black/5 group relative h-80 md:h-112.5 animate-in fade-in zoom-in-95 delay-450">
               <Image
                 src={imgCodepoint}
                 alt="Codepoint"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-200 ease-out"
+                className="object-cover"
                 quality={100}
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
@@ -181,11 +181,11 @@ export default function AboutLandingPage() {
 
       {/* ── GRANDE FINAL BANNER ── */}
       <section className="px-8 py-24">
-        <div className="max-w-6xl mx-auto rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-900/20 bg-blue-950 w-full relative group border border-blue-900">
+        <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/20 bg-blue-950 w-full relative group border border-blue-900">
           <Image
             src={imgFinal}
             alt="Grande Final"
-            className="w-full h-auto opacity-60 group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-auto opacity-60"
             quality={100}
           />
           <div className="absolute inset-0 bg-linear-to-br from-blue-900/80 via-blue-950/40 to-transparent" />
@@ -224,7 +224,7 @@ export default function AboutLandingPage() {
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className={`border rounded-4xl overflow-hidden transition-[transform,box-shadow,border-color,background-color] duration-200 ${openFaq === i ? "border-yellow-200 shadow-soft-lg ring-1 ring-yellow-100" : "border-gray-100 hover:border-gray-200 shadow-sm"}`}
+              className={`border rounded-xl overflow-hidden transition-[transform,box-shadow,border-color,background-color] duration-200 ${openFaq === i ? "border-yellow-200 shadow-soft-lg ring-1 ring-yellow-100" : "border-gray-100 hover:border-gray-200 shadow-sm"}`}
             >
               <button
                 className="w-full text-left px-8 py-6 text-base md:text-lg font-black text-gray-800 flex items-center justify-between hover:bg-gray-50/50 transition-colors group"
@@ -232,7 +232,7 @@ export default function AboutLandingPage() {
               >
                 <span className="tracking-tight">{faq}</span>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-[transform,box-shadow,border-color,background-color] duration-200 ${openFaq === i ? "bg-yellow-400 text-white rotate-180" : "bg-gray-100 text-gray-400 group-hover:bg-gray-200"}`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-[transform,box-shadow,border-color,background-color] duration-200 ${openFaq === i ? "bg-yellow-400 text-white rotate-180" : "bg-gray-100 text-gray-400 group-hover:bg-gray-200"}`}
                 >
                   <ChevronDown className="w-5 h-5" />
                 </div>
