@@ -203,7 +203,7 @@ const CountdownDisplay = () => {
   const TimeUnit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
       <div className="w-14 h-14 md:w-18 md:h-18 bg-gray-900 rounded-xl flex items-center justify-center mb-2 shadow-inner relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-b from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-linear-to-b from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <span className="text-lg md:text-xl font-black text-white tabular-nums leading-none relative z-10 font-mono">
           {value.toString().padStart(2, "0")}
         </span>
@@ -492,7 +492,7 @@ export default function WunduPage() {
                 href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px]"
+                className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-55"
               >
                 <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-yellow-50 transition-colors">
                   <div className="scale-110">
@@ -509,7 +509,7 @@ export default function WunduPage() {
                 </div>
               </a>
             ) : (
-              <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft transition-all duration-500 flex items-center gap-3 w-full max-w-[220px] opacity-50 cursor-not-allowed">
+              <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft transition-all duration-500 flex items-center gap-3 w-full max-w-55 opacity-50 cursor-not-allowed">
                 <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
                   <div className="scale-110">
                     <PlayStoreIcon />
@@ -527,7 +527,7 @@ export default function WunduPage() {
             )}
 
             {/* Ultra Compact App Store */}
-            <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-[220px] opacity-60">
+            <div className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-soft hover:shadow-soft-lg transition-all duration-500 group flex items-center gap-3 w-full max-w-55 opacity-60">
               <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center group-hover:bg-gray-100 transition-colors">
                 <div className="scale-110">
                   <AppleIcon />

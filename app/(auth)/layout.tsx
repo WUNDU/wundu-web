@@ -12,7 +12,7 @@ const MaintenanceOverlay: React.FC = () => {
   const whatsappLink =
     "https://chat.whatsapp.com/C0gVUnIB9OaHnAZAiiLJmQ?mode=gi_t";
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-secondary to-secondary-dark px-6 text-center overflow-hidden">
+    <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-linear-to-b from-secondary to-secondary-dark px-6 text-center overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,212,0,0.1)_0%,transparent_60%)] pointer-events-none" />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -76,7 +76,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   // Alterar para false quando os problemas técnicos forem resolvidos
   const launchDate = new Date("2026-06-08T18:00:00");
-  const isMaintenance = new Date() < launchDate;
+  const isMaintenance = false;
   // new Date() < launchDate;
 
   // These pages must remain accessible even when authenticated

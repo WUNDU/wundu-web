@@ -67,7 +67,7 @@ function StatusBanner({
 
   return (
     // FIX: replaced non-standard min-h-17 with an explicit min-h-[68px]
-    <div className="min-h-[68px] py-4 flex items-center">
+    <div className="min-h-17 py-4 flex items-center">
       <AnimatePresence mode="wait">
         {isBlocked ? (
           <motion.div
@@ -308,7 +308,7 @@ const LoginPage: React.FC = () => {
                   <div className="mb-10 flex flex-col items-center gap-4">
                     <div className="relative group cursor-default">
                       <div className="absolute inset-0 bg-yellow-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-                      <div className="relative flex h-20 w-20 items-center justify-center rounded-[24px] bg-yellow-400 shadow-lg border-4 border-white">
+                      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-yellow-400 shadow-lg border-4 border-white">
                         <span className="text-2xl font-black tracking-tight text-slate-900">
                           {getInitials(savedUser.name)}
                         </span>
