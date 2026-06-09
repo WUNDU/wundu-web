@@ -474,14 +474,14 @@ export default function WunduPage() {
           <div className="text-center mb-12 md:mb-16">
             <div className="inline-flex items-center gap-2 bg-white border border-gray-100 shadow-sm text-yellow-600 text-[10px] font-black px-4 py-2 rounded-full mb-6 uppercase tracking-[0.2em]">
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Plataforma em Evolução</span>
+              <span>Plataforma Disponível</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black mb-6 text-gray-900 tracking-tighter">
-              Aguarde a grande <span className="text-yellow-400">estreia</span>
+              A Wundu <span className="text-yellow-400">já está disponível!</span>
             </h2>
             <p className="text-gray-500 text-base md:text-lg font-medium leading-relaxed max-w-2xl mx-auto">
-              Estamos a reconstruir a Wundu. No dia 08 de Junho, a nossa
-              infraestrutura financeira web e mobile estará disponível para todos.
+              A nossa nova infraestrutura financeira web e mobile já está disponível para todos.
+              Assuma o controle das suas finanças agora mesmo com a melhor experiência.
             </p>
           </div>
 
