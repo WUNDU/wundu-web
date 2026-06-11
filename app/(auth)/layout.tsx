@@ -79,9 +79,13 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const isMaintenance = false;
   // new Date() < launchDate;
 
-  // These pages must remain accessible even when authenticated
+  // These pages must remain accessible even when authenticated. Os fluxos
+  // Google orquestram a sua própria navegação, por isso o layout não interfere.
   const isVerifyPage =
-    pathname === ROUTES.VERIFY_PENDING || pathname === ROUTES.VERIFY_EMAIL;
+    pathname === ROUTES.VERIFY_PENDING ||
+    pathname === ROUTES.VERIFY_EMAIL ||
+    pathname === ROUTES.GOOGLE_CALLBACK ||
+    pathname === ROUTES.REGISTER_GOOGLE;
 
   useEffect(() => {
     initializeAuth();

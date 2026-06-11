@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
+import { GoogleButton } from "@/components/auth/google-button";
 import posthog from "posthog-js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -452,6 +453,20 @@ const LoginPage: React.FC = () => {
                         ? `Aguarde ${formatCountdown(countdown!)}`
                         : "Entrar no Wundu"}
                     </Button>
+
+                    {/* Separador + entrada com Google */}
+                    <div className="relative my-5">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-100" />
+                      </div>
+                      <div className="relative flex justify-center">
+                        <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                          ou
+                        </span>
+                      </div>
+                    </div>
+
+                    <GoogleButton disabled={isSubmitting || isBlocked} />
 
                     {/* FIX: aligned footer spacing to mt-8 pt-6 — original had pt-8
                         which was inconsistent with the Quick mode footer (pt-6)

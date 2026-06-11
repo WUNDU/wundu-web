@@ -9,6 +9,7 @@ import { ROUTES } from "@/constants/routes";
 import { Button, Input, LogoType } from "@/components/ui";
 import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
+import { GoogleButton } from "@/components/auth/google-button";
 import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
 import {
   validateEmail,
@@ -553,6 +554,20 @@ const RegisterPage = () => {
                       Próximo passo
                     </Button>
                   </form>
+
+                  {/* Separador + registo com Google */}
+                  <div className="relative my-5">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-100" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        ou
+                      </span>
+                    </div>
+                  </div>
+
+                  <GoogleButton label="Registar com Google" />
 
                   {/* FIX: consistent footer spacing with Step 2 — mt-8 pt-6 */}
                   <footer className="mt-8 border-t border-slate-100 pt-6 text-center">

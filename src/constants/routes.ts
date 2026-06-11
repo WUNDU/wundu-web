@@ -23,4 +23,6 @@ export const ROUTES = {
   SCAN: "/home/scan",
   VERIFY_PENDING: "/verify-pending",
   VERIFY_EMAIL: "/verify-email",
+  GOOGLE_CALLBACK: "/google-callback",
+  REGISTER_GOOGLE: "/register/google",
 } as const;

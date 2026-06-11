@@ -4,11 +4,7 @@ import { userService } from "@/services/user.service";
 import type { User } from "@/types/dtos/auth.dto";
 import type { RegisterData } from "@/types/dtos/auth.dto";
 import { getApiErrorMessage } from "@/utils/api-error";
-import {
-  clearPendingVerificationContext,
-  setPendingVerificationCooldown,
-  setPendingVerificationEmail,
-} from "@/utils/pending-verification";
+import { clearPendingVerificationContext } from "@/utils/pending-verification";
 
 /** Limpa todos os dados de utilizador em cache nos stores */
 function clearUserStores() {
@@ -55,6 +51,9 @@ interface AuthState {
   setToken(newToken: string | null): void;
   setUser(user: User): void;
   login(email: string, password: string): Promise<boolean>;
+  loginWithGoogle(idToken: string): Promise<void>;
+  registerWithGoogle(idToken: string): Promise<void>;
+  applyGoogleSession(response: { accessToken: string }): Promise<void>;
   register(payload: RegisterData): Promise<boolean>;
   logout(): Promise<void>;
   logoutUser(): Promise<void>;
@@ -165,15 +164,10 @@ export const useUserStore = create<AuthState>()(
           set({ token: response.accessToken, isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
           await get().checkAuthStatus();
 
-          // Redirect unverified users to the email verification pending page
-          const user = get().user;
-          if (user && !user.isActive && typeof window !== "undefined") {
-            setPendingVerificationEmail(user.email);
-            setPendingVerificationCooldown(300);
-            window.location.href = "/verify-pending";
-          } else {
-            clearPendingVerificationContext();
-          }
+          // Novo paradigma: contas não verificadas têm acesso total à aplicação.
+          // O aviso e a acção de verificação vivem apenas no perfil — não bloqueamos
+          // nem redirecionamos o utilizador para a página de verificação.
+          clearPendingVerificationContext();
 
           return true;
         } catch (error: any) {
@@ -200,6 +194,42 @@ export const useUserStore = create<AuthState>()(
             set({ error: errMsg, isLoading: false });
           }
           return false;
+        }
+      },
+
+      // Aplica o resultado de um login/registo Google bem-sucedido (mesmo
+      // tratamento do login normal: token em memória + carregar utilizador).
+      applyGoogleSession: async (response: { accessToken: string }) => {
+        clearUserStores();
+        set({ token: response.accessToken, isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
+        await get().checkAuthStatus();
+        clearPendingVerificationContext();
+      },
+
+      // Login com Google. Lança o erro (com .status) para o chamador decidir o
+      // fluxo — ex.: 404 → conta inexistente → seguir para registo Google.
+      loginWithGoogle: async (idToken: string) => {
+        set({ isLoading: true, error: null, retryAfterSeconds: null });
+        try {
+          const response = await userService.googleLogin(idToken);
+          await get().applyGoogleSession(response);
+        } catch (error: any) {
+          const errMsg = getApiErrorMessage(error, "Não foi possível entrar com o Google.");
+          set({ error: errMsg, isLoading: false });
+          throw error;
+        }
+      },
+
+      // Registo com Google — cria a conta a partir do idToken.
+      registerWithGoogle: async (idToken: string) => {
+        set({ isLoading: true, error: null, retryAfterSeconds: null });
+        try {
+          const response = await userService.googleRegister(idToken);
+          await get().applyGoogleSession(response);
+        } catch (error: any) {
+          const errMsg = getApiErrorMessage(error, "Não foi possível criar a conta com o Google.");
+          set({ error: errMsg, isLoading: false });
+          throw error;
         }
       },
 

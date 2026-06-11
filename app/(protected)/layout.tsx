@@ -10,7 +10,6 @@ import { useApiNotificationStore } from "@/store/api-notification-store";
 import { useCategoryStore } from "@/store/category-store";
 import { useGoalStore } from "@/store/goal-store";
 import { useShallow } from "zustand/shallow";
-import EmailVerificationBanner from "@/components/email-verification-banner";
 import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -310,7 +309,6 @@ export default function ProtectedLayout({
   return (
     <LoadingProvider>
       {user?.id && <PushProvider userId={user.id} />}
-      <EmailVerificationBanner />
       {/* Defer page content until auth is confirmed (token in memory).
           Shell (sidebar/topbar) already rendered by dashboard layout — this only gates page children. */}
       {checked ? children : (

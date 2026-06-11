@@ -3,6 +3,7 @@ import { Inter, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import { CookieConsent } from "@/components/layout/cookie-consent";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -60,18 +61,20 @@ export default function RootLayout({
         className={`${inter.variable} ${openSans.variable} antialiased`}
         suppressHydrationWarning
       >
-        <CookieConsentProvider>
-          {children}
-          <CookieConsent />
-          <Toaster
-            position="top-right"
-            closeButton
-            richColors={false}
-            theme="light"
-            expand={false}
-            gap={12}
-          />
-        </CookieConsentProvider>
+        <SessionProvider>
+          <CookieConsentProvider>
+            {children}
+            <CookieConsent />
+            <Toaster
+              position="top-right"
+              closeButton
+              richColors={false}
+              theme="light"
+              expand={false}
+              gap={12}
+            />
+          </CookieConsentProvider>
+        </SessionProvider>
       </body>
     </html>
   );
