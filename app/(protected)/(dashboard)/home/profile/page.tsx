@@ -12,6 +12,7 @@ import { formatAOA } from "@/lib/currency";
 import posthog from "posthog-js";
 import { useSessions } from "@/hooks/use-sessions";
 import { BRAND_COLORS } from "@/constants/brand-colors";
+import ProfileVerificationCard from "@/components/profile/profile-verification-card";
 
 function PhoneIcon({ className }: { className?: string }) {
   return (
@@ -62,6 +63,7 @@ export default function Profile() {
 
   const totalSaved = goals.reduce((acc, g) => acc + (g.currentAmount ?? 0), 0);
   const isPremium = user?.planType === "PREMIUM";
+  const isVerified = !!user?.isActive;
 
   return (
     <motion.div
@@ -102,20 +104,35 @@ export default function Profile() {
                     className="h-20 w-20 rounded-full object-cover"
                   />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400 ring-2 ring-white">
-                  <svg className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
+                <div
+                  className={`absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full ring-2 ring-white ${isVerified ? "bg-emerald-400" : "bg-amber-400"}`}
+                >
+                  {isVerified ? (
+                    <svg className="h-3.5 w-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="h-3.5 w-3.5 text-amber-950" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-base font-semibold text-slate-900">{user?.name || "Usuário"}</p>
                 <p className="mt-0.5 text-sm text-slate-400">{user?.email || "—"}</p>
               </div>
-              <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1">
-                <ShieldIcon className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-[11px] font-medium text-emerald-600">Conta verificada</span>
-              </div>
+              {isVerified ? (
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1">
+                  <ShieldIcon className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="text-[11px] font-medium text-emerald-600">Conta verificada</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1">
+                  <ShieldIcon className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-[11px] font-medium text-amber-600">Conta por verificar</span>
+                </div>
+              )}
             </div>
 
             {/* Stats */}
@@ -138,6 +155,9 @@ export default function Profile() {
               ))}
             </div>
           </div>
+
+          {/* Email verification — visível apenas para contas por verificar */}
+          <ProfileVerificationCard />
 
           {/* Plan card */}
           <div

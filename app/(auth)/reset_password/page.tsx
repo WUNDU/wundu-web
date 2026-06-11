@@ -449,24 +449,12 @@ function StepNewPassword({
                       passwordValidation.isValid ? "text-green-600" : "text-slate-400"
                     }`}
                   >
-                    {passwordValidation.isValid ? "Senha Forte" : "Segurança"}
+                    {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2 text-[10px]">
                   <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
-                    {form.password.length >= 6 ? "✓" : "○"} +6
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[A-Z]/.test(form.password) ? "✓" : "○"} A-Z
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[a-z]/.test(form.password) ? "✓" : "○"} a-z
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[0-9]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[0-9]/.test(form.password) ? "✓" : "○"} 0-9
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[@$!%*?&]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[@$!%*?&]/.test(form.password) ? "✓" : "○"} #!
+                    {form.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                   </span>
                 </div>
               </motion.div>

@@ -1,25 +1,6 @@
 import axios from "axios";
-import { setPendingVerificationEmail } from "@/utils/pending-verification";
 
 const API_BASE_URL = "/api/proxy";
-
-function extractRequestEmail(data: unknown) {
-  if (!data) return "";
-
-  if (typeof data === "string") {
-    try {
-      const parsed = JSON.parse(data) as { email?: unknown };
-      return typeof parsed.email === "string" ? parsed.email.trim() : "";
-    } catch {
-      return "";
-    }
-  }
-
-  if (typeof data !== "object") return "";
-
-  const email = (data as { email?: unknown }).email;
-  return typeof email === "string" ? email.trim() : "";
-}
 
 export type ApiError = Error & {
   errorCode?: string;
@@ -131,22 +112,9 @@ api.interceptors.response.use(
       }
     }
 
-    // Redirect to email verification pending page when backend blocks unverified users
-    if (error.response?.data?.errorCode === "EMAIL_NOT_VERIFIED") {
-      if (typeof window !== "undefined") {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
-        const email =
-          useUserStore.getState().user?.email || extractRequestEmail(error.config?.data);
-        if (email) {
-          setPendingVerificationEmail(email);
-        }
-        const currentPath = window.location.pathname;
-        if (currentPath !== "/verify-pending" && currentPath !== "/verify-email") {
-          window.location.href = "/verify-pending";
-        }
-      }
-    }
+    // Novo paradigma: não redirecionamos contas não verificadas. O erro
+    // EMAIL_NOT_VERIFIED é apenas propagado para quem chamou; o aviso e a acção
+    // de verificação vivem exclusivamente no perfil do utilizador.
 
     const fallbackMessage =
       "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";

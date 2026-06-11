@@ -9,6 +9,7 @@ import { ROUTES } from "@/constants/routes";
 import { Button, Input, LogoType } from "@/components/ui";
 import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
+import { GoogleButton } from "@/components/auth/google-button";
 import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
 import {
   validateEmail,
@@ -271,7 +272,7 @@ const RegisterPage = () => {
 
     const validation = validatePasswordDetailed(securityForm.password);
     if (!validation.isValid) {
-      setPasswordError("A senha não cumpre todos os requisitos de segurança.");
+      setPasswordError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
     if (securityForm.password !== securityForm.confirmPassword) {
@@ -554,6 +555,20 @@ const RegisterPage = () => {
                     </Button>
                   </form>
 
+                  {/* Separador + registo com Google */}
+                  <div className="relative my-5">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-100" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        ou
+                      </span>
+                    </div>
+                  </div>
+
+                  <GoogleButton label="Registar com Google" />
+
                   {/* FIX: consistent footer spacing with Step 2 — mt-8 pt-6 */}
                   <footer className="mt-8 border-t border-slate-100 pt-6 text-center">
                     <p className="text-sm font-medium text-slate-500">
@@ -656,24 +671,12 @@ const RegisterPage = () => {
                                     passwordValidation.isValid ? "text-green-600" : "text-slate-400"
                                   }`}
                                 >
-                                  {passwordValidation.isValid ? "Senha Forte" : "Segurança"}
+                                  {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
                                 </span>
                               </div>
                               <div className="flex flex-wrap gap-2 text-[10px]">
                                 <span className={`flex items-center gap-1 ${securityForm.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
-                                  {securityForm.password.length >= 6 ? "✓" : "○"} +6
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[A-Z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[A-Z]/.test(securityForm.password) ? "✓" : "○"} A-Z
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[a-z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[a-z]/.test(securityForm.password) ? "✓" : "○"} a-z
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[0-9]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[0-9]/.test(securityForm.password) ? "✓" : "○"} 0-9
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[@$!%*?&]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[@$!%*?&]/.test(securityForm.password) ? "✓" : "○"} #!
+                                  {securityForm.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                                 </span>
                               </div>
                             </motion.div>

@@ -47,6 +47,26 @@ class UserService {
     return data;
   }
 
+  /** Login com Google — conta já existente. Backend extrai tudo do idToken. */
+  async googleLogin(idToken: string): Promise<LoginResponse> {
+    const { data } = await apiClient.post<LoginResponse>(
+      "/auth/google/login",
+      { idToken },
+      { skipAuth: true, withCredentials: true },
+    );
+    return data;
+  }
+
+  /** Registo com Google — cria nova conta a partir do idToken. */
+  async googleRegister(idToken: string): Promise<LoginResponse> {
+    const { data } = await apiClient.post<LoginResponse>(
+      "/auth/google/register",
+      { idToken },
+      { skipAuth: true, withCredentials: true },
+    );
+    return data;
+  }
+
   async refresh(): Promise<RefreshResponse> {
     const { data } = await api.post<RefreshResponse>("/auth/refresh", undefined, {
       withCredentials: true,
