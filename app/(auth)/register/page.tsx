@@ -272,7 +272,7 @@ const RegisterPage = () => {
 
     const validation = validatePasswordDetailed(securityForm.password);
     if (!validation.isValid) {
-      setPasswordError("A senha não cumpre todos os requisitos de segurança.");
+      setPasswordError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
     if (securityForm.password !== securityForm.confirmPassword) {
@@ -671,24 +671,12 @@ const RegisterPage = () => {
                                     passwordValidation.isValid ? "text-green-600" : "text-slate-400"
                                   }`}
                                 >
-                                  {passwordValidation.isValid ? "Senha Forte" : "Segurança"}
+                                  {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
                                 </span>
                               </div>
                               <div className="flex flex-wrap gap-2 text-[10px]">
                                 <span className={`flex items-center gap-1 ${securityForm.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
-                                  {securityForm.password.length >= 6 ? "✓" : "○"} +6
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[A-Z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[A-Z]/.test(securityForm.password) ? "✓" : "○"} A-Z
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[a-z]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[a-z]/.test(securityForm.password) ? "✓" : "○"} a-z
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[0-9]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[0-9]/.test(securityForm.password) ? "✓" : "○"} 0-9
-                                </span>
-                                <span className={`flex items-center gap-1 ${/[@$!%*?&]/.test(securityForm.password) ? "text-green-600" : "text-slate-400"}`}>
-                                  {/[@$!%*?&]/.test(securityForm.password) ? "✓" : "○"} #!
+                                  {securityForm.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                                 </span>
                               </div>
                             </motion.div>
