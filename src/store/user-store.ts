@@ -3,6 +3,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types/dtos/auth.dto";
 import type { RegisterData } from "@/types/dtos/auth.dto";
+import type { UserRequest } from "@/types/dtos/user.dto";
+import { useUiStore } from "@/store/ui-store";
 import { getApiErrorMessage } from "@/utils/api-error";
 import { clearPendingVerificationContext } from "@/utils/pending-verification";
 
@@ -50,6 +52,9 @@ interface AuthState {
   refreshToken(): Promise<string>;
   setToken(newToken: string | null): void;
   setUser(user: User): void;
+  updateProfile(payload: Partial<UserRequest>): Promise<boolean>;
+  uploadAvatar(file: File): Promise<boolean>;
+  removeAvatar(): Promise<boolean>;
   login(email: string, password: string): Promise<boolean>;
   loginWithGoogle(idToken: string): Promise<void>;
   registerWithGoogle(idToken: string): Promise<void>;
@@ -153,6 +158,56 @@ export const useUserStore = create<AuthState>()(
 
       setUser: (user) => {
         set({ user });
+      },
+
+      updateProfile: async (payload) => {
+        const current = get().user;
+        if (!current) return false;
+        try {
+          const updated = await userService.update(current.id, payload);
+          set({ user: updated });
+          useUiStore
+            .getState()
+            .showNotification("success", "Perfil actualizado", "Os seus dados foram guardados com sucesso.");
+          return true;
+        } catch (error: any) {
+          useUiStore
+            .getState()
+            .showNotification("error", "Erro ao actualizar", getApiErrorMessage(error, "Não foi possível actualizar o perfil."));
+          return false;
+        }
+      },
+
+      uploadAvatar: async (file) => {
+        try {
+          const { profilePhotoUrl } = await userService.uploadPhoto(file);
+          set((s) => (s.user ? { user: { ...s.user, profilePhotoUrl } } : {}));
+          useUiStore
+            .getState()
+            .showNotification("success", "Foto actualizada", "A sua foto de perfil foi actualizada.");
+          return true;
+        } catch (error: any) {
+          useUiStore
+            .getState()
+            .showNotification("error", "Erro no upload", getApiErrorMessage(error, "Não foi possível enviar a foto."));
+          return false;
+        }
+      },
+
+      removeAvatar: async () => {
+        try {
+          await userService.deletePhoto();
+          set((s) => (s.user ? { user: { ...s.user, profilePhotoUrl: null } } : {}));
+          useUiStore
+            .getState()
+            .showNotification("success", "Foto removida", "A sua foto de perfil foi removida.");
+          return true;
+        } catch (error: any) {
+          useUiStore
+            .getState()
+            .showNotification("error", "Erro ao remover", getApiErrorMessage(error, "Não foi possível remover a foto."));
+          return false;
+        }
       },
 
       login: async (email: string, password: string) => {

@@ -31,6 +31,7 @@ export interface UserResponse {
   planStart: string | null;
   planEnd: string | null;
   isTrial: boolean;
+  profilePhotoUrl?: string | null;
 }
 
 export type User = UserResponse;
