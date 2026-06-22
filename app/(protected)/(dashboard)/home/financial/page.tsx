@@ -9,7 +9,7 @@ import {
 } from "@/constants/icons";
 import { Button } from "@/components/ui";
 import EditModal from "@/components/ui/edit-modal";
-import { buildGoalCardData, getGoalProgress } from "@/store/goal-store";
+import { buildGoalCardData, getGoalProgress } from "@/utils/goal";
 import { useGoal } from "@/hooks/use-goal";
 import type { Goal } from "@/types/dtos/goal.dto";
 import {

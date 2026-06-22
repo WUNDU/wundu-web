@@ -4,6 +4,7 @@ import "@/public/styles/globals.css";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -62,18 +63,20 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SessionProvider>
-          <CookieConsentProvider>
-            {children}
-            <CookieConsent />
-            <Toaster
-              position="top-right"
-              closeButton
-              richColors={false}
-              theme="light"
-              expand={false}
-              gap={12}
-            />
-          </CookieConsentProvider>
+          <QueryProvider>
+            <CookieConsentProvider>
+              {children}
+              <CookieConsent />
+              <Toaster
+                position="top-right"
+                closeButton
+                richColors={false}
+                theme="light"
+                expand={false}
+                gap={12}
+              />
+            </CookieConsentProvider>
+          </QueryProvider>
         </SessionProvider>
       </body>
     </html>

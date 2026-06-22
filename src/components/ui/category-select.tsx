@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check, X, Loader2 } from "lucide-react";
-import { useCategoryStore } from "@/store/category-store";
+import { useCategory } from "@/hooks/use-category";
 import type { Category } from "@/types/dtos/category.dto";
 import { getCategoryStyle } from "@/utils/category-style";
 
@@ -32,11 +32,7 @@ export function CategorySelect({
   className,
 }: CategorySelectProps) {
   const [open, setOpen] = useState(false);
-  const { categories, isLoading, hasFetched, fetchActive } = useCategoryStore();
-
-  useEffect(() => {
-    if (!hasFetched) fetchActive();
-  }, [hasFetched, fetchActive]);
+  const { categories, isLoading, hasFetched } = useCategory();
 
   const systemCats = categories.filter((c) => !c.userId);
   const userCats = categories.filter((c) => !!c.userId);

@@ -3,10 +3,9 @@
 import type { ElementType, FC } from "react";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useShallow } from "zustand/shallow";
 import { FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import { isExpense } from "@/utils/transaction-type";
 
 // Session-level cache: avoids redundant API call on every home mount
@@ -109,17 +108,8 @@ const StatsSection: FC = () => {
     getAllNotPaginated,
     transactions,
     hasFetched,
-    fetchTransactions,
-  } = useTransactionStore(
-    useShallow((s) => ({
-      notPaginated: s.notPaginated,
-      hasFetchedAll: s.hasFetchedAll,
-      getAllNotPaginated: s.getAllNotPaginated,
-      transactions: s.transactions,
-      hasFetched: s.hasFetched,
-      fetchTransactions: s.fetch,
-    })),
-  );
+    getTransactions: fetchTransactions,
+  } = useTransaction();
 
   // Only show skeleton if store is truly empty — cached data shows immediately
   const hasAnyData = transactions.length > 0 || notPaginated !== null;

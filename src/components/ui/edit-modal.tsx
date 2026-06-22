@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { EditModalProps } from "@/types/ui";
 import { type GoalPayload, type GoalType } from "@/types/dtos/goal.dto";
-import { useGoalStore, getGoalProgress } from "@/store/goal-store";
-import { useCategoryStore } from "@/store/category-store";
+import { useGoal } from "@/hooks/use-goal";
+import { getGoalProgress } from "@/utils/goal";
+import { useCategory } from "@/hooks/use-category";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 import Select from "@/components/ui/select";
 import CategorySelect from "@/components/ui/category-select";
@@ -68,8 +69,8 @@ const EditModal: React.FC<EditModalProps> = ({
   objective,
   onUpdated,
 }) => {
-  const { update } = useGoalStore();
-  const { categories } = useCategoryStore();
+  const { updateGoal: update } = useGoal();
+  const { categories } = useCategory();
   const [formData, setFormData] = useState<EditFormState>(() =>
     buildInitialFormData(objective),
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useApiNotificationStore } from "@/store/api-notification-store";
+import { useApiNotification } from "@/hooks/use-api-notification";
 import type { NotificationResponse } from "@/types/dtos/notification.dto";
 
 export const REPORT_NOTIFICATION_TYPES = new Set([
@@ -11,9 +11,7 @@ export const REPORT_NOTIFICATION_TYPES = new Set([
 ]);
 
 export function useReportNotifications(enabled: boolean) {
-  const notifications = useApiNotificationStore((s) => s.notifications);
-  const fetchUnread   = useApiNotificationStore((s) => s.fetchUnread);
-  const markAsRead    = useApiNotificationStore((s) => s.markAsRead);
+  const { unreadNotifications: notifications, fetchUnread, markAsRead } = useApiNotification();
 
   const [queue,   setQueue]   = useState<NotificationResponse[]>([]);
   const [current, setCurrent] = useState<NotificationResponse | null>(null);

@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDownCircle, Calendar, Edit2, Loader2, Trash2, TrendingUp, X } from "lucide-react";
-import { useGoalStore } from "@/store/goal-store";
+import { useGoal } from "@/hooks/use-goal";
 import { goalService } from "@/services/goal.service";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 import type { Goal, GoalProgress } from "@/types/dtos/goal.dto";
@@ -347,9 +347,7 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deletingGoal, setDeletingGoal] = useState(false);
   const [deletingProgressId, setDeletingProgressId] = useState<string | null>(null);
-  const addProgress = useGoalStore((s) => s.addProgress);
-  const removeGoal = useGoalStore((s) => s.remove);
-  const deleteProgress = useGoalStore((s) => s.deleteProgress);
+  const { addProgress, removeGoal, deleteProgress } = useGoal();
 
   const refreshGoal = useCallback(async () => {
     try {

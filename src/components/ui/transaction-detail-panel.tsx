@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { formatAOA } from "@/lib/currency";
 import { CategorySelect } from "@/components/ui/category-select";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import { getCategoryStyle } from "@/utils/category-style";
 
 /* ------------------------------------------------------------------ */
@@ -272,8 +272,7 @@ function EditForm({
 /* ------------------------------------------------------------------ */
 
 function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose: () => void }) {
-  const updateStore = useTransactionStore((s) => s.update);
-  const removeStore = useTransactionStore((s) => s.remove);
+  const { updateTransaction: updateStore, removeTransaction: removeStore } = useTransaction();
   const [tx, setTx] = useState<TransactionDTO>(initialTx);
   const [isEditing, setIsEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);

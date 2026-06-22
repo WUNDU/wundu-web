@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, CheckCircle2, AlertCircle, XCircle, RefreshCw } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
-import { useCategoryStore } from "@/store/category-store";
+import { useCategory } from "@/hooks/use-category";
 import type { DocumentStatus } from "@/types/dtos/document.dto";
 
 type OcrStatus = DocumentStatus["status"];
@@ -42,7 +42,7 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
   onSuccess,
   onRetry,
 }) => {
-  const { categories, fetchActive } = useCategoryStore();
+  const { categories } = useCategory();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [categorizeError, setCategorizeError] = useState("");
@@ -50,12 +50,6 @@ const OcrStatusModal: React.FC<OcrStatusModalProps> = ({
   const status = doc?.status?.toUpperCase() ?? "";
   const needsCategory = status === "NEEDS_MANUAL_CATEGORY";
   const isTerminal = ["PROCESSED", "NEEDS_MANUAL_CATEGORY", "DUPLICATE", "REJECTED_NOT_RECEIPT", "FAILED"].includes(status);
-
-  useEffect(() => {
-    if (needsCategory) {
-      fetchActive();
-    }
-  }, [needsCategory, fetchActive]);
 
   useEffect(() => {
     if (!isOpen) {

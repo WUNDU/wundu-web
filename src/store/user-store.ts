@@ -7,31 +7,28 @@ import type { UserRequest } from "@/types/dtos/user.dto";
 import { useUiStore } from "@/store/ui-store";
 import { getApiErrorMessage } from "@/utils/api-error";
 import { clearPendingVerificationContext } from "@/utils/pending-verification";
+import { getQueryClient } from "@/lib/query-client";
+
+// Dedup global de /auth/refresh: initializeAuth() (no mount) e o interceptor
+// do axios (em qualquer 401) podiam chamar refresh em simultâneo. Com refresh
+// token rotativo de uso único, a segunda chamada chegava ao backend já com o
+// cookie invalidado pela primeira → falha → logout indevido no refresh da página.
+// Esta promise partilhada garante que só existe um /auth/refresh em voo de cada vez.
+let refreshPromise: Promise<string> | null = null;
 
 /** Limpa todos os dados de utilizador em cache nos stores */
 function clearUserStores() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useTransactionStore } = require("./transaction-store") as typeof import("./transaction-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useGoalStore } = require("./goal-store") as typeof import("./goal-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useCategoryStore } = require("./category-store") as typeof import("./category-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useApiNotificationStore } = require("./api-notification-store") as typeof import("./api-notification-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useLimitStore } = require("./limit-store") as typeof import("./limit-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useDocumentStore } = require("./document-store") as typeof import("./document-store");
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { useChatStore } = require("./chat-store") as typeof import("./chat-store");
 
-  useTransactionStore.getState().clearAll();
-  useGoalStore.getState().clearAll();
-  useCategoryStore.getState().clearAll();
-  useApiNotificationStore.getState().clearAll();
-  useLimitStore.getState().clearAll();
-  useDocumentStore.getState().clearAll();
   useChatStore.getState().clearConversation();
+  const queryClient = getQueryClient();
+  queryClient.removeQueries({ queryKey: ["categories"] });
+  queryClient.removeQueries({ queryKey: ["limits"] });
+  queryClient.removeQueries({ queryKey: ["goals"] });
+  queryClient.removeQueries({ queryKey: ["notifications"] });
+  queryClient.removeQueries({ queryKey: ["transactions"] });
+  queryClient.removeQueries({ queryKey: ["sessions"] });
 }
 
 interface AuthState {
@@ -91,7 +88,7 @@ export const useUserStore = create<AuthState>()(
         if (get().isLoading && get().isAuthenticated) return;
         set({ isLoading: true });
         try {
-          const { accessToken } = await userService.refresh();
+          const accessToken = await get().refreshToken();
           // Token ready → allow UI to proceed immediately
           set({ token: accessToken, isAuthenticated: true, isLoading: false });
           // Sync user profile in background
@@ -145,11 +142,21 @@ export const useUserStore = create<AuthState>()(
         }
       },
 
-      // Renova o accessToken usando o cookie HttpOnly de refresh (gerido pelo browser)
+      // Renova o accessToken usando o cookie HttpOnly de refresh (gerido pelo browser).
+      // Deduplicado globalmente: chamadas concorrentes (initializeAuth + interceptor
+      // do axios) partilham a mesma chamada em voo em vez de disparar /auth/refresh duas vezes.
       refreshToken: async () => {
-        const { accessToken } = await userService.refresh();
-        set({ token: accessToken, isAuthenticated: true });
-        return accessToken;
+        if (refreshPromise) return refreshPromise;
+        refreshPromise = (async () => {
+          try {
+            const { accessToken } = await userService.refresh();
+            set({ token: accessToken, isAuthenticated: true });
+            return accessToken;
+          } finally {
+            refreshPromise = null;
+          }
+        })();
+        return refreshPromise;
       },
 
       setToken: (newToken) => {

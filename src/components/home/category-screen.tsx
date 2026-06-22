@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useCategoryStore } from "@/store/category-store";
+import React, { useState } from "react";
+import { useCategory } from "@/hooks/use-category";
 import type { Category } from "@/types/dtos/category.dto";
 import { Plus, Loader2 } from "lucide-react";
 import { getCategoryStyle } from "@/utils/category-style";
@@ -25,14 +25,10 @@ const CategoryScreen = ({
   transactionDescription,
   setTransactionDescription,
 }: CategoryScreenProps) => {
-  const { categories, isLoading, fetchActive, create } = useCategoryStore();
+  const { categories, isLoading, createCategory } = useCategory();
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    fetchActive();
-  }, [fetchActive]);
 
   const handleCategorySelect = (category: Category) =>
     setSelectedCategory(category);
@@ -61,7 +57,7 @@ const CategoryScreen = ({
     const name = newCategoryName.trim();
     if (!name) return;
     setIsCreating(true);
-    const created = await create({ name });
+    const created = await createCategory({ name });
     setIsCreating(false);
     if (created) {
       setNewCategoryName("");

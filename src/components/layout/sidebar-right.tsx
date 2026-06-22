@@ -15,8 +15,8 @@ import {
 import { SidebarRightProps } from "@/types/ui";
 import { useUserStore } from "@/store/user-store";
 import { useUiStore } from "@/store/ui-store";
-import { useGoalStore } from "@/store/goal-store";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useGoal } from "@/hooks/use-goal";
+import { useTransaction } from "@/hooks/use-transaction";
 import { formatAOA } from "@/lib/currency";
 import { ROUTES } from "@/constants/routes";
 import posthog from "posthog-js";
@@ -40,8 +40,8 @@ const ChevronRightDark = () => (
 const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const { logoutUser, user } = useUserStore();
   const { openNotificationCenter } = useUiStore();
-  const { goals, hasFetched: goalsFetched, getAll: fetchGoals } = useGoalStore();
-  const { transactions, hasFetched: txFetched, fetch: fetchTx } = useTransactionStore();
+  const { goals, hasFetched: goalsFetched, getAll: fetchGoals } = useGoal();
+  const { transactions, hasFetched: txFetched, getTransactions: fetchTx } = useTransaction();
   const router = useRouter();
 
   useEffect(() => {
