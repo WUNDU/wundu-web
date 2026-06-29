@@ -534,6 +534,7 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
 
         {/* ── Footer ── */}
         <div className="flex-shrink-0 px-5 py-3 border-t border-slate-100 bg-white">
+          {/* confirmDelete temporarily disabled — delete goal not yet available
           {confirmDelete ? (
             <div className="flex items-center gap-2">
               <p className="flex-1 text-xs font-semibold text-slate-600 leading-tight">Remover este objectivo e todo o histórico?</p>
@@ -552,10 +553,11 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
                 {deletingGoal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Remover"}
               </button>
             </div>
-          ) : (
+          ) : ( */}
             <div className="flex gap-2">
               {!done && (
                 <>
+                  {/* delete button temporarily disabled — feature not yet available
                   <button
                     onClick={() => setConfirmDelete(true)}
                     aria-label="Remover objectivo"
@@ -563,6 +565,7 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
+                  */}
                   <button
                     onClick={onEdit}
                     className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-secondary bg-[rgba(0,60,195,0.06)] hover:bg-[rgba(0,60,195,0.10)] transition-colors"
@@ -579,7 +582,7 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
                 Fechar
               </button>
             </div>
-          )}
+          {/* )} */}
         </div>
 
         {/* ── Add savings sheet (slides up inside modal) ── */}
