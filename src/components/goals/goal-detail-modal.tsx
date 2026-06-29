@@ -2,8 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDownCircle, Calendar, Edit2, TrendingUp, X } from "lucide-react";
-import { useGoalStore } from "@/store/goal-store";
+import { ArrowDownCircle, Calendar, Edit2, Loader2, Trash2, TrendingUp, X } from "lucide-react";
+import { useGoal } from "@/hooks/use-goal";
 import { goalService } from "@/services/goal.service";
 import { formatAOA, maskAOAInput, parseAOA } from "@/lib/currency";
 import type { Goal, GoalProgress } from "@/types/dtos/goal.dto";
@@ -79,7 +79,21 @@ function StatChip({ label, value, accent }: { label: string; value: string; acce
 }
 
 // ── History row ───────────────────────────────────────────────────────────────
-function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number; isLast: boolean }) {
+function HistoryRow({
+  item,
+  index,
+  isLast,
+  onDelete,
+  deleting,
+  canDelete,
+}: {
+  item: GoalProgress;
+  index: number;
+  isLast: boolean;
+  onDelete: (id: string) => void;
+  deleting: boolean;
+  canDelete: boolean;
+}) {
   const isAdjustment = item.changeType === "TARGET_ADJUSTMENT";
 
   return (
@@ -116,16 +130,28 @@ function HistoryRow({ item, index, isLast }: { item: GoalProgress; index: number
           </div>
         ) : (
           /* CONTRIBUTION — original layout */
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 group">
             <div className="min-w-0">
               <p className="text-sm font-bold text-slate-900 truncate">{formatAOA(item.amount)}</p>
               <p className="text-[11px] text-slate-400 font-medium mt-0.5">{formatDate(item.progressDate)}</p>
             </div>
-            <div className="text-right flex-shrink-0">
-              <span className="inline-block text-[11px] font-black text-secondary bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
-                {Math.round(item.progressPercent ?? 0)}%
-              </span>
-              <p className="text-[10px] text-slate-400 mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="text-right">
+                <span className="inline-block text-[11px] font-black text-secondary bg-[rgba(0,60,195,0.07)] px-2.5 py-1 rounded-full">
+                  {Math.round(item.progressPercent ?? 0)}%
+                </span>
+                <p className="text-[10px] text-slate-400 mt-1 whitespace-nowrap">{formatAOA(item.accumulatedAmount ?? item.amount)}</p>
+              </div>
+              {canDelete && (
+                <button
+                  onClick={() => onDelete(item.id)}
+                  disabled={deleting}
+                  aria-label="Remover poupança"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40 sm:opacity-0 sm:group-hover:opacity-100"
+                >
+                  {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -318,7 +344,10 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
   const [goal, setGoal] = useState<Goal>(initialGoal);
   const [loadingGoal, setLoadingGoal] = useState(true);
   const [showSheet, setShowSheet] = useState(false);
-  const addProgress = useGoalStore((s) => s.addProgress);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deletingGoal, setDeletingGoal] = useState(false);
+  const [deletingProgressId, setDeletingProgressId] = useState<string | null>(null);
+  const { addProgress, removeGoal, deleteProgress } = useGoal();
 
   const refreshGoal = useCallback(async () => {
     try {
@@ -348,6 +377,28 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
       setShowSheet(false);
       await refreshGoal();
       onProgressAdded();
+    }
+  };
+
+  const handleDeleteProgress = async (progressId: string) => {
+    if (deletingProgressId) return;
+    setDeletingProgressId(progressId);
+    const ok = await deleteProgress(goal.id, progressId);
+    setDeletingProgressId(null);
+    if (ok) {
+      await refreshGoal();
+      onProgressAdded();
+    }
+  };
+
+  const handleDeleteGoal = async () => {
+    if (deletingGoal) return;
+    setDeletingGoal(true);
+    const ok = await removeGoal(goal.id);
+    setDeletingGoal(false);
+    if (ok) {
+      onProgressAdded();
+      onClose();
     }
   };
 
@@ -466,7 +517,15 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
             ) : (
               <div>
                 {history.map((item, i) => (
-                  <HistoryRow key={item.id} item={item} index={i} isLast={i === history.length - 1} />
+                  <HistoryRow
+                    key={item.id}
+                    item={item}
+                    index={i}
+                    isLast={i === history.length - 1}
+                    onDelete={handleDeleteProgress}
+                    deleting={deletingProgressId === item.id}
+                    canDelete={!done}
+                  />
                 ))}
               </div>
             )}
@@ -474,20 +533,56 @@ export function GoalDetailModal({ goal: initialGoal, onClose, onEdit, onProgress
         </div>
 
         {/* ── Footer ── */}
-        <div className="flex-shrink-0 px-5 py-3 border-t border-slate-100 flex gap-2 bg-white">
-          <button
-            onClick={onEdit}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-secondary bg-[rgba(0,60,195,0.06)] hover:bg-[rgba(0,60,195,0.10)] transition-colors"
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-            Editar
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            Fechar
-          </button>
+        <div className="flex-shrink-0 px-5 py-3 border-t border-slate-100 bg-white">
+          {/* confirmDelete temporarily disabled — delete goal not yet available
+          {confirmDelete ? (
+            <div className="flex items-center gap-2">
+              <p className="flex-1 text-xs font-semibold text-slate-600 leading-tight">Remover este objectivo e todo o histórico?</p>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={deletingGoal}
+                className="px-3 py-2.5 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-40"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteGoal}
+                disabled={deletingGoal}
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-40"
+              >
+                {deletingGoal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Remover"}
+              </button>
+            </div>
+          ) : ( */}
+            <div className="flex gap-2">
+              {!done && (
+                <>
+                  {/* delete button temporarily disabled — feature not yet available
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    aria-label="Remover objectivo"
+                    className="flex items-center justify-center w-10 py-2.5 rounded-xl text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                  */}
+                  <button
+                    onClick={onEdit}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-secondary bg-[rgba(0,60,195,0.06)] hover:bg-[rgba(0,60,195,0.10)] transition-colors"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    Editar
+                  </button>
+                </>
+              )}
+              <button
+                onClick={onClose}
+                className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          {/* )} */}
         </div>
 
         {/* ── Add savings sheet (slides up inside modal) ── */}

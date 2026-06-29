@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HelpIcon } from "@/constants/icons";
 import { useUserStore } from "@/store/user-store";
 import { useUiStore } from "@/store/ui-store";
-import { useApiNotificationStore } from "@/store/api-notification-store";
+import { useApiNotification } from "@/hooks/use-api-notification";
 import type { NotificationResponse } from "@/types/dtos/notification.dto";
 import { ROUTES } from "@/constants/routes";
 
@@ -106,10 +106,7 @@ interface NotifContentProps {
 }
 
 const NotifContent: FC<NotifContentProps> = ({ onClose, onSupport }) => {
-  const notifications = useApiNotificationStore((s) => s.notifications);
-  const isLoading     = useApiNotificationStore((s) => s.isLoading);
-  const fetchAll      = useApiNotificationStore((s) => s.fetchAll);
-  const markAsRead    = useApiNotificationStore((s) => s.markAsRead);
+  const { notifications, isLoading, fetchAll, markAsRead } = useApiNotification();
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -242,7 +239,7 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
   const pathname = usePathname() || "";
   const { user } = useUserStore();
   const { openNotificationCenter } = useUiStore();
-  const unreadCount = useApiNotificationStore((s) => s.unreadCount);
+  const { unreadCount } = useApiNotification();
   const pageTitle = getPageTitle(pathname);
 
   return (

@@ -202,9 +202,9 @@ const CountdownDisplay = () => {
 
   const TimeUnit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
-      <div className="w-14 h-14 md:w-18 md:h-18 bg-gray-900 rounded-xl flex items-center justify-center mb-2 shadow-inner relative overflow-hidden group">
+      <div className="w-12 h-12 xs:w-14 xs:h-14 md:w-18 md:h-18 bg-gray-900 rounded-xl flex items-center justify-center mb-2 shadow-inner relative overflow-hidden group">
         <div className="absolute inset-0 bg-linear-to-b from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <span className="text-lg md:text-xl font-black text-white tabular-nums leading-none relative z-10 font-mono">
+        <span className="text-base xs:text-lg md:text-xl font-black text-white tabular-nums leading-none relative z-10 font-mono">
           {value.toString().padStart(2, "0")}
         </span>
       </div>
@@ -214,23 +214,21 @@ const CountdownDisplay = () => {
     </div>
   );
 
+  const Separator = () => (
+    <div className="flex flex-col items-center mb-2 shrink-0">
+      <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-gray-300 rounded-full" />
+      <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-gray-300 rounded-full mt-1.5" />
+    </div>
+  );
+
   return (
-    <div className="flex gap-3 md:gap-5 justify-center items-end">
+    <div className="flex gap-1.5 xs:gap-3 md:gap-5 justify-center items-end">
       <TimeUnit value={timeLeft.days} label="Dias" />
-      <div className="flex flex-col items-center mb-2">
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
-      </div>
+      <Separator />
       <TimeUnit value={timeLeft.hours} label="Hrs" />
-      <div className="flex flex-col items-center mb-2">
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
-      </div>
+      <Separator />
       <TimeUnit value={timeLeft.minutes} label="Mins" />
-      <div className="flex flex-col items-center mb-2">
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
-        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full mt-1.5" />
-      </div>
+      <Separator />
       <TimeUnit value={timeLeft.seconds} label="Segs" />
     </div>
   );
@@ -546,7 +544,7 @@ export default function WunduPage() {
 
           {/* Dedicated Countdown Card */}
           {!isLaunched && (
-            <div className="max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-soft-lg relative overflow-hidden group">
+            <div className="max-w-2xl mx-auto bg-white p-5 xs:p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-soft-lg relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1 bg-yellow-400" />
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
               
@@ -586,9 +584,11 @@ export default function WunduPage() {
             Junta-te a nós e começa hoje a transformar a tua relação com o
             dinheiro, com mais controlo, clareza e confiança.
           </p>
-          <button className="bg-yellow-400 text-white px-10 md:px-14 py-4 md:py-5 rounded-full font-black text-lg md:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl relative z-10 flex items-center gap-3 mx-auto">
-            Começar agora <ArrowRight className="w-6 h-6" />
-          </button>
+          <Link href={ROUTES.REGISTER} className="relative z-10 inline-block">
+            <button className="bg-yellow-400 text-white px-10 md:px-14 py-4 md:py-5 rounded-full font-black text-lg md:text-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl flex items-center gap-3 mx-auto">
+              Começar agora <ArrowRight className="w-6 h-6" />
+            </button>
+          </Link>
         </ScrollAnimationWrapper>
       </section>
 

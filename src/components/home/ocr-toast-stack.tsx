@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, XCircle, AlertCircle, Loader2, X, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
-import { useCategoryStore } from "@/store/category-store";
+import { useCategory } from "@/hooks/use-category";
 import type { DocQueueEntry } from "@/hooks/use-document-queue";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -29,7 +29,7 @@ interface ToastCardProps {
 }
 
 const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, onRetry }) => {
-  const { categories, fetchActive } = useCategoryStore();
+  const { categories } = useCategory();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [expanded, setExpanded] = useState(false);
   const status = entry.status?.toUpperCase();
@@ -38,10 +38,9 @@ const ToastCard: React.FC<ToastCardProps> = ({ entry, onDismiss, onCategorize, o
 
   useEffect(() => {
     if (needsCategory) {
-      fetchActive();
       setExpanded(true);
     }
-  }, [needsCategory, fetchActive]);
+  }, [needsCategory]);
 
   // Auto-dismiss PROCESSED after 5s
   useEffect(() => {

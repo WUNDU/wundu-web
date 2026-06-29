@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import { buildGoalCardData } from "@/store/goal-store";
+import { buildGoalCardData } from "@/utils/goal";
 import { useGoal } from "@/hooks/use-goal";
 import { NoMovementIcon } from "@/constants/icons";
 import EditModal from "@/components/ui/edit-modal";

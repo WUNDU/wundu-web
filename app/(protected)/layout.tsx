@@ -5,10 +5,10 @@ import { ReportNotificationModal } from "@/components/report-notification-modal"
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { useReportNotifications } from "@/hooks/use-report-notifications";
 import { useUserStore } from "@/store/user-store";
-import { useTransactionStore } from "@/store/transaction-store";
-import { useApiNotificationStore } from "@/store/api-notification-store";
-import { useCategoryStore } from "@/store/category-store";
-import { useGoalStore } from "@/store/goal-store";
+import { useTransaction } from "@/hooks/use-transaction";
+import { useApiNotification } from "@/hooks/use-api-notification";
+import { useCategory } from "@/hooks/use-category";
+import { useGoal } from "@/hooks/use-goal";
 import { useShallow } from "zustand/shallow";
 import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
@@ -199,17 +199,11 @@ export default function ProtectedLayout({
     })),
   );
 
-  const { notPaginated, getAllNotPaginated, prefetchTransactions } = useTransactionStore(
-    useShallow((s) => ({
-      notPaginated: s.notPaginated,
-      getAllNotPaginated: s.getAllNotPaginated,
-      prefetchTransactions: s.fetch,
-    })),
-  );
+  const { notPaginated, getAllNotPaginated } = useTransaction();
 
-  const prefetchCategories = useCategoryStore((s) => s.fetch);
-  const prefetchGoals = useGoalStore((s) => s.fetch);
-  const fetchUnreadCount = useApiNotificationStore((s) => s.fetchUnreadCount);
+  const { getCategories: prefetchCategories } = useCategory();
+  const { getGoals: prefetchGoals } = useGoal();
+  const { fetchUnreadCount } = useApiNotification();
 
   // Optimistic auth: user is persisted in localStorage → show real layout immediately.
   // initializeAuth() runs the refresh/validate in background; redirects to login if it fails.
@@ -244,10 +238,9 @@ export default function ProtectedLayout({
   // Prefetch all stores in parallel — only after auth is confirmed (token is valid in memory)
   useEffect(() => {
     if (!isAuthenticated || !checked) return;
-    prefetchTransactions();
     prefetchCategories();
     prefetchGoals();
-  }, [isAuthenticated, checked, prefetchTransactions, prefetchCategories, prefetchGoals]);
+  }, [isAuthenticated, checked, prefetchCategories, prefetchGoals]);
 
   // Re-fetch unread count when user returns to tab (foreground)
   useEffect(() => {

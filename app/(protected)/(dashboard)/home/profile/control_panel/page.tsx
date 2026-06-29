@@ -6,7 +6,7 @@ import { Tab } from "@/components/ui/tab";
 import { BarChartIcon, ChartDataIcon, DonutChartIcon } from "@/constants/icons";
 import { tabRanges } from "@/constants/mock-data";
 import { StatsSection } from "@/components/layout";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import type { TransactionResponse } from "@/types/dtos/transaction.dto";
 import type { TimeRange, TransactionProps, ViewMode } from "@/types/ui";
 import { isIncome } from "@/utils/transaction-type";
@@ -140,15 +140,18 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [isCredit] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
-  const rawTransactions = useTransactionStore((s) => s.notPaginated ?? s.transactions ?? EMPTY_TRANSACTIONS);
-  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const isTransactionsLoading = useTransactionStore((s) => s.isLoadingAll);
-  const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
+  const {
+    notPaginated,
+    transactions: legacyTransactions,
+    getAllNotPaginated,
+    isLoadingAll: isTransactionsLoading,
+  } = useTransaction();
+  const rawTransactions = notPaginated ?? legacyTransactions ?? EMPTY_TRANSACTIONS;
 
   useEffect(() => {
-    // Re-run when hasFetchedAll is invalidated by mutations
-    if (!hasFetchedAll) getAllNotPaginated();
-  }, [getAllNotPaginated, hasFetchedAll]);
+    // getAllNotPaginated dedupes internally via React Query's staleTime.
+    getAllNotPaginated();
+  }, [getAllNotPaginated]);
 
   // Only show skeleton if we have absolutely NO transactions to show
   const isAnalyticsLoading = isTransactionsLoading && rawTransactions.length === 0;

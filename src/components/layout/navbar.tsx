@@ -95,7 +95,9 @@ export default function Navbar() {
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden relative z-10 p-2.5 rounded-full bg-white/20 hover:bg-white/40 border border-white/20 transition-all active:scale-90 shadow-sm"
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isMenuOpen}
+          className="md:hidden flex items-center justify-center relative z-10 w-11 h-11 rounded-full bg-white/20 hover:bg-white/40 border border-white/20 transition-all active:scale-90 shadow-sm"
         >
           {isMenuOpen ? (
             <X className="w-5 h-5 text-gray-700" />

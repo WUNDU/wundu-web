@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { buildGoalCardData } from "@/store/goal-store";
+import { buildGoalCardData } from "@/utils/goal";
 import { ObjectiveIcon } from "@/constants/icons";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];

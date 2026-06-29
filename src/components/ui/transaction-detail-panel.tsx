@@ -19,10 +19,11 @@ import {
   Pencil,
   Loader2,
   Check,
+  Trash2,
 } from "lucide-react";
 import { formatAOA } from "@/lib/currency";
 import { CategorySelect } from "@/components/ui/category-select";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import { getCategoryStyle } from "@/utils/category-style";
 
 /* ------------------------------------------------------------------ */
@@ -271,15 +272,27 @@ function EditForm({
 /* ------------------------------------------------------------------ */
 
 function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose: () => void }) {
-  const updateStore = useTransactionStore((s) => s.update);
+  const { updateTransaction: updateStore, removeTransaction: removeStore } = useTransaction();
   const [tx, setTx] = useState<TransactionDTO>(initialTx);
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     setTx(initialTx);
     setIsEditing(false);
+    setConfirmDelete(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTx.id]);
+
+  const handleDelete = async () => {
+    if (!tx.id || deleting) return;
+    setDeleting(true);
+    const ok = await removeStore(tx.id);
+    setDeleting(false);
+    if (ok) onClose();
+    else setConfirmDelete(false);
+  };
 
   const isExpense = isExpenseFn(tx.type);
   const categoryName = tx.category?.name || "Outro";
@@ -341,19 +354,35 @@ function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose:
               Detalhes
             </span>
             {tx.id && (
-              <button
-                onClick={() => setIsEditing((v) => !v)}
-                className="w-10 h-10 rounded-[14px] flex items-center justify-center transition-colors"
-                style={{
-                  backgroundColor: isEditing ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.15)",
-                  borderWidth: 1,
-                  borderStyle: "solid",
-                  borderColor: "rgba(255,255,255,0.2)",
-                }}
-                title="Editar transação"
-              >
-                <Pencil className="w-4 h-4 text-white" />
-              </button>
+              <>
+                <button
+                  onClick={() => setIsEditing((v) => !v)}
+                  className="w-10 h-10 rounded-[14px] flex items-center justify-center transition-colors"
+                  style={{
+                    backgroundColor: isEditing ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.15)",
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: "rgba(255,255,255,0.2)",
+                  }}
+                  title="Editar transação"
+                >
+                  <Pencil className="w-4 h-4 text-white" />
+                </button>
+                <button
+                  onClick={() => { setIsEditing(false); setConfirmDelete(true); }}
+                  className="w-10 h-10 rounded-[14px] flex items-center justify-center transition-colors"
+                  style={{
+                    backgroundColor: confirmDelete ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.15)",
+                    borderWidth: 1,
+                    borderStyle: "solid",
+                    borderColor: "rgba(255,255,255,0.2)",
+                  }}
+                  title="Apagar transação"
+                  aria-label="Apagar transação"
+                >
+                  <Trash2 className="w-4 h-4 text-white" />
+                </button>
+              </>
             )}
             <span
               className="px-3 py-1.5 rounded-full text-white text-xs font-bold"
@@ -466,6 +495,43 @@ function PanelContent({ tx: initialTx, onClose }: { tx: TransactionDTO; onClose:
 
               {tx.createdAt && (
                 <InfoRow icon={Clock} label="Registado em" value={formatDateTime(tx.createdAt)} valueColor="#94a3b8" />
+              )}
+
+              {/* Confirmação de apagar — accionada pelo ícone no cabeçalho */}
+              {tx.id && confirmDelete && (
+                <div className="mt-6 rounded-2xl border border-red-100 bg-red-50/50 p-4">
+                  <p className="text-sm font-semibold text-slate-700 text-center">
+                    Apagar esta transação? Esta acção não pode ser desfeita.
+                  </p>
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(false)}
+                      disabled={deleting}
+                      className="flex-1 py-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="flex-1 py-3 rounded-xl bg-red-500 text-sm font-bold text-white hover:bg-red-600 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                    >
+                      {deleting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          A apagar…
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4" />
+                          Apagar
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               )}
             </motion.div>
           )}

@@ -7,10 +7,10 @@ import {
   X, Wallet, CheckCircle2, Pencil, ShieldAlert,
   BarChart3, AlertTriangle,
 } from "lucide-react";
-import { useCategoryStore } from "@/store/category-store";
-import { useLimitStore } from "@/store/limit-store";
+import { useCategory } from "@/hooks/use-category";
+import { useLimit } from "@/hooks/use-limit";
 import { useUserStore } from "@/store/user-store";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useTransaction } from "@/hooks/use-transaction";
 import { getCategoryStyle } from "@/utils/category-style";
 import { formatCurrency } from "@/utils/format-currency";
 import { isExpense } from "@/utils/transaction-type";
@@ -394,14 +394,17 @@ function CustomCategoryCard({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
-  const { categories, isLoading: isCategoriesLoading, hasFetched, fetchActive, create } = useCategoryStore();
-  const { limits, define, fetchMultipleLimits } = useLimitStore();
+  const { categories, isLoading: isCategoriesLoading, createCategory } = useCategory();
+  const { limits, defineLimit, fetchMultipleLimits } = useLimit();
   const userId = useUserStore((s) => s.user?.id);
-  const transactions = useTransactionStore((s) => s.allTransactions ?? s.transactions);
-  const notPaginated = useTransactionStore((s) => s.notPaginated);
-  const getAllNotPaginated = useTransactionStore((s) => s.getAllNotPaginated);
-  const isTransactionsLoading = useTransactionStore((s) => s.isLoadingAll);
-  const hasFetchedAll = useTransactionStore((s) => s.hasFetchedAll);
+  const {
+    allTransactions,
+    transactions: legacyTransactions,
+    notPaginated,
+    getAllNotPaginated,
+    isLoadingAll: isTransactionsLoading,
+  } = useTransaction();
+  const transactions = allTransactions ?? legacyTransactions;
 
   const [tab, setTab] = useState<"resumo" | "sistema" | "custom">("resumo");
   const [newName, setNewName] = useState("");
@@ -418,13 +421,12 @@ export default function CategoriesPage() {
     };
   }, []);
 
-  useEffect(() => { if (!hasFetched) fetchActive(); }, [hasFetched, fetchActive]);
   useEffect(() => {
-    // Re-run when hasFetchedAll is invalidated by mutations (add/create)
-    const queryKey = `${monthRange.startDate}|${monthRange.endDate}`;
-    if (hasFetchedAll && useTransactionStore.getState().notPaginatedQueryKey === queryKey) return;
+    // getAllNotPaginated already dedupes via React Query's staleTime — no need
+    // to guard on hasFetchedAll here, which can read a *different* (default
+    // "all") range's fetched-state on first render and skip this one.
     getAllNotPaginated(monthRange);
-  }, [getAllNotPaginated, monthRange, hasFetchedAll]);
+  }, [getAllNotPaginated, monthRange]);
 
   useEffect(() => {
     if (!categories.length) return;
@@ -463,7 +465,7 @@ export default function CategoriesPage() {
       setCreateError(`"${name}" já existe.`); return;
     }
     setIsCreating(true); setCreateError("");
-    const created = await create({ name });
+    const created = await createCategory({ name });
     setIsCreating(false);
     if (created) { setNewName(""); }
     else setCreateError("Não foi possível criar. Tente novamente.");
@@ -471,9 +473,9 @@ export default function CategoriesPage() {
 
   const handleConfirmLimit = useCallback(async (amount: number) => {
     if (!limitTarget) return;
-    const ok = await define({ categoryId: limitTarget.id, monthlyLimit: amount });
+    const ok = await defineLimit({ categoryId: limitTarget.id, monthlyLimit: amount });
     if (ok) setLimitTarget(null);
-  }, [limitTarget, define]);
+  }, [limitTarget, defineLimit]);
 
   const TABS = [
     { id: "resumo" as const, label: "Resumo", icon: BarChart3 },

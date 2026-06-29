@@ -1,18 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { user as avatar } from "@/constants/images";
 import { EditIcon, EmailIcon } from "@/constants/icons";
 import { useAuth } from "@/hooks/use-auth";
-import { useGoalStore } from "@/store/goal-store";
-import { useTransactionStore } from "@/store/transaction-store";
+import { useUserStore } from "@/store/user-store";
+import { useUiStore } from "@/store/ui-store";
+import { useGoal } from "@/hooks/use-goal";
+import { useTransaction } from "@/hooks/use-transaction";
 import { formatAOA } from "@/lib/currency";
 import posthog from "posthog-js";
 import { useSessions } from "@/hooks/use-sessions";
 import { BRAND_COLORS } from "@/constants/brand-colors";
 import ProfileVerificationCard from "@/components/profile/profile-verification-card";
+import { EditProfileModal } from "@/components/profile/edit-profile-modal";
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png"];
 
 function PhoneIcon({ className }: { className?: string }) {
   return (
@@ -56,14 +63,45 @@ const FADE_UP: Variants = {
 
 export default function Profile() {
   const { user } = useAuth();
-  const { goals } = useGoalStore();
-  const { transactions } = useTransactionStore();
+  const uploadAvatar = useUserStore((s) => s.uploadAvatar);
+  const removeAvatar = useUserStore((s) => s.removeAvatar);
+  const showNotification = useUiStore((s) => s.showNotification);
+  const { goals } = useGoal();
+  const { transactions } = useTransaction();
   const [monthlyReports, setMonthlyReports] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { sessions, isLoading: sessionsLoading, revokingId, isRevokingAll, revokeSession, logoutAll } = useSessions();
 
   const totalSaved = goals.reduce((acc, g) => acc + (g.currentAmount ?? 0), 0);
   const isPremium = user?.planType === "PREMIUM";
   const isVerified = !!user?.isActive;
+  const photoUrl = user?.profilePhotoUrl;
+
+  const handlePhotoPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!ACCEPTED_PHOTO_TYPES.includes(file.type)) {
+      showNotification("error", "Formato inválido", "Use uma imagem JPEG ou PNG.");
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      showNotification("error", "Ficheiro muito grande", "A foto não pode exceder 5 MB.");
+      return;
+    }
+    setUploadingPhoto(true);
+    await uploadAvatar(file);
+    setUploadingPhoto(false);
+  };
+
+  const handleRemovePhoto = async () => {
+    if (uploadingPhoto) return;
+    setUploadingPhoto(true);
+    await removeAvatar();
+    setUploadingPhoto(false);
+  };
 
   return (
     <motion.div
@@ -97,13 +135,55 @@ export default function Profile() {
             <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #003cc3 0%, #ffd400 100%)" }} />
             <div className="flex flex-col items-center gap-3 px-5 py-6">
               <div className="relative">
-                <div className="rounded-full border-2 p-0.5" style={{ borderColor: BRAND_COLORS.yellow }}>
-                  <Image
-                    src={avatar}
-                    alt={user?.name || "Usuário"}
-                    className="h-20 w-20 rounded-full object-cover"
-                  />
-                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  className="hidden"
+                  onChange={handlePhotoPick}
+                />
+                <button
+                  type="button"
+                  onClick={() => !uploadingPhoto && fileInputRef.current?.click()}
+                  className="group relative block rounded-full border-2 p-0.5"
+                  style={{ borderColor: BRAND_COLORS.yellow }}
+                  aria-label="Alterar foto de perfil"
+                >
+                  {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={photoUrl}
+                      alt={user?.name || "Usuário"}
+                      className="h-20 w-20 rounded-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={avatar}
+                      alt={user?.name || "Usuário"}
+                      className="h-20 w-20 rounded-full object-cover"
+                    />
+                  )}
+                  {/* Hover / upload overlay */}
+                  <span
+                    className={`absolute inset-0.5 flex items-center justify-center rounded-full bg-black/45 transition-opacity ${uploadingPhoto ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                  >
+                    {uploadingPhoto ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-white" />
+                    ) : (
+                      <Camera className="h-5 w-5 text-white" />
+                    )}
+                  </span>
+                </button>
+                {photoUrl && !uploadingPhoto && (
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="absolute -top-0.5 -left-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-red-500 shadow ring-1 ring-slate-100 transition-colors hover:bg-red-500 hover:text-white"
+                    aria-label="Remover foto de perfil"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                )}
                 <div
                   className={`absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full ring-2 ring-white ${isVerified ? "bg-emerald-400" : "bg-amber-400"}`}
                 >
@@ -218,7 +298,10 @@ export default function Profile() {
                       <p className="text-[11px] text-slate-300">{row.hint}</p>
                     </div>
                   </div>
-                  <button className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all duration-150 hover:border-secondary/30 hover:bg-secondary/5 hover:text-secondary">
+                  <button
+                    onClick={() => setEditOpen(true)}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-all duration-150 hover:border-secondary/30 hover:bg-secondary/5 hover:text-secondary"
+                  >
                     <EditIcon className="h-3.5 w-3.5" />
                     Editar
                   </button>
@@ -323,6 +406,11 @@ export default function Profile() {
           </motion.div>
         </div>
       </div>
+
+      {/* Edit profile modal */}
+      <AnimatePresence>
+        {editOpen && user && <EditProfileModal user={user} onClose={() => setEditOpen(false)} />}
+      </AnimatePresence>
     </motion.div>
   );
 }

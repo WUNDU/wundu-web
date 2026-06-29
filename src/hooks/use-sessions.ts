@@ -1,56 +1,61 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService, type SessionInfo } from "@/services/user.service";
 import { notify } from "@/hooks/use-notification";
 import { useUserStore } from "@/store/user-store";
 
+const SESSIONS_KEY = ["sessions"] as const;
+
 export function useSessions() {
-  const [sessions, setSessions] = useState<SessionInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRevokingAll, setIsRevokingAll] = useState(false);
-  const [revokingId, setRevokingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const { logoutUser } = useUserStore();
+  // Tracked separately from mutation.isPending/variables so revoking two
+  // different sessions in quick succession doesn't have the second call
+  // clobber the first row's pending indicator (a shared useMutation only
+  // tracks its single latest call).
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
-  const fetchSessions = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await userService.getSessions();
-      setSessions(data);
-    } catch {
-      notify.error("Não foi possível carregar as sessões.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: SESSIONS_KEY,
+    queryFn: () => userService.getSessions(),
+  });
 
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+  const revokeMutation = useMutation({
+    mutationFn: (sessionId: string) => userService.revokeSession(sessionId),
+    onSuccess: (_void, sessionId) => {
+      queryClient.setQueryData<SessionInfo[]>(SESSIONS_KEY, (old) =>
+        old?.filter((s) => s.id !== sessionId),
+      );
+      notify.success("Sessão terminada.");
+    },
+    onError: () => notify.error("Não foi possível terminar a sessão."),
+  });
+
+  const logoutAllMutation = useMutation({
+    mutationFn: () => userService.logoutAll(),
+    onSuccess: async () => {
+      notify.success("Todas as sessões foram terminadas.");
+      await logoutUser();
+    },
+    onError: () => notify.error("Não foi possível terminar todas as sessões."),
+  });
 
   const revokeSession = async (sessionId: string) => {
     setRevokingId(sessionId);
     try {
-      await userService.revokeSession(sessionId);
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-      notify.success("Sessão terminada.");
-    } catch {
-      notify.error("Não foi possível terminar a sessão.");
+      await revokeMutation.mutateAsync(sessionId);
     } finally {
       setRevokingId(null);
     }
   };
 
-  const logoutAll = async () => {
-    setIsRevokingAll(true);
-    try {
-      await userService.logoutAll();
-      notify.success("Todas as sessões foram terminadas.");
-      await logoutUser();
-    } catch {
-      notify.error("Não foi possível terminar todas as sessões.");
-    } finally {
-      setIsRevokingAll(false);
-    }
+  return {
+    sessions: data ?? [],
+    isLoading,
+    revokingId,
+    isRevokingAll: logoutAllMutation.isPending,
+    revokeSession,
+    logoutAll: () => logoutAllMutation.mutateAsync(),
+    refetch: () => queryClient.invalidateQueries({ queryKey: SESSIONS_KEY }),
   };
-
-  return { sessions, isLoading, revokingId, isRevokingAll, revokeSession, logoutAll, refetch: fetchSessions };
 }

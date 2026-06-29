@@ -92,6 +92,25 @@ class UserService {
     const { data } = await apiClient.put<User>(`/users/${id}`, payload);
     return data;
   }
+
+  /**
+   * Upload da foto de perfil. multipart/form-data — o axios remove o
+   * Content-Type JSON por defeito quando o corpo é FormData (browser define o
+   * boundary). Formatos aceites pelo backend: JPEG/PNG, máx. 5 MB.
+   */
+  async uploadPhoto(file: File): Promise<{ profilePhotoUrl: string; uploadedAt: string }> {
+    const form = new FormData();
+    form.append("file", file);
+    const { data } = await apiClient.put<{ profilePhotoUrl: string; uploadedAt: string }>(
+      "/users/me/photo",
+      form,
+    );
+    return data;
+  }
+
+  async deletePhoto(): Promise<void> {
+    await apiClient.delete("/users/me/photo");
+  }
   async logoutAll(): Promise<void> {
     await apiClient.post("/auth/logout-all", undefined, { withCredentials: true });
   }
