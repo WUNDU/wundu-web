@@ -1,5 +1,6 @@
 import { passwordRecoveryService } from "@/services/password-recovery.service";
 import { useNotification } from "./use-notification";
+import { getApiErrorMessage } from "@/utils/api-error";
 import type { VerifyOtpRequest, ResetPasswordRequest } from "@/types/dtos/auth.dto";
 
 export function usePasswordRecovery() {
@@ -13,9 +14,9 @@ export function usePasswordRecovery() {
       return true;
     } catch (error: any) {
       const err =
-        error?.response?.status === 500
+        error?.status === 500
           ? "Não foi possível acessar o sistema. Tente mais tarde!"
-          : error?.response?.data?.message || "Email não encontrado";
+          : getApiErrorMessage(error, "Email não encontrado");
       toast(err, "error");
       return false;
     } finally {
@@ -33,9 +34,9 @@ export function usePasswordRecovery() {
       return { success: true };
     } catch (error: any) {
       const err =
-        error?.response?.status === 500
+        error?.status === 500
           ? "Não foi possível acessar o sistema. Tente mais tarde!"
-          : error?.response?.data?.message || "Código inválido ou expirado";
+          : getApiErrorMessage(error, "Código inválido ou expirado");
       toast(err, "error");
       return { success: false, errorMessage: err };
     } finally {
@@ -51,9 +52,9 @@ export function usePasswordRecovery() {
       return true;
     } catch (error: any) {
       const err =
-        error?.response?.status === 500
+        error?.status === 500
           ? "Não foi possível acessar o sistema. Tente mais tarde!"
-          : error?.response?.data?.message || "Erro ao redefinir senha";
+          : getApiErrorMessage(error, "Erro ao redefinir senha");
       toast(err, "error");
       return false;
     } finally {
