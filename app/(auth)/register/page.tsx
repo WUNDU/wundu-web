@@ -12,6 +12,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { GoogleButton } from "@/components/auth/google-button";
 import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
 import {
+  buildVerifyPendingUrl,
+  setPendingVerificationEmail,
+} from "@/utils/pending-verification";
+import {
   validateEmail,
   validatePhoneNumber,
   validatePasswordDetailed,
@@ -19,10 +23,6 @@ import {
 } from "@/utils/validation";
 import posthog from "posthog-js";
 import {
-  CheckmarkIcon,
-  MoneyBagIcon,
-  ChartIcon,
-  GoalsIcon,
   ProfileIcon,
   EmailFilledIcon,
   KeyIcon,
@@ -156,7 +156,7 @@ const stepAnimate = { opacity: 1, x: 0 };
 const RegisterPage = () => {
   const { currentStep, prevStep, nextStep, data, setRegisterData } =
     useUserStore();
-  const { login, registerUser, error, clearError } = useAuth();
+  const { registerUser, error, clearError } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -300,7 +300,11 @@ const RegisterPage = () => {
           name: data.name,
           email: data.email,
         });
-        nextStep();
+        setPendingVerificationEmail(data.email!);
+        wunduToast.success("Cadastro concluído!", {
+          description: "Enviámos um link de verificação para o teu email.",
+        });
+        router.push(buildVerifyPendingUrl(data.email));
       } else {
         const message =
           useUserStore.getState().error || "Falha ao concluir o cadastro.";
@@ -339,47 +343,6 @@ const RegisterPage = () => {
       posthog.captureException(err);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // ── Step 3: Success ────────────────────────────────────────────────────────
-
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [autoLoginError, setAutoLoginError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (currentStep === 3) {
-      wunduToast.success("Cadastro concluído!", {
-        description: `Bem-vindo${data.name ? `, ${data.name}` : ""}. A sua conta está pronta.`,
-      });
-    }
-  }, [currentStep, data.name]);
-
-  const handleContinue = async () => {
-    if (isLoggingIn) return;
-    if (!data.email || !data.password) {
-      const msg = "Credenciais não encontradas. Faça login manualmente.";
-      setAutoLoginError(msg);
-      wunduToast.error("Credenciais em falta", { description: msg });
-      return;
-    }
-    setAutoLoginError(null);
-    setIsLoggingIn(true);
-    try {
-      await login(data.email, data.password);
-      wunduToast.success("Sessão iniciada!", {
-        description: "A redirecionar...",
-      });
-      router.replace(ROUTES.HOME);
-    } catch (err) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Não foi possível entrar. Tente manualmente.";
-      setAutoLoginError(msg);
-      wunduToast.error("Falha na entrada", { description: msg });
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -731,113 +694,6 @@ const RegisterPage = () => {
                 </motion.div>
               )}
 
-              {/* ── Step 3: Success ──────────────────────────────────────── */}
-              {currentStep === 3 && (
-                <div className="flex flex-col items-center text-center gap-8 py-6">
-                  {/* Icon */}
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 260,
-                      damping: 20,
-                      delay: 0.1,
-                    }}
-                    className="relative"
-                  >
-                    <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-20 animate-pulse" />
-                    <div className="relative w-28 h-28 flex items-center justify-center rounded-4xl bg-white border-2 border-slate-50 shadow-2xl">
-                      <div className="w-20 h-20 rounded-3xl bg-yellow-400 flex items-center justify-center text-slate-900">
-                        <CheckmarkIcon className="w-10 h-10" />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Heading */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
-                    <h2 className="text-3xl font-black tracking-tighter text-slate-900 md:text-4xl">
-                      Bem-vindo!
-                    </h2>
-                    <p className="mt-4 text-base font-medium text-slate-500 max-w-xs mx-auto leading-relaxed">
-                      Olá,{" "}
-                      <span className="font-bold text-slate-900">
-                        {data.name?.split(" ")[0] || "Usuário"}
-                      </span>
-                      . Sua conta Wundu foi criada com sucesso.
-                    </p>
-                  </motion.div>
-
-                  {/* Feature icons */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 0.8 }}
-                    className="flex gap-4"
-                  >
-                    {(
-                      [
-                        { Icon: MoneyBagIcon, label: "Ganhos" },
-                        { Icon: ChartIcon, label: "Análises" },
-                        { Icon: GoalsIcon, label: "Metas" },
-                      ] as const
-                    ).map(({ Icon, label }, i) => (
-                      <div
-                        key={i}
-                        className="group flex flex-col items-center gap-2"
-                      >
-                        <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 shadow-sm transition-all group-hover:bg-[#003cc3]/5 group-hover:border-[#003cc3]/20 group-hover:scale-110">
-                          <Icon className="w-6 h-6 text-slate-400 transition-colors group-hover:text-[#003cc3]" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
-                          {label}
-                        </span>
-                      </div>
-                    ))}
-                  </motion.div>
-
-                  {/* CTA */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 1.2 }}
-                    className="w-full mt-6"
-                  >
-                    <AnimatePresence>
-                      {autoLoginError && (
-                        <motion.div
-                          key="login-error"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="rounded-xl bg-red-50 p-4 mb-4 border border-red-100"
-                        >
-                          <p className="text-xs font-bold text-red-600">
-                            {autoLoginError}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <Button
-                      onClick={handleContinue}
-                      type="button"
-                      variant="warning"
-                      loading={isLoggingIn}
-                      disabled={isLoggingIn}
-                      className="w-full h-14 rounded-xl font-extrabold text-lg shadow-xl shadow-yellow-400/20 active:scale-[0.98] transition-all"
-                    >
-                      {/* FIX: removed redundant <LoadingSpinner> — Button's
-                          loading prop renders the spinner automatically */}
-                      {isLoggingIn ? "A entrar..." : "Aceder à plataforma"}
-                    </Button>
-                  </motion.div>
-                </div>
-              )}
             </div>
           </div>
 
