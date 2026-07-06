@@ -28,12 +28,12 @@ export const investmentTypes: InvestmentType[] = [
 ];
 
 export const defaultCategories: Category[] = [
-  { id: "transport", name: "Transporte" },
-  { id: "food", name: "Alimentação" },
-  { id: "entertainment", name: "Entretenimento" },
-  { id: "health", name: "Saúde" },
-  { id: "education", name: "Educação" },
-  { id: "leisure", name: "Lazer" },
+  { id: "transport", name: "Transporte", flow: "EXPENSE" },
+  { id: "food", name: "Alimentação", flow: "EXPENSE" },
+  { id: "entertainment", name: "Entretenimento", flow: "EXPENSE" },
+  { id: "health", name: "Saúde", flow: "EXPENSE" },
+  { id: "education", name: "Educação", flow: "EXPENSE" },
+  { id: "leisure", name: "Lazer", flow: "EXPENSE" },
 ];
 
 export const mockDataByTimeRange = {

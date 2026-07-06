@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Receipt as LucideReceipt, AlertCircle, Loader2 } from "lucide-react";
+import { Wallet as ModalIcon, AlertCircle, Loader2 } from "lucide-react";
 import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
@@ -48,6 +48,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [amountDisplay, setAmountDisplay] = useState("");
   const [dateVal, setDateVal] = useState("");
   const [timeVal, setTimeVal] = useState("");
+  const isExpense = formData.type !== "INCOME";
 
 
   useEffect(() => {
@@ -138,31 +139,68 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-4 pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[13px] bg-gradient-to-br from-secondary to-secondary-dark flex items-center justify-center shadow-sm">
-                  <LucideReceipt className="w-4 h-4 text-primary" />
+            <div className="px-5 pt-4 pb-4 border-b border-slate-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-[13px] flex items-center justify-center shadow-sm transition-colors ${
+                      isExpense
+                        ? "bg-gradient-to-br from-red-500 to-red-700"
+                        : "bg-gradient-to-br from-emerald-500 to-emerald-700"
+                    }`}
+                  >
+                    <ModalIcon className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h2 id="add-tx-title" className="text-sm font-bold text-slate-900 leading-tight">
+                      {isExpense ? "Nova Despesa" : "Nova Receita"}
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      {isExpense ? "Registe um novo gasto" : "Registe uma nova receita"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 id="add-tx-title" className="text-sm font-bold text-slate-900 leading-tight">Nova Transação</h2>
-                  <p className="text-xs text-slate-400">Registe um novo gasto</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
+                    Manual
+                  </span>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Fechar"
+                    className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  >
+                    <CloseIcon className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
-                  Despesa
-                </span>
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">
-                  Manual
-                </span>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Fechar"
-                  className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                >
-                  <CloseIcon className="w-4 h-4" />
-                </button>
+
+              {/* Despesa / Receita toggle */}
+              <div className="relative flex rounded-xl bg-slate-100 p-1">
+                {(["EXPENSE", "INCOME"] as const).map((t) => {
+                  const active = formData.type === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => onFormChange("type", t)}
+                      className="relative flex-1 rounded-lg py-2 text-xs font-bold transition-colors"
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="tx-type-pill"
+                          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                          className={`absolute inset-0 rounded-lg ${
+                            t === "EXPENSE" ? "bg-red-500" : "bg-emerald-500"
+                          }`}
+                        />
+                      )}
+                      <span className={`relative z-10 ${active ? "text-white" : "text-slate-500"}`}>
+                        {t === "EXPENSE" ? "Despesa" : "Receita"}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -249,6 +287,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 value={formData.category}
                 onChange={(name) => onFormChange("category", name)}
                 valueType="name"
+                flow={formData.type}
                 label="Categoria"
                 error={errors.category}
               />
@@ -267,7 +306,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 rounded-xl bg-gradient-to-br from-secondary to-secondary-dark px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                  className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity ${
+                    isExpense
+                      ? "bg-gradient-to-br from-red-500 to-red-700"
+                      : "bg-gradient-to-br from-emerald-500 to-emerald-700"
+                  }`}
                 >
                   {isLoading ? "A adicionar…" : "Adicionar"}
                 </button>

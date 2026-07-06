@@ -335,7 +335,8 @@ export interface IconProps {
 
 export interface ChartDataPoint {
   month: string;
-  value: number;
+  expense: number;
+  income: number;
 }
 
 export interface TransactionProps {
@@ -355,8 +356,8 @@ export interface TabProps {
 
 export interface ChartProps {
   data: ChartDataPoint[];
-  lineColor: string;
-  dotColor: string;
+  showExpense?: boolean;
+  showIncome?: boolean;
   selectedMonth?: string;
   className?: string;
 }

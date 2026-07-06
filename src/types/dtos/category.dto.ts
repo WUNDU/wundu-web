@@ -1,5 +1,6 @@
 export interface CategoryRequest {
   name: string;
+  flow: "EXPENSE" | "INCOME";
 }
 
 export interface CategoryResponse {
@@ -7,6 +8,7 @@ export interface CategoryResponse {
   userId?: string | null;
   name: string;
   color?: string;
+  flow: "EXPENSE" | "INCOME";
 }
 
 export type Category = CategoryResponse;

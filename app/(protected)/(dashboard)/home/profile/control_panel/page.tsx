@@ -14,6 +14,7 @@ import {
   BarChart,
   LineChart,
   PieChart,
+  IncomeExpenseSummaryCard,
   getCategoryIcon,
   getCutoffDate,
   buildChartData,
@@ -22,6 +23,14 @@ import {
 import { BRAND_COLORS } from "@/constants/brand-colors";
 
 const EMPTY_TRANSACTIONS: TransactionResponse[] = [];
+
+const PERIOD_LABELS: Record<TimeRange, string> = {
+  "1D": "Hoje",
+  "1S": "Esta semana",
+  "1M": "Este mês",
+  "6M": "Últimos 6 meses",
+  "1A": "Este ano",
+};
 
 const AnalyticsSkeleton: React.FC = () => (
   <div className="space-y-3 p-4 animate-pulse">
@@ -50,7 +59,7 @@ const HeaderSection: React.FC<{
     <div className="flex justify-center items-center mb-2">
       <div className="flex bg-white/15 px-3 py-1 rounded-xl border border-white/20">
         <span className="text-sm font-bold">
-          {isCredit ? "IMG" : "Todos"}
+          {isCredit ? "Receitas" : "Despesas"}
         </span>
       </div>
     </div>
@@ -137,7 +146,11 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("line");
   const [timeRange, setTimeRange] = useState<TimeRange>("1M");
-  const [isCredit] = useState(false);
+  // Despesas/receitas independentes nos gráficos de linha e barra — as duas
+  // podem estar ligadas ao mesmo tempo, ao contrário do donut (tipo único).
+  const [showExpense, setShowExpense] = useState(true);
+  const [showIncome, setShowIncome] = useState(true);
+  const [pieIsIncome, setPieIsIncome] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
   const {
@@ -194,7 +207,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const canGoPrev = yearIndex > 0;
   const canGoNext = yearIndex < availableYears.length - 1;
 
-  const filteredTransactionsRaw = useMemo(() => {
+  // Filtrado só por período (ano + intervalo) — contém despesas E receitas,
+  // usado pelos gráficos de linha/barra e pelo card de resumo.
+  const periodFilteredTransactions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const refDate =
       selectedYear < currentYear
@@ -204,14 +219,21 @@ const ControlPanelDashboardScreen: React.FC = () => {
     return normalizedTransactions.filter((tx) => {
       if (tx.timestamp.getFullYear() !== selectedYear) return false;
       if (tx.timestamp < cutoffDate) return false;
-      return isCredit ? tx.isIncome : !tx.isIncome;
+      return true;
     });
-  }, [normalizedTransactions, timeRange, isCredit, selectedYear]);
+  }, [normalizedTransactions, timeRange, selectedYear]);
+
+  // Filtrado por período + um único tipo — usado pelo donut e pela lista de
+  // categorias, que só fazem sentido para um tipo de cada vez.
+  const pieFilteredTransactions = useMemo(
+    () => periodFilteredTransactions.filter((tx) => (pieIsIncome ? tx.isIncome : !tx.isIncome)),
+    [periodFilteredTransactions, pieIsIncome],
+  );
 
   const transactions = useMemo<TransactionProps[]>(() => {
-    if (!filteredTransactionsRaw.length) return [];
+    if (!pieFilteredTransactions.length) return [];
     const groupMap = new Map<string, TransactionProps & { rawAmount: number }>();
-    filteredTransactionsRaw.forEach((tx) => {
+    pieFilteredTransactions.forEach((tx) => {
       const key = tx.category || (tx.isIncome ? "Receitas" : "Outros");
       if (!groupMap.has(key)) {
         groupMap.set(key, {
@@ -236,25 +258,27 @@ const ControlPanelDashboardScreen: React.FC = () => {
       ...item,
       percentage: total ? Math.round((rawAmount / total) * 100) : 0,
     }));
-  }, [filteredTransactionsRaw]);
+  }, [pieFilteredTransactions]);
 
   const chartData = useMemo(() => {
-    if (!filteredTransactionsRaw.length) return [];
-    return buildChartData(filteredTransactionsRaw, timeRange);
-  }, [filteredTransactionsRaw, timeRange]);
+    if (!periodFilteredTransactions.length) return [];
+    return buildChartData(periodFilteredTransactions, timeRange);
+  }, [periodFilteredTransactions, timeRange]);
 
-  const totalExpenses = filteredTransactionsRaw.reduce(
+  const totalExpenses = periodFilteredTransactions.reduce(
     (sum, tx) => sum + (!tx.isIncome ? Math.abs(tx.amount) : 0),
     0,
   );
-  const totalIncome = filteredTransactionsRaw.reduce(
+  const totalIncome = periodFilteredTransactions.reduce(
     (sum, tx) => sum + (tx.isIncome ? Math.abs(tx.amount) : 0),
     0,
   );
-  const headerAmount = isCredit ? totalIncome : totalExpenses;
+  const pieTotal = pieIsIncome ? totalIncome : totalExpenses;
+  const headerAmount = pieTotal;
+  const summaryPeriodLabel = `${PERIOD_LABELS[timeRange] ?? "Período seleccionado"} · ${selectedYear}`;
 
   const headerText = (() => {
-    const prefix = isCredit ? "Créditos" : "Gastos";
+    const prefix = pieIsIncome ? "Créditos" : "Gastos";
     switch (timeRange) {
       case "1D": return `${prefix} hoje`;
       case "1S": return `${prefix} nesta semana`;
@@ -313,21 +337,69 @@ const ControlPanelDashboardScreen: React.FC = () => {
     </div>
   );
 
+  // Linha/barra: despesas e receitas ligam/desligam independentemente, dá pra
+  // ver as duas ao mesmo tempo. Donut: só um tipo de cada vez (proporção).
+  const typeControls =
+    viewMode === "pie" ? (
+      <div className="flex rounded-xl bg-slate-100 p-1 gap-1">
+        {([false, true] as const).map((incomeOption) => (
+          <button
+            key={String(incomeOption)}
+            onClick={() => setPieIsIncome(incomeOption)}
+            className={`px-3 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+              pieIsIncome === incomeOption
+                ? incomeOption
+                  ? "bg-emerald-500 text-white"
+                  : "bg-red-500 text-white"
+                : "text-slate-500"
+            }`}
+          >
+            {incomeOption ? "Receitas" : "Despesas"}
+          </button>
+        ))}
+      </div>
+    ) : (
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowExpense((v) => !v)}
+          className={`flex items-center gap-1.5 px-2.5 min-h-11 rounded-lg text-xs font-bold border transition-colors ${
+            showExpense
+              ? "bg-red-50 text-red-600 border-red-200"
+              : "bg-slate-50 text-slate-400 border-slate-200"
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${showExpense ? "bg-red-500" : "bg-slate-300"}`} />
+          Despesas
+        </button>
+        <button
+          onClick={() => setShowIncome((v) => !v)}
+          className={`flex items-center gap-1.5 px-2.5 min-h-11 rounded-lg text-xs font-bold border transition-colors ${
+            showIncome
+              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+              : "bg-slate-50 text-slate-400 border-slate-200"
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${showIncome ? "bg-emerald-500" : "bg-slate-300"}`} />
+          Receitas
+        </button>
+      </div>
+    );
+
   const chartArea = (
     <div className="w-full h-56 sm:h-72 px-2">
       {viewMode === "line" && (
         <LineChart
           className="w-full h-full"
           data={chartData}
-          lineColor={isCredit ? "#10B981" : "#E05445"}
-          dotColor={isCredit ? "#10B981" : "#E05445"}
+          showExpense={showExpense}
+          showIncome={showIncome}
         />
       )}
       {viewMode === "pie" && (
         <PieChart
           className="w-full h-full"
           transactions={transactions}
-          totalAmount={totalExpenses}
+          totalAmount={pieTotal}
           timeRangeText={headerText}
         />
       )}
@@ -335,8 +407,8 @@ const ControlPanelDashboardScreen: React.FC = () => {
         <BarChart
           className="w-full h-full"
           data={chartData}
-          primaryColor={isCredit ? "#1D4ED8" : "#F97316"}
-          accentColor={isCredit ? "#0f172a" : "#7c2d12"}
+          showExpense={showExpense}
+          showIncome={showIncome}
         />
       )}
     </div>
@@ -362,7 +434,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
     <div className={`flex items-center justify-between ${onDesktop ? "mb-4" : "mb-3 sm:mb-4"}`}>
       <div>
         <h3 className={`${onDesktop ? "text-base" : "text-sm sm:text-base"} font-bold text-slate-800`}>
-          Gastos por categoria
+          {pieIsIncome ? "Receitas por categoria" : "Gastos por categoria"}
         </h3>
         <p className={`${onDesktop ? "text-xs" : "text-[10px] sm:text-xs"} text-slate-400 mt-0.5`}>
           Distribuição do período
@@ -420,6 +492,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
             {yearSelector}
             {chartSwitcher}
           </div>
+          <div className="flex justify-center px-3 sm:px-5 pb-2 sm:pb-3">{typeControls}</div>
           {chartArea}
           <div className="px-3 sm:px-5 py-3 sm:py-4">{filterPills}</div>
           <div className="h-px bg-slate-100 mx-4" />
@@ -435,6 +508,12 @@ const ControlPanelDashboardScreen: React.FC = () => {
             </div>
           </div>
         </motion.div>
+
+        <IncomeExpenseSummaryCard
+          totalIncome={totalIncome}
+          totalExpense={totalExpenses}
+          periodLabel={summaryPeriodLabel}
+        />
       </div>
 
       {/* Desktop Layout */}
@@ -448,7 +527,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           <div className="max-w-[1360px] mx-auto space-y-4">
           <div className="grid grid-cols-12 gap-3">
             <HeaderSection
-              isCredit={isCredit}
+              isCredit={pieIsIncome}
               headerText={headerText}
               headerAmount={headerAmount}
               viewMode={viewMode}
@@ -463,6 +542,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
               {yearSelector}
               {chartSwitcher}
             </div>
+            <div className="flex justify-center px-5 pb-3">{typeControls}</div>
             {chartArea}
             <div className="flex justify-center py-4">{filterPills}</div>
             <div className="h-px bg-slate-100 mx-5" />
@@ -478,6 +558,12 @@ const ControlPanelDashboardScreen: React.FC = () => {
               </div>
             </div>
           </div>
+
+          <IncomeExpenseSummaryCard
+            totalIncome={totalIncome}
+            totalExpense={totalExpenses}
+            periodLabel={summaryPeriodLabel}
+          />
           </div>
         </motion.div>
       </div>

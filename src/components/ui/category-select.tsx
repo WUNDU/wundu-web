@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check, X, Loader2 } from "lucide-react";
@@ -14,6 +14,8 @@ export interface CategorySelectProps {
   onChange: (value: string) => void;
   /** Whether `value` / `onChange` operate on `id` or `name`. Defaults to `"id"` */
   valueType?: "id" | "name";
+  /** When set, only categories whose `flow` matches are shown (e.g. an income form shouldn't list expense-only categories) */
+  flow?: "EXPENSE" | "INCOME";
   label?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -25,6 +27,7 @@ export function CategorySelect({
   value,
   onChange,
   valueType = "id",
+  flow,
   label = "Categoria",
   placeholder = "Selecione uma categoria",
   disabled = false,
@@ -32,8 +35,9 @@ export function CategorySelect({
   className,
 }: CategorySelectProps) {
   const [open, setOpen] = useState(false);
-  const { categories, isLoading, hasFetched } = useCategory();
+  const { categories: allCategories, isLoading, hasFetched } = useCategory();
 
+  const categories = flow ? allCategories.filter((c) => c.flow === flow) : allCategories;
   const systemCats = categories.filter((c) => !c.userId);
   const userCats = categories.filter((c) => !!c.userId);
 
@@ -43,6 +47,18 @@ export function CategorySelect({
       : categories.find((c) => c.name === value);
 
   const displayName = selectedCat?.name ?? "";
+
+  // When `flow` changes (e.g. user switches Despesa/Receita), the previously
+  // selected category may no longer belong to this list — fall back to the
+  // first available category for the new flow, same as wundu-mobile does.
+  useEffect(() => {
+    if (!flow) return;
+    if (categories.length === 0) return;
+    if (selectedCat) return;
+    const fallback = categories[0];
+    onChange(valueType === "id" ? fallback.id : fallback.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flow, categories]);
 
   const handleSelect = (cat: Category) => {
     onChange(valueType === "id" ? cat.id : cat.name);

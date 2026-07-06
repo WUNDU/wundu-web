@@ -57,7 +57,7 @@ const CategoryScreen = ({
     const name = newCategoryName.trim();
     if (!name) return;
     setIsCreating(true);
-    const created = await createCategory({ name });
+    const created = await createCategory({ name, flow: "EXPENSE" });
     setIsCreating(false);
     if (created) {
       setNewCategoryName("");

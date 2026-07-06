@@ -13,7 +13,6 @@ import { useUserStore } from "@/store/user-store";
 import { useTransaction } from "@/hooks/use-transaction";
 import { getCategoryStyle } from "@/utils/category-style";
 import { formatCurrency } from "@/utils/format-currency";
-import { isExpense } from "@/utils/transaction-type";
 import type { Category } from "@/types/dtos/category.dto";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -139,9 +138,22 @@ function ResumoTab({
   getLimitKey: (id: string) => { monthlyLimit: number } | undefined;
   onSetLimit: (cat: Category) => void;
 }) {
-  const displayTotal = Object.values(monthlySpendByName).reduce((s, v) => s + v, 0);
+  const [flow, setFlow] = useState<"EXPENSE" | "INCOME">("EXPENSE");
+  const isExpenseFlow = flow === "EXPENSE";
+
+  // Categorias de receita e despesa nunca se misturam na mesma distribuição
+  // (mesma regra do mobile) — usa o `flow` de cada categoria para separar.
+  const flowByName = useMemo(() => {
+    const map: Record<string, "EXPENSE" | "INCOME"> = {};
+    [...systemCategories, ...myCategories].forEach((c) => { map[c.name] = c.flow; });
+    return map;
+  }, [systemCategories, myCategories]);
+
+  const displayTotal = Object.entries(monthlySpendByName)
+    .filter(([name]) => flowByName[name] === flow)
+    .reduce((s, [, v]) => s + v, 0);
   const sorted = Object.entries(monthlySpendByName)
-    .filter(([k, v]) => k !== "__none__" && v > 0)
+    .filter(([k, v]) => k !== "__none__" && v > 0 && flowByName[k] === flow)
     .sort((a, b) => b[1] - a[1]);
 
   // Percentage sum guaranteed = 100 via Largest Remainder Method
@@ -156,23 +168,49 @@ function ResumoTab({
     .forEach(({ i }) => floors[i]++);
   const pcts = floors;
 
-  // all categories with limit and spending — for alert section
-  const atRisk = [...systemCategories, ...myCategories].filter((c) => {
-    const limit = getLimitKey(c.id);
-    const spent = monthlySpendByName[c.name] ?? 0;
-    if (!limit || spent === 0) return false;
-    return (spent / limit.monthlyLimit) >= 0.8;
-  });
+  // all categories with limit and spending — for alert section (só faz
+  // sentido para despesas, receitas não têm limite mensal)
+  const atRisk = isExpenseFlow
+    ? [...systemCategories, ...myCategories].filter((c) => {
+        if (c.flow !== "EXPENSE") return false;
+        const limit = getLimitKey(c.id);
+        const spent = monthlySpendByName[c.name] ?? 0;
+        if (!limit || spent === 0) return false;
+        return (spent / limit.monthlyLimit) >= 0.8;
+      })
+    : [];
 
   return (
     <motion.div key="resumo" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }} className="space-y-4">
 
+      {/* Despesas / Receitas toggle */}
+      <div className="flex rounded-2xl bg-slate-100 p-1 gap-1">
+        {(["EXPENSE", "INCOME"] as const).map((f) => (
+          <button key={f} onClick={() => setFlow(f)}
+            className={`flex-1 min-h-11 flex items-center justify-center rounded-xl text-xs font-bold transition-colors ${
+              flow === f
+                ? f === "EXPENSE" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
+                : "text-slate-500"
+            }`}>
+            {f === "EXPENSE" ? "Despesas" : "Receitas"}
+          </button>
+        ))}
+      </div>
+
       {/* Total card */}
-      <div className="bg-gradient-to-br from-secondary-dark to-secondary rounded-2xl p-5 text-white">
-        <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Total gasto este mês</p>
-        <p className="text-3xl font-black tracking-tight">KZ {formatCurrency(displayTotal)}</p>
-        <p className="text-white/50 text-xs font-medium mt-1">
+      <div className={`rounded-2xl p-5 border ${
+        isExpenseFlow ? "bg-red-50/50 border-red-100" : "bg-emerald-50/50 border-emerald-100"
+      }`}>
+        <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${
+          isExpenseFlow ? "text-red-400" : "text-emerald-500"
+        }`}>
+          {isExpenseFlow ? "Total gasto este mês" : "Total recebido este mês"}
+        </p>
+        <p className={`text-3xl font-black tracking-tight ${
+          isExpenseFlow ? "text-red-600" : "text-emerald-700"
+        }`}>KZ {formatCurrency(displayTotal)}</p>
+        <p className="text-slate-400 text-xs font-medium mt-1">
           {sorted.length} categori{sorted.length !== 1 ? "as" : "a"} com actividade
         </p>
       </div>
@@ -252,7 +290,9 @@ function ResumoTab({
       ) : (
         <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
           <BarChart3 className="w-10 h-10 opacity-20" />
-          <p className="text-sm font-medium">Sem despesas registadas este mês.</p>
+          <p className="text-sm font-medium">
+            {isExpenseFlow ? "Sem despesas registadas este mês." : "Sem receitas registadas este mês."}
+          </p>
         </div>
       )}
     </motion.div>
@@ -283,7 +323,9 @@ function SystemCategoryCard({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-900 truncate">{cat.name}</p>
           {spent > 0 ? (
-            <p className="text-xs font-semibold mt-0.5 text-slate-500">KZ {formatCurrency(spent)} gastos este mês</p>
+            <p className="text-xs font-semibold mt-0.5 text-slate-500">
+              KZ {formatCurrency(spent)} {cat.flow === "INCOME" ? "recebidos" : "gastos"} este mês
+            </p>
           ) : (
             <p className="text-xs text-slate-300 font-medium mt-0.5">Sem actividade este mês</p>
           )}
@@ -352,7 +394,9 @@ function CustomCategoryCard({
             </span>
           </div>
           {spent > 0 ? (
-            <p className="text-xs font-semibold mt-0.5 text-slate-500">KZ {formatCurrency(spent)} gastos este mês</p>
+            <p className="text-xs font-semibold mt-0.5 text-slate-500">
+              KZ {formatCurrency(spent)} {cat.flow === "INCOME" ? "recebidos" : "gastos"} este mês
+            </p>
           ) : (
             <p className="text-xs text-slate-300 font-medium mt-0.5">Sem actividade este mês</p>
           )}
@@ -408,6 +452,7 @@ export default function CategoriesPage() {
 
   const [tab, setTab] = useState<"resumo" | "sistema" | "custom">("resumo");
   const [newName, setNewName] = useState("");
+  const [newFlow, setNewFlow] = useState<"EXPENSE" | "INCOME">("EXPENSE");
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState("");
   const [limitTarget, setLimitTarget] = useState<Category | null>(null);
@@ -433,13 +478,16 @@ export default function CategoriesPage() {
     fetchMultipleLimits(categories.map((c) => c.id));
   }, [categories, fetchMultipleLimits]);
 
+  // Cada categoria pertence a um único flow (EXPENSE ou INCOME), então somar
+  // sem filtrar por tipo já separa gastos e receitas corretamente por nome —
+  // isso também corrige categorias de receita (Salário, Biscato, Kixikila…)
+  // que antes ficavam sempre "sem actividade" nas abas Sistema/Personalizadas.
   const monthlySpendByName = useMemo(() => {
     const now = new Date();
     const result: Record<string, number> = {};
     const source = notPaginated ?? transactions;
 
     (source ?? []).forEach((t) => {
-      if (!isExpense(t.type)) return;
       const d = new Date(t.transactionDate ?? 0);
       if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
       const name = t.category?.name ?? "__none__";
@@ -465,7 +513,7 @@ export default function CategoriesPage() {
       setCreateError(`"${name}" já existe.`); return;
     }
     setIsCreating(true); setCreateError("");
-    const created = await createCategory({ name });
+    const created = await createCategory({ name, flow: newFlow });
     setIsCreating(false);
     if (created) { setNewName(""); }
     else setCreateError("Não foi possível criar. Tente novamente.");
@@ -562,6 +610,18 @@ export default function CategoriesPage() {
               <div className="flex items-center gap-2 mb-3">
                 <FolderPlus className="w-4 h-4 text-secondary" />
                 <h2 className="text-sm font-bold text-slate-900">Nova categoria</h2>
+              </div>
+              <div className="flex rounded-xl bg-slate-100 p-1 gap-1 mb-3">
+                {(["EXPENSE", "INCOME"] as const).map((f) => (
+                  <button key={f} type="button" onClick={() => setNewFlow(f)}
+                    className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+                      newFlow === f
+                        ? f === "EXPENSE" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
+                        : "text-slate-500"
+                    }`}>
+                    {f === "EXPENSE" ? "Despesa" : "Receita"}
+                  </button>
+                ))}
               </div>
               <div className="flex gap-2">
                 <input type="text" value={newName}
