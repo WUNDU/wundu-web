@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { Camera, Loader2, Trash2, MapPin, Calendar, UserCircle, Heart, Users, Briefcase, Wallet } from "lucide-react";
 import { user as avatar } from "@/constants/images";
 import { EditIcon, EmailIcon } from "@/constants/icons";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,6 +17,9 @@ import { useSessions } from "@/hooks/use-sessions";
 import { BRAND_COLORS } from "@/constants/brand-colors";
 import ProfileVerificationCard from "@/components/profile/profile-verification-card";
 import { EditProfileModal } from "@/components/profile/edit-profile-modal";
+import { DemographicFieldRow } from "@/components/profile/demographic-field-row";
+import { GENDER_OPTIONS, MARITAL_STATUS_OPTIONS, EMPLOYMENT_STATUS_OPTIONS } from "@/constants/profile-options";
+import { provinceEnumToLabel } from "@/constants/angola-provinces-fallback";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png"];
@@ -78,6 +81,83 @@ export default function Profile() {
   const isPremium = user?.planType === "PREMIUM";
   const isVerified = !!user?.isActive;
   const photoUrl = user?.profilePhotoUrl;
+
+  const demographicFields = [
+    {
+      icon: <MapPin className="h-5 w-5 text-secondary" />,
+      label: "Província",
+      fieldKey: "province" as const,
+      kind: "province" as const,
+      rawValue: user?.province ?? null,
+      displayValue: user?.province ? provinceEnumToLabel(user.province) : null,
+    },
+    {
+      icon: <MapPin className="h-5 w-5 text-secondary" />,
+      label: "Município",
+      fieldKey: "municipality" as const,
+      kind: "municipality" as const,
+      rawValue: user?.municipality ?? null,
+      displayValue: user?.municipality || null,
+    },
+    {
+      icon: <Calendar className="h-5 w-5 text-secondary" />,
+      label: "Data de nascimento",
+      fieldKey: "birthDate" as const,
+      kind: "date" as const,
+      rawValue: user?.birthDate ?? null,
+      displayValue: user?.birthDate || null,
+    },
+    {
+      icon: <UserCircle className="h-5 w-5 text-secondary" />,
+      label: "Género",
+      fieldKey: "gender" as const,
+      kind: "chips" as const,
+      rawValue: user?.gender ?? null,
+      displayValue: user?.gender ? GENDER_OPTIONS.find((o) => o.value === user.gender)?.label ?? null : null,
+      options: GENDER_OPTIONS,
+    },
+    {
+      icon: <Heart className="h-5 w-5 text-secondary" />,
+      label: "Estado civil",
+      fieldKey: "maritalStatus" as const,
+      kind: "chips" as const,
+      rawValue: user?.maritalStatus ?? null,
+      displayValue: user?.maritalStatus
+        ? MARITAL_STATUS_OPTIONS.find((o) => o.value === user.maritalStatus)?.label ?? null
+        : null,
+      options: MARITAL_STATUS_OPTIONS,
+    },
+    {
+      icon: <Users className="h-5 w-5 text-secondary" />,
+      label: "Dependentes",
+      fieldKey: "dependents" as const,
+      kind: "number" as const,
+      rawValue: user?.dependents ?? null,
+      displayValue: user?.dependents != null ? String(user.dependents) : null,
+    },
+    {
+      icon: <Briefcase className="h-5 w-5 text-secondary" />,
+      label: "Situação laboral",
+      fieldKey: "employmentStatus" as const,
+      kind: "chips" as const,
+      rawValue: user?.employmentStatus ?? null,
+      displayValue: user?.employmentStatus
+        ? EMPLOYMENT_STATUS_OPTIONS.find((o) => o.value === user.employmentStatus)?.label ?? null
+        : null,
+      options: EMPLOYMENT_STATUS_OPTIONS,
+    },
+    {
+      icon: <Wallet className="h-5 w-5 text-secondary" />,
+      label: "Receita mensal esperada",
+      fieldKey: "expectedMonthlyIncome" as const,
+      kind: "number" as const,
+      rawValue: user?.expectedMonthlyIncome ?? null,
+      displayValue:
+        user?.expectedMonthlyIncome != null ? `${user.expectedMonthlyIncome.toLocaleString("pt-AO")} Kz` : null,
+      suffix: "Kz",
+    },
+  ];
+  const demographicFilledCount = demographicFields.filter((f) => !!f.displayValue).length;
 
   const handlePhotoPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -306,6 +386,35 @@ export default function Profile() {
                     Editar
                   </button>
                 </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Perfil Demográfico — cada campo edita-se no próprio sítio (clicar no lápis), sem modal */}
+          <motion.div variants={FADE_UP} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_2px_12px_rgba(0,60,195,0.05)]">
+            <div className="border-b border-slate-50 px-5 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">Perfil Demográfico</h2>
+                  <p className="mt-0.5 text-xs text-slate-400">Usado para personalizar limites, recomendações e análises</p>
+                </div>
+                <span className="rounded-full bg-secondary/10 px-2.5 py-1 text-[11px] font-bold text-secondary flex-shrink-0">
+                  {demographicFilledCount}/{demographicFields.length}
+                </span>
+              </div>
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <motion.div
+                  className="h-full w-full origin-left rounded-full"
+                  style={{ backgroundColor: demographicFilledCount === demographicFields.length ? "#10b981" : "#003cc3" }}
+                  initial={false}
+                  animate={{ scaleX: demographicFilledCount / demographicFields.length }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+            <div>
+              {demographicFields.map((row, i) => (
+                <DemographicFieldRow key={row.fieldKey} {...row} isLast={i === demographicFields.length - 1} />
               ))}
             </div>
           </motion.div>

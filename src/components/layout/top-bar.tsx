@@ -3,7 +3,7 @@ import type { FC } from "react";
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, Bell, X, BarChart2, Calendar, ArrowRightLeft } from "lucide-react";
+import { Menu, Bell, X, BarChart2, Calendar, ArrowRightLeft, AlertTriangle } from "lucide-react";
 import { user as avatar } from "@/constants/images";
 import { AnimatePresence, motion } from "framer-motion";
 import { HelpIcon } from "@/constants/icons";
@@ -59,6 +59,8 @@ function NotifTypeIcon({ type }: { type: string }) {
     return <Calendar className="h-4 w-4 text-secondary" />;
   if (type === "TRANSFER_RECEIVED")
     return <ArrowRightLeft className="h-4 w-4 text-emerald-500" />;
+  if (type === "SPENDING_ALERT")
+    return <AlertTriangle className="h-4 w-4 text-amber-500" />;
   return <Bell className="h-4 w-4 text-slate-400" />;
 }
 

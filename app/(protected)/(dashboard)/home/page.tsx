@@ -155,7 +155,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className="w-full max-w-[1360px] mx-auto flex flex-col gap-3">
+    <div className="w-full max-w-340 mx-auto flex flex-col gap-3">
       {/* Header da Página */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
@@ -192,7 +192,7 @@ const HomeScreen = () => {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.12 }}
-            className="min-h-[320px] lg:min-h-[360px]"
+            className="min-h-80 lg:min-h-90"
           >
             <MainContent
               documents={documents}

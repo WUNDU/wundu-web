@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { userService } from "@/services/user.service";
 import type { User } from "@/types/dtos/auth.dto";
 import type { RegisterData } from "@/types/dtos/auth.dto";
-import type { UserRequest } from "@/types/dtos/user.dto";
+import type { ProfileUpdateRequest, UserRequest } from "@/types/dtos/user.dto";
 import { useUiStore } from "@/store/ui-store";
 import { getApiErrorMessage } from "@/utils/api-error";
 import {
@@ -54,6 +54,10 @@ interface AuthState {
   setToken(newToken: string | null): void;
   setUser(user: User): void;
   updateProfile(payload: Partial<UserRequest>): Promise<boolean>;
+  /** PATCH /users/me/profile — província/município/data nasc./género/estado civil/dependentes/situação laboral/receita. */
+  updateDemographics(payload: ProfileUpdateRequest): Promise<boolean>;
+  /** Vai buscar o user real ao backend e substitui a store — usado após uma falha de guardar para nunca ficar com dados divergentes da BD. */
+  resyncAfterFailedSave(): Promise<void>;
   uploadAvatar(file: File): Promise<boolean>;
   removeAvatar(): Promise<boolean>;
   login(email: string, password: string): Promise<boolean>;
@@ -186,7 +190,44 @@ export const useUserStore = create<AuthState>()(
           useUiStore
             .getState()
             .showNotification("error", "Erro ao actualizar", getApiErrorMessage(error, "Não foi possível actualizar o perfil."));
+          // Um erro no cliente (timeout, rede) não significa que o backend não
+          // tenha aplicado o PUT/PATCH — só que não confirmámos. Vai buscar o
+          // estado real em vez de deixar a UI com dados divergentes da BD.
+          await get().resyncAfterFailedSave();
           return false;
+        }
+      },
+
+      updateDemographics: async (payload) => {
+        const current = get().user;
+        if (!current) return false;
+        try {
+          const updated = await userService.updateProfile(payload);
+          set({ user: updated });
+          useUiStore
+            .getState()
+            .showNotification("success", "Perfil actualizado", "Os seus dados foram guardados com sucesso.");
+          return true;
+        } catch (error: any) {
+          useUiStore
+            .getState()
+            .showNotification("error", "Erro ao actualizar", getApiErrorMessage(error, "Não foi possível actualizar o perfil."));
+          // Mesmo em erro de validação (400) o backend pode ter persistido
+          // campos válidos do mesmo pedido antes de rejeitar — ressincroniza
+          // sempre para a UI nunca ficar a mostrar dados diferentes da BD.
+          await get().resyncAfterFailedSave();
+          return false;
+        }
+      },
+
+      resyncAfterFailedSave: async () => {
+        const current = get().user;
+        if (!current) return;
+        try {
+          const fresh = await userService.getUser();
+          set({ user: fresh });
+        } catch {
+          // Sem rede também para o resync — nada a fazer, o próximo load resolve.
         }
       },
 

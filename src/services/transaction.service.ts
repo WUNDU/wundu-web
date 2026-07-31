@@ -1,5 +1,6 @@
 import { apiClient } from "@/api/api";
 import type {
+  BalanceResponse,
   DefineCategoryRequest,
   TransactionDTO,
   TransactionPatchPayload,
@@ -380,6 +381,13 @@ class TransactionService {
 
   async getIncompleteCount(): Promise<Record<string, number>> {
     const { data } = await apiClient.get<Record<string, number>>("/transactions/incomplete-count");
+    return data;
+  }
+
+  async getBalance(from?: string, to?: string): Promise<BalanceResponse> {
+    const { data } = await apiClient.get<BalanceResponse>("/transactions/balance", {
+      params: { from, to },
+    });
     return data;
   }
 

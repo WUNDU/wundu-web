@@ -1,6 +1,6 @@
 import { api, apiClient } from "@/api/api";
 import type { RegisterData, User } from "@/types/dtos/auth.dto";
-import type { UserRequest } from "@/types/dtos/user.dto";
+import type { ProfileUpdateRequest, UserRequest } from "@/types/dtos/user.dto";
 
 interface LoginResponse {
   accessToken: string;
@@ -90,6 +90,12 @@ class UserService {
 
   async update(id: string, payload: Partial<UserRequest>): Promise<User> {
     const { data } = await apiClient.put<User>(`/users/${id}`, payload);
+    return data;
+  }
+
+  /** Actualiza o perfil demográfico do próprio utilizador (todos os campos opcionais). */
+  async updateProfile(payload: ProfileUpdateRequest): Promise<User> {
+    const { data } = await apiClient.patch<User>("/users/me/profile", payload);
     return data;
   }
 

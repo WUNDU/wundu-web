@@ -50,3 +50,21 @@ export const getNameErrorMessage = (): string =>
 
 export const getPhoneErrorMessage = (): string =>
   "Número de telefone inválido. Use um número de Angola (ex: +244 9xx xxx xxx)";
+
+/**
+ * Valida se a data de nascimento corresponde a uma idade >= 18 anos.
+ * Preflight client-side do erro `isAgeAllowed` que o backend devolve em
+ * PATCH /users/me/profile.
+ */
+export const validateAge18 = (birthDate: Date): boolean => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  const dayDiff = today.getDate() - birthDate.getDate();
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age -= 1;
+  }
+  return age >= 18;
+};
+
+export const getAgeErrorMessage = (): string => "É necessário ter pelo menos 18 anos";

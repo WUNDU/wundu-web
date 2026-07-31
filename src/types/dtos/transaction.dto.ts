@@ -92,6 +92,19 @@ export interface TransactionFormData {
 
 export type TransactionFormField = keyof TransactionFormData;
 
+export interface BalanceResponse {
+  periodStart: string;
+  periodEnd: string;
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  incomeReference: number;
+  referenceSource: "DECLARED" | "NONE";
+  consumptionPercent: number | null;
+  level: "GREEN" | "YELLOW" | "RED" | null;
+  crossedThreshold: number | null;
+}
+
 export interface TransactionPatchPayload {
   source?: TransactionSource;
   amount?: number;
