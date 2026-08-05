@@ -229,6 +229,18 @@ html {
   animation: spin-reverse-slow 80s linear infinite;
 }
 
+/* Tutorial tooltip animation */
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Acessibilidade: respeita "reduzir movimento" do sistema.
    Neutraliza animações infinitas/decorativas sem quebrar o layout. */
 @media (prefers-reduced-motion: reduce) {

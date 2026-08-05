@@ -24,6 +24,9 @@ import MovementSection from "@/components/home/movement-section";
 import CategoryScreen from "@/components/home/category-screen";
 import OcrToastStack from "@/components/home/ocr-toast-stack";
 import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
+import { useTutorial } from "@/hooks/use-tutorial";
+import { TutorialOverlay } from "@/components/ui/tutorial-overlay";
+import { tutorials } from "@/config/tutorials";
 import posthog from "posthog-js";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -40,6 +43,17 @@ const HomeScreen = () => {
     error: transactionsError,
     loadPage,
   } = useTransaction({ autoFetch: false });
+
+  const tutorial = useTutorial(tutorials);
+
+  useEffect(() => {
+    if (tutorial.isLoaded && user && !tutorial.isCompleted("tutorial-first-revenue") && !tutorial.state.isActive) {
+      const timer = setTimeout(() => {
+        tutorial.start("tutorial-first-revenue");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, tutorial.isLoaded]);
 
   const refreshTransactions = useCallback(async () => {
     await loadPage(0, true);
@@ -224,6 +238,17 @@ const HomeScreen = () => {
         onCategorize={categorizeOcr}
         onRetry={handleOcrRetry}
       />
+
+      {tutorial.state.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentStepIndex={tutorial.state.currentStepIndex}
+          totalSteps={tutorial.activeTutorial!.steps.length}
+          onNext={tutorial.next}
+          onPrevious={tutorial.previous}
+          onSkip={tutorial.skip}
+        />
+      )}
     </div>
   );
 };

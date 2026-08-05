@@ -14,6 +14,7 @@ export interface IncomeExpenseSummaryCardProps {
   totalExpense: number;
   periodLabel: string;
   className?: string;
+  "data-tutorial"?: string;
 }
 
 const IncomeExpenseSummaryCard: React.FC<IncomeExpenseSummaryCardProps> = ({
@@ -21,6 +22,7 @@ const IncomeExpenseSummaryCard: React.FC<IncomeExpenseSummaryCardProps> = ({
   totalExpense,
   periodLabel,
   className,
+  "data-tutorial": dataTutorial,
 }) => {
   const totalFlow = totalIncome + totalExpense;
   const incomeRatio = totalFlow > 0 ? totalIncome / totalFlow : 0.5;
@@ -29,7 +31,7 @@ const IncomeExpenseSummaryCard: React.FC<IncomeExpenseSummaryCardProps> = ({
   const isEmpty = totalIncome === 0 && totalExpense === 0;
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden ${className ?? ""}`}>
+    <div className={`bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden ${className ?? ""}`} data-tutorial={dataTutorial}>
       <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-1">
         <h3 className="text-sm sm:text-base font-bold text-slate-800">Receitas vs Despesas</h3>
         <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">{periodLabel}</p>

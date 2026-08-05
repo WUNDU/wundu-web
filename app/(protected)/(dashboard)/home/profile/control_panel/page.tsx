@@ -21,6 +21,9 @@ import {
   type NormalizedTransaction,
 } from "@/components/charts";
 import { BRAND_COLORS } from "@/constants/brand-colors";
+import { useTutorial } from "@/hooks/use-tutorial";
+import { TutorialOverlay } from "@/components/ui/tutorial-overlay";
+import { tutorials } from "@/config/tutorials";
 
 const EMPTY_TRANSACTIONS: TransactionResponse[] = [];
 
@@ -160,6 +163,17 @@ const ControlPanelDashboardScreen: React.FC = () => {
     isLoadingAll: isTransactionsLoading,
   } = useTransaction();
   const rawTransactions = notPaginated ?? legacyTransactions ?? EMPTY_TRANSACTIONS;
+
+  const tutorial = useTutorial(tutorials);
+
+  useEffect(() => {
+    if (tutorial.isLoaded && !tutorial.isCompleted("tutorial-analytics") && !tutorial.state.isActive) {
+      const timer = setTimeout(() => {
+        tutorial.start("tutorial-analytics");
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorial.isLoaded]);
 
   useEffect(() => {
     // getAllNotPaginated dedupes internally via React Query's staleTime.
@@ -318,7 +332,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const chartSwitcher = (
-    <div className="flex space-x-1 bg-slate-100 p-0.5 rounded-xl">
+    <div className="flex space-x-1 bg-slate-100 p-0.5 rounded-xl" data-tutorial="analytics-chart-type">
       {(["line", "bar", "pie"] as ViewMode[]).map((mode) => (
         <button
           key={mode}
@@ -378,6 +392,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
               ? "bg-emerald-50 text-emerald-600 border-emerald-200"
               : "bg-slate-50 text-slate-400 border-slate-200"
           }`}
+          data-tutorial="analytics-revenue-toggle"
         >
           <span className={`w-2 h-2 rounded-full ${showIncome ? "bg-emerald-500" : "bg-slate-300"}`} />
           Receitas
@@ -415,7 +430,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const filterPills = (
-    <div className="overflow-x-auto flex justify-center">
+    <div className="overflow-x-auto flex justify-center" data-tutorial="analytics-time-range">
       <div className="flex min-w-max bg-slate-100 p-1 rounded-xl">
         {tabRanges.map((range) => (
           <Tab
@@ -513,6 +528,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
           totalIncome={totalIncome}
           totalExpense={totalExpenses}
           periodLabel={summaryPeriodLabel}
+          data-tutorial="analytics-summary"
         />
       </div>
 
@@ -563,10 +579,22 @@ const ControlPanelDashboardScreen: React.FC = () => {
             totalIncome={totalIncome}
             totalExpense={totalExpenses}
             periodLabel={summaryPeriodLabel}
+            data-tutorial="analytics-summary"
           />
           </div>
         </motion.div>
       </div>
+
+      {tutorial.state.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentStepIndex={tutorial.state.currentStepIndex}
+          totalSteps={tutorial.activeTutorial!.steps.length}
+          onNext={tutorial.next}
+          onPrevious={tutorial.previous}
+          onSkip={tutorial.skip}
+        />
+      )}
     </>
   );
 };

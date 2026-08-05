@@ -14,6 +14,9 @@ import { useTransaction } from "@/hooks/use-transaction";
 import { getCategoryStyle } from "@/utils/category-style";
 import { formatCurrency } from "@/utils/format-currency";
 import type { Category } from "@/types/dtos/category.dto";
+import { useTutorial } from "@/hooks/use-tutorial";
+import { TutorialOverlay } from "@/components/ui/tutorial-overlay";
+import { tutorials } from "@/config/tutorials";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function centsToDisplay(c: string): string {
@@ -185,7 +188,7 @@ function ResumoTab({
       exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }} className="space-y-4">
 
       {/* Despesas / Receitas toggle */}
-      <div className="flex rounded-2xl bg-slate-100 p-1 gap-1">
+      <div className="flex rounded-2xl bg-slate-100 p-1 gap-1" data-tutorial="categories-toggle-receita">
         {(["EXPENSE", "INCOME"] as const).map((f) => (
           <button key={f} onClick={() => setFlow(f)}
             className={`flex-1 min-h-11 flex items-center justify-center rounded-xl text-xs font-bold transition-colors ${
@@ -257,7 +260,7 @@ function ResumoTab({
 
       {/* Breakdown list */}
       {sorted.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-2" data-tutorial="categories-breakdown">
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Distribuição</p>
           {sorted.map(([name, amount], i) => {
             const pct = pcts[i];
@@ -450,6 +453,17 @@ export default function CategoriesPage() {
   } = useTransaction();
   const transactions = allTransactions ?? legacyTransactions;
 
+  const tutorial = useTutorial(tutorials);
+
+  useEffect(() => {
+    if (tutorial.isLoaded && !tutorial.isCompleted("tutorial-categories") && !tutorial.state.isActive) {
+      const timer = setTimeout(() => {
+        tutorial.start("tutorial-categories");
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorial.isLoaded]);
+
   const [tab, setTab] = useState<"resumo" | "sistema" | "custom">("resumo");
   const [newName, setNewName] = useState("");
   const [newFlow, setNewFlow] = useState<"EXPENSE" | "INCOME">("EXPENSE");
@@ -550,7 +564,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* ── 3-tab switcher ──────────────────────────────────────────────── */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-5">
+      <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl mb-5" data-tutorial="categories-tabs">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 ${
@@ -663,6 +677,17 @@ export default function CategoriesPage() {
       <LimitDialog open={!!limitTarget} categoryName={limitTarget?.name ?? ""}
         currentLimit={limitTarget ? getLimitKey(limitTarget.id)?.monthlyLimit : undefined}
         onClose={() => setLimitTarget(null)} onConfirm={handleConfirmLimit} />
+
+      {tutorial.state.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentStepIndex={tutorial.state.currentStepIndex}
+          totalSteps={tutorial.activeTutorial!.steps.length}
+          onNext={tutorial.next}
+          onPrevious={tutorial.previous}
+          onSkip={tutorial.skip}
+        />
+      )}
     </motion.div>
   );
 }

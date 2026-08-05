@@ -29,6 +29,7 @@ interface StatsCardProps {
   color: string;
   iconColor: string;
   isPrimary?: boolean;
+  dataTutorial?: string;
 }
 
 import { formatAOA } from "@/lib/currency";
@@ -50,6 +51,7 @@ const StatsCard: FC<StatsCardProps> = ({
   iconColor,
   isPrimary,
   labelColor,
+  dataTutorial,
 }) => (
   <motion.div
     className={`group relative flex h-full min-h-0 flex-1 flex-col justify-between overflow-hidden rounded-xl border p-3 shadow-sm transition-all duration-300 sm:min-h-[96px] sm:p-3 lg:p-4 ${
@@ -61,6 +63,7 @@ const StatsCard: FC<StatsCardProps> = ({
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.22, ease: "easeOut" }}
     whileHover={{ y: -1 }}
+    data-tutorial={dataTutorial}
   >
     {/* Glass shimmer overlay for non-primary cards */}
     {!isPrimary && (
@@ -162,6 +165,7 @@ const StatsSection: FC = () => {
         labelColor: "text-green-500",
         color: "bg-green-500/10",
         iconColor: "text-secondary",
+        dataTutorial: "stats-revenue",
       },
       {
         icon: MoneyIcon,

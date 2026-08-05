@@ -176,7 +176,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </div>
 
               {/* Despesa / Receita toggle */}
-              <div className="relative flex rounded-xl bg-slate-100 p-1">
+              <div className="relative flex rounded-xl bg-slate-100 p-1" data-tutorial="modal-type-toggle">
                 {(["EXPENSE", "INCOME"] as const).map((t) => {
                   const active = formData.type === t;
                   return (
@@ -215,7 +215,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               )}
 
               {/* Amount */}
-              <div>
+              <div data-tutorial="modal-amount">
                 <label htmlFor="tx-amount" className="block text-xs font-bold text-slate-500 mb-1.5">Montante</label>
                 <div className="relative">
                   <input
@@ -266,7 +266,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               )}
 
               {/* Description */}
-              <div>
+              <div data-tutorial="modal-description">
                 <label htmlFor="tx-description" className="block text-xs font-bold text-slate-500 mb-1.5">Descrição</label>
                 <input
                   id="tx-description"
@@ -283,18 +283,20 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               </div>
 
               {/* Category */}
-              <CategorySelect
-                value={formData.category}
-                onChange={(name) => onFormChange("category", name)}
-                valueType="name"
-                flow={formData.type}
-                label="Categoria"
-                error={errors.category}
-              />
+              <div data-tutorial="modal-category">
+                <CategorySelect
+                  value={formData.category}
+                  onChange={(name) => onFormChange("category", name)}
+                  valueType="name"
+                  flow={formData.type}
+                  label="Categoria"
+                  error={errors.category}
+                />
+              </div>
 
               {/* Actions */}
               <div className="h-px bg-slate-100" />
-              <div className="flex gap-3">
+              <div className="flex gap-3" data-tutorial="modal-submit">
                 <button
                   type="button"
                   onClick={onClose}

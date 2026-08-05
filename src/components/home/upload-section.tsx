@@ -30,6 +30,7 @@ const UploadSection: React.FC<{ onUploadClick: () => void; isUploading?: boolean
     role="button"
     tabIndex={0}
     aria-disabled={isUploading}
+    data-tutorial="upload-section"
   >
     <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3">

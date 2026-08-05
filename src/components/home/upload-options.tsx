@@ -54,6 +54,7 @@ const UploadOptions: React.FC<UploadOptionsProps> = ({ onFileSelect, onManualCli
         type="button"
         onClick={handleManualButtonClick}
         className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-left hover:bg-slate-100 transition-colors"
+        data-tutorial="upload-manual"
       >
         <EditIcon className="w-5 h-5 text-slate-500" />
         <div>
