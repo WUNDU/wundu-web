@@ -164,11 +164,18 @@ function StepEmailPhone({
 }: {
   setResetData: (d: PasswordResetData) => void;
   nextStep: () => void;
-  sendRequestEmail: (email: string) => Promise<boolean>;
+  sendRequestEmail: (email: string) => Promise<{ success: boolean; retryAfter?: number }>;
 }) {
   const [email, setEmail] = useState("");
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+
+  useEffect(() => {
+    if (rateLimitSeconds <= 0) return;
+    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [rateLimitSeconds]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,12 +185,13 @@ function StepEmailPhone({
     }
     setIsError(false);
     setIsLoading(true);
-    const ok = await sendRequestEmail(email);
+    const result = await sendRequestEmail(email);
     setIsLoading(false);
-    if (ok) {
+    if (result.success) {
       setResetData({ phoneOrEmail: email });
       nextStep();
     } else {
+      if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
       setIsError(true);
     }
   };
@@ -194,7 +202,7 @@ function StepEmailPhone({
       <div className="w-full text-left md:text-center">
         <CTA
           title="Perdeu a sua senha?"
-          subtitle="Digite seu endereço de email e enviaremos um código de verificação."
+          subtitle="Se existir uma conta associada a este email, vais receber um código para redefinir a senha."
           variant="default"
         />
       </div>
@@ -217,8 +225,13 @@ function StepEmailPhone({
             Por favor, insira um endereço de email válido.
           </p>
         )}
-        <Button onClick={() => {}} type="submit" loading={isLoading}>
-          Continuar
+        <Button
+          onClick={() => {}}
+          type="submit"
+          loading={isLoading}
+          disabled={rateLimitSeconds > 0}
+        >
+          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
         </Button>
       </form>
       <div className="mt-auto h-1/4 md:hidden"></div>
@@ -250,13 +263,20 @@ function StepVerification({
   verifyOtp: (d: {
     email: string;
     otp: string;
-  }) => Promise<{ success: boolean; errorMessage?: string }>;
-  sendRequestEmail: (email: string) => Promise<boolean>;
+  }) => Promise<{ success: boolean; errorMessage?: string; retryAfter?: number }>;
+  sendRequestEmail: (email: string) => Promise<{ success: boolean; retryAfter?: number }>;
 }) {
   const [code, setCode] = useState("");
   const [isCodeCorrect, setIsCodeCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+
+  useEffect(() => {
+    if (rateLimitSeconds <= 0) return;
+    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [rateLimitSeconds]);
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -275,6 +295,7 @@ function StepVerification({
         nextStep();
       }, 500);
     } else {
+      if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
       setIsCodeIncorrect(true);
       setIsCodeCorrect(false);
     }
@@ -309,13 +330,14 @@ function StepVerification({
         <div className="flex items-center justify-between">
           <button
             type="button"
-            disabled={isResending || timer > 0}
+            disabled={isResending || timer > 0 || rateLimitSeconds > 0}
             onClick={async () => {
               if (!data.phoneOrEmail) return;
               setIsResending(true);
-              const ok = await sendRequestEmail(data.phoneOrEmail);
+              const result = await sendRequestEmail(data.phoneOrEmail);
               setIsResending(false);
-              if (ok) resetTimer();
+              if (result.success) resetTimer();
+              else if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
             }}
             className="text-sm text-gray-600 disabled:opacity-50"
           >
@@ -329,8 +351,13 @@ function StepVerification({
             {seconds.toString().padStart(2, "0")}
           </div>
         </div>
-        <Button onClick={() => {}} type="submit" loading={isLoading}>
-          Confirmar
+        <Button
+          onClick={() => {}}
+          type="submit"
+          loading={isLoading}
+          disabled={rateLimitSeconds > 0}
+        >
+          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Confirmar"}
         </Button>
       </form>
       <div className="mt-auto h-1/4 md:hidden"></div>
@@ -352,9 +379,10 @@ function StepNewPassword({
   data: PasswordResetData;
   resetPassword: (d: {
     email: string;
+    otp: string;
     newPassword: string;
     confirmPassword: string;
-  }) => Promise<boolean>;
+  }) => Promise<{ success: boolean; retryAfter?: number }>;
 }) {
   const [form, setFormState] = useState({ password: "", confirmPassword: "" });
   const [passwordValidation, setPasswordValidation] = useState(() =>
@@ -362,7 +390,15 @@ function StepNewPassword({
   );
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+
+  useEffect(() => {
+    if (rateLimitSeconds <= 0) return;
+    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [rateLimitSeconds]);
 
   const setField = (field: "password" | "confirmPassword", value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -379,17 +415,26 @@ function StepNewPassword({
       return;
     }
     setIsLoading(true);
-    const ok = await resetPassword({
+    setIsError(false);
+    setErrorMessage("");
+    const result = await resetPassword({
       email: data.phoneOrEmail!,
+      otp: data.code!,
       newPassword: form.password,
       confirmPassword: form.confirmPassword,
     });
     setIsLoading(false);
-    if (ok) {
+    if (result.success) {
       setResetData({ newPassword: form.password });
       nextStep();
     } else {
       setIsError(true);
+      if (result.retryAfter) {
+        setRateLimitSeconds(result.retryAfter);
+        setErrorMessage(`Demasiados pedidos. Aguarde ${result.retryAfter} segundos.`);
+      } else {
+        setErrorMessage("Não foi possível redefinir a senha. Tente novamente.");
+      }
     }
   };
 
@@ -456,6 +501,18 @@ function StepNewPassword({
                   <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
                     {form.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                   </span>
+                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[a-z]/.test(form.password) ? "✓" : "○"} Minúscula
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[A-Z]/.test(form.password) ? "✓" : "○"} Maiúscula
+                  </span>
+                  <span className={`flex items-center gap-1 ${/\d/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/\d/.test(form.password) ? "✓" : "○"} Número
+                  </span>
+                  <span className={`flex items-center gap-1 ${/[^da-zA-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                    {/[^da-zA-Z]/.test(form.password) ? "✓" : "○"} Símbolo
+                  </span>
                 </div>
               </motion.div>
             )}
@@ -476,13 +533,18 @@ function StepNewPassword({
             As senhas não correspondem.
           </p>
         )}
-        {isError && (
+        {(isError || rateLimitSeconds > 0) && (
           <p className="text-sm text-red-500 text-center">
-            Não foi possível redefinir a senha. Tente novamente.
+            {errorMessage || "Não foi possível redefinir a senha. Tente novamente."}
           </p>
         )}
-        <Button onClick={() => {}} type="submit" loading={isLoading} disabled={!passwordValidation.isValid || form.password !== form.confirmPassword}>
-          Continuar
+        <Button
+          onClick={() => {}}
+          type="submit"
+          loading={isLoading}
+          disabled={!passwordValidation.isValid || form.password !== form.confirmPassword || rateLimitSeconds > 0}
+        >
+          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
         </Button>
       </form>
       <div className="mt-auto h-1/4 md:hidden"></div>
@@ -517,7 +579,7 @@ function StepSuccess() {
 export default function PasswordReset() {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<PasswordResetData>({});
-  const [timer, setTimer] = useState(300);
+  const [timer, setTimer] = useState(600);
   const [isCodeIncorrect, setIsCodeIncorrect] = useState(false);
 
   const { sendRequestEmail, verifyOtp, resetPassword } = usePasswordRecovery();
@@ -526,7 +588,7 @@ export default function PasswordReset() {
     setData((prev) => ({ ...prev, ...newData }));
   const nextStep = () => setCurrentStep((prev) => prev + 1);
   const prevStep = () => setCurrentStep((prev) => prev - 1);
-  const resetTimer = () => setTimer(300);
+  const resetTimer = () => setTimer(600);
 
   useEffect(() => {
     let countdown: NodeJS.Timeout | null = null;

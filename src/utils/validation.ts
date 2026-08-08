@@ -4,9 +4,8 @@ export interface PasswordValidation {
 }
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Regra única: pelo menos 6 caracteres. Sem exigência de maiúsculas, minúsculas,
-// números ou caracteres especiais.
-export const PASSWORD_MIN_REGEX = /^.{6,}$/;
+// 6 caracteres, com pelo menos uma minúscula, uma maiúscula, um número e um símbolo.
+export const PASSWORD_MIN_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,}$/;
 /** @deprecated use PASSWORD_MIN_REGEX */
 export const PASSWORD_MEDIUM_REGEX = PASSWORD_MIN_REGEX;
 export const NAME_REGEX = /^[a-zA-ZÀ-ÿ\s]{4,}$/;
@@ -17,16 +16,21 @@ export const validatePassword = (password: string): boolean =>
   PASSWORD_MIN_REGEX.test(password);
 
 export const validatePasswordDetailed = (password: string): PasswordValidation => {
-  // Único requisito: 6 ou mais caracteres.
-  const minLength = password.length >= 6;
+  const hasMinLength = password.length >= 6;
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[^da-zA-Z]/.test(password);
+  const isValid = hasMinLength && hasLower && hasUpper && hasNumber && hasSymbol;
 
   const messages: string[] = [];
-  if (!minLength) messages.push("Pelo menos 6 caracteres");
+  if (!hasMinLength) messages.push("Pelo menos 6 caracteres");
+  if (!hasLower) messages.push("Pelo menos uma letra minúscula");
+  if (!hasUpper) messages.push("Pelo menos uma letra maiúscula");
+  if (!hasNumber) messages.push("Pelo menos um número");
+  if (!hasSymbol) messages.push("Pelo menos um símbolo");
 
-  return {
-    isValid: minLength,
-    messages,
-  };
+  return { isValid, messages };
 };
 
 export const validateName = (name: string): boolean => NAME_REGEX.test(name.trim());
@@ -43,7 +47,7 @@ export const getEmailErrorMessage = (): string =>
   "Email inválido. Use o formato: exemplo@dominio.com";
 
 export const getPasswordErrorMessage = (): string =>
-  "Senha deve ter pelo menos 6 caracteres";
+  "Senha deve ter pelo menos 6 caracteres, com minúscula, maiúscula, número e símbolo";
 
 export const getNameErrorMessage = (): string =>
   "Nome deve ter no mínimo 4 caracteres";
