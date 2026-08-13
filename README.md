@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wundu WEB
 
-## Getting Started
+Aplicação web de gestão financeira — **Next.js 15** · **React 19** · **Tailwind 4** · **Zustand** · **TanStack Query**
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org) [![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev)
 
+> **Navegação rápida** · [Arquitectura](docs/arquitectura.md) · [Estrutura](docs/estrutura.md) · [Navegação](docs/navegacao.md) · [API Client](docs/api-client.md) · [Componentes](docs/componentes.md) · [Env](docs/env.md) · [Build & Deploy](docs/build-deploy.md) · [Guia Local](docs/guia-local.md)
+
+## Descrição
+Dashboard financeiro com auth (email+Google), transacções manuais e OCR, categorias, objectivos, analytics (Chart.js), chat IA (SSE), biblioteca, perfil com demografia e sessões. Consome `wundu-api` via `/api/proxy`.
+
+## Tecnologias
+Next.js 15 (App Router, Turbopack), React 19, TypeScript 6, Tailwind 4, Zustand 5, TanStack Query 5, Axios 1.12, NextAuth 4, PostHog, Chart.js, Framer Motion, Lucide.
+
+## Pré-requisitos
+- Node >=20, pnpm >=9, Git
+- Backend `wundu-api` em `http://localhost:8080` ou prod `https://wundu-api-production.up.railway.app/api/v1`
+
+## Instalação
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <url> wundu-web && cd wundu-web
+cp .env.example .env   # ver [Configuração](#configuração)
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuração
+Ver [docs/env.md](docs/env.md) e `.env.example`:
+```bash
+BACKEND_API_BASE_URL=http://localhost:8080/api/v1
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+NEXT_AUTH_GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+NEXT_AUTH_GOOGLE_CLIENT_SECRET=xxx
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Execução Local
+```bash
+pnpm dev    # http://localhost:3000 (Turbopack)
+pnpm build  # .next/
+pnpm start  # prod preview
+```
+Ver [Guia Local](docs/guia-local.md) para passo a passo completo (portas, dev vs prod, troubleshooting).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build
+`pnpm build` → `.next/` (ver [Build & Deploy](docs/build-deploy.md) para validação, Netlify, rollback).
 
-## Learn More
+## Testes
+Ainda sem suite. Estratégia recomendada: Vitest + Testing Library. `npx tsc --noEmit` como validação mínima.
 
-To learn more about Next.js, take a look at the following resources:
+## Principais Comandos
+| Comando | Descrição |
+|---------|-----------|
+| `pnpm dev` | Dev 3000 |
+| `pnpm build` | Build prod |
+| `pnpm start` | Serve prod |
+| `npx tsc --noEmit` | Typecheck |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentação
+| Doc | Conteúdo |
+|-----|----------|
+| [Índice docs](docs/README.md) | Mapa completo |
+| [Arquitectura](docs/arquitectura.md) | Camadas, fluxo, diagrama |
+| [Estrutura](docs/estrutura.md) | Pastas, ficheiros, organização |
+| [Navegação](docs/navegacao.md) | Rotas, guards, 404 |
+| [API Client](docs/api-client.md) | HTTP, auth, endpoints |
+| [Componentes](docs/componentes.md) | UI + exemplos |
+| [Git Workflow](docs/git-workflow.md) | Branches, PRs |
+| [Convenções](docs/convencoes.md) | Regras equipa |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+> Dica: no GitHub, comece por [docs/README.md](docs/README.md).
