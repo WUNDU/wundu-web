@@ -13,7 +13,7 @@
 | `fix/*` | `dev` | Correção bug | `fix/transactions-500` |
 | `hotfix/*` | `main` | Hotfix produção | `hotfix/urgent-ocr` |
 
-> Observado: `wundu-web` usa `dev` como integração, `wundu-api` usava `develop`. Padrão actual: `dev`.
+> Observado: `wundu-web` usa `dev` como integração, `backend` usava `develop`. Padrão actual: `dev`.
 
 ## 2. Naming de Branches
 - `feature/<kebab>`: `feature/chat-sse`, `feature/goal-progress`

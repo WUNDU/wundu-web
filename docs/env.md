@@ -8,7 +8,7 @@
 ## Descrever Cada Variável
 | Variável | Descrição | Exemplo |
 |----------|-----------|---------|
-| `BACKEND_API_BASE_URL` | Base API Spring (sem trailing slash, com `/api/v1`) | `https://wundu-api-production.up.railway.app/api/v1` |
+| `BACKEND_API_BASE_URL` | Base API Spring (sem trailing slash, com `/api/v1`) | `https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)` |
 | `NEXT_AUTH_GOOGLE_CLIENT_ID` | OAuth client ID (igual backend) | `xxx.apps.googleusercontent.com` |
 | `NEXT_AUTH_GOOGLE_CLIENT_SECRET` | OAuth secret | `GOCSPX-...` |
 | `GOOGLE_CLIENT_ID/SECRET` | Alias legado | — |
@@ -33,7 +33,7 @@ NEXTAUTH_SECRET=dev-secret-at-least-32-chars
 
 ## Documentar Ambiente PROD
 ```bash
-BACKEND_API_BASE_URL=https://wundu-api-production.up.railway.app/api/v1
+BACKEND_API_BASE_URL=https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)
 NEXTAUTH_URL=https://wundu-web.netlify.app
 NEXTAUTH_SECRET=<gerado seguro>
 NEXT_AUTH_GOOGLE_CLIENT_ID=<prod client>

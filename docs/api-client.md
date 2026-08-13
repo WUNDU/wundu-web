@@ -5,7 +5,7 @@
 ## 1. Base URL
 ```ts
 // next.config.ts
-const URL = process.env.BACKEND_API_BASE_URL; // ex: http://localhost:8080/api/v1 ou https://wundu-api-production.up.railway.app/api/v1
+const URL = process.env.BACKEND_API_BASE_URL; // ex: http://localhost:8080/api/v1 ou https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)
 rewrites: [{ source: "/api/proxy/:path*", destination: `${URL}/:path*` }]
 ```
 Cliente usa `baseURL: "/api/proxy"` (proxy Next.js evita CORS e mantém cookie `refreshToken` httpOnly). Mobile/Backoffice usam directo.

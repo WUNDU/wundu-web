@@ -42,7 +42,7 @@ pnpm build # deve terminar sem erro, verificar .next existe
 ## Deploy PROD
 - **Pré-requisitos**: tag `main`, `NEXTAUTH_SECRET` seguro, `NEXTAUTH_URL` prod, `BACKEND_API_BASE_URL` prod.
 - **Processo**: `dev→demo→release→main` PRs → Netlify prod auto-deploy; manual `netlify deploy --prod --dir=.next`.
-- **Variáveis**: `BACKEND_API_BASE_URL=https://wundu-api-production.up.railway.app/api/v1`, `NEXTAUTH_URL=https://wundu-web.netlify.app`.
+- **Variáveis**: `BACKEND_API_BASE_URL=https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)`, `NEXTAUTH_URL=https://wundu-web.netlify.app`.
 - **Validação**: Smoke login + transações + chat; `curl https://wundu-web.netlify.app/api/proxy/actuator/health`.
 - **Health check**: idem DEV + PostHog ingest OK.
 - **Rollback**: Netlify → Deploys → “Publish deploy” anterior ou `git revert` + push `main`.

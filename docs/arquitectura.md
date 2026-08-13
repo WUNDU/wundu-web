@@ -3,7 +3,7 @@
 > [← Voltar ao índice](README.md) | [README principal](../README.md)
 
 ## 1. Visão Geral
-Next.js 15 (App Router) + React 19 + Zustand (client state) + TanStack Query (server state) + Axios + Tailwind 4. Consome `wundu-api` via `src/api/api.ts` com proxy `/api/proxy`.
+Next.js 15 (App Router) + React 19 + Zustand (client state) + TanStack Query (server state) + Axios + Tailwind 4. Consome `backend` via `src/api/api.ts` com proxy `/api/proxy`.
 
 ```mermaid
 flowchart TD
@@ -11,7 +11,7 @@ flowchart TD
   HOOKS --> SERVICES[Services<br/>transaction.service, etc.]
   SERVICES --> API[api/api.ts<br/>axios + interceptors]
   API --> PROXY[Next.js rewrites<br/>/api/proxy → BACKEND_API_BASE_URL]
-  PROXY --> BACKEND[wundu-api<br/>/api/v1]
+  PROXY --> BACKEND[backend<br/>/api/v1]
   BACKEND --> DB[(PostgreSQL)]
   BACKEND --> REDIS[(Redis)]
   UI --> STORE[Zustand<br/>useUserStore, useChatStore]

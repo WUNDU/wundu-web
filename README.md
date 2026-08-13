@@ -7,14 +7,14 @@ Aplicação web de gestão financeira — **Next.js 15** · **React 19** · **Ta
 > **Navegação rápida** · [Arquitectura](docs/arquitectura.md) · [Estrutura](docs/estrutura.md) · [Navegação](docs/navegacao.md) · [API Client](docs/api-client.md) · [Componentes](docs/componentes.md) · [Env](docs/env.md) · [Build & Deploy](docs/build-deploy.md) · [Guia Local](docs/guia-local.md)
 
 ## Descrição
-Dashboard financeiro com auth (email+Google), transacções manuais e OCR, categorias, objectivos, analytics (Chart.js), chat IA (SSE), biblioteca, perfil com demografia e sessões. Consome `wundu-api` via `/api/proxy`.
+Dashboard financeiro com auth (email+Google), transacções manuais e OCR, categorias, objectivos, analytics (Chart.js), chat IA (SSE), biblioteca, perfil com demografia e sessões. Consome `backend` via `/api/proxy`.
 
 ## Tecnologias
 Next.js 15 (App Router, Turbopack), React 19, TypeScript 6, Tailwind 4, Zustand 5, TanStack Query 5, Axios 1.12, NextAuth 4, PostHog, Chart.js, Framer Motion, Lucide.
 
 ## Pré-requisitos
 - Node >=20, pnpm >=9, Git
-- Backend `wundu-api` em `http://localhost:8080` ou prod `https://wundu-api-production.up.railway.app/api/v1`
+- Backend `backend` em `http://localhost:8080` ou prod `https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)`
 
 ## Instalação
 ```bash

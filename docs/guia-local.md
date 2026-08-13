@@ -37,7 +37,7 @@ Ver [env.md](env.md) para todas vars, obrigatórias vs opcionais, DEV vs PROD.
 ```bash
 pnpm dev   # http://localhost:3000 (Turbopack, hot reload)
 ```
-Precisa backend em `http://localhost:8080/api/v1` (ou usar prod URL). Porta 3000.
+Precisa backend em `http://localhost:8080/... (local) ou https://backend.wundu.tech/... (prod) / https://backend.test.wundu.tech/... (test)). Porta 3000.
 
 ## 6. Documentar Comandos Disponíveis
 | Comando | Descrição | Quando usar |
