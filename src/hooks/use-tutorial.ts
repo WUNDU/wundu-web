@@ -36,7 +36,7 @@ export function useTutorial(tutorials: Tutorial[]): UseTutorialReturn {
   });
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const scrollLockRef = useRef<{ wheel: (e: Event) => void; touchmove: (e: Event) => void } | null>(null);
+  const prevOverflowRef = useRef<{ body: string; html: string; overscroll: string } | null>(null);
 
   const activeTutorial = tutorials.find((t) => t.id === state.activeTutorialId) ?? null;
 
@@ -48,22 +48,30 @@ export function useTutorial(tutorials: Tutorial[]): UseTutorialReturn {
   );
 
   const lockScroll = useCallback(() => {
-    if (typeof window === "undefined") return;
-
-    const wheelHandler = (e: Event) => e.preventDefault();
-    const touchmoveHandler = (e: Event) => e.preventDefault();
-
-    window.addEventListener("wheel", wheelHandler, { passive: false });
-    window.addEventListener("touchmove", touchmoveHandler, { passive: false });
-
-    scrollLockRef.current = { wheel: wheelHandler, touchmove: touchmoveHandler };
+    if (typeof document === "undefined") return;
+    if (prevOverflowRef.current) return;
+    prevOverflowRef.current = {
+      body: document.body.style.overflow,
+      html: document.documentElement.style.overflow,
+      overscroll: (document.body.style as any).overscrollBehavior ?? "",
+    };
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    (document.body.style as any).overscrollBehavior = "none";
   }, []);
 
   const unlockScroll = useCallback(() => {
-    if (scrollLockRef.current) {
-      window.removeEventListener("wheel", scrollLockRef.current.wheel);
-      window.removeEventListener("touchmove", scrollLockRef.current.touchmove);
-      scrollLockRef.current = null;
+    if (typeof document === "undefined") return;
+    const prev = prevOverflowRef.current;
+    if (prev) {
+      document.body.style.overflow = prev.body;
+      document.documentElement.style.overflow = prev.html;
+      (document.body.style as any).overscrollBehavior = prev.overscroll;
+      prevOverflowRef.current = null;
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      (document.body.style as any).overscrollBehavior = "";
     }
   }, []);
 

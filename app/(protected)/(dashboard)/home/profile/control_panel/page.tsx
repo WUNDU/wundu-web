@@ -439,7 +439,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const filterPills = (
-    <div className="overflow-x-auto flex justify-center" data-tutorial="analytics-time-range">
+    <div className="overflow-x-auto flex justify-center overscroll-x-contain touch-pan-x" style={{ touchAction: "pan-x" }} data-tutorial="analytics-time-range">
       <div className="flex min-w-max bg-slate-100 p-1 rounded-xl">
         {tabRanges.map((range) => (
           <Tab

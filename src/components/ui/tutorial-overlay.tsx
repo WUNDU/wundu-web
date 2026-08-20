@@ -192,12 +192,12 @@ export function TutorialOverlay({
   }[tooltipPos.placement];
 
   return (
-    <div className="fixed inset-0 z-[200]" role="dialog" aria-modal="true" aria-label="Tutorial">
-      <div className="absolute inset-0 bg-black/50" onClick={onSkip} />
+    <div className="fixed inset-0 z-[200] pointer-events-none" role="dialog" aria-modal="true" aria-label="Tutorial">
+      <div className="absolute inset-0 bg-black/50 pointer-events-none md:pointer-events-auto" onClick={onSkip} />
 
       <div
-        className={`absolute z-10 rounded-lg border-2 border-[var(--color-brand-yellow)] ${
-          interactive ? "pointer-events-none" : ""
+        className={`absolute z-10 rounded-lg border-2 border-[var(--color-brand-yellow)] pointer-events-none ${
+          interactive ? "" : ""
         }`}
         style={{
           top: spotlight.top - 4,
@@ -210,8 +210,8 @@ export function TutorialOverlay({
       </div>
 
       <div
-        className="absolute z-20 w-80 rounded-xl bg-white p-5 shadow-2xl animate-[tooltipIn_0.2s_ease-out]"
-        style={{ top: tooltipPos.top, left: tooltipPos.left }}
+        className="absolute z-20 w-80 rounded-xl bg-white p-5 shadow-2xl animate-[tooltipIn_0.2s_ease-out] pointer-events-auto touch-pan-y"
+        style={{ top: tooltipPos.top, left: tooltipPos.left, touchAction: "pan-y" }}
       >
         <div className={`absolute ${tooltipArrowClass}`}>
           <div className="h-3 w-3 rotate-45 bg-white" />
