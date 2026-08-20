@@ -206,6 +206,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: EASE_OUT }}
       className="flex flex-col gap-3 h-full"
+      data-tutorial="movement-section"
     >
       <div className="bg-white rounded-xl border border-slate-100 shadow-[0_2px_8px_rgba(0,60,195,0.04)] overflow-hidden flex flex-col h-full">
         {/* Header */}
@@ -233,6 +234,7 @@ const MovementSection: React.FC<MovementSectionProps> = ({
               <Link
                 href="/home/transactions"
                 className="inline-flex items-center gap-1 bg-secondary/8 text-secondary text-xs font-bold px-2.5 py-1.5 rounded-full hover:bg-[rgba(0,60,195,0.12)] transition-colors"
+                data-tutorial="view-all-link"
               >
                 Ver todas
                 <ChevronRight className="w-3 h-3" />

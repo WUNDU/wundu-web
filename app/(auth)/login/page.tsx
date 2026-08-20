@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
 import { GoogleButton } from "@/components/auth/google-button";
+import { buildVerifyPendingUrl } from "@/utils/pending-verification";
 import posthog from "posthog-js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -105,10 +106,12 @@ function StatusBanner({
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { isAuthenticated, login, error, retryAfterSeconds } = useAuth();
+  const { isAuthenticated, login, error, errorCode, retryAfterSeconds } = useAuth();
 
   const errorRef = useRef<string | null>(null);
   errorRef.current = error ?? null;
+  const errorCodeRef = useRef<string | null>(null);
+  errorCodeRef.current = errorCode ?? null;
 
   const [savedUser, setSavedUser] = useState<SavedUser | null>(null);
   const [mode, setMode] = useState<"quick" | "full">("full");
@@ -217,6 +220,10 @@ const LoginPage: React.FC = () => {
         }
         posthog.identify(form.email, { email: form.email });
         posthog.capture("user_signed_in", { method: "email" });
+      } else if (errorCodeRef.current === "EMAIL_NOT_VERIFIED") {
+        posthog.capture("user_sign_in_failed", { reason: "EMAIL_NOT_VERIFIED" });
+        router.push(buildVerifyPendingUrl(form.email));
+        return;
       } else {
         const errMsg =
           errorRef.current || "Credenciais incorretas. Tente novamente.";

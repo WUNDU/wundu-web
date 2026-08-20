@@ -32,6 +32,14 @@ export interface UserResponse {
   planEnd: string | null;
   isTrial: boolean;
   profilePhotoUrl?: string | null;
+  province?: string | null;
+  municipality?: string | null;
+  birthDate?: string | null;
+  gender?: string | null;
+  maritalStatus?: string | null;
+  dependents?: number | null;
+  employmentStatus?: string | null;
+  expectedMonthlyIncome?: number | null;
 }
 
 export type User = UserResponse;
@@ -47,6 +55,7 @@ export interface SendOtpRequest {
 
 export interface ResetPasswordRequest {
   email: string;
+  otp: string;
   newPassword: string;
   confirmPassword: string;
 }

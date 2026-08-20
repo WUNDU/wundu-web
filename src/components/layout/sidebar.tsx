@@ -17,11 +17,11 @@ import { useChatStore } from "@/store/chat-store";
 import { formatConvoDate, parseJavaDate } from "@/types/dtos/chat.dto";
 
 const navItems = [
-  { name: "Início", path: ROUTES.HOME, icon: HomeDeskIcon, exact: true },
-  { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false },
-  { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false },
-  { name: "Categorias", path: ROUTES.CATEGORIES, icon: Tag, exact: false },
-  { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false },
+  { name: "Início", path: ROUTES.HOME, icon: HomeDeskIcon, exact: true, dataTutorial: "nav-home" },
+  { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false, dataTutorial: "nav-goals" },
+  { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false, dataTutorial: "nav-analytics" },
+  { name: "Categorias", path: ROUTES.CATEGORIES, icon: Tag, exact: false, dataTutorial: "nav-categories" },
+  { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false, dataTutorial: "nav-chat" },
 ];
 
 interface SidebarProps {
@@ -137,6 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                         ? "bg-secondary/10 text-secondary font-bold"
                         : "font-medium text-slate-500 hover:bg-secondary/5 hover:text-slate-900"
                       }`}
+                    data-tutorial={item.dataTutorial}
                   >
                     <item.icon
                       className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${active ? "text-secondary" : "text-slate-400 group-hover:text-secondary"}`}

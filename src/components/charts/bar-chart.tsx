@@ -3,10 +3,13 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import Chart from "chart.js/auto";
 import type { ChartDataPoint } from "@/types/ui";
 
+const EXPENSE_COLOR = "#EF4444";
+const INCOME_COLOR = "#10B981";
+
 interface BarChartProps {
   data: ChartDataPoint[];
-  primaryColor: string;
-  accentColor?: string;
+  showExpense?: boolean;
+  showIncome?: boolean;
   className?: string;
 }
 
@@ -31,74 +34,69 @@ const formatTick = (value: number) => {
 
 const BarChart: React.FC<BarChartProps> = ({
   data,
-  primaryColor,
-  accentColor = "#0f172a",
+  showExpense = true,
+  showIncome = true,
   className,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
-  const gradientRef = useRef<CanvasGradient | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
   const labels = useMemo(() => data.map((d) => d.month), [data]);
-  const values = useMemo(() => data.map((d) => d.value), [data]);
 
   useEffect(() => {
-    if (!data.length) {
-      setSelectedIndex(-1);
-      return;
-    }
-    setSelectedIndex(data.length - 1);
+    setSelectedIndex(data.length ? data.length - 1 : -1);
   }, [data.length]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) {
+    if (!canvas || !data.length) {
       chartRef.current?.destroy();
       chartRef.current = null;
-      gradientRef.current = null;
-      return;
-    }
-    if (!data.length) {
-      chartRef.current?.destroy();
-      chartRef.current = null;
-      gradientRef.current = null;
       return;
     }
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     if (chartRef.current) chartRef.current.destroy();
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, `${primaryColor}ee`);
-    gradient.addColorStop(1, `${primaryColor}22`);
-    gradientRef.current = gradient;
-
-    const buildBackgroundColors = (count: number) => {
-      const active = gradientRef.current ?? primaryColor;
-      const inactive = `${primaryColor}25`;
+    const buildColors = (color: string, count: number) => {
+      const active = color;
+      const inactive = `${color}25`;
       if (selectedIndex === -1) return Array(count).fill(active);
       return Array.from({ length: count }, (_, idx) =>
         idx === selectedIndex ? active : inactive,
       );
     };
 
+    const datasets = [];
+    if (showExpense) {
+      datasets.push({
+        label: "Despesas",
+        data: data.map((d) => d.expense),
+        backgroundColor: buildColors(EXPENSE_COLOR, data.length),
+        hoverBackgroundColor: `${EXPENSE_COLOR}dd`,
+        borderRadius: 8,
+        borderSkipped: false,
+        barPercentage: 0.6,
+        categoryPercentage: 0.8,
+      });
+    }
+    if (showIncome) {
+      datasets.push({
+        label: "Receitas",
+        data: data.map((d) => d.income),
+        backgroundColor: buildColors(INCOME_COLOR, data.length),
+        hoverBackgroundColor: `${INCOME_COLOR}dd`,
+        borderRadius: 8,
+        borderSkipped: false,
+        barPercentage: 0.6,
+        categoryPercentage: 0.8,
+      });
+    }
+
     chartRef.current = new Chart(ctx, {
       type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
-            backgroundColor: buildBackgroundColors(values.length),
-            hoverBackgroundColor: `${primaryColor}dd`,
-            borderRadius: 14,
-            borderSkipped: false,
-            barPercentage: 0.6,
-            categoryPercentage: 0.8,
-          },
-        ],
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -112,16 +110,12 @@ const BarChart: React.FC<BarChartProps> = ({
         plugins: {
           legend: { display: false },
           tooltip: {
-            displayColors: false,
-            backgroundColor: accentColor,
+            displayColors: true,
+            backgroundColor: "#0f172a",
             callbacks: {
-              title: () => "",
+              title: (items) => items[0]?.label ?? "",
               label: (context) =>
-                new Intl.NumberFormat("pt-AO", {
-                  style: "currency",
-                  currency: "AOA",
-                  maximumFractionDigits: 0,
-                }).format(context.parsed.y ?? 0),
+                `${context.dataset.label}: ${formatCurrency(context.parsed.y ?? 0)}`,
             },
           },
         },
@@ -146,41 +140,33 @@ const BarChart: React.FC<BarChartProps> = ({
     return () => {
       chartRef.current?.destroy();
     };
-  }, [data, labels, values, primaryColor, accentColor]);
+  }, [data, labels, showExpense, showIncome, selectedIndex]);
 
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-    const dataset = chart.data.datasets[0];
-    if (!dataset) return;
-    const active = gradientRef.current ?? primaryColor;
-    const inactive = `${primaryColor}25`;
-    const count = chart.data.labels?.length ?? 0;
-    if (!count) return;
-    dataset.backgroundColor =
-      selectedIndex === -1
-        ? Array(count).fill(active)
-        : Array.from({ length: count }, (_, idx) =>
-            idx === selectedIndex ? active : inactive,
-          );
-    chart.update();
-  }, [selectedIndex, primaryColor]);
-
-  if (!data.length) return BAR_EMPTY_STATE;
+  if (!data.length || (!showExpense && !showIncome)) return BAR_EMPTY_STATE;
 
   const selectedPoint = selectedIndex >= 0 ? data[selectedIndex] : null;
-  const formattedValue = selectedPoint ? formatCurrency(selectedPoint.value) : null;
 
   return (
     <div
       className={`relative w-full h-48 sm:h-64 rounded-xl bg-white border border-indigo-50 shadow-sm overflow-hidden ${className}`}
     >
-      {selectedPoint && formattedValue && (
-        <div className="absolute z-10 top-3 left-3 bg-white/95 text-slate-800 rounded-xl px-3 py-1.5 shadow-sm text-xs border border-slate-100">
+      {selectedPoint && (
+        <div className="absolute z-10 top-3 left-3 bg-white/95 text-slate-800 rounded-xl px-3 py-1.5 shadow-sm text-xs border border-slate-100 space-y-0.5">
           <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
             {selectedPoint.month}
           </p>
-          <p className="text-sm font-semibold">{formattedValue}</p>
+          {showIncome && (
+            <p className="flex items-center gap-1.5 font-semibold text-emerald-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {formatCurrency(selectedPoint.income)}
+            </p>
+          )}
+          {showExpense && (
+            <p className="flex items-center gap-1.5 font-semibold text-red-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              {formatCurrency(selectedPoint.expense)}
+            </p>
+          )}
         </div>
       )}
       <canvas

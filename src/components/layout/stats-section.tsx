@@ -3,10 +3,10 @@
 import type { ElementType, FC } from "react";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
+import { CoinIcon, FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
 import { useTransaction } from "@/hooks/use-transaction";
-import { isExpense } from "@/utils/transaction-type";
+import { isExpense, isIncome } from "@/utils/transaction-type";
 
 // Session-level cache: avoids redundant API call on every home mount
 let _docCountCache: { value: number; at: number } | null = null;
@@ -25,9 +25,11 @@ interface StatsCardProps {
   icon: ElementType;
   value: string | number;
   label: string;
+  labelColor?: string;
   color: string;
   iconColor: string;
   isPrimary?: boolean;
+  dataTutorial?: string;
 }
 
 import { formatAOA } from "@/lib/currency";
@@ -48,6 +50,8 @@ const StatsCard: FC<StatsCardProps> = ({
   color,
   iconColor,
   isPrimary,
+  labelColor,
+  dataTutorial,
 }) => (
   <motion.div
     className={`group relative flex h-full min-h-0 flex-1 flex-col justify-between overflow-hidden rounded-xl border p-3 shadow-sm transition-all duration-300 sm:min-h-[96px] sm:p-3 lg:p-4 ${
@@ -59,10 +63,11 @@ const StatsCard: FC<StatsCardProps> = ({
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.22, ease: "easeOut" }}
     whileHover={{ y: -1 }}
+    data-tutorial={dataTutorial}
   >
     {/* Glass shimmer overlay for non-primary cards */}
     {!isPrimary && (
-      <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/40 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0 rounded-xl bg-linear-to-br from-white/40 via-transparent to-transparent" />
     )}
 
     {isPrimary && (
@@ -75,7 +80,9 @@ const StatsCard: FC<StatsCardProps> = ({
       <div
         className={`rounded-lg p-1.5 transition-colors duration-150 sm:p-2 ${isPrimary ? "bg-white/10" : color}`}
       >
-        <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${isPrimary ? "text-primary" : iconColor}`} />
+        <Icon
+          className={`h-4 w-4 sm:h-5 sm:w-5 ${isPrimary ? "text-primary" : iconColor}`}
+        />
       </div>
       {!isPrimary && <span className="h-2 w-2 rounded-full bg-primary" />}
     </div>
@@ -83,7 +90,9 @@ const StatsCard: FC<StatsCardProps> = ({
     <div className="relative z-10">
       <h3
         className={`mb-0.5 font-bold tracking-tight transition-all duration-150 sm:mb-1 leading-tight tabular-nums ${valueFontClass(value)} ${
-          isPrimary ? "text-white" : "text-slate-900 group-hover:text-secondary"
+          isPrimary
+            ? "text-white"
+            : `${labelColor ? labelColor : "text-slate-900 group-hover:text-secondary"}`
         }`}
       >
         {value}
@@ -104,8 +113,6 @@ const StatsSection: FC = () => {
 
   const {
     notPaginated,
-    hasFetchedAll,
-    getAllNotPaginated,
     transactions,
     hasFetched,
     getTransactions: fetchTransactions,
@@ -120,13 +127,15 @@ const StatsSection: FC = () => {
       // Only block UI if we have no data at all — otherwise refresh silently
       if (!hasAnyData) setIsLoading(true);
       await Promise.allSettled([
-        getCachedDocCount().then(setTotalDocuments).catch(() => {}),
+        getCachedDocCount()
+          .then(setTotalDocuments)
+          .catch(() => {}),
         hasFetched ? Promise.resolve() : fetchTransactions(),
       ]);
       setIsLoading(false);
     };
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchTransactions, hasFetched]);
 
   const stats = useMemo(() => {
@@ -136,16 +145,12 @@ const StatsSection: FC = () => {
     const totalSpent = source
       .filter((t) => isExpense(t.type))
       .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+    const totalIncome = source
+      .filter((t) => isIncome(t.type))
+      .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
     const count = notPaginated?.length ?? transactions.length;
 
     return [
-      {
-        icon: FileIcon,
-        value: isLoading ? "—" : (totalDocuments ?? 0),
-        label: "Documentos",
-        color: "bg-secondary/10",
-        iconColor: "text-secondary",
-      },
       {
         icon: PaymentIcon,
         value: isLoading ? "—" : count,
@@ -154,10 +159,17 @@ const StatsSection: FC = () => {
         iconColor: "text-secondary",
       },
       {
+        icon: CoinIcon,
+        value: isLoading ? "—" : formatAOA(totalIncome),
+        label: "Receitas",
+        labelColor: "text-green-500",
+        color: "bg-green-500/10",
+        iconColor: "text-secondary",
+        dataTutorial: "stats-revenue",
+      },
+      {
         icon: MoneyIcon,
-        value: isLoading
-          ? "—"
-          : formatAOA(totalSpent),
+        value: isLoading ? "—" : formatAOA(totalSpent),
         label: "Total Gasto",
         color: "bg-emerald-50",
         iconColor: "text-emerald-600",
@@ -168,23 +180,32 @@ const StatsSection: FC = () => {
 
   if (isLoading) {
     return (
-      <motion.div
-        className="grid h-full w-full grid-cols-3 items-stretch gap-2 sm:gap-2.5 lg:gap-3"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-      >
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="animate-pulse rounded-xl border border-slate-100 bg-white p-3 sm:min-h-[96px] sm:p-3 lg:p-4"
-          >
-            <div className="mb-3 h-8 w-8 rounded-lg bg-slate-200" />
-            <div className="h-6 w-20 rounded bg-slate-200" />
-            <div className="mt-2 h-3 w-24 rounded bg-slate-100" />
+      <div className="flex h-full w-full flex-col gap-2 sm:gap-2.5 lg:gap-3">
+        <motion.div
+          className="grid grid-cols-3 items-stretch gap-2 sm:gap-2.5 lg:gap-3"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="animate-pulse rounded-xl border border-slate-100 bg-white p-3 sm:min-h-[96px] sm:p-3 lg:p-4"
+            >
+              <div className="mb-3 h-8 w-8 rounded-lg bg-slate-200" />
+              <div className="h-6 w-20 rounded bg-slate-200" />
+              <div className="mt-2 h-3 w-24 rounded bg-slate-100" />
+            </div>
+          ))}
+        </motion.div>
+        <div className="flex h-[68px] w-full animate-pulse items-center gap-4 rounded-xl border border-slate-100 bg-white p-3 sm:p-4">
+          <div className="h-9 w-9 flex-shrink-0 rounded-lg bg-slate-200" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-32 rounded bg-slate-100" />
+            <div className="h-2 w-full max-w-xs rounded bg-slate-100" />
           </div>
-        ))}
-      </motion.div>
+        </div>
+      </div>
     );
   }
 

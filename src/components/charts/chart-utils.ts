@@ -99,15 +99,24 @@ export function buildChartData(
   transactions: NormalizedTransaction[],
   timeRange: TimeRange,
 ): ChartDataPoint[] {
-  const bucketMap = new Map<string, { value: number; orderKey: number }>();
+  const bucketMap = new Map<
+    string,
+    { expense: number; income: number; orderKey: number }
+  >();
   transactions.forEach((tx) => {
     const { label, orderKey } = getChartLabel(tx.timestamp, timeRange);
-    if (!bucketMap.has(label)) bucketMap.set(label, { value: 0, orderKey });
-    bucketMap.get(label)!.value += Math.abs(tx.amount);
+    if (!bucketMap.has(label)) bucketMap.set(label, { expense: 0, income: 0, orderKey });
+    const bucket = bucketMap.get(label)!;
+    if (tx.isIncome) bucket.income += Math.abs(tx.amount);
+    else bucket.expense += Math.abs(tx.amount);
   });
   return Array.from(bucketMap.entries())
     .sort((a, b) => a[1].orderKey - b[1].orderKey)
-    .map(([label, info]) => ({ month: label, value: Math.round(info.value) }));
+    .map(([label, info]) => ({
+      month: label,
+      expense: Math.round(info.expense),
+      income: Math.round(info.income),
+    }));
 }
 
 export function hexToRgba(hexColor: string, alpha = 0.25): string {
