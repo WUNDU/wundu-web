@@ -439,7 +439,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const filterPills = (
-    <div className="overflow-x-auto flex justify-center touch-pan-x overscroll-x-contain" style={{ touchAction: "pan-x pan-y" }} data-tutorial="analytics-time-range">
+    <div className="overflow-x-auto flex justify-center" data-tutorial="analytics-time-range">
       <div className="flex min-w-max bg-slate-100 p-1 rounded-xl">
         {tabRanges.map((range) => (
           <Tab
@@ -571,7 +571,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
             <div className="px-5 pt-5 pb-6">
               {categoriesHeader(true)}
               <div className="relative">
-                <div className="max-h-[360px] overflow-y-auto overscroll-contain touch-pan-y pr-0.5">
+                <div className="max-h-[360px] overflow-y-auto pr-0.5">
                   <CategoryItems transactions={transactions} gridCols={true} />
                 </div>
                 {transactions.length > 8 && (

@@ -169,8 +169,7 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div
-      className={`flex justify-center items-center w-full h-full transition-all duration-300 ease-out rounded-xl bg-white border border-indigo-100 touch-pan-y ${className}`}
-      style={{ touchAction: "pan-y" }}
+      className={`flex justify-center items-center w-full h-full transition-all duration-300 ease-out rounded-xl bg-white border border-indigo-100 ${className}`}
     >
       <div className="relative w-full max-w-xl h-full transition-all duration-300 ease-out">
         <canvas
