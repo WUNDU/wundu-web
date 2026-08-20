@@ -2,6 +2,8 @@
 
 import type { ElementType, FC } from "react";
 import { useEffect, useState, useMemo } from "react";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 import { motion } from "framer-motion";
 import { CoinIcon, FileIcon, MoneyIcon, PaymentIcon } from "@/constants/icons";
 import { documentService } from "@/services/document.service";
@@ -110,6 +112,10 @@ const StatsCard: FC<StatsCardProps> = ({
 
 const StatsSection: FC = () => {
   const [totalDocuments, setTotalDocuments] = useState<number | null>(null);
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
 
   const {
     notPaginated,
@@ -123,6 +129,7 @@ const StatsSection: FC = () => {
   const [isLoading, setIsLoading] = useState(!hasAnyData);
 
   useEffect(() => {
+    if (!authReady) return;
     const fetchData = async () => {
       // Only block UI if we have no data at all — otherwise refresh silently
       if (!hasAnyData) setIsLoading(true);
@@ -135,8 +142,7 @@ const StatsSection: FC = () => {
       setIsLoading(false);
     };
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchTransactions, hasFetched]);
+  }, [authReady, fetchTransactions, hasFetched, hasAnyData]);
 
   const stats = useMemo(() => {
     // Prefer the full dataset (notPaginated) for accurate all-time totals.

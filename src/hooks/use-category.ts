@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoryService } from "@/services/category.service";
 import { useUiStore } from "@/store/ui-store";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 import type { Category, CategoryRequest } from "@/types/dtos/category.dto";
 
 const CATEGORIES_KEY = ["categories", "active"] as const;
@@ -17,10 +19,15 @@ const fetchSortedCategories = async () => sortCategories(await categoryService.g
 
 export function useCategory() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
 
   const { data, isLoading, isFetched, error } = useQuery({
     queryKey: CATEGORIES_KEY,
     queryFn: fetchSortedCategories,
+    enabled: authReady,
   });
 
   const createMutation = useMutation({

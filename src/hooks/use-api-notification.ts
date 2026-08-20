@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useUserStore } from "@/store/user-store";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationService } from "@/services/notification.service";
 import type { NotificationResponse } from "@/types/dtos/notification.dto";
@@ -9,6 +10,8 @@ const UNREAD_COUNT_KEY = ["notifications", "unread-count"] as const;
 
 export function useApiNotification() {
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useUserStore.getState();
+  const isAuthReady = isAuthenticated;
 
   const allQuery = useQuery({
     queryKey: ALL_KEY,
@@ -52,17 +55,26 @@ export function useApiNotification() {
   });
 
   const fetchAll = useCallback(
-    () => queryClient.fetchQuery({ queryKey: ALL_KEY, queryFn: () => notificationService.getAll() }),
+    () => {
+      if (!useUserStore.getState().isAuthenticated) return Promise.resolve(null as any);
+      return queryClient.ensureQueryData({ queryKey: ALL_KEY, queryFn: () => notificationService.getAll() });
+    },
     [queryClient],
   );
 
   const fetchUnread = useCallback(
-    () => queryClient.fetchQuery({ queryKey: UNREAD_KEY, queryFn: () => notificationService.getUnread() }),
+    () => {
+      if (!useUserStore.getState().isAuthenticated) return Promise.resolve(null as any);
+      return queryClient.ensureQueryData({ queryKey: UNREAD_KEY, queryFn: () => notificationService.getUnread() });
+    },
     [queryClient],
   );
 
   const fetchUnreadCount = useCallback(
-    () => queryClient.fetchQuery({ queryKey: UNREAD_COUNT_KEY, queryFn: () => notificationService.getUnreadCount() }),
+    () => {
+      if (!useUserStore.getState().isAuthenticated) return Promise.resolve(null as any);
+      return queryClient.ensureQueryData({ queryKey: UNREAD_COUNT_KEY, queryFn: () => notificationService.getUnreadCount() });
+    },
     [queryClient],
   );
 

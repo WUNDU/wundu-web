@@ -7,6 +7,8 @@ import { BarChartIcon, ChartDataIcon, DonutChartIcon } from "@/constants/icons";
 import { tabRanges } from "@/constants/mock-data";
 import { StatsSection } from "@/components/layout";
 import { useTransaction } from "@/hooks/use-transaction";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 import type { TransactionResponse } from "@/types/dtos/transaction.dto";
 import type { TimeRange, TransactionProps, ViewMode } from "@/types/ui";
 import { isIncome } from "@/utils/transaction-type";
@@ -156,13 +158,19 @@ const ControlPanelDashboardScreen: React.FC = () => {
   const [pieIsIncome, setPieIsIncome] = useState(false);
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
 
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
+
   const {
     notPaginated,
     transactions: legacyTransactions,
+    allTransactions,
     getAllNotPaginated,
     isLoadingAll: isTransactionsLoading,
   } = useTransaction();
-  const rawTransactions = notPaginated ?? legacyTransactions ?? EMPTY_TRANSACTIONS;
+  const rawTransactions = notPaginated ?? (allTransactions && allTransactions.length > 0 ? (allTransactions as unknown as TransactionResponse[]) : null) ?? legacyTransactions ?? EMPTY_TRANSACTIONS;
 
   const tutorial = useTutorial(tutorials);
 
@@ -176,12 +184,13 @@ const ControlPanelDashboardScreen: React.FC = () => {
   }, [tutorial.isLoaded]);
 
   useEffect(() => {
+    if (!authReady) return;
     // getAllNotPaginated dedupes internally via React Query's staleTime.
     getAllNotPaginated();
-  }, [getAllNotPaginated]);
+  }, [authReady, getAllNotPaginated]);
 
-  // Only show skeleton if we have absolutely NO transactions to show
-  const isAnalyticsLoading = isTransactionsLoading && rawTransactions.length === 0;
+  // Only show skeleton if we have absolutely NO transactions to show and auth is ready
+  const isAnalyticsLoading = (isAuthLoading || isTransactionsLoading) && rawTransactions.length === 0;
 
   const normalizedTransactions = useMemo<NormalizedTransaction[]>(() => {
     return (rawTransactions as any[])
@@ -430,7 +439,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
   );
 
   const filterPills = (
-    <div className="overflow-x-auto flex justify-center" data-tutorial="analytics-time-range">
+    <div className="overflow-x-auto flex justify-center touch-pan-x overscroll-x-contain" style={{ touchAction: "pan-x pan-y" }} data-tutorial="analytics-time-range">
       <div className="flex min-w-max bg-slate-100 p-1 rounded-xl">
         {tabRanges.map((range) => (
           <Tab
@@ -514,12 +523,9 @@ const ControlPanelDashboardScreen: React.FC = () => {
           <div className="px-3 sm:px-5 pt-4 sm:pt-5 pb-4 sm:pb-6">
             {categoriesHeader()}
             <div className="relative">
-              <div className="max-h-[300px] overflow-y-auto pr-0.5">
+              <div className="pr-0.5">
                 <CategoryItems transactions={transactions} gridCols={false} />
               </div>
-              {transactions.length > 5 && (
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent" />
-              )}
             </div>
           </div>
         </motion.div>
@@ -565,7 +571,7 @@ const ControlPanelDashboardScreen: React.FC = () => {
             <div className="px-5 pt-5 pb-6">
               {categoriesHeader(true)}
               <div className="relative">
-                <div className="max-h-[360px] overflow-y-auto pr-0.5">
+                <div className="max-h-[360px] overflow-y-auto overscroll-contain touch-pan-y pr-0.5">
                   <CategoryItems transactions={transactions} gridCols={true} />
                 </div>
                 {transactions.length > 8 && (

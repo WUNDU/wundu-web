@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService, type SessionInfo } from "@/services/user.service";
 import { notify } from "@/hooks/use-notification";
 import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 
 const SESSIONS_KEY = ["sessions"] as const;
 
@@ -15,9 +16,15 @@ export function useSessions() {
   // tracks its single latest call).
   const [revokingId, setRevokingId] = useState<string | null>(null);
 
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
+
   const { data, isLoading } = useQuery({
     queryKey: SESSIONS_KEY,
     queryFn: () => userService.getSessions(),
+    enabled: authReady,
   });
 
   const revokeMutation = useMutation({

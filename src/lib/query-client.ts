@@ -4,8 +4,15 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000,
-        retry: 1,
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+        retry: (failureCount, error: any) => {
+          const status = error?.status ?? error?.response?.status;
+          if (status === 401 || status === 403) return false;
+          return failureCount < 1;
+        },
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
       },
     },
   });

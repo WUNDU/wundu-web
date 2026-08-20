@@ -1,4 +1,6 @@
 import { useCallback, useState } from "react";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 import { useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import { limitService } from "@/services/limit.service";
 import type { UserCategoryLimitRequest, UserCategoryLimitResponse } from "@/types/dtos/limit.dto";
@@ -7,6 +9,10 @@ const limitKey = (categoryId: string) => ["limits", categoryId] as const;
 
 export function useLimit() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
   const [trackedIds, setTrackedIds] = useState<string[]>([]);
 
   const results = useQueries({
@@ -14,6 +20,7 @@ export function useLimit() {
       queryKey: limitKey(categoryId),
       queryFn: () => limitService.getByCategory(categoryId),
       retry: false,
+      enabled: authReady,
     })),
   });
 

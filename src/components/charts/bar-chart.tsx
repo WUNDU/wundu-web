@@ -148,7 +148,8 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <div
-      className={`relative w-full h-48 sm:h-64 rounded-xl bg-white border border-indigo-50 shadow-sm overflow-hidden ${className}`}
+      className={`relative w-full h-48 sm:h-64 rounded-xl bg-white border border-indigo-50 shadow-sm overflow-hidden touch-pan-y ${className}`}
+      style={{ touchAction: "pan-y" }}
     >
       {selectedPoint && (
         <div className="absolute z-10 top-3 left-3 bg-white/95 text-slate-800 rounded-xl px-3 py-1.5 shadow-sm text-xs border border-slate-100 space-y-0.5">

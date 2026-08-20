@@ -18,8 +18,41 @@ export const api = axios.create({
 });
 
 // Request interceptor - lê token em memória a partir do store (nunca do localStorage)
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
+// Aguarda refresh inicial se estiver em curso, garantindo que /auth/refresh é a primeira requisição
+function waitForAuthReady(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+  const state = useUserStore.getState();
+  if (!state.isLoading) return Promise.resolve();
+  return new Promise((resolve) => {
+    const unsub = useUserStore.subscribe((s) => {
+      if (!s.isLoading) {
+        unsub();
+        resolve();
+      }
+    });
+    setTimeout(() => {
+      try { unsub(); } catch {}
+      resolve();
+    }, 10000);
+  });
+}
+
+api.interceptors.request.use(async (config) => {
+  const isRefresh = config.url?.includes("/auth/refresh");
+  const isAuthFree = (config as any).skipAuth === true;
+  if (typeof window !== "undefined" && !isRefresh && !isAuthFree) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
+    if (useUserStore.getState().isLoading) {
+      await waitForAuthReady();
+    }
+    const token = useUserStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } else if (typeof window !== "undefined") {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { useUserStore } = require("@/store/user-store") as typeof import("@/store/user-store");
     const token = useUserStore.getState().token;

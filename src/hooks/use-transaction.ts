@@ -12,6 +12,8 @@ import type {
   TransactionUpdateRequest,
 } from "@/types/dtos/transaction.dto";
 import { useUiStore } from "@/store/ui-store";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 
 const PAGE_SIZE = 20;
 const LIST_KEY = ["transactions", "list"] as const;
@@ -73,6 +75,10 @@ interface UseTransactionOptions {
 
 export function useTransaction({ autoFetch = true }: UseTransactionOptions = {}) {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
   const [rangeRequested, setRangeRequested] = useState(false);
   const [rangeOptions, setRangeOptions] = useState<NonPaginatedQueryOptions>({});
 
@@ -81,7 +87,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
     queryFn: ({ pageParam }) => transactionService.getAll(pageParam as number, PAGE_SIZE),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => (lastPage.last ? undefined : lastPage.number + 1),
-    enabled: autoFetch,
+    enabled: autoFetch && authReady,
     // Hard ceiling against unbounded memory growth (e.g. a tab left open
     // scrolling for a long session) — drops the oldest page once exceeded.
     // 50 pages (1000 transactions) is far beyond any normal scroll session,
@@ -92,13 +98,13 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   const rangeQuery = useQuery({
     queryKey: rangeKey(rangeOptions),
     queryFn: () => transactionService.getAllNotPaginated(rangeOptions),
-    enabled: rangeRequested,
+    enabled: rangeRequested && authReady,
   });
 
   const pages = listQuery.data?.pages ?? [];
   const lastPage = pages[pages.length - 1];
   const allTransactions = listQuery.data ? pages.flatMap((p) => p.content) : null;
-  const transactions = sortByDate((pages[0]?.content ?? []) as unknown as TransactionDTO[]);
+  const transactions = sortByDate(((allTransactions ?? pages[0]?.content ?? []) as unknown as TransactionDTO[]));
 
   const invalidateRanges = useCallback(
     () => queryClient.invalidateQueries({ queryKey: ["transactions", "range"] }),
@@ -222,17 +228,18 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   // off the primitive start/end dates, not object identity, so this is safe).
   const getAllNotPaginated = useCallback(
     (options?: NonPaginatedQueryOptions) => {
+      if (!authReady) return Promise.resolve((queryClient.getQueryData(rangeKey(options)) as any) ?? []);
       const normalized = options ?? {};
       setRangeOptions((prev) =>
         prev.startDate === normalized.startDate && prev.endDate === normalized.endDate ? prev : normalized,
       );
       setRangeRequested(true);
-      return queryClient.fetchQuery({
+      return queryClient.ensureQueryData({
         queryKey: rangeKey(options),
         queryFn: () => transactionService.getAllNotPaginated(options),
       });
     },
-    [queryClient],
+    [queryClient, authReady],
   );
 
   const loadPage = useCallback(

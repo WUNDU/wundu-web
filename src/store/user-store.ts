@@ -94,7 +94,7 @@ export const useUserStore = create<AuthState>()(
       data: {},
 
       initializeAuth: async () => {
-        if (get().isLoading && get().isAuthenticated) return;
+        if (refreshPromise) return refreshPromise.then(() => {}).catch(() => {});
         set({ isLoading: true });
         try {
           const accessToken = await get().refreshToken();

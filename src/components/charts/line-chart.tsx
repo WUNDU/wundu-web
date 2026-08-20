@@ -178,7 +178,8 @@ const LineChart: React.FC<Omit<ChartProps, "selectedMonth">> = ({
 
   return (
     <div
-      className={`relative w-full h-48 sm:h-64 overflow-hidden rounded-xl bg-white border border-orange-100 shadow-sm ${className}`}
+      className={`relative w-full h-48 sm:h-64 overflow-hidden rounded-xl bg-white border border-orange-100 shadow-sm touch-pan-y ${className}`}
+      style={{ touchAction: "pan-y" }}
     >
       {selectedPoint && (
         <div className="absolute z-10 top-3 left-3 bg-white rounded-xl px-3 py-1.5 shadow-sm text-xs border border-orange-100 space-y-0.5">

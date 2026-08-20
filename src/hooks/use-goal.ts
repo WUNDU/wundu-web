@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { goalService } from "@/services/goal.service";
 import { useUiStore } from "@/store/ui-store";
+import { useUserStore } from "@/store/user-store";
+import { useShallow } from "zustand/shallow";
 import type { Goal, GoalPayload } from "@/types/dtos/goal.dto";
 
 export { getGoalProgress, buildGoalCardData, formatGoalCurrency } from "@/utils/goal";
@@ -15,10 +17,15 @@ const notifyError = (title: string, error: any, fallback: string) => {
 
 export function useGoal() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
 
   const { data, isLoading, isFetched, error } = useQuery({
     queryKey: GOALS_KEY,
     queryFn: () => goalService.list(),
+    enabled: authReady,
   });
 
   const patchGoal = (updated: Goal) =>

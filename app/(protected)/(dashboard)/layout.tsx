@@ -42,7 +42,7 @@ export default function HomeDashboardLayout({
         <main className="relative min-h-0 flex-1 overflow-hidden bg-slate-100">
           <div className="pointer-events-none absolute left-0 right-0 top-0 h-32 bg-gradient-to-b from-secondary/[0.02] to-transparent" />
           <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[1280px] flex-col px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-4">
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">{children}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-auto touch-pan-y [-webkit-overflow-scrolling:touch]">{children}</div>
           </div>
         </main>
       </div>
