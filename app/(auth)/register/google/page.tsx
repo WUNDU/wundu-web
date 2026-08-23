@@ -10,7 +10,7 @@ import { LogoType, Button } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { useUserStore } from "@/store/user-store";
 import { wunduToast } from "@/utils/toast";
-import posthog from "posthog-js";
+import { identifyUser, captureEvent } from "@/lib/analytics";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -51,13 +51,11 @@ export default function GoogleRegisterPage() {
     setIsSubmitting(true);
     try {
       await registerWithGoogle(idToken);
-      posthog.capture("user_registered", { method: "google", email: session?.user?.email });
-      if (session?.user?.email) {
-        posthog.identify(session.user.email, {
-          email: session.user.email,
-          name: session.user.name,
-        });
+      const user = useUserStore.getState().user;
+      if (user) {
+        identifyUser(user.id, { email: user.email, name: user.name });
       }
+      captureEvent("user_registered", { method: "google", email: session?.user?.email });
       wunduToast.success("Conta criada com sucesso!", {
         description: "Bem-vindo à Wundu.",
       });

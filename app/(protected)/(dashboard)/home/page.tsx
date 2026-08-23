@@ -27,7 +27,7 @@ import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
 import { useTutorial } from "@/hooks/use-tutorial";
 import { TutorialOverlay } from "@/components/ui/tutorial-overlay";
 import { tutorials } from "@/config/tutorials";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -91,7 +91,7 @@ const HomeScreen = () => {
   const { entries: ocrEntries, startPolling, dismiss: dismissOcr, categorize: categorizeOcr } = useDocumentQueue({
     onProcessed: (doc) => {
       refreshTransactions();
-      posthog.capture("document_ocr_processed", { documentId: doc.id });
+      captureEvent("document_ocr_processed", { documentId: doc.id });
     },
   });
 
@@ -142,7 +142,7 @@ const HomeScreen = () => {
       const formData = new FormData();
       formData.append("file", file);
       const response = await documentService.upload(formData);
-      posthog.capture("document_uploaded", {
+      captureEvent("document_uploaded", {
         document_type: type,
         file_name: file.name,
         file_size: file.size,
@@ -154,7 +154,7 @@ const HomeScreen = () => {
       const message =
         error instanceof Error ? error.message : "Não foi possível enviar o comprovativo.";
       showNotification("error", "Falha no envio", message);
-      posthog.capture("document_upload_failed", { reason: message });
+      captureEvent("document_upload_failed", { reason: message });
     } finally {
       setIsUploading(false);
     }

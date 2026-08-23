@@ -21,7 +21,7 @@ import {
   validatePasswordDetailed,
   validateName,
 } from "@/utils/validation";
-import posthog from "posthog-js";
+import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 import {
   ProfileIcon,
   EmailFilledIcon,
@@ -225,7 +225,7 @@ const RegisterPage = () => {
     if (!valid) return;
 
     setRegisterData(personalForm);
-    posthog.capture("user_registration_step_completed", { step: 1 });
+    captureEvent("user_registration_step_completed", { step: 1 });
     nextStep();
   };
 
@@ -295,8 +295,11 @@ const RegisterPage = () => {
 
       if (ok) {
         setRegisterData({ password: securityForm.password });
-        posthog.identify(data.email!, { email: data.email, name: data.name });
-        posthog.capture("user_registered", {
+        const user = useUserStore.getState().user;
+        if (user) {
+          identifyUser(user.id, { email: user.email, name: user.name });
+        }
+        captureEvent("user_registered", {
           name: data.name,
           email: data.email,
         });
@@ -340,7 +343,7 @@ const RegisterPage = () => {
       }
 
       wunduToast.error("Erro no cadastro", { description: message });
-      posthog.captureException(err);
+      captureException(err);
     } finally {
       setIsSubmitting(false);
     }

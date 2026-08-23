@@ -12,7 +12,8 @@ import { useUiStore } from "@/store/ui-store";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
 import { formatAOA } from "@/lib/currency";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
+import { useAnalytics } from "@/contexts/analytics-context";
 import { useSessions } from "@/hooks/use-sessions";
 import { BRAND_COLORS } from "@/constants/brand-colors";
 import ProfileVerificationCard from "@/components/profile/profile-verification-card";
@@ -76,6 +77,14 @@ export default function Profile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { sessions, isLoading: sessionsLoading, revokingId, isRevokingAll, revokeSession, logoutAll } = useSessions();
+  const { analyticsConsent, setAnalyticsConsent } = useAnalytics();
+  const [consentLoading, setConsentLoading] = useState(false);
+
+  const handleConsentToggle = async () => {
+    setConsentLoading(true);
+    await setAnalyticsConsent(!analyticsConsent);
+    setConsentLoading(false);
+  };
 
   const totalSaved = goals.reduce((acc, g) => acc + (g.currentAmount ?? 0), 0);
   const isPremium = user?.planType === "PREMIUM";
@@ -336,7 +345,7 @@ export default function Profile() {
             {!isPremium && (
               <button
                 className="mt-3 w-full rounded-xl bg-secondary py-2 text-sm font-semibold text-white transition-colors hover:bg-secondary-dark"
-                onClick={() => posthog.capture("premium_upgrade_clicked", { current_plan: "free" })}
+                onClick={() => captureEvent("premium_upgrade_clicked", { current_plan: "free" })}
               >
                 Actualizar para Premium
               </button>
@@ -460,6 +469,38 @@ export default function Profile() {
                   <Toggle enabled={pref.enabled} onChange={pref.onChange} disabled={pref.disabled} />
                 </div>
               ))}
+            </div>
+          </motion.div>
+
+          {/* Privacidade e Dados */}
+          <motion.div variants={FADE_UP} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_2px_12px_rgba(0,60,195,0.05)]">
+            <div className="border-b border-slate-50 px-5 py-4">
+              <h2 className="text-sm font-semibold text-slate-800">Privacidade e Dados</h2>
+              <p className="mt-0.5 text-xs text-slate-400">Controlo o tratamento dos seus dados pessoais</p>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-start justify-between gap-6">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-800">Dados Analíticos</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                    Permite a recolha anónima de dados de uso da aplicação (páginas visitadas,
+                    acções realizadas) para melhorar a experiência. Estes dados não incluem
+                    informações financeiras e são tratados ao abrigo da Lei n.º 22/11 de
+                    Protecção de Dados Pessoais.
+                  </p>
+                </div>
+                {consentLoading ? (
+                  <div className="flex h-6 w-11 shrink-0 items-center justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin text-slate-300" />
+                  </div>
+                ) : (
+                  <Toggle
+                    enabled={analyticsConsent}
+                    onChange={handleConsentToggle}
+                    disabled={false}
+                  />
+                )}
+              </div>
             </div>
           </motion.div>
 

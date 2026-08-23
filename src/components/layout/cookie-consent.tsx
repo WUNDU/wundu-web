@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCookieConsent } from "@/contexts/cookie-conset-context";
+import { useAnalytics } from "@/contexts/analytics-context";
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const { showPreferences, setShowPreferences } = useCookieConsent();
+  const { setAnalyticsConsent } = useAnalytics();
 
   const setCookie = (name: string, value: string, days: number) => {
     const date = new Date();
@@ -30,6 +32,7 @@ export function CookieConsent() {
     setCookie("wundu_functional_cookies", "true", 365);
     setCookie("wundu_analytics_cookies", "true", 365);
     setCookie("wundu_marketing_cookies", "true", 365);
+    setAnalyticsConsent(true);
     setShowBanner(false);
   };
 
@@ -41,6 +44,7 @@ export function CookieConsent() {
     setCookie("wundu_functional_cookies", String(get("functional-cookies")), 365);
     setCookie("wundu_analytics_cookies", String(get("analytics-cookies")), 365);
     setCookie("wundu_marketing_cookies", String(get("marketing-cookies")), 365);
+    setAnalyticsConsent(get("analytics-cookies"));
     setShowBanner(false);
     setShowPreferences(false);
   };

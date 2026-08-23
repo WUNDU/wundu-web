@@ -14,7 +14,7 @@ import {
 import { Message } from "@/components/ui";
 import { useChat } from "@/hooks/use-chat";
 import { Loader2, Plus } from "lucide-react";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
 
 type LocalMessage = { text: string; isUser: boolean };
 type ApiMessage = { role: string; content: string; timestamp: string };
@@ -174,8 +174,8 @@ const Chat: React.FC = () => {
   const handleSend = (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg || countdown != null && countdown > 0) return;
-    if (text !== undefined) posthog.capture("ai_topic_selected", { topic: text });
-    else posthog.capture("ai_message_sent", { message_length: msg.length });
+    if (text !== undefined) captureEvent("ai_topic_selected", { topic: text });
+    else captureEvent("ai_message_sent", { message_length: msg.length });
     sendMessage(msg);
     setInput("");
     setShowWelcome(false);

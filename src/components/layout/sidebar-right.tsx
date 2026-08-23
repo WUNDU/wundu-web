@@ -19,7 +19,6 @@ import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
 import { formatAOA } from "@/lib/currency";
 import { ROUTES } from "@/constants/routes";
-import posthog from "posthog-js";
 import { BRAND_COLORS } from "@/constants/brand-colors";
 
 const EASE_IN: [number, number, number, number] = [0, 0, 0.2, 1];
@@ -55,8 +54,6 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const isPremium = user?.planType === "PREMIUM";
 
   const handleLogout = async () => {
-    posthog.capture("user_signed_out");
-    posthog.reset();
     await logoutUser();
   };
 

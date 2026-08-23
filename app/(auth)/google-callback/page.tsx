@@ -7,7 +7,7 @@ import { LogoType } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { useUserStore } from "@/store/user-store";
 import { wunduToast } from "@/utils/toast";
-import posthog from "posthog-js";
+import { identifyUser, captureEvent } from "@/lib/analytics";
 
 /**
  * Ponto de retorno do OAuth Google.
@@ -41,10 +41,11 @@ export default function GoogleCallbackPage() {
     (async () => {
       try {
         await loginWithGoogle(idToken);
-        posthog.capture("user_signed_in", { method: "google" });
-        if (session?.user?.email) {
-          posthog.identify(session.user.email, { email: session.user.email });
+        const user = useUserStore.getState().user;
+        if (user) {
+          identifyUser(user.id, { email: user.email, name: user.name });
         }
+        captureEvent("user_signed_in", { method: "google" });
         router.replace(ROUTES.HOME);
       } catch (error: any) {
         const httpStatus = error?.status ?? error?.response?.status;

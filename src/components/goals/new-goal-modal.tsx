@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { useGoal } from "@/hooks/use-goal";
 import { useCurrencyInput } from "@/hooks/use-currency-input";
 import type { GoalPayload, GoalType } from "@/types/dtos/goal.dto";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
 import CategorySelect from "@/components/ui/category-select";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
@@ -55,7 +55,7 @@ export function NewGoalModal({ onClose, onSuccess }: NewGoalModalProps) {
       categoryId,
     } as GoalPayload);
     if (ok) {
-      posthog.capture("goal_created", {
+      captureEvent("goal_created", {
         goal_type: type,
         target_amount: targetAmount,
         has_category: Boolean(categoryId),

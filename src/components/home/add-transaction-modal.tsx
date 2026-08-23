@@ -7,7 +7,7 @@ import { CloseIcon } from "@/constants/icons";
 import { maskAOAInput, parseAOA } from "@/lib/currency";
 import { formatDateTimeLocal } from "@/utils/date-time";
 import type { TransactionFormData } from "@/types/dtos/transaction.dto";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
 import CategorySelect from "@/components/ui/category-select";
 
 export interface AddTransactionModalProps {
@@ -90,7 +90,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     e.preventDefault();
     const success = await onSubmit();
     if (success) {
-      posthog.capture("transaction_added", {
+      captureEvent("transaction_added", {
         category: formData.category,
         type: formData.type,
         amount: formData.amount,

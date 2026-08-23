@@ -14,7 +14,7 @@ import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
 import { GoogleButton } from "@/components/auth/google-button";
 import { buildVerifyPendingUrl } from "@/utils/pending-verification";
-import posthog from "posthog-js";
+import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -217,24 +217,24 @@ const LoginPage: React.FC = () => {
             SAVED_USER_KEY,
             JSON.stringify({ name: user.name, email: user.email }),
           );
+          identifyUser(user.id, { email: user.email, name: user.name });
         }
-        posthog.identify(form.email, { email: form.email });
-        posthog.capture("user_signed_in", { method: "email" });
+        captureEvent("user_signed_in", { method: "email" });
       } else if (errorCodeRef.current === "EMAIL_NOT_VERIFIED") {
-        posthog.capture("user_sign_in_failed", { reason: "EMAIL_NOT_VERIFIED" });
+        captureEvent("user_sign_in_failed", { reason: "EMAIL_NOT_VERIFIED" });
         router.push(buildVerifyPendingUrl(form.email));
         return;
       } else {
         const errMsg =
           errorRef.current || "Credenciais incorretas. Tente novamente.";
         setLoginError(errMsg);
-        posthog.capture("user_sign_in_failed", { reason: errMsg });
+        captureEvent("user_sign_in_failed", { reason: errMsg });
       }
     } catch (err) {
       const errMsg = "Ocorreu um erro inesperado. Tente novamente.";
       setLoginError(errMsg);
-      posthog.capture("user_sign_in_failed", { reason: errMsg });
-      posthog.captureException(err);
+      captureEvent("user_sign_in_failed", { reason: errMsg });
+      captureException(err);
     } finally {
       setIsSubmitting(false);
     }

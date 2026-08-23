@@ -23,7 +23,7 @@ import { TransactionItem } from "@/components/transactions/transaction-item";
 import { FilterModal } from "@/components/transactions/filter-modal";
 import type { SortField, SortDir, TypeFilter } from "@/components/transactions/filter-modal";
 import { groupByDate } from "@/utils/transaction-groups";
-import posthog from "posthog-js";
+import { captureEvent } from "@/lib/analytics";
 
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -100,23 +100,23 @@ export default function TransactionsPage() {
 
   const handleSetSortField = useCallback((field: SortField) => {
     setSortField(field);
-    posthog.capture("transaction_filter_applied", { sort_field: field, sort_dir: sortDir, type_filter: typeFilter });
+    captureEvent("transaction_filter_applied", { sort_field: field, sort_dir: sortDir, type_filter: typeFilter });
   }, [sortDir, typeFilter]);
 
   const handleSetSortDir = useCallback((dir: SortDir) => {
     setSortDir(dir);
-    posthog.capture("transaction_filter_applied", { sort_field: sortField, sort_dir: dir, type_filter: typeFilter });
+    captureEvent("transaction_filter_applied", { sort_field: sortField, sort_dir: dir, type_filter: typeFilter });
   }, [sortField, typeFilter]);
 
   const handleSetTypeFilter = useCallback((type: TypeFilter) => {
     setTypeFilter(type);
-    posthog.capture("transaction_filter_applied", { sort_field: sortField, sort_dir: sortDir, type_filter: type });
+    captureEvent("transaction_filter_applied", { sort_field: sortField, sort_dir: sortDir, type_filter: type });
   }, [sortField, sortDir]);
 
   const handleAiSearch = useCallback(() => {
     const q = aiInput.trim();
     if (!q) return;
-    posthog.capture("ai_transaction_query", { query_length: q.length });
+    captureEvent("ai_transaction_query", { query_length: q.length });
     aiQuery(q);
   }, [aiInput, aiQuery]);
 

@@ -40,6 +40,8 @@ export interface UserResponse {
   dependents?: number | null;
   employmentStatus?: string | null;
   expectedMonthlyIncome?: number | null;
+  analyticsConsent: boolean;
+  analyticsConsentAt: string | null;
 }
 
 export type User = UserResponse;
