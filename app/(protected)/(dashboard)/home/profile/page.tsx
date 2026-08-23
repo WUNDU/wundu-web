@@ -483,10 +483,8 @@ export default function Profile() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-slate-800">Dados Analíticos</p>
                   <p className="mt-1 text-xs leading-relaxed text-slate-400">
-                    Permite a recolha anónima de dados de uso da aplicação (páginas visitadas,
-                    acções realizadas) para melhorar a experiência. Estes dados não incluem
-                    informações financeiras e são tratados ao abrigo da Lei n.º 22/11 de
-                    Protecção de Dados Pessoais.
+                    Recolha anónima de dados de uso para melhorar a aplicação.
+                    Não inclui dados financeiros.
                   </p>
                 </div>
                 {consentLoading ? (
