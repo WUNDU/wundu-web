@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/top-bar";
 import SidebarRight from "@/components/layout/sidebar-right";
+import FeedbackButton from "@/components/layout/feedback-button";
 
 export default function HomeDashboardLayout({
   children,
@@ -48,6 +49,7 @@ export default function HomeDashboardLayout({
       </div>
 
       <SidebarRight isOpen={rightOpen} onClose={() => setRightOpen(false)} />
+      <FeedbackButton />
     </div>
   );
 }
