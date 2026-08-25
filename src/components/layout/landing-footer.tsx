@@ -9,10 +9,10 @@ import {
   XIcon,
 } from "@/constants/icons";
 import { ROUTES } from "@/constants/routes";
-import { useCookieConsent } from "@/contexts/cookie-conset-context";
+// import { useCookieConsent } from "@/contexts/cookie-conset-context";
 
 const LandingFooter: React.FC = () => {
-  const { openCookiePreferences } = useCookieConsent();
+  // const { openCookiePreferences } = useCookieConsent();
 
   const socialLinks = [
     {
@@ -141,12 +141,12 @@ const LandingFooter: React.FC = () => {
                   {link.label}
                 </a>
               ))}
-              <a
+              {/* <a
                 onClick={openCookiePreferences}
                 className="text-gray-600 hover:text-blue-600 transition-all duration-300"
               >
                 Configurações de Cookies
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
