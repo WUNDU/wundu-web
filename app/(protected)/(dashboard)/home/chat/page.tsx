@@ -13,6 +13,7 @@ import {
 } from "@/constants/icons";
 import { Message } from "@/components/ui";
 import { useChat } from "@/hooks/use-chat";
+import { useUserStore } from "@/store/user-store";
 import { Loader2, Plus } from "lucide-react";
 import { captureEvent } from "@/lib/analytics";
 
@@ -48,6 +49,7 @@ const Chat: React.FC = () => {
     clearRateLimit,
     fetchHistory,
   } = useChat();
+  const { user } = useUserStore();
 
   const [input, setInput] = useState("");
   const [showWelcome, setShowWelcome] = useState(() => apiMessages.length === 0);
@@ -285,6 +287,8 @@ const Chat: React.FC = () => {
                         typingMessageKey === messageKey(apiMessage)
                       }
                       onTypingComplete={handleTypingComplete}
+                      userPhotoUrl={user?.profilePhotoUrl}
+                      userName={user?.name}
                     />
                   </motion.div>
                 );

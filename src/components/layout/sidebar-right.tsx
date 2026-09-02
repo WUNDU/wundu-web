@@ -1,10 +1,9 @@
 "use client";
 import type { FC } from "react";
 import { useEffect } from "react";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/user-avatar";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { user as avatar } from "@/constants/images";
 import {
   DownArrowIcon,
   HelpIcon,
@@ -126,11 +125,7 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
                       transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
                     />
                     <div className="rounded-full border-2 p-0.5" style={{ borderColor: BRAND_COLORS.yellow }}>
-                      <Image
-                        src={avatar}
-                        alt={user?.name || "Usuário"}
-                        className="h-16 w-16 rounded-full object-cover"
-                      />
+                      <UserAvatar src={user?.profilePhotoUrl} name={user?.name} size="md" />
                     </div>
                   </div>
 
