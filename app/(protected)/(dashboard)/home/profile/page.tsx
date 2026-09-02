@@ -22,7 +22,7 @@ import { DemographicFieldRow } from "@/components/profile/demographic-field-row"
 import { GENDER_OPTIONS, MARITAL_STATUS_OPTIONS, EMPLOYMENT_STATUS_OPTIONS } from "@/constants/profile-options";
 import { provinceEnumToLabel } from "@/constants/angola-provinces-fallback";
 
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
 const ACCEPTED_PHOTO_TYPES = ["image/jpeg", "image/png"];
 
 function PhoneIcon({ className }: { className?: string }) {
@@ -177,7 +177,7 @@ export default function Profile() {
       return;
     }
     if (file.size > MAX_PHOTO_BYTES) {
-      showNotification("error", "Ficheiro muito grande", "A foto não pode exceder 5 MB.");
+      showNotification("error", "Ficheiro muito grande", "A foto não pode exceder 20 MB.");
       return;
     }
     setUploadingPhoto(true);

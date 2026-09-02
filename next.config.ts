@@ -5,6 +5,11 @@ const URL = process.env.BACKEND_API_BASE_URL;
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   skipTrailingSlashRedirect: true,
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb",
+    },
+  },
   images: {
     qualities: [75, 85, 100],
     formats: ["image/avif", "image/webp"],
