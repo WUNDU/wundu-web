@@ -40,6 +40,12 @@ function waitForAuthReady(): Promise<void> {
 }
 
 api.interceptors.request.use(async (config) => {
+  // Remove Content-Type for FormData — the browser must set it automatically
+  // with the correct multipart boundary.
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   const isRefresh = config.url?.includes("/auth/refresh");
   const isAuthFree = (config as any).skipAuth === true;
   if (typeof window !== "undefined" && !isRefresh && !isAuthFree) {

@@ -27,9 +27,7 @@ const normalizeCount = (
 
 class DocumentService {
   async upload(file: FormData): Promise<UploadResponse> {
-    const { data } = await apiClient.post<UploadResponse>("/documents/upload", file, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await apiClient.post<UploadResponse>("/documents/upload", file);
     return data;
   }
 
