@@ -37,6 +37,14 @@ const CodeInput: React.FC<CodeInputProps> = ({
     onChange(newValue);
     if (val && index < length - 1) inputRefs.current[index + 1]?.focus();
   };
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g, "").slice(0, length);
+    if (!pasted) return;
+    onChange(pasted.padEnd(length, "").slice(0, length));
+    const nextIndex = Math.min(pasted.length, length - 1);
+    inputRefs.current[nextIndex]?.focus();
+  };
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number,
@@ -61,6 +69,7 @@ const CodeInput: React.FC<CodeInputProps> = ({
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
+          onPaste={handlePaste}
           ref={(el) => {
             inputRefs.current[index] = el;
           }}
