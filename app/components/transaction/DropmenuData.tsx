@@ -1,5 +1,6 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { formatTimeInput } from "../../utils/time-mask";
 
 type DropmenuDataProps = {
   isOpen: boolean;
@@ -11,6 +12,10 @@ type DropmenuDataProps = {
    * (ex. data de transações).
    */
   minDate?: Date | null;
+  /** Mostra o campo de hora no rodapé do calendário. */
+  showTime?: boolean;
+  time?: string;
+  onTimeChange?: (time: string) => void;
 };
 
 const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
@@ -18,7 +23,7 @@ const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
 const capitalize = (value: string): string =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
-function DropmenuData({ isOpen, selected, onSelect, minDate }: DropmenuDataProps) {
+function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onTimeChange }: DropmenuDataProps) {
   const [viewYear, setViewYear] = useState(selected.getFullYear());
   const [viewMonth, setViewMonth] = useState(selected.getMonth());
 
@@ -203,6 +208,26 @@ function DropmenuData({ isOpen, selected, onSelect, minDate }: DropmenuDataProps
           );
         })}
       </div>
+      {showTime ? (
+        <div className="flex items-center justify-center gap-2 self-stretch border-t border-(--card-barras) pt-3">
+          <Clock
+            width={14}
+            height={14}
+            aria-hidden="true"
+            className="shrink-0 text-(--text-description)"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            value={time ?? ""}
+            onChange={(event) => onTimeChange?.(formatTimeInput(event.target.value))}
+            placeholder="12:00"
+            aria-label="Hora (HH:MM)"
+            maxLength={5}
+            className="w-[68px] rounded-lg border border-(--border-button) bg-(--background) px-2 py-1.5 text-center font-manrope text-sm font-semibold text-(--text-title) outline-none placeholder:text-(--text-description)/40 focus:border-primary-300"
+          />
+        </div>
+      ) : null}
     </article>
   );
 }

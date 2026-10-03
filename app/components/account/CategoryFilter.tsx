@@ -75,6 +75,7 @@ type SortFieldProps = {
   onSelect: (value: string) => void;
   ariaLabel: string;
   align?: "left" | "right";
+  onClose?: () => void;
 };
 
 function SortField({
@@ -85,6 +86,7 @@ function SortField({
   onSelect,
   ariaLabel,
   align = "left",
+  onClose,
 }: SortFieldProps) {
   const anchorRef = useRef<HTMLButtonElement>(null);
   return (
@@ -105,7 +107,7 @@ function SortField({
           className={`shrink-0 text-(--icon) transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
-      <FloatingMenu isOpen={isOpen} anchorRef={anchorRef} align={align}>
+      <FloatingMenu isOpen={isOpen} anchorRef={anchorRef} align={align} onClose={onClose}>
         <DropmenuSelect options={options} value={value} isOpen={isOpen} onSelect={onSelect} />
       </FloatingMenu>
     </div>
@@ -203,6 +205,7 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
                 onToggle={() =>
                   setOpenSort((current) => (current === "field" ? null : "field"))
                 }
+                onClose={() => setOpenSort(null)}
                 onSelect={(option) => {
                   const sortBy = (
                     Object.keys(SORT_FIELD_LABELS) as CategorySortBy[]
@@ -220,6 +223,7 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
                 onToggle={() =>
                   setOpenSort((current) => (current === "order" ? null : "order"))
                 }
+                onClose={() => setOpenSort(null)}
                 onSelect={(option) => {
                   const dir: CategorySortDir =
                     option === dirLabel(draft.sortBy, "desc") ? "desc" : "asc";

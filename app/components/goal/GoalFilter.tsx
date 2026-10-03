@@ -80,6 +80,7 @@ type SortFieldProps = {
   onSelect: (value: string) => void;
   ariaLabel: string;
   align?: "left" | "right";
+  onClose?: () => void;
 };
 
 function SortField({
@@ -90,6 +91,7 @@ function SortField({
   onSelect,
   ariaLabel,
   align = "left",
+  onClose,
 }: SortFieldProps) {
   const anchorRef = useRef<HTMLButtonElement>(null);
   return (
@@ -114,6 +116,7 @@ function SortField({
         isOpen={isOpen}
         anchorRef={anchorRef}
         align={align}
+        onClose={onClose}
       >
         <DropmenuSelect options={options} value={value} isOpen={isOpen} onSelect={onSelect} />
       </FloatingMenu>
@@ -133,7 +136,10 @@ function GoalFilter({ isOpen, onClose, value, onApply }: GoalFilterProps) {
   const [openSort, setOpenSort] = useState<"field" | "order" | null>(null);
 
   useEffect(() => {
-    if (isOpen) setDraft(value);
+    if (isOpen) {
+      setDraft(value);
+      setOpenSort(null);
+    }
   }, [isOpen, value]);
 
   const toggleStatus = (status: string) =>
@@ -233,6 +239,7 @@ function GoalFilter({ isOpen, onClose, value, onApply }: GoalFilterProps) {
                 onToggle={() =>
                   setOpenSort((current) => (current === "field" ? null : "field"))
                 }
+                onClose={() => setOpenSort(null)}
                 onSelect={(option) => {
                   const sortBy = (Object.keys(SORT_FIELD_LABELS) as GoalSortBy[]).find(
                     (key) => SORT_FIELD_LABELS[key] === option,
@@ -250,6 +257,7 @@ function GoalFilter({ isOpen, onClose, value, onApply }: GoalFilterProps) {
                 onToggle={() =>
                   setOpenSort((current) => (current === "order" ? null : "order"))
                 }
+                onClose={() => setOpenSort(null)}
                 onSelect={(option) => {
                   const dir: GoalSortDir =
                     option === dirLabel(draft.sortBy, "desc") ? "desc" : "asc";

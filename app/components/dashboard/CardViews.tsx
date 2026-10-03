@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Equal, Wallet } from "lucide-react";
 import { formatAOACompact } from "app/utils/format-AOA";
 
 export type CardTrend = "up" | "down" | "flat";
+export type TrendPolarity = "higher-is-better" | "lower-is-better";
 
 type CardVariant =
   | "Default"
@@ -16,6 +17,36 @@ type CardVariant =
   | "Variant6"
   | "Variant7"
   | "Variant8";
+
+function getTrendBadgeTone(
+  trend: CardTrend | undefined,
+  polarity: TrendPolarity,
+  hasComparableValue: boolean,
+) {
+  if (!hasComparableValue || !trend) {
+    return {
+      backgroundColor:
+        "color-mix(in srgb, var(--text-description-60) 15%, transparent)",
+      color: "var(--text-description-60)",
+    };
+  }
+  if (trend === "flat") {
+    return {
+      backgroundColor: "var(--color-warning-10)",
+      color: "var(--color-warning)",
+    };
+  }
+  return (trend === "up") === (polarity === "higher-is-better")
+    ? {
+        backgroundColor: "var(--color-success-10)",
+        color: "var(--color-success)",
+      }
+    : {
+        backgroundColor:
+          "color-mix(in srgb, var(--color-danger-300) 10%, transparent)",
+        color: "var(--color-danger-300)",
+      };
+}
 
 type CardViewsProps = {
   className?: string;
@@ -32,6 +63,8 @@ type CardViewsProps = {
   chartLabels?: string[];
   /** Direção da variação — controla a seta do badge e do ícone */
   trend?: CardTrend;
+  /** Determina se subir ou descer representa uma variação favorável. */
+  trendPolarity?: TrendPolarity;
 };
 
 export type CardColor = "blue" | "green" | "red" | "yellow";
@@ -261,6 +294,7 @@ function LargeCard({
   property1,
   className,
   chartLabel,
+  trendPolarity = "higher-is-better",
 }: {
   config: (typeof LARGE_CARDS)["Variant7"];
   chartData: number[];
@@ -268,6 +302,7 @@ function LargeCard({
   property1: CardVariant;
   className?: string;
   chartLabel?: string;
+  trendPolarity?: TrendPolarity;
 }) {
   const colors = COLORS[config.color];
   const trend: CardTrend = config.trend ?? "up";
@@ -283,6 +318,11 @@ function LargeCard({
   // "—" = sem base de comparação: badge neutro, sem seta, para não se
   // confundir com uma percentagem e para não deixar buraco no layout.
   const isNeutralChange = config.change === "—";
+  const badgeTone = getTrendBadgeTone(
+    trend,
+    trendPolarity,
+    Boolean(config.change) && !isNeutralChange,
+  );
 
   return (
     <article
@@ -336,15 +376,7 @@ function LargeCard({
                 {config.change && (
                   <div
                     className="flex min-w-20 shrink-0 items-center justify-center gap-1 rounded-3xl px-2 py-1"
-                    style={
-                      isNeutralChange
-                        ? {
-                            backgroundColor:
-                              "color-mix(in srgb, var(--text-description-60) 15%, transparent)",
-                            color: "var(--text-description-60)",
-                          }
-                        : { backgroundColor: colors.soft, color: colors.accent }
-                    }
+                    style={badgeTone}
                   >
                     {isNeutralChange ? null : (
                       <BadgeIcon size={20} strokeWidth={2.5} aria-hidden />
@@ -383,12 +415,45 @@ function SmallCard({
   config,
   property1,
   className,
+  change,
+  comparison,
+  trend,
+  trendPolarity = "higher-is-better",
 }: {
   config: (typeof SMALL_CARDS)["Variant5"];
   property1: CardVariant;
   className?: string;
+  change?: string;
+  comparison?: string;
+  trend?: CardTrend;
+  trendPolarity?: TrendPolarity;
 }) {
   const colors = COLORS[config.color];
+  const changeValue = change ?? config.change;
+  const numericChange = Number(
+    changeValue.replace("%", "").replace(/\s/g, "").replace(",", "."),
+  );
+  const activeTrend =
+    trend ??
+    (Number.isFinite(numericChange)
+      ? numericChange > 0
+        ? "up"
+        : numericChange < 0
+          ? "down"
+          : "flat"
+      : undefined);
+  const isNeutralChange = changeValue === "—";
+  const badgeTone = getTrendBadgeTone(
+    activeTrend,
+    trendPolarity,
+    !isNeutralChange && Number.isFinite(numericChange),
+  );
+  const BadgeIcon =
+    activeTrend === "down"
+      ? ArrowDown
+      : activeTrend === "flat"
+        ? Equal
+        : ArrowUp;
 
   return (
     <article
@@ -418,16 +483,19 @@ function SmallCard({
           </p>
           <div className="flex w-full min-w-0 items-center gap-2">
             <span
-              className="shrink-0 rounded-xl px-2 py-1 text-[16px] font-semibold leading-none"
-              style={{ backgroundColor: colors.soft, color: colors.accent }}
+              className="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[16px] font-semibold leading-none"
+              style={badgeTone}
             >
-              {config.change}
+              {activeTrend && !isNeutralChange && (
+                <BadgeIcon size={16} strokeWidth={2.5} aria-hidden />
+              )}
+              {change ?? config.change}
             </span>
             <span
               className="min-w-0 flex-1 truncate text-[16px] font-medium leading-none text-(--text-title)"
               style={{ fontFamily: "var(--font-open-sans)" }}
             >
-              {config.comparison}
+              {comparison ?? config.comparison}
             </span>
           </div>
         </div>
@@ -449,18 +517,30 @@ export default function CardViews({
   title,
   value,
   change,
+  trend,
+  trendPolarity,
   comparison,
   color,
   chartLabel,
   chartLabels,
-  trend,
 }: CardViewsProps) {
+  const effectiveTrendPolarity =
+    trendPolarity ??
+    (property1 === "Variant6" ||
+    property1 === "gastos" ||
+    property1 === "transacoes"
+      ? "lower-is-better"
+      : "higher-is-better");
   if (property1 in SMALL_CARDS) {
     return (
       <SmallCard
         config={SMALL_CARDS[property1 as keyof typeof SMALL_CARDS]}
         property1={property1}
         className={className}
+        change={change}
+        comparison={comparison}
+        trend={trend}
+        trendPolarity={effectiveTrendPolarity}
       />
     );
   }
@@ -485,6 +565,7 @@ export default function CardViews({
       property1={property1}
       className={className}
       chartLabel={chartLabel}
+      trendPolarity={effectiveTrendPolarity}
     />
   );
 }

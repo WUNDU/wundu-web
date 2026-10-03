@@ -20,6 +20,8 @@ type FloatingMenuProps = {
   offset?: number;
   /** Mostra a pontinha estilo tooltip virada para a âncora. */
   pointer?: boolean;
+  /** Chamado ao clicar fora ou premir Escape (ex. fechar o menu). */
+  onClose?: () => void;
   children: ReactNode;
 };
 
@@ -38,6 +40,7 @@ export default function FloatingMenu({
   matchWidth = true,
   offset = 8,
   pointer = false,
+  onClose,
   children,
 }: FloatingMenuProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -117,6 +120,28 @@ export default function FloatingMenu({
       }
     };
   }, [isOpen]);
+
+  // Fecha ao clicar fora (ignora a âncora para não lutar com o toggle)
+  // e ao premir Escape.
+  useEffect(() => {
+    if (!isOpen || !onClose) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (contentRef.current?.contains(target)) return;
+      if (anchorRef.current?.contains(target)) return;
+      onClose();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, onClose, anchorRef]);
 
   if (!render || typeof document === "undefined") return null;
 

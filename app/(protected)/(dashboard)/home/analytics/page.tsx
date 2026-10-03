@@ -248,6 +248,7 @@ function page() {
                 isOpen={periodOpen}
                 anchorRef={periodAnchorRef}
                 align="right"
+                onClose={() => setPeriodOpen(false)}
               >
                 <DropmenuSelect
                   options={[...PERIOD_OPTIONS]}

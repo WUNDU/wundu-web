@@ -23,11 +23,14 @@ const MAX_SEARCH_LENGTH = 100;
 const PAGE_SIZE = 10;
 
 /**
- * YYYY-MM-DD → datetime ISO completo para a API.
- * Meio-dia local para o dia não trocar na conversão para UTC.
+ * Data (YYYY-MM-DD) + hora (HH:MM) → datetime ISO completo para a API.
+ * Fixa o meio-dia quando a hora for inválida, para o dia não trocar no UTC.
  */
-function toDateTimeISO(dateKey: string): string {
-  return new Date(`${dateKey}T12:00:00`).toISOString();
+function toDateTimeISO(dateKey: string, time: string): string {
+  const match = time.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  const hours = match ? match[1] : "12";
+  const minutes = match ? match[2] : "00";
+  return new Date(`${dateKey}T${hours}:${minutes}:00`).toISOString();
 }
 
 function compareTransactions(
@@ -111,8 +114,8 @@ function page() {
   ): Promise<boolean> {
     const flow = values.type === "income" ? "INCOME" : "EXPENSE";
     // A API espera datetime ISO completo (ex. "...T12:00:00.000Z");
-    // só-dia ("2026-10-03") dá 400. Meio-dia local evita trocar de dia no UTC.
-    const transactionDate = toDateTimeISO(values.date);
+    // só-dia ("2026-10-03") dá 400.
+    const transactionDate = toDateTimeISO(values.date, values.time);
     if (editingTx) {
       const updated = await updateTransaction(editingTx.id, {
         amount: values.amount,

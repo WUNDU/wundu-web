@@ -343,6 +343,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                       <FloatingMenu
                         isOpen={birthOpen}
                         anchorRef={birthAnchorRef}
+                        onClose={() => setBirthOpen(false)}
                       >
                         <DropmenuData
                           isOpen={birthOpen}
@@ -405,6 +406,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                       <FloatingMenu
                         isOpen={provinceOpen}
                         anchorRef={provinceAnchorRef}
+                        onClose={() => setProvinceOpen(false)}
                       >
                         <SearchableMenu
                           isOpen={provinceOpen}
@@ -457,6 +459,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                         <FloatingMenu
                           isOpen={municipalityOpen}
                           anchorRef={municipalityAnchorRef}
+                          onClose={() => setMunicipalityOpen(false)}
                         >
                           <SearchableMenu
                             isOpen={municipalityOpen}

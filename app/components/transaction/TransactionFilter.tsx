@@ -61,9 +61,10 @@ type SortFieldProps = {
   onSelect: (value: string) => void;
   ariaLabel: string;
   align?: "left" | "right";
+  onClose?: () => void;
 };
 
-function SortField({ value, options, isOpen, onToggle, onSelect, ariaLabel, align = "left" }: SortFieldProps) {
+function SortField({ value, options, isOpen, onToggle, onSelect, ariaLabel, align = "left", onClose }: SortFieldProps) {
   const anchorRef = useRef<HTMLButtonElement>(null);
   return (
     <div className="relative flex-1">
@@ -83,7 +84,7 @@ function SortField({ value, options, isOpen, onToggle, onSelect, ariaLabel, alig
           className={`shrink-0 text-(--icon) transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
-      <FloatingMenu isOpen={isOpen} anchorRef={anchorRef} align={align}>
+      <FloatingMenu isOpen={isOpen} anchorRef={anchorRef} align={align} onClose={onClose}>
         <DropmenuSelect options={options} value={value} isOpen={isOpen} onSelect={onSelect} />
       </FloatingMenu>
     </div>
@@ -214,7 +215,7 @@ function TransactionFilter({ isOpen, onClose, value, onApply }: TransactionFilte
                 </button>
               ) : null}
             </div>
-            <FloatingMenu isOpen={categoryOpen} anchorRef={categoryAnchorRef}>
+            <FloatingMenu isOpen={categoryOpen} anchorRef={categoryAnchorRef} onClose={() => setCategoryOpen(false)}>
               <DropmenuCategoria
                 isOpen={categoryOpen}
                 onSelect={(category) => {
@@ -240,6 +241,7 @@ function TransactionFilter({ isOpen, onClose, value, onApply }: TransactionFilte
               options={["Nome", "Data", "Valor"]}
               isOpen={openSort === "field"}
               onToggle={() => setOpenSort((current) => (current === "field" ? null : "field"))}
+              onClose={() => setOpenSort(null)}
               onSelect={(option) => {
                 setDraft((d) => ({ ...d, sortField: option as TransactionSortField }));
                 setOpenSort(null);
@@ -252,6 +254,7 @@ function TransactionFilter({ isOpen, onClose, value, onApply }: TransactionFilte
               options={["Crescente", "Decrescente"]}
               isOpen={openSort === "order"}
               onToggle={() => setOpenSort((current) => (current === "order" ? null : "order"))}
+              onClose={() => setOpenSort(null)}
               onSelect={(option) => {
                 setDraft((d) => ({ ...d, sortOrder: option as TransactionSortOrder }));
                 setOpenSort(null);

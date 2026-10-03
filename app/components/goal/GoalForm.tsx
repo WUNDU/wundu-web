@@ -453,6 +453,7 @@ function GoalForm({
                           <FloatingMenu
                             isOpen={savingsDateOpen}
                             anchorRef={savingsDateAnchorRef}
+                            onClose={() => setSavingsDateOpen(false)}
                           >
                             <DropmenuData
                               isOpen={savingsDateOpen}
@@ -654,6 +655,7 @@ function GoalForm({
                           <FloatingMenu
                             isOpen={endOpen}
                             anchorRef={endDateAnchorRef}
+                            onClose={() => setEndOpen(false)}
                           >
                             <DropmenuData
                               isOpen={endOpen}
@@ -705,6 +707,7 @@ function GoalForm({
                         <FloatingMenu
                           isOpen={categoryOpen}
                           anchorRef={categoryAnchorRef}
+                          onClose={() => setCategoryOpen(false)}
                         >
                           <DropmenuCategoria
                             isOpen={categoryOpen}

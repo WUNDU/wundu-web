@@ -71,9 +71,13 @@ const prependToList = (old: ListData | undefined, created: TransactionResponse):
 
 interface UseTransactionOptions {
   autoFetch?: boolean;
+  range?: NonPaginatedQueryOptions;
 }
 
-export function useTransaction({ autoFetch = true }: UseTransactionOptions = {}) {
+export function useTransaction({
+  autoFetch = true,
+  range,
+}: UseTransactionOptions = {}) {
   const queryClient = useQueryClient();
   const { isAuthenticated, isAuthLoading } = useUserStore(
     useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
@@ -81,6 +85,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   const authReady = isAuthenticated && !isAuthLoading;
   const [rangeRequested, setRangeRequested] = useState(false);
   const [rangeOptions, setRangeOptions] = useState<NonPaginatedQueryOptions>({});
+  const activeRange = range ?? rangeOptions;
 
   const listQuery = useInfiniteQuery({
     queryKey: LIST_KEY,
@@ -96,9 +101,9 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   });
 
   const rangeQuery = useQuery({
-    queryKey: rangeKey(rangeOptions),
-    queryFn: () => transactionService.getAllNotPaginated(rangeOptions),
-    enabled: rangeRequested && authReady,
+    queryKey: rangeKey(activeRange),
+    queryFn: () => transactionService.getAllNotPaginated(activeRange),
+    enabled: (rangeRequested || Boolean(range)) && authReady,
   });
 
   const pages = listQuery.data?.pages ?? [];

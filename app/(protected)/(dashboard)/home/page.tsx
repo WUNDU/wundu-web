@@ -41,6 +41,21 @@ function lastDayOfMonth(year: number, monthIndex: number) {
   return new Date(year, monthIndex + 1, 0).getDate();
 }
 
+const PT_MONTHS_SHORT = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
+] as const;
+
 /**
  * Variação percentual do mês selecionado vs mês anterior.
  * - Entradas/Gastos/Património: ((atual - anterior) / anterior) × 100
@@ -86,43 +101,60 @@ function badgeText(pct: number | null, loading: boolean) {
   return formatPct(pct);
 }
 
-/** Meses abreviados fixos — o `month: "short"` do Intl devolve número em `pt-AO`. */
-const PT_MONTHS_SHORT = [
-  "Jan",
-  "Fev",
-  "Mar",
-  "Abr",
-  "Mai",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Set",
-  "Out",
-  "Nov",
-  "Dez",
-] as const;
-
-/** Rótulo curto de data para o tooltip (ex. "Nov 9"). */
-function shortDateLabel(raw?: string | null) {
-  if (!raw) return "";
-  const date = new Date(raw);
-  if (!Number.isFinite(date.getTime())) return "";
-  return `${PT_MONTHS_SHORT[date.getMonth()]} ${date.getDate()}`;
-}
-
-function getRecentSeries(
+/** Agrupa os últimos dias do período por data para manter as séries alinhadas. */
+function getDailySeries(
   transactions: ApiTransaction[],
-  type: "income" | "expense",
+  type: "income" | "expense" | "balance",
+  startDate: string,
+  endDate: string,
 ) {
-  const items = transactions
-    .filter((transaction) => (transaction.type === "INCOME") === (type === "income"))
-    .slice(0, 7)
-    .reverse();
+  const [year, month, day] = endDate.split("-").map(Number);
+  const end = new Date(year, month - 1, day);
+  const chartStart = new Date(end);
+  chartStart.setDate(end.getDate() - 6);
+  const start = new Date(`${startDate}T00:00:00`);
+  if (chartStart < start) chartStart.setTime(start.getTime());
+
+  const dates: string[] = [];
+  const labels: string[] = [];
+  const totals = new Map<string, number>();
+
+  for (
+    const date = new Date(chartStart);
+    date <= end;
+    date.setDate(date.getDate() + 1)
+  ) {
+    const key = toDateKey(date);
+    dates.push(key);
+    labels.push(
+      key === toDateKey(new Date())
+        ? `Hoje, ${new Intl.DateTimeFormat("pt-AO", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }).format(date)}`
+        : `${PT_MONTHS_SHORT[date.getMonth()]} ${date.getDate()}`,
+    );
+    totals.set(key, 0);
+  }
+
+  for (const transaction of transactions) {
+    const rawDate = transaction.transactionDate ?? transaction.createdAt;
+    const date = rawDate?.slice(0, 10);
+    if (!date || !totals.has(date) || !Number.isFinite(transaction.amount)) {
+      continue;
+    }
+    if (type === "income" && transaction.type !== "INCOME") continue;
+    if (type === "expense" && transaction.type !== "EXPENSE") continue;
+
+    const amount = Math.abs(transaction.amount) *
+      (type === "balance" && transaction.type === "EXPENSE" ? -1 : 1);
+    totals.set(date, (totals.get(date) ?? 0) + amount);
+  }
+
   return {
-    data: items.map((transaction) => transaction.amount),
-    labels: items.map((transaction) =>
-      shortDateLabel(transaction.transactionDate ?? transaction.createdAt),
-    ),
+    data: dates.map((date) => totals.get(date) ?? 0),
+    labels,
   };
 }
 
@@ -159,21 +191,18 @@ function Page() {
       );
   const prevMonthDate = new Date(selected.y, selected.m - 1, 1);
   const prevStart = toDateKey(prevMonthDate);
-  // Comparação justa: mês incompleto (atual) compara-se com o mesmo
-  // intervalo do mês anterior (ex. 1–3 out vs 1–3 set); mês fechado
-  // compara mês completo vs mês anterior completo.
+  // Compara o período selecionado com o mês anterior completo. Assim,
+  // movimentos ocorridos após o mesmo dia do mês anterior também entram
+  // na base e o rótulo continua a identificar o mês comparado.
   const prevLastDay = lastDayOfMonth(
     prevMonthDate.getFullYear(),
     prevMonthDate.getMonth(),
   );
-  const prevEndDay = isCurrentMonth
-    ? Math.min(now.getDate(), prevLastDay)
-    : prevLastDay;
   const prevEnd = toDateKey(
     new Date(
       prevMonthDate.getFullYear(),
       prevMonthDate.getMonth(),
-      prevEndDay,
+      prevLastDay,
     ),
   );
   const prevMonthName = (() => {
@@ -201,10 +230,14 @@ function Page() {
   } = useGoal();
   const {
     transactions: apiTransactions,
+    notPaginated: periodTransactions,
+    isLoadingAll: isPeriodTransactionsLoading,
     totalElements,
     isLoading: areTransactionsLoading,
     error: transactionsError,
-  } = useTransaction();
+  } = useTransaction({
+    range: { startDate: monthStart, endDate: monthEnd },
+  });
 
   const transactions = useMemo(
     () => apiTransactions.map(toAppTransaction),
@@ -218,29 +251,21 @@ function Page() {
     () => activeApiGoals.map(toDashboardGoal),
     [activeApiGoals],
   );
-  const monthlyTransactions = useMemo(() => {
-    const start = new Date(selected.y, selected.m, 1).getTime();
-    const end = new Date(selected.y, selected.m + 1, 1).getTime();
-    return apiTransactions.filter((transaction) => {
-      const raw = transaction.transactionDate ?? transaction.createdAt;
-      if (!raw) return false;
-      const time = new Date(raw).getTime();
-      return Number.isFinite(time) && time >= start && time < end;
-    });
-  }, [apiTransactions, selected]);
+  const monthlyTransactions = periodTransactions ?? [];
   const incomeSeries = useMemo(
-    () => getRecentSeries(monthlyTransactions, "income"),
-    [monthlyTransactions],
+    () => getDailySeries(monthlyTransactions, "income", monthStart, monthEnd),
+    [monthlyTransactions, monthStart, monthEnd],
   );
   const expenseSeries = useMemo(
-    () => getRecentSeries(monthlyTransactions, "expense"),
-    [monthlyTransactions],
+    () => getDailySeries(monthlyTransactions, "expense", monthStart, monthEnd),
+    [monthlyTransactions, monthStart, monthEnd],
+  );
+  const balanceSeries = useMemo(
+    () => getDailySeries(monthlyTransactions, "balance", monthStart, monthEnd),
+    [monthlyTransactions, monthStart, monthEnd],
   );
   const incomeChart = incomeSeries.data;
   const expenseChart = expenseSeries.data;
-  const saldoLabels = incomeSeries.labels.length
-    ? incomeSeries.labels
-    : expenseSeries.labels;
   const incomePct =
     balance && prevBalance
       ? pctChange(balance.totalIncome, prevBalance.totalIncome)
@@ -314,9 +339,13 @@ function Page() {
             change={badgeText(incomePct, isCardsLoading)}
             trend={incomePct === null ? undefined : trendOf(incomePct)}
             comparison={comparisonLabel}
-            chartData={incomeChart}
+            chartData={periodTransactions ? incomeChart : []}
             chartLabels={incomeSeries.labels}
-            chartLabel="Montantes das entradas recentes"
+            chartLabel={
+              isPeriodTransactionsLoading
+                ? "A carregar entradas diárias"
+                : "Entradas diárias nos últimos sete dias do período"
+            }
             className="min-w-0! max-w-none!"
           />
           <CardViews
@@ -325,10 +354,15 @@ function Page() {
             value={isCardsLoading ? "A carregar…" : balance ? formatAOA(balance.totalExpense) : "—"}
             change={badgeText(expensePct, isCardsLoading)}
             trend={expensePct === null ? undefined : trendOf(expensePct)}
+            trendPolarity="lower-is-better"
             comparison={comparisonLabel}
-            chartData={expenseChart}
+            chartData={periodTransactions ? expenseChart : []}
             chartLabels={expenseSeries.labels}
-            chartLabel="Montantes dos gastos recentes"
+            chartLabel={
+              isPeriodTransactionsLoading
+                ? "A carregar gastos diários"
+                : "Gastos diários nos últimos sete dias do período"
+            }
             className="min-w-0! max-w-none!"
           />
           <CardViews
@@ -338,9 +372,13 @@ function Page() {
             change={badgeText(balancePct, isCardsLoading)}
             trend={balancePct === null ? undefined : trendOf(balancePct)}
             comparison={comparisonLabel}
-            chartData={incomeChart.map((value, index) => value - (expenseChart[index] ?? 0))}
-            chartLabels={saldoLabels}
-            chartLabel="Saldo calculado sobre as entradas e gastos recentes"
+            chartData={periodTransactions ? balanceSeries.data : []}
+            chartLabels={balanceSeries.labels}
+            chartLabel={
+              isPeriodTransactionsLoading
+                ? "A carregar saldo diário"
+                : "Saldo líquido diário nos últimos sete dias do período"
+            }
             className="min-w-0! max-w-none!"
           />
           <CardViews

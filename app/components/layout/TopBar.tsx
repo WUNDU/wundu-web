@@ -170,6 +170,7 @@ export default function TopBar({
             align="right"
             matchWidth={false}
             pointer
+            onClose={() => setIsProfileMenuOpen(false)}
           >
             <div
               role="menu"

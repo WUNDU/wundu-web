@@ -19,6 +19,11 @@ import {
   formatAmountValue,
   parseAmountPt,
 } from "../../utils/amount-mask";
+import {
+  TIME_PATTERN,
+  currentTimeLabel,
+  extractTimeLabel,
+} from "../../utils/time-mask";
 
 type TransactionFormProps = {
   isOpen: boolean;
@@ -38,6 +43,8 @@ export type TransactionFormValues = {
   category: string;
   /** Data no formato YYYY-MM-DD. */
   date: string;
+  /** Hora no formato HH:MM (24h). */
+  time: string;
 };
 
 function toDateKey(date: Date) {
@@ -60,6 +67,7 @@ function TransactionForm({
   const [txType, setTxType] = useState<"expense" | "income">("income");
   const [dateOpen, setDateOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [time, setTime] = useState(() => currentTimeLabel());
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [saving, setSaving] = useState(false);
@@ -83,6 +91,10 @@ function TransactionForm({
       setSelectedDate(
         transaction.date ? new Date(transaction.date) : new Date(),
       );
+      setTime(
+        extractTimeLabel(transaction.transactionDate ?? transaction.date) ??
+          currentTimeLabel(),
+      );
       setDescription(transaction.description ?? "");
       setAmount(
         transaction && Number.isFinite(transaction.amount)
@@ -93,6 +105,7 @@ function TransactionForm({
       setTxType("income");
       setSelectedCategory("");
       setSelectedDate(new Date());
+      setTime(currentTimeLabel());
       setDescription("");
       setAmount("");
     }
@@ -109,6 +122,10 @@ function TransactionForm({
       setFormError("Selecione uma categoria.");
       return;
     }
+    if (!TIME_PATTERN.test(time)) {
+      setFormError("Indique a hora no formato HH:MM.");
+      return;
+    }
     setSaving(true);
     setFormError(null);
     const ok = await onSave?.({
@@ -117,6 +134,7 @@ function TransactionForm({
       description: description.trim(),
       category: selectedCategory,
       date: toDateKey(selectedDate),
+      time,
     });
     setSaving(false);
     if (ok) onClose();
@@ -344,10 +362,13 @@ function TransactionForm({
                           {formatFullDatePT(selectedDate)}
                         </p>
                       </button>
-                      <FloatingMenu isOpen={dateOpen} anchorRef={dateAnchorRef}>
+                      <FloatingMenu isOpen={dateOpen} anchorRef={dateAnchorRef} onClose={() => setDateOpen(false)}>
                         <DropmenuData
                           isOpen={dateOpen}
                           selected={selectedDate}
+                          showTime
+                          time={time}
+                          onTimeChange={setTime}
                           onSelect={(date) => {
                             setSelectedDate(date);
                             setDateOpen(false);
@@ -439,6 +460,7 @@ function TransactionForm({
                     <FloatingMenu
                       isOpen={categoryOpen}
                       anchorRef={categoryAnchorRef}
+                      onClose={() => setCategoryOpen(false)}
                     >
                       <DropmenuCategoria
                         isOpen={categoryOpen}
