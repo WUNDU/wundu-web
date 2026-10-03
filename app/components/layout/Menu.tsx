@@ -83,7 +83,7 @@ const menuItems: MenuItem[] = [
   {
     key: "suporte",
     label: "Suporte",
-    href: "/legacy/home/profile/support",
+    href: "/home/profile/support",
     icon: "support",
     chevron: true,
   },
