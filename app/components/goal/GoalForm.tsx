@@ -1,11 +1,9 @@
-import { CloseIcon, DotIcon, GoalsIcon, MoneyIcon } from "@/constants/icons";
+import { CloseIcon, GoalsIcon, MoneyIcon } from "@/constants/icons";
 import { ArrowLeft, Calendar, ChevronRight, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import DropmenuCategoria from "../transaction/DropmenuCategoria";
-import DropmenuContas from "../transaction/DropmenuContas";
 import DropmenuData from "../transaction/DropmenuData";
 import FloatingMenu from "../ui/FloatingMenu";
-import { mockAccounts, type AccountDTO } from "../mock/account";
 import type { GoalDTO, GoalType } from "../../types/dto/goal.dto";
 import type { TransactionCategory } from "../../types/transaction";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
@@ -101,12 +99,7 @@ function GoalForm({
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [savingsDate, setSavingsDate] = useState(() => new Date());
   const [savingsDateOpen, setSavingsDateOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<AccountDTO>(
-    mockAccounts[0],
-  );
-  const [accountOpen, setAccountOpen] = useState(false);
   const savingsDateAnchorRef = useRef<HTMLButtonElement>(null);
-  const accountAnchorRef = useRef<HTMLButtonElement>(null);
   const endDateAnchorRef = useRef<HTMLButtonElement>(null);
   const categoryAnchorRef = useRef<HTMLButtonElement>(null);
 
@@ -120,7 +113,6 @@ function GoalForm({
     setCategoryOpen(false);
     setEndOpen(false);
     setSavingsDateOpen(false);
-    setAccountOpen(false);
     setSaving(false);
     setDeleting(false);
     setFormError(null);
@@ -147,7 +139,6 @@ function GoalForm({
       setSelectedCategory("");
     }
     setSavingsDate(new Date());
-    setSelectedAccount(mockAccounts[0]);
   }, [isOpen, goal, mode, startInDelete]);
 
   function resolveCategoryId(name: string): string | null {
@@ -475,36 +466,23 @@ function GoalForm({
                         </div>
                       </div>
                       <div className="flex min-w-0 flex-col items-start gap-2">
-                        <p className={fieldLabel}>CONTA</p>
-                        <div className="relative w-full min-w-0">
-                          <button
-                            type="button"
-                            ref={accountAnchorRef}
-                            onClick={() => setAccountOpen((v) => !v)}
-                            aria-expanded={accountOpen}
-                            className={`flex w-full min-w-0 px-4 py-3 justify-start items-center gap-2 rounded-2xl border border-(--border-button) bg-(--background) hover:bg-neutrals-300/10 active:scale-[0.98] transition-all`}
-                          >
-                            <DotIcon
-                              className={`${selectedAccount.color} shrink-0 animate-pulse`}
-                            />
-                            <p className="min-w-0 flex-1 truncate text-sm not-italic font-medium font-manrope leading-5 text-(--text-description)">
-                              {selectedAccount.name}
-                            </p>
-                          </button>
-                          <FloatingMenu
-                            isOpen={accountOpen}
-                            anchorRef={accountAnchorRef}
-                            align="right"
-                          >
-                            <DropmenuContas
-                              isOpen={accountOpen}
-                              onSelect={(account) => {
-                                setSelectedAccount(account);
-                                setAccountOpen(false);
-                              }}
-                            />
-                          </FloatingMenu>
+                        <div className="flex items-center gap-2">
+                          <p className={fieldLabel}>CONTA</p>
+                          <span className="rounded-md bg-primary-300/10 px-2 py-0.5 font-manrope text-[11px] font-bold leading-4 text-primary-300">
+                            Brevemente
+                          </span>
                         </div>
+                        <button
+                          type="button"
+                          disabled
+                          aria-disabled="true"
+                          title="Seleção de conta disponível em breve"
+                          className="flex w-full min-w-0 cursor-not-allowed items-center justify-start gap-2 rounded-2xl border border-(--border-button) bg-(--background) px-4 py-3 opacity-60"
+                        >
+                          <p className="min-w-0 flex-1 truncate text-left text-sm font-medium not-italic font-manrope leading-5 text-(--text-description-60)">
+                            Conta padrão
+                          </p>
+                        </button>
                       </div>
                     </div>
                   </section>

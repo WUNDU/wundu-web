@@ -22,6 +22,14 @@ type TransactionView = "list" | "grid";
 const MAX_SEARCH_LENGTH = 100;
 const PAGE_SIZE = 10;
 
+/**
+ * YYYY-MM-DD → datetime ISO completo para a API.
+ * Meio-dia local para o dia não trocar na conversão para UTC.
+ */
+function toDateTimeISO(dateKey: string): string {
+  return new Date(`${dateKey}T12:00:00`).toISOString();
+}
+
 function compareTransactions(
   a: TransactionDTO,
   b: TransactionDTO,
@@ -102,11 +110,14 @@ function page() {
     values: TransactionFormValues,
   ): Promise<boolean> {
     const flow = values.type === "income" ? "INCOME" : "EXPENSE";
+    // A API espera datetime ISO completo (ex. "...T12:00:00.000Z");
+    // só-dia ("2026-10-03") dá 400. Meio-dia local evita trocar de dia no UTC.
+    const transactionDate = toDateTimeISO(values.date);
     if (editingTx) {
       const updated = await updateTransaction(editingTx.id, {
         amount: values.amount,
         description: values.description || undefined,
-        transactionDate: values.date,
+        transactionDate,
         category: values.category ? { name: values.category, flow } : undefined,
       });
       return updated !== null;
@@ -116,7 +127,7 @@ function page() {
       source: "MANUAL",
       amount: values.amount,
       description: values.description || undefined,
-      transactionDate: values.date,
+      transactionDate,
       category: values.category ? { name: values.category, flow } : undefined,
     });
   }

@@ -19,7 +19,7 @@ function GoalsItem({ goal }: GoalsItemProps) {
   const categoryConfig = transactionCategoryConfig[goal.category];
 
   return (
-    <article className="flex p-1.5 flex-col justify-center items-center gap-3 flex-1 self-stretch">
+    <article className="flex p-1.5 flex-col justify-start items-stretch gap-3 self-stretch">
       <div className="flex justify-center items-center gap-4 self-stretch">
         <span
           className={`flex w-15 h-15 flex-col justify-center items-center aspect-square rounded-2xl ${categoryConfig.background}`}
