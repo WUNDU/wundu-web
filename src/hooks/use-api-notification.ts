@@ -46,6 +46,11 @@ export function useApiNotification() {
       queryClient.setQueryData<NotificationResponse[]>(UNREAD_KEY, (old) =>
         old?.filter((n) => n.id !== id),
       );
+      queryClient.setQueryData<{ unreadCount: number }>(
+        UNREAD_COUNT_KEY,
+        (old) =>
+          old ? { unreadCount: Math.max(0, old.unreadCount - 1) } : old,
+      );
     },
     onError: async (error: any) => {
       const err = error?.response?.data?.message || "Erro ao marcar notificação";
@@ -83,6 +88,19 @@ export function useApiNotification() {
     [markAsReadMutation.mutateAsync],
   );
 
+  const markAllAsRead = useCallback(async () => {
+    const current =
+      queryClient.getQueryData<NotificationResponse[]>(ALL_KEY) ?? [];
+    const unreadIds = current.filter((n) => !n.isRead).map((n) => n.id);
+    if (unreadIds.length === 0) return true;
+    const results = await Promise.all(
+      unreadIds.map((id) =>
+        markAsReadMutation.mutateAsync(id).then(() => true).catch(() => false),
+      ),
+    );
+    return results.every(Boolean);
+  }, [markAsReadMutation.mutateAsync, queryClient]);
+
   const clearAll = useCallback(
     () => queryClient.removeQueries({ queryKey: ["notifications"] }),
     [queryClient],
@@ -103,6 +121,8 @@ export function useApiNotification() {
     fetchUnreadCount,
     unreadCount,
     markAsRead,
+    markAllAsRead,
+    isMarkingRead: markAsReadMutation.isPending,
     clearAll,
   };
 }

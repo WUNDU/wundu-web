@@ -1,33 +1,484 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@200..800&display=swap");
 @import "tailwindcss";
 
+/* ============================================================
+   TAILWIND v4 THEME — Regista tokens no sistema do Tailwind
+   ============================================================ */
 @theme {
-  --color-primary:        #ffd400;
-  --color-primary-dark:   #ca6f05;
-  --color-secondary:      #003cc3;
-  --color-secondary-dark: #00216b;
-  --color-yellow-400:     #ffd400;
-  --color-yellow-600:     #ca6f05;
-  --color-blue-500:       #003cc3;
-  --color-blue-900:       #00216b;
+  /* Mapeia as fontes para gerar as classes font-manrope e font-inter */
+  --font-inter: "Inter", sans-serif;
+  --font-manrope: "Manrope", sans-serif;
+
+  /* Brand */
+  --color-brand-primary: #053dc4;
+  --color-brand-secondary: #f8dc4e;
+
+  /* Base */
+  --color-base-black: #040916;
+  --color-base-white: #ffffff;
+  --color-base-white-variant: #f4f4f5;
+  --color-base-gray: #dadada;
+  --color-base-neutrals: #62748e;
+  --color-base-blue-black: #020c1b;
+  --color-base-blue-black-variant: #07162b;
+  --color-base-blue-black-variant-bg: #051020;
+
+  /* Primary */
+  --color-primary-50: #e6ecf9;
+  --color-primary-100: #dae2f6;
+  --color-primary-200: #b2c3ed;
+  --color-primary-300: #053dc4;
+  --color-primary-400: #0537b0;
+  --color-primary-500: #04319d;
+  --color-primary-600: #042e93;
+  --color-primary-700: #032576;
+  --color-primary-800: #021b58;
+  --color-primary-900: #021545;
+
+  /* Secondary */
+  --color-secondary-50: #fefced;
+  --color-secondary-100: #fefae4;
+  --color-secondary-200: #fdf4c8;
+  --color-secondary-300: #f8dc4e;
+  --color-secondary-400: #dfc646;
+  --color-secondary-500: #c6b03e;
+  --color-secondary-600: #baa53b;
+  --color-secondary-700: #95842f;
+  --color-secondary-800: #706323;
+  --color-secondary-900: #574d1b;
+
+  /* Danger */
+  --color-danger-300: #ff3b3b;
+  --color-danger-text: #d11f1f;
+  --color-danger-400: #dc2828;
+  --color-danger-500: #be1919;
+
+  /* Neutrals */
+  --color-neutrals-50: #eff1f4;
+  --color-neutrals-100: #e7eaee;
+  --color-neutrals-200: #ced4dc;
+  --color-neutrals-300: #62748e;
+  --color-neutrals-400: #586880;
+  --color-neutrals-500: #4e5d72;
+  --color-neutrals-600: #4a576b;
+  --color-neutrals-700: #3b4655;
+  --color-neutrals-800: #2c3440;
+  --color-neutrals-900: #222932;
+
+  /* Alerts */
+  --color-success: #06c270;
+  --color-success-text: #047a46;
+  --color-warning: #eab308;
+  --color-orange: #ff8800;
+  --color-info: #0ea5e9;
+  --color-purple: #b090f4;
+
+  /* Radius */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
 }
 
-/* globals.css */
+/* ============================================================
+   WUNDU DESIGN SYSTEM — Design Tokens
+   Traduzidos a partir dos ficheiros Figma tokens JSON
+   ============================================================
+
+   Estrutura:
+   - 1. Primitives (cores base, semântica)
+   - 2. Light Mode (tema claro)
+   - 3. Dark Mode (tema escuro)
+   - 4. Espaçamentos (padding, spacing, gap)
+   - 5. Border Radius
+   - 6. Tamanhos (sizes)
+   - 7. Utilitários e animações
+   ============================================================ */
+
+/* ============================================================
+   1. PRIMITIVES — Cores base do design system
+   ============================================================ */
 :root {
+  /* Brand */
+  --color-primary: #053dc4;
+  --color-secondary: #f8dc4e;
+
+  /* Base */
+  --color-black: #040916;
+  --color-white: #ffffff;
+  --color-white-variant: #f4f4f5;
+  --color-gray: #dadada;
+  --color-neutrals: #62748e;
+  --color-blue-black: #020c1b;
+  --color-blue-black-variant: #07162b;
+  --color-blue-black-variant-bg: #051020;
+
+  /* Primary scale */
+  --color-primary-50: #e6ecf9;
+  --color-primary-100: #dae2f6;
+  --color-primary-200: #b2c3ed;
+  --color-primary-300: #053dc4;
+  --color-primary-400: #0537b0;
+  --color-primary-500: #04319d;
+  --color-primary-600: #042e93;
+  --color-primary-700: #032576;
+  --color-primary-800: #021b58;
+  --color-primary-900: #021545;
+
+  /* Secondary scale */
+  --color-secondary-50: #fefced;
+  --color-secondary-100: #fefae4;
+  --color-secondary-200: #fdf4c8;
+  --color-secondary-300: #f8dc4e;
+  --color-secondary-400: #dfc646;
+  --color-secondary-500: #c6b03e;
+  --color-secondary-600: #baa53b;
+  --color-secondary-700: #95842f;
+  --color-secondary-800: #706323;
+  --color-secondary-900: #574d1b;
+
+  /* Danger */
+  --color-danger-300: #ff3b3b;
+  --color-danger-text: #d11f1f;
+  --color-danger-400: #dc2828;
+  --color-danger-500: #be1919;
+
+  /* Neutrals scale */
+  --color-neutrals-50: #eff1f4;
+  --color-neutrals-100: #e7eaee;
+  --color-neutrals-200: #ced4dc;
+  --color-neutrals-300: #62748e;
+  --color-neutrals-400: #586880;
+  --color-neutrals-500: #4e5d72;
+  --color-neutrals-600: #4a576b;
+  --color-neutrals-700: #3b4655;
+  --color-neutrals-800: #2c3440;
+  --color-neutrals-900: #222932;
+
+  /* Blacks scale */
+  --color-blacks-50: #e6e6e8;
+  --color-blacks-300: #040916;
+
+  /* Alerts */
+  --color-success: #06c270;
+  --color-success-text: #047a46;
+  --color-success-10: rgba(6, 194, 112, 0.1);
+  --color-warning: #eab308;
+  --color-warning-10: rgba(255, 212, 0, 0.1);
+  --color-orange: #ff8800;
+  --color-orange-10: rgba(255, 136, 0, 0.1);
+  --color-info: #0ea5e9;
+  --color-info-10: rgba(14, 165, 233, 0.1);
+  --color-purple: #b090f4;
+  --color-purple-10: rgba(176, 144, 244, 0.1);
+
+  /* ============================================================
+     4. ESPAÇAMENTOS — Padding, Spacing, Gap
+     ============================================================ */
+
+  /* Padding */
+  --padding-0: 0px;
+  --padding-0-5: 2px;
+  --padding-1: 4px;
+  --padding-1-5: 6px;
+  --padding-2: 8px;
+  --padding-3: 12px;
+  --padding-4: 16px;
+  --padding-6: 24px;
+  --padding-8: 32px;
+  --padding-12: 48px;
+  --padding-14: 56px;
+  --padding-16: 64px;
+  --padding-20: 80px;
+  --padding-24: 96px;
+  --padding-32: 128px;
+  --padding-40: 160px;
+  --padding-48: 192px;
+  --padding-64: 256px;
+  --padding-96: 384px;
+
+  /* Spacing */
+  --spacing-3xs: 2px;
+  --spacing-2xs: 4px;
+  --spacing-xs: 6px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+
+  /* Gap */
+  --gap-0: 0px;
+  --gap-0-5: 2px;
+  --gap-1: 4px;
+  --gap-1-5: 6px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 16px;
+  --gap-6: 24px;
+  --gap-8: 32px;
+  --gap-12: 48px;
+  --gap-14: 56px;
+  --gap-16: 64px;
+  --gap-20: 80px;
+  --gap-24: 96px;
+  --gap-32: 128px;
+  --gap-40: 160px;
+  --gap-48: 192px;
+  --gap-64: 256px;
+  --gap-96: 384px;
+
+  /* ============================================================
+     5. BORDER RADIUS
+     ============================================================ */
+
+  /* TailwindCSS radius scale */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* Component radius */
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-icon-button: var(--radius-md);
+  --radius-focus-ring: var(--radius-lg);
+  --radius-card: var(--radius-xl);
+  --radius-dialog: var(--radius-lg);
+
+  /* ============================================================
+     6. TAMANHOS — Sizes
+     ============================================================ */
+
+  /* Button sizes */
+  --size-button-sm: 16px;
+  --size-button-md: 24px;
+  --size-button-lg: 32px;
+  --size-button-normal: 36px;
+  --size-button-normal-2: 40px;
+  --size-button-xl: 48px;
+
+  /* Avatar sizes */
+  --size-avatar-sm: 16px;
+  --size-avatar-md: 24px;
+  --size-avatar-lg: 32px;
+  --size-avatar-xl: 48px;
+
+  /* Fonts */
   --font-inter: "Inter", sans-serif;
   --font-open-sans: "Open Sans", sans-serif;
-
-  /* Wundu brand color tokens */
-  --color-brand-yellow:      #ffd400;
-  --color-brand-yellow-dark: #ca6f05;
-  --color-brand-blue:        #003cc3;
-  --color-brand-blue-dark:   #00216b;
+  --font-manrope: "Manrope", sans-serif;
 }
+
+/* ============================================================
+   2. LIGHT MODE (DEFAULT)
+   ============================================================ */
+:root,
+[data-theme="light"] {
+  /* Base */
+  --background: #ffffff;
+  --background-variant: #f4f4f5;
+  --foreground: #040916;
+  --bg-body: #f4f4f5;
+  --bg-button: #053dc4;
+  --bg-filter: #f4f4f5;
+  --bg-card: #ffffff;
+  --bg-list: #f4f4f5;
+  --bg-notify-card: rgba(244, 244, 245, 0.4);
+  --bg-notify-card-hover: #f4f4f5;
+  --bg-chart-info: #021b58;
+
+  /* Icon */
+  --icon: rgba(2, 21, 69, 0.5);
+  --icon-hover: #053dc4;
+  --icon-hover-2: #053dc4;
+
+  /* Primary */
+  --primary: #222932;
+  --primary-foreground: #ffffff;
+  --primary-70: rgba(34, 41, 50, 0.7);
+
+  /* Border */
+  --border: #053dc4;
+  --border-blue: #053dc4;
+  --border-hover: rgba(2, 21, 69, 0.3);
+  --border-50: rgba(5, 61, 196, 0.5);
+  --border-card: #dadada;
+  --border-card-10: rgba(34, 41, 50, 0.1);
+  --border-button: #e2e8f0;
+
+  /* Text */
+  --text: #222932;
+  --text-title: #3b4655;
+  --text-description: #62748e;
+  --text-description-button: #62748e;
+  --text-description-60: rgba(98, 116, 142, 0.6);
+  --text-link: #053dc4;
+  --text-dark-link: #3b4655;
+
+  /* Button */
+  --button-bg: #053dc4;
+  --button-bg-hover: #0537b0;
+  --button-bg-pressed: #04319d;
+  --button-fg: #ffffff;
+  --button-bg-opacity: rgba(255, 255, 255, 0);
+  --button-bg-secondary-50: #e6ecf9;
+  --button-bg-secondary-100: #dae2f6;
+  --button-bg-secondary-hover: #b2c3ed;
+  --button-bg-danger: #ff3b3b;
+  --button-bg-danger-400: #dc2828;
+  --button-bg-danger-500: #be1919;
+  --button-border: #053dc4;
+  --button-icon-yellow: #f8dc4e;
+  --button-icon-yellow-opacity: rgba(248, 220, 78, 0.4);
+  --button-icon-blue: #053dc4;
+  --button-icon-blue-opacity: rgba(5, 61, 196, 0.4);
+  --button-icon-white: #ffffff;
+  --button-icon-white-opacity: rgba(255, 255, 255, 0.25);
+  --button-disable: #ced4dc;
+  --button-disable-text: #62748e;
+  --button-link-blue: #053dc4;
+  --button-link-blue-400: #0537b0;
+
+  /* Card */
+  --card: #ffffff;
+  --card-bg-hover: #f4f4f5;
+  --card-fg: #222932;
+  --card-gradient: #222932;
+  --card-barras: #e6e6e8;
+  --card-barras-graphic: #3b4655;
+
+  /* Settings */
+  --settings-bg-card-profile: #ffffff;
+  --settings-bg-config: #f4f4f5;
+  --settings-bg-config-card: #ffffff;
+
+  /* Menu */
+  --menu-bg: rgba(255, 255, 255, 0);
+  --menu-bg-hover: #f4f4f5;
+  --menu-bg-active: #e6ecf9;
+  --menu-bg-aside: #021545;
+  --menu-text: rgba(2, 21, 69, 0.6);
+  --menu-icon: rgba(2, 21, 69, 0.5);
+  --menu-hover: #053dc4;
+  --menu-divider: #dadada;
+}
+
+/* ============================================================
+   3. DARK MODE
+   ============================================================ */
+[data-theme="dark"] {
+  /* Base */
+  --background: #051020;
+  --background-variant: rgba(98, 116, 142, 0.3);
+  --foreground: #ffffff;
+  --bg-body: #051020;
+  --bg-button: #053dc4;
+  --bg-filter: #07162b;
+  --bg-card: #07162b;
+  --bg-list: #07162b;
+  --bg-notify-card: rgba(34, 41, 50, 0.3);
+  --bg-notify-card-hover: rgba(34, 41, 50, 0.6);
+  --bg-chart-info: #ffffff;
+
+  /* Icon */
+  --icon: #62748e;
+  --icon-hover: #053dc4;
+  --icon-hover-2: #ffffff;
+
+  /* Primary */
+  --primary: #ffffff;
+  --primary-foreground: #222932;
+  --primary-70: rgba(98, 116, 142, 0.7);
+
+  /* Border */
+  --border: #dadada;
+  --border-blue: #053dc4;
+  --border-hover: #042e93;
+  --border-50: rgba(5, 61, 196, 0.5);
+  --border-card: rgba(5, 61, 196, 0.5);
+  --border-card-10: #62748e;
+  --border-button: rgba(98, 116, 142, 0.2);
+
+  /* Text */
+  --text: #ffffff;
+  --text-title: #ffffff;
+  --text-description: #62748e;
+  --text-description-button: #ffffff;
+  --text-description-60: #62748e;
+  --text-link: #053dc4;
+  --text-dark-link: #ffffff;
+
+  /* Button */
+  --button-bg: #053dc4;
+  --button-bg-hover: #0537b0;
+  --button-bg-pressed: #04319d;
+  --button-fg: #ffffff;
+  --button-bg-opacity: rgba(255, 255, 255, 0);
+  --button-bg-secondary-50: #e6ecf9;
+  --button-bg-secondary-100: #dae2f6;
+  --button-bg-secondary-hover: #b2c3ed;
+  --button-bg-danger: #ff3b3b;
+  --button-bg-danger-400: #dc2828;
+  --button-bg-danger-500: #be1919;
+  --button-border: #053dc4;
+  --button-icon-yellow: #f8dc4e;
+  --button-icon-yellow-opacity: rgba(248, 220, 78, 0.4);
+  --button-icon-blue: #053dc4;
+  --button-icon-blue-opacity: rgba(5, 61, 196, 0.4);
+  --button-icon-white: #ffffff;
+  --button-icon-white-opacity: rgba(255, 255, 255, 0.25);
+  --button-disable: #ced4dc;
+  --button-disable-text: #62748e;
+  --button-link-blue: #053dc4;
+  --button-link-blue-400: #0537b0;
+
+  /* Card */
+  --card: #07162b;
+  --card-bg-hover: rgba(98, 116, 142, 0.3);
+  --card-fg: #ffffff;
+  --card-gradient: #ffffff;
+  --card-barras: rgba(98, 116, 142, 0.3);
+  --card-barras-graphic: #f4f4f5;
+
+  /* Settings */
+  --settings-bg-card-profile: #0a1323;
+  --settings-bg-config: #051020;
+  --settings-bg-config-card: #07162b;
+
+  /* Menu */
+  --menu-bg: rgba(2, 27, 88, 0);
+  --menu-bg-hover: rgba(98, 116, 142, 0.3);
+  --menu-bg-active: #021545;
+  --menu-bg-aside: #021545;
+  --menu-text: #ffffff;
+  --menu-icon: #62748e;
+  --menu-hover: #ffffff;
+  --menu-divider: #ffffff;
+}
+
+/* ============================================================
+   7. BASE STYLES & UTILITIES
+   ============================================================ */
 
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
   font-family: var(--font-inter);
+  background-color: var(--bg-body);
+  color: var(--foreground);
 }
 
 .app-viewport {
@@ -41,7 +492,28 @@ body {
   }
 }
 
-/* Modern Animations */
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar globally */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.open-sans {
+  font-family: var(--font-open-sans);
+}
+
+/* ============================================================
+   UTILITÁRIOS
+   ============================================================ */
 @layer utilities {
   .text-gradient {
     background-clip: text;
@@ -73,17 +545,33 @@ body {
   }
 
   .gradient-border {
-    background: linear-gradient(white, white) padding-box,
-      linear-gradient(45deg, var(--color-brand-yellow), var(--color-brand-blue)) border-box;
+    background:
+      linear-gradient(var(--background), var(--background)) padding-box,
+      linear-gradient(45deg, var(--color-secondary), var(--color-primary))
+        border-box;
     border: 2px solid transparent;
   }
 
   .gradient-border-dark {
-    background: linear-gradient(transparent, transparent) padding-box,
-      linear-gradient(45deg, var(--color-brand-yellow), var(--color-brand-blue)) border-box;
+    background:
+      linear-gradient(transparent, transparent) padding-box,
+      linear-gradient(45deg, var(--color-secondary), var(--color-primary))
+        border-box;
     border: 2px solid transparent;
   }
+
+  .transform-gpu {
+    transform: translateZ(0);
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
 }
+
+/* ============================================================
+   ANIMAÇÕES
+   ============================================================ */
 
 @keyframes spin {
   from {
@@ -94,36 +582,6 @@ body {
   }
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Hide scrollbar globally */
-::-webkit-scrollbar {
-  display: none;
-}
-
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Performance optimizations */
-.transform-gpu {
-  transform: translateZ(0);
-}
-
-.will-change-transform {
-  will-change: transform;
-}
-
-.open-sans {
-  font-family: var(--font-open-sans);
-  /* Use Open Sans for specific elements */
-}
-
-/* SweetAlert-style Animations for NotificationToast */
 @keyframes sweetalert-show {
   0% {
     opacity: 0;
@@ -197,6 +655,35 @@ html {
   }
 }
 
+@keyframes spin-slow {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse-slow {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .animate-sweetalert-show {
   animation: sweetalert-show 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -221,39 +708,17 @@ html {
   animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-/* Órbitas do núcleo financeiro (landing).
-   Os anéis estão centrados via translate(-50%,-50%); a keyframe inclui esse
-   translate para manter o centro durante a rotação. Só transform = composite. */
-@keyframes spin-slow {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to   { transform: translate(-50%, -50%) rotate(360deg); }
-}
-@keyframes spin-reverse-slow {
-  from { transform: translate(-50%, -50%) rotate(360deg); }
-  to   { transform: translate(-50%, -50%) rotate(0deg); }
-}
-
 .animate-spin-slow {
   animation: spin-slow 60s linear infinite;
 }
+
 .animate-spin-reverse-slow {
   animation: spin-reverse-slow 80s linear infinite;
 }
 
-/* Tutorial tooltip animation */
-@keyframes tooltipIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Acessibilidade: respeita "reduzir movimento" do sistema.
-   Neutraliza animações infinitas/decorativas sem quebrar o layout. */
+/* ============================================================
+   ACESSIBILIDADE
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

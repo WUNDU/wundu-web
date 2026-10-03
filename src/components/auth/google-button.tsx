@@ -31,7 +31,7 @@ export function GoogleButton({
       type="button"
       disabled={disabled}
       onClick={() => signIn("google", { callbackUrl: ROUTES.GOOGLE_CALLBACK })}
-      className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-(--border-button) bg-(--bg-card) font-manrope text-sm font-bold text-(--text-title) transition-all hover:bg-(--menu-bg-hover) active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
     >
       <GoogleIcon className="h-5 w-5" />
       {label}

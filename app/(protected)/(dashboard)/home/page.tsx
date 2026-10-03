@@ -1,359 +1,371 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Document } from "@/types/ui";
-import { StatsSection } from "@/components/layout";
-
-import { useUiStore } from "@/store/ui-store";
-import { useAuth } from "@/hooks/use-auth";
+import { useMemo, useState } from "react";
+import CardViews, { type CardTrend } from "app/components/dashboard/CardViews";
+import GoalsSection from "app/components/dashboard/GoalsSection";
+import TransactionSection from "app/components/dashboard/TransactionSection";
+import PageHeader from "app/components/layout/PageHeader";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { useBalance } from "@/hooks/use-balance";
+import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
-import { useDocumentQueue } from "@/hooks/use-document-queue";
-import { documentService } from "@/services/document.service";
-import {
-  MAX_UPLOAD_FILE_SIZE_BYTES,
-  MAX_UPLOAD_FILE_SIZE_MB,
-} from "@/constants/upload";
-import { Category } from "@/types/dtos/category.dto";
-import { isIncome } from "@/utils/transaction-type";
+import type { Goal } from "@/types/dtos/goal.dto";
+import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
+import type { GoalDTO } from "app/types/dto/goal.dto";
+import { formatAOA } from "app/utils/format-AOA";
+import { getCategory, toAppTransaction } from "app/utils/transaction-map";
 
-import UploadSection from "@/components/home/upload-section";
-import UploadOptions from "@/components/home/upload-options";
-import AddTransactionModal from "@/components/home/add-transaction-modal";
-import MovementSection from "@/components/home/movement-section";
-import CategoryScreen from "@/components/home/category-screen";
-import OcrToastStack from "@/components/home/ocr-toast-stack";
-import { useAddTransactionModal } from "@/hooks/use-add-transaction-modal";
-import { useTutorial } from "@/hooks/use-tutorial";
-import { TutorialOverlay } from "@/components/ui/tutorial-overlay";
-import { tutorials } from "@/config/tutorials";
-import { captureEvent } from "@/lib/analytics";
+function toDashboardGoal(goal: Goal): GoalDTO {
+  return {
+    id: goal.id,
+    title: goal.title,
+    description: goal.description,
+    type: goal.type,
+    targetAmount: goal.targetAmount,
+    currentAmount: goal.currentAmount,
+    startDate: goal.startDate,
+    endDate: goal.endDate,
+    category: getCategory(goal.categoryName ?? goal.category?.name),
+    categoryId: goal.categoryId ?? goal.category?.id ?? "",
+  };
+}
 
-const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
-const HomeScreen = () => {
-  const { user } = useAuth();
-  const [pendingDocs, setPendingDocs] = useState<Document[]>([]);
-  const [showUploadOptions, setShowUploadOptions] = useState<boolean>(false);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const {
-    allTransactions,
-    isLoading: isTransactionsLoading,
-    isRefreshing: isTransactionsRefreshing,
-    error: transactionsError,
-    loadPage,
-  } = useTransaction({ autoFetch: false });
+function lastDayOfMonth(year: number, monthIndex: number) {
+  return new Date(year, monthIndex + 1, 0).getDate();
+}
 
-  const tutorial = useTutorial(tutorials);
+/**
+ * Variação percentual do mês selecionado vs mês anterior.
+ * - Entradas/Gastos/Património: ((atual - anterior) / anterior) × 100
+ * - Saldo: denominador em módulo (|anterior|) para a direção financeira
+ *   ficar correta com saldos negativos (ex. -3,5M → -4,3M é queda, não subida).
+ * Null quando não há base de comparação; 0 quando ambos são zero (manteve-se).
+ */
+function pctChange(
+  current: number,
+  previous: number,
+  useAbsDenominator = false,
+) {
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
+  if (previous === 0) return current === 0 ? 0 : null;
+  const denominator = useAbsDenominator ? Math.abs(previous) : previous;
+  return ((current - previous) / denominator) * 100;
+}
 
-  useEffect(() => {
-    if (tutorial.isLoaded && user && !tutorial.isCompleted("tutorial-first-revenue") && !tutorial.state.isActive) {
-      const timer = setTimeout(() => {
-        tutorial.start("tutorial-first-revenue");
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, tutorial.isLoaded]);
+/** Magnitude da percentagem — a direção vai na seta do badge. */
+function formatPct(value: number) {
+  const formatted = new Intl.NumberFormat("pt-AO", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(Math.abs(value));
+  return `${formatted}%`;
+}
 
-  const refreshTransactions = useCallback(async () => {
-    await loadPage(0, true);
-  }, [loadPage]);
+/** Direção da variação para a UI: > 0 → up, < 0 → down, = 0 → flat (=). */
+function trendOf(value: number): CardTrend {
+  if (Math.abs(value) < 0.05) return "flat";
+  return value > 0 ? "up" : "down";
+}
 
-  const documents = useMemo<Document[]>(
-    () => [
-      ...pendingDocs,
-      ...(allTransactions ?? []).map((tx, index) => ({
-        id: tx.id,
-        type: "transaction" as const,
-        name: tx.description || tx.category?.name || `Transação ${index + 1}`,
-        description: tx.description ?? undefined,
-        amount: tx.amount,
-        category: tx.category?.name ?? undefined,
-        timestamp: tx.transactionDate,
-        isIncome: isIncome(tx.type),
-      })),
-    ],
-    [allTransactions, pendingDocs],
+/**
+ * Texto do badge: magnitude da percentagem quando calculável, "—" neutro
+ * quando não há base de comparação (ex. mês anterior sem movimento). A seta
+ * (up/down/=) vai no `trend` e reflete o sinal da variação — neutra quanto a
+ * "bom/ruim"; o significado vem da métrica do card.
+ */
+function badgeText(pct: number | null, loading: boolean) {
+  if (loading) return "";
+  if (pct === null) return "—";
+  return formatPct(pct);
+}
+
+/** Meses abreviados fixos — o `month: "short"` do Intl devolve número em `pt-AO`. */
+const PT_MONTHS_SHORT = [
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
+] as const;
+
+/** Rótulo curto de data para o tooltip (ex. "Nov 9"). */
+function shortDateLabel(raw?: string | null) {
+  if (!raw) return "";
+  const date = new Date(raw);
+  if (!Number.isFinite(date.getTime())) return "";
+  return `${PT_MONTHS_SHORT[date.getMonth()]} ${date.getDate()}`;
+}
+
+function getRecentSeries(
+  transactions: ApiTransaction[],
+  type: "income" | "expense",
+) {
+  const items = transactions
+    .filter((transaction) => (transaction.type === "INCOME") === (type === "income"))
+    .slice(0, 7)
+    .reverse();
+  return {
+    data: items.map((transaction) => transaction.amount),
+    labels: items.map((transaction) =>
+      shortDateLabel(transaction.transactionDate ?? transaction.createdAt),
+    ),
+  };
+}
+
+function Page() {
+  const now = new Date();
+  const currentKey = now.getFullYear() * 12 + now.getMonth();
+  // Mês selecionado no filtro do cabeçalho (por omissão, o mês atual).
+  const [selected, setSelected] = useState(() => ({
+    y: now.getFullYear(),
+    m: now.getMonth(),
+  }));
+  const isCurrentMonth =
+    selected.y === now.getFullYear() && selected.m === now.getMonth();
+
+  function shiftMonth(delta: -1 | 1) {
+    const target = selected.y * 12 + selected.m + delta;
+    // Não permite navegar para meses futuros.
+    if (target > currentKey) return;
+    setSelected({
+      y: Math.floor(target / 12),
+      m: ((target % 12) + 12) % 12,
+    });
+  }
+
+  const monthStart = toDateKey(new Date(selected.y, selected.m, 1));
+  const monthEnd = isCurrentMonth
+    ? toDateKey(now)
+    : toDateKey(
+        new Date(
+          selected.y,
+          selected.m,
+          lastDayOfMonth(selected.y, selected.m),
+        ),
+      );
+  const prevMonthDate = new Date(selected.y, selected.m - 1, 1);
+  const prevStart = toDateKey(prevMonthDate);
+  // Comparação justa: mês incompleto (atual) compara-se com o mesmo
+  // intervalo do mês anterior (ex. 1–3 out vs 1–3 set); mês fechado
+  // compara mês completo vs mês anterior completo.
+  const prevLastDay = lastDayOfMonth(
+    prevMonthDate.getFullYear(),
+    prevMonthDate.getMonth(),
   );
-  const { showNotification } = useUiStore();
+  const prevEndDay = isCurrentMonth
+    ? Math.min(now.getDate(), prevLastDay)
+    : prevLastDay;
+  const prevEnd = toDateKey(
+    new Date(
+      prevMonthDate.getFullYear(),
+      prevMonthDate.getMonth(),
+      prevEndDay,
+    ),
+  );
+  const prevMonthName = (() => {
+    const raw = new Intl.DateTimeFormat("pt-AO", { month: "long" }).format(
+      prevMonthDate,
+    );
+    return raw.charAt(0).toLocaleUpperCase("pt-AO") + raw.slice(1);
+  })();
+  const comparisonLabel = `vs ${prevMonthName}`;
+  const monthLabel = new Intl.DateTimeFormat("pt-AO", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(selected.y, selected.m, 1));
+  const { data: balance, isLoading: isBalanceLoading, error: balanceError } =
+    useBalance(monthStart, monthEnd);
   const {
-    isOpen: isTransactionModalOpen,
-    submitError,
-    formData,
-    isLoading: isTransactionLoading,
-    errors,
-    openModal,
-    closeModal,
-    handleChange,
-    handleSubmit,
-  } = useAddTransactionModal();
+    data: prevBalance,
+    isLoading: isPrevBalanceLoading,
+    error: prevBalanceError,
+  } = useBalance(prevStart, prevEnd);
+  const {
+    goals: apiGoals,
+    isLoading: areGoalsLoading,
+    error: goalsError,
+  } = useGoal();
+  const {
+    transactions: apiTransactions,
+    totalElements,
+    isLoading: areTransactionsLoading,
+    error: transactionsError,
+  } = useTransaction();
 
-  const { entries: ocrEntries, startPolling, dismiss: dismissOcr, categorize: categorizeOcr } = useDocumentQueue({
-    onProcessed: (doc) => {
-      refreshTransactions();
-      captureEvent("document_ocr_processed", { documentId: doc.id });
-    },
-  });
-
-  useEffect(() => {
-    if (allTransactions === null && !isTransactionsLoading) {
-      loadPage(0);
-    }
-  }, [allTransactions, isTransactionsLoading, loadPage]);
-
-  const handleTransactionSubmit = useCallback(async () => {
-    const success = await handleSubmit();
-    if (success) {
-      setPendingDocs([]);
-    }
-    return success;
-  }, [handleSubmit]);
-
-  const handleOpenTransactionModal = () => {
-    openModal();
-  };
-
-  const toggleUploadOptions = () => {
-    setShowUploadOptions(!showUploadOptions);
-  };
-
-  const handleFileSelect = async (file: File, type: "image" | "document") => {
-    const allowedMimes = ["application/pdf", "image/jpeg", "image/png"];
-    if (!allowedMimes.includes(file.type)) {
-      showNotification(
-        "error",
-        "Formato inválido",
-        "Envie comprovativos em PDF, JPG ou PNG.",
-      );
-      return;
-    }
-
-    if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
-      showNotification(
-        "error",
-        "Arquivo muito grande",
-        `O ficheiro deve ter no máximo ${MAX_UPLOAD_FILE_SIZE_MB}MB.`,
-      );
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const response = await documentService.upload(formData);
-      captureEvent("document_uploaded", {
-        document_type: type,
-        file_name: file.name,
-        file_size: file.size,
-        documentId: response.documentId,
-      });
-      setShowUploadOptions(false);
-      startPolling(response.documentId, file.name);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Não foi possível enviar o comprovativo.";
-      showNotification("error", "Falha no envio", message);
-      captureEvent("document_upload_failed", { reason: message });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleOcrRetry = (_id: string) => {
-    setShowUploadOptions(true);
-  };
-
-  const handleCategoryCloseOrSuccess = () => {
-    setShowUploadOptions(false);
-  };
+  const transactions = useMemo(
+    () => apiTransactions.map(toAppTransaction),
+    [apiTransactions],
+  );
+  const activeApiGoals = useMemo(
+    () => apiGoals.filter((goal) => goal.status === "ACTIVE" || goal.status === "AT_RISK"),
+    [apiGoals],
+  );
+  const goals = useMemo(
+    () => activeApiGoals.map(toDashboardGoal),
+    [activeApiGoals],
+  );
+  const monthlyTransactions = useMemo(() => {
+    const start = new Date(selected.y, selected.m, 1).getTime();
+    const end = new Date(selected.y, selected.m + 1, 1).getTime();
+    return apiTransactions.filter((transaction) => {
+      const raw = transaction.transactionDate ?? transaction.createdAt;
+      if (!raw) return false;
+      const time = new Date(raw).getTime();
+      return Number.isFinite(time) && time >= start && time < end;
+    });
+  }, [apiTransactions, selected]);
+  const incomeSeries = useMemo(
+    () => getRecentSeries(monthlyTransactions, "income"),
+    [monthlyTransactions],
+  );
+  const expenseSeries = useMemo(
+    () => getRecentSeries(monthlyTransactions, "expense"),
+    [monthlyTransactions],
+  );
+  const incomeChart = incomeSeries.data;
+  const expenseChart = expenseSeries.data;
+  const saldoLabels = incomeSeries.labels.length
+    ? incomeSeries.labels
+    : expenseSeries.labels;
+  const incomePct =
+    balance && prevBalance
+      ? pctChange(balance.totalIncome, prevBalance.totalIncome)
+      : null;
+  const expensePct =
+    balance && prevBalance
+      ? pctChange(balance.totalExpense, prevBalance.totalExpense)
+      : null;
+  const balancePct =
+    balance && prevBalance
+      ? pctChange(balance.balance, prevBalance.balance, true)
+      : null;
+  const isCardsLoading = isBalanceLoading || isPrevBalanceLoading;
+  const errorMessages = [
+    balanceError || prevBalanceError
+      ? "Não foi possível carregar o resumo financeiro."
+      : null,
+    transactionsError ? "Não foi possível carregar as transações." : null,
+    goalsError ? "Não foi possível carregar as metas." : null,
+  ].filter(Boolean);
 
   return (
-    <div className="w-full max-w-340 mx-auto flex flex-col gap-3">
-      {/* Header da Página */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: EASE_OUT }}
-        className="flex flex-col gap-1"
-      >
-        <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-          Olá, {user?.name?.split(" ")[0] || "Usuário"}! <span aria-hidden="true">👋</span>
-        </h2>
-        <p className="text-sm text-slate-500 font-medium">
-          Aqui está o que está acontecendo com suas finanças hoje.
-        </p>
-      </motion.div>
-
-      <div className="flex flex-col gap-3">
-          {/* Grid de Cards Superiores - Alinhados e Proporcionais */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
-            <div className="lg:col-span-4 flex">
-              <UploadSection onUploadClick={toggleUploadOptions} isUploading={isUploading} />
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.08 }}
-              className="lg:col-span-8 flex"
-            >
-              <StatsSection />
-            </motion.div>
-          </div>
-
-          {/* Seção de Conteúdo Principal */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.12 }}
-            className="min-h-80 lg:min-h-90"
+    <div className="flex h-full flex-col">
+      <PageHeader title="Dashboard">
+        <div className="flex items-center justify-center gap-1 rounded-2xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
+          <button
+            type="button"
+            onClick={() => shiftMonth(-1)}
+            className="flex size-8 items-center justify-center rounded-xl text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label="Ver mês anterior"
           >
-            <MainContent
-              documents={documents}
-              showUploadOptions={showUploadOptions}
-              handleFileSelect={handleFileSelect}
-              onCategoryCloseOrSuccess={handleCategoryCloseOrSuccess}
-              onManualClick={handleOpenTransactionModal}
-              isTransactionsLoading={isTransactionsLoading}
-              isTransactionsRefreshing={isTransactionsRefreshing}
-              transactionsError={transactionsError}
-              onRefreshTransactions={refreshTransactions}
-            />
-          </motion.div>
+            <ChevronLeft className="size-5" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelected({ y: now.getFullYear(), m: now.getMonth() })}
+            className="flex items-center justify-center gap-3 rounded-xl px-2 py-1 transition-colors hover:bg-(--menu-bg-hover)"
+            aria-label="Voltar ao mês atual"
+            title={isCurrentMonth ? "Mês atual" : "Voltar ao mês atual"}
+          >
+            <Calendar className="size-5 text-primary-300" />
+            <p className="font-manrope text-base font-medium text-(--text-title) capitalize">
+              {monthLabel}
+            </p>
+          </button>
+          <button
+            type="button"
+            onClick={() => shiftMonth(1)}
+            disabled={isCurrentMonth}
+            className="flex size-8 items-center justify-center rounded-xl text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label="Ver mês seguinte"
+          >
+            <ChevronRight className="size-5" strokeWidth={2} />
+          </button>
         </div>
-
-      <AddTransactionModal
-        isOpen={isTransactionModalOpen}
-        onClose={closeModal}
-        onSubmit={handleTransactionSubmit}
-        formData={formData}
-        errors={errors}
-        isLoading={isTransactionLoading}
-        submitError={submitError}
-        onFormChange={handleChange}
-      />
-      <OcrToastStack
-        entries={ocrEntries}
-        onDismiss={dismissOcr}
-        onCategorize={categorizeOcr}
-        onRetry={handleOcrRetry}
-      />
-
-      {tutorial.state.isActive && tutorial.currentStep && (
-        <TutorialOverlay
-          step={tutorial.currentStep}
-          currentStepIndex={tutorial.state.currentStepIndex}
-          totalSteps={tutorial.activeTutorial!.steps.length}
-          onNext={tutorial.next}
-          onPrevious={tutorial.previous}
-          onSkip={tutorial.skip}
-        />
-      )}
+      </PageHeader>
+      <main className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto p-8">
+        {errorMessages.length > 0 && (
+          <div
+            role="alert"
+            className="rounded-xl border border-danger-300/30 bg-danger-300/5 px-4 py-3 font-manrope text-sm text-danger-300"
+          >
+            {errorMessages.join(" ")} Atualize a página para tentar novamente.
+          </div>
+        )}
+        <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <CardViews
+            property1="Default"
+            title="Entradas"
+            value={isCardsLoading ? "A carregar…" : balance ? formatAOA(balance.totalIncome) : "—"}
+            change={badgeText(incomePct, isCardsLoading)}
+            trend={incomePct === null ? undefined : trendOf(incomePct)}
+            comparison={comparisonLabel}
+            chartData={incomeChart}
+            chartLabels={incomeSeries.labels}
+            chartLabel="Montantes das entradas recentes"
+            className="min-w-0! max-w-none!"
+          />
+          <CardViews
+            property1="Variant6"
+            title="Gastos"
+            value={isCardsLoading ? "A carregar…" : balance ? formatAOA(balance.totalExpense) : "—"}
+            change={badgeText(expensePct, isCardsLoading)}
+            trend={expensePct === null ? undefined : trendOf(expensePct)}
+            comparison={comparisonLabel}
+            chartData={expenseChart}
+            chartLabels={expenseSeries.labels}
+            chartLabel="Montantes dos gastos recentes"
+            className="min-w-0! max-w-none!"
+          />
+          <CardViews
+            property1="Variant8"
+            title="Saldo do mês"
+            value={isCardsLoading ? "A carregar…" : balance ? formatAOA(balance.balance) : "—"}
+            change={badgeText(balancePct, isCardsLoading)}
+            trend={balancePct === null ? undefined : trendOf(balancePct)}
+            comparison={comparisonLabel}
+            chartData={incomeChart.map((value, index) => value - (expenseChart[index] ?? 0))}
+            chartLabels={saldoLabels}
+            chartLabel="Saldo calculado sobre as entradas e gastos recentes"
+            className="min-w-0! max-w-none!"
+          />
+          <CardViews
+            property1="Variant7"
+            title="Património"
+            value="—"
+            change=""
+            comparison="Dados de contas indisponíveis"
+            chartData={[]}
+            chartLabel="Sem dados de património disponíveis"
+            className="min-w-0! max-w-none!"
+          />
+        </div>
+        <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
+          <TransactionSection
+            transactions={transactions}
+            isLoading={areTransactionsLoading}
+            error={transactionsError}
+            totalElements={totalElements}
+          />
+          <GoalsSection goals={goals} isLoading={areGoalsLoading} error={goalsError} />
+        </div>
+      </main>
     </div>
   );
-};
+}
 
-const MainContent = ({
-  documents,
-  showUploadOptions,
-  handleFileSelect,
-  onCategoryCloseOrSuccess,
-  onManualClick,
-  isTransactionsLoading,
-  isTransactionsRefreshing,
-  transactionsError,
-  onRefreshTransactions,
-}: {
-  documents: Document[];
-  showUploadOptions: boolean;
-  handleFileSelect: (file: File, type: "image" | "document") => void;
-  onCategoryCloseOrSuccess: () => void;
-  onManualClick: () => void;
-  isTransactionsLoading: boolean;
-  isTransactionsRefreshing: boolean;
-  transactionsError: string | null;
-  onRefreshTransactions: () => void;
-}) => {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [transactionDescription, setTransactionDescription] = useState("");
-
-  const categoryProps = {
-    selectedCategory,
-    setSelectedCategory,
-    isCategoryModalOpen,
-    setIsCategoryModalOpen,
-    transactionDescription,
-    setTransactionDescription,
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: EASE_OUT }}
-      className="flex flex-col xl:flex-row gap-3 items-start h-full"
-    >
-      <AnimatePresence initial={false}>
-        {showUploadOptions && (
-          <motion.div
-            key="upload-options-panel"
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2, ease: EASE_OUT }}
-            className="w-full xl:w-[280px] flex-shrink-0"
-          >
-            <div className="bg-white rounded-xl border border-slate-100 p-3 lg:p-4 shadow-sm h-full">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.16em] mb-4 text-center lg:text-left">
-                Opções de Envio
-              </h3>
-              <UploadOptions
-                onFileSelect={handleFileSelect}
-                onManualClick={onManualClick}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="flex-1 min-w-0 w-full h-full">
-        <AnimatePresence mode="wait" initial={false}>
-          {isCategoryModalOpen ? (
-            <motion.div
-              key="category-panel"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.18, ease: EASE_OUT }}
-              className="h-full"
-            >
-              <CategoryScreen
-                {...categoryProps}
-                onCloseOrSuccess={onCategoryCloseOrSuccess}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="movement-panel"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2, ease: EASE_OUT }}
-              className="h-full"
-            >
-              <MovementSection
-                documents={documents}
-                isLoading={isTransactionsLoading}
-                isRefreshing={isTransactionsRefreshing}
-                onRefresh={onRefreshTransactions}
-                error={transactionsError}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-};
-
-export default HomeScreen;
+export default Page;

@@ -15,12 +15,8 @@ import {
   buildVerifyPendingUrl,
   setPendingVerificationEmail,
 } from "@/utils/pending-verification";
-import {
-  validateEmail,
-  validatePhoneNumber,
-  validatePasswordDetailed,
-  validateName,
-} from "@/utils/validation";
+import { validateEmail, validatePhoneNumber, validatePasswordDetailed, validateName } from "@/utils/validation";
+import { formatPhoneInput } from "app/utils/phone-mask";
 import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 import {
   ProfileIcon,
@@ -58,9 +54,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     const countries = [{ code: "+244", name: "Angola", flag: "🇦🇴" }];
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      let phoneNumber = e.target.value.replace(/\D/g, "");
-      if (phoneNumber.length > 9) phoneNumber = phoneNumber.slice(0, 9);
-      onChange?.(`${selectedCountry} ${phoneNumber}`);
+      onChange?.(`${selectedCountry} ${formatPhoneInput(e.target.value)}`);
     };
 
     const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -72,25 +66,27 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     const phoneOnly =
-      typeof value === "string" ? value.replace(/^\+\d+\s*/, "") : "";
+      typeof value === "string"
+        ? formatPhoneInput(value.replace(/^\+\d+\s*/, ""))
+        : "";
 
     const stateClasses = isError
-      ? "border-red-500 bg-red-50/30"
+      ? "border-danger-300 bg-danger-300/5"
       : isFocused
-        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]"
-        : "border-slate-200 bg-slate-50/50";
+        ? "border-primary-300 bg-(--bg-card) ring-4 ring-primary-300/10"
+        : "border-(--border-button) bg-(--background)";
 
     return (
       <div className="flex w-full flex-col gap-2">
         {label && (
           <label
-            className={`text-sm font-semibold transition-colors duration-150 ${
-              isError
-                ? "text-red-600"
-                : isFocused
-                  ? "text-[#003cc3]"
-                  : "text-slate-500"
-            }`}
+          className={`font-manrope text-sm font-semibold transition-colors duration-150 ${
+            isError
+              ? "text-danger-300"
+              : isFocused
+                ? "text-primary-300"
+                : "text-(--text-description)"
+          }`}
           >
             {label}
           </label>
@@ -98,11 +94,11 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         <div
           className={`flex h-12 rounded-lg border transition-all duration-150 overflow-hidden ${stateClasses}`}
         >
-          <div className="relative border-r border-slate-100 bg-slate-50/30">
+          <div className="relative border-r border-(--card-barras) bg-(--background)">
             <select
               value={selectedCountry}
               onChange={handleCountryChange}
-              className="h-full appearance-none bg-transparent px-3 text-sm font-bold text-slate-800 focus:outline-none cursor-pointer pr-8"
+              className="h-full appearance-none bg-transparent px-3 font-manrope text-sm font-bold text-(--text-title) focus:outline-none cursor-pointer pr-8"
             >
               {countries.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -110,7 +106,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
                 </option>
               ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-400">
+            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-(--text-description-60)">
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -126,18 +122,18 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
               </svg>
             </div>
           </div>
-          <input
-            ref={ref}
-            type="tel"
-            placeholder={placeholder}
-            value={phoneOnly}
-            onChange={handlePhoneChange}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            required={required}
-            className="w-full bg-transparent px-4 text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
-            {...props}
-          />
+            <input
+              ref={ref}
+              type="tel"
+              placeholder={placeholder}
+              value={phoneOnly}
+              onChange={handlePhoneChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              required={required}
+              className="w-full bg-transparent px-4 font-manrope text-[15px] text-(--text-title) placeholder:text-(--text-description)/60 focus:outline-none"
+              {...props}
+            />
         </div>
       </div>
     );
@@ -357,7 +353,7 @@ const RegisterPage = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
+    <div className="flex min-h-screen flex-col bg-(--bg-card) md:bg-(--bg-body)">
       {/* Brand Header */}
       <header className="flex h-16 shrink-0 items-center justify-center px-8 md:justify-start md:px-12">
         <Link
@@ -379,20 +375,20 @@ const RegisterPage = () => {
            * while keeping a consistent appearance on steps 1 & 2.
            * FIX: overflow-hidden on all breakpoints to prevent shadow clipping.
            */}
-          <div className="flex w-full flex-col bg-white md:rounded-3xl md:border md:border-slate-200/50 md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)]">
-            <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:px-12 md:px-14">
+          <div className="flex w-full flex-col bg-(--bg-card) md:rounded-3xl md:border md:border-(--card-barras) md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)]">
+            <div className="flex flex-1 flex-col justify-center px-8 py-6 sm:px-12 md:px-14">
               {/* Progress System — steps 1 & 2 only */}
               {currentStep < 3 && (
-                <div className="flex justify-center gap-2 mb-10">
+                <div className="flex justify-center gap-2 mb-6">
                   {[1, 2].map((s) => (
                     <div
                       key={s}
                       className={`h-1 rounded-full transition-all duration-300 ${
                         s === currentStep
-                          ? "w-12 bg-yellow-400" // active
+                          ? "w-12 bg-secondary-300" // active
                           : s < currentStep
-                            ? "w-6 bg-slate-900" // completed
-                            : "w-6 bg-slate-100" // upcoming
+                            ? "w-6 bg-(--text-title)" // completed
+                            : "w-6 bg-(--card-barras)" // upcoming
                       }`}
                     />
                   ))}
@@ -406,11 +402,11 @@ const RegisterPage = () => {
                   animate={stepAnimate}
                   transition={stepTransition}
                 >
-                  <header className="mb-8">
-                    <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
+                  <header className="mb-6">
+                    <h2 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
                       Criar conta
                     </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
+                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description) leading-relaxed">
                       Inicie sua jornada para a liberdade financeira com gestão
                       de alta precisão.
                     </p>
@@ -418,7 +414,7 @@ const RegisterPage = () => {
 
                   <form
                     onSubmit={submitPersonal}
-                    className="flex flex-col gap-5"
+                    className="flex flex-col gap-4"
                     noValidate
                   >
                     {/* Name */}
@@ -436,7 +432,7 @@ const RegisterPage = () => {
                         required
                         isError={!!personalErrors.name}
                         autoFocus // FIX: only the first field in the step receives autoFocus
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
                       <AnimatePresence>
                         {personalErrors.name && (
@@ -445,7 +441,7 @@ const RegisterPage = () => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="text-[11px] font-bold text-red-600 px-1"
+                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
                           >
                             {personalErrors.name}
                           </motion.p>
@@ -468,7 +464,7 @@ const RegisterPage = () => {
                         required
                         isError={!!personalErrors.email}
                         // FIX: removed duplicate autoFocus
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
                       <AnimatePresence>
                         {personalErrors.email && (
@@ -477,7 +473,7 @@ const RegisterPage = () => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="text-[11px] font-bold text-red-600 px-1"
+                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
                           >
                             {personalErrors.email}
                           </motion.p>
@@ -504,7 +500,7 @@ const RegisterPage = () => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="text-[11px] font-bold text-red-600 px-1"
+                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
                           >
                             {personalErrors.phone}
                           </motion.p>
@@ -515,19 +511,19 @@ const RegisterPage = () => {
                     <Button
                       type="submit"
                       variant="warning"
-                      className="h-12 mt-6 rounded-xl font-extrabold shadow-sm active:scale-[0.98] transition-all"
+                      className="h-12 mt-4 rounded-xl font-manrope font-extrabold shadow-sm active:scale-[0.98] transition-all"
                     >
                       Próximo passo
                     </Button>
                   </form>
 
                   {/* Separador + registo com Google */}
-                  <div className="relative my-5">
+                  <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-100" />
+                      <div className="w-full border-t border-(--card-barras)" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <span className="bg-(--bg-card) px-3 font-manrope text-[11px] font-bold uppercase tracking-wider text-(--text-description-60)">
                         ou
                       </span>
                     </div>
@@ -536,12 +532,12 @@ const RegisterPage = () => {
                   <GoogleButton label="Registar com Google" />
 
                   {/* FIX: consistent footer spacing with Step 2 — mt-8 pt-6 */}
-                  <footer className="mt-8 border-t border-slate-100 pt-6 text-center">
-                    <p className="text-sm font-medium text-slate-500">
+                  <footer className="mt-6 border-t border-(--card-barras) pt-4 text-center">
+                    <p className="font-manrope text-sm font-medium text-(--text-description)">
                       Já possui uma conta?{" "}
                       <Link
                         href={ROUTES.LOGIN}
-                        className="font-bold text-slate-900 hover:underline decoration-yellow-400 decoration-2 underline-offset-4"
+                        className="font-manrope font-bold text-(--text-title) hover:underline decoration-secondary-300 decoration-2 underline-offset-4"
                       >
                         Fazer login
                       </Link>
@@ -561,17 +557,17 @@ const RegisterPage = () => {
                     type="button"
                     onClick={prevStep}
                     disabled={isSubmitting}
-                    className="group mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors disabled:opacity-50"
+                    className="group mb-6 flex items-center gap-2 font-manrope text-[10px] font-black uppercase tracking-[0.2em] text-(--text-description-60) hover:text-(--text-title) transition-colors disabled:opacity-50"
                   >
                     <ArrowLeftIcon className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                     Voltar
                   </button>
 
-                  <header className="mb-8">
-                    <h2 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
+                  <header className="mb-6">
+                    <h2 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
                       Segurança
                     </h2>
-                    <p className="mt-2 text-sm font-medium text-slate-500 leading-relaxed">
+                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description) leading-relaxed">
                       Proteja sua conta com uma senha forte para garantir a
                       segurança dos seus dados financeiros.
                     </p>
@@ -583,7 +579,7 @@ const RegisterPage = () => {
                    */}
                   <form
                     onSubmit={submitSecurity}
-                    className="flex flex-col gap-5"
+                    className="flex flex-col gap-4"
                     noValidate
                   >
                     {/* Password */}
@@ -603,7 +599,7 @@ const RegisterPage = () => {
                         required
                         isError={!!passwordError || !!contextError}
                         autoFocus // FIX: first field of step gets autoFocus
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
 
                       {/* Strength bar */}
@@ -618,12 +614,12 @@ const RegisterPage = () => {
                               className="flex flex-col gap-2 mt-2"
                             >
                               <div className="flex items-center gap-2">
-                                <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-1 w-20 bg-(--card-barras) rounded-full overflow-hidden">
                                   <motion.div
                                     className={`h-full transition-colors duration-500 ${
                                       passwordValidation.isValid
-                                        ? "bg-green-500"
-                                        : "bg-yellow-400"
+                                        ? "bg-success"
+                                        : "bg-secondary-300"
                                     }`}
                                     initial={{ width: 0 }}
                                     animate={{
@@ -633,15 +629,15 @@ const RegisterPage = () => {
                                   />
                                 </div>
                                 <span
-                                  className={`text-[10px] font-bold uppercase tracking-wider ${
-                                    passwordValidation.isValid ? "text-green-600" : "text-slate-400"
+                                  className={`font-manrope text-[10px] font-bold uppercase tracking-wider ${
+                                    passwordValidation.isValid ? "text-success" : "text-(--text-description-60)"
                                   }`}
                                 >
                                   {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
                                 </span>
                               </div>
                               <div className="flex flex-wrap gap-2 text-[10px]">
-                                <span className={`flex items-center gap-1 ${securityForm.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
+                                <span className={`flex items-center gap-1 font-manrope ${securityForm.password.length >= 6 ? "text-success" : "text-(--text-description-60)"}`}>
                                   {securityForm.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                                 </span>
                               </div>
@@ -665,7 +661,7 @@ const RegisterPage = () => {
                         placeholder="Repita sua senha"
                         required
                         isError={!!passwordError || !!contextError}
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
                       <AnimatePresence>
                         {(passwordError || contextError) && (
@@ -674,7 +670,7 @@ const RegisterPage = () => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="text-[11px] font-bold text-red-600 px-1"
+                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
                           >
                             {passwordError || contextError}
                           </motion.p>
@@ -687,7 +683,7 @@ const RegisterPage = () => {
                       variant="warning"
                       loading={isSubmitting}
                       disabled={isSubmitting}
-                      className="h-12 mt-4 rounded-xl font-extrabold shadow-sm active:scale-[0.98] transition-all"
+                      className="h-12 mt-4 rounded-xl font-manrope font-extrabold shadow-sm active:scale-[0.98] transition-all"
                     >
                       {/* FIX: removed redundant manual <LoadingSpinner> — Button's
                           loading prop already handles the spinner internally */}
@@ -701,19 +697,19 @@ const RegisterPage = () => {
           </div>
 
           {/* Legal Footer */}
-          <footer className="mt-8 px-8 text-center">
-            <p className="text-[10px] leading-relaxed text-slate-400 font-medium max-w-sm mx-auto">
+          <footer className="mt-6 px-8 text-center">
+            <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
               Ao cadastrar, você aceita nossos{" "}
               <Link
                 href={ROUTES.LEGAL}
-                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
               >
                 Termos
               </Link>{" "}
               e{" "}
               <Link
                 href={ROUTES.LEGAL}
-                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
               >
                 Privacidade
               </Link>

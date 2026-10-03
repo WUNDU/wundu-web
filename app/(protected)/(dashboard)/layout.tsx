@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/top-bar";
 import SidebarRight from "@/components/layout/sidebar-right";
@@ -14,6 +15,7 @@ export default function HomeDashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleToggleSidebar = useCallback(() => {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
@@ -26,6 +28,13 @@ export default function HomeDashboardLayout({
   const handleCloseMobile = useCallback(() => {
     setMobileOpen(false);
   }, []);
+
+  // Rotas do novo visual: trazem o próprio shell (app/components/layout)
+  // e ocupam a largura total — não devem ser embrulhadas no shell legado.
+  // Apenas /legacy/home/* mantém Sidebar/TopBar antigos.
+  if (!pathname.startsWith("/legacy/home")) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="app-viewport flex overflow-hidden bg-slate-100">

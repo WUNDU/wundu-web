@@ -32,6 +32,23 @@ class CategoryService {
     const { data } = await apiClient.post<CategoryResponse>("/categories", payload);
     return data;
   }
+
+  /** [ADMIN] Atualizar nome/fluxo de categoria. */
+  async updateAdmin(
+    id: string,
+    payload: { name?: string; flow?: "EXPENSE" | "INCOME"; createIfMissing?: boolean },
+  ): Promise<CategoryResponse> {
+    const { data } = await apiClient.put<CategoryResponse>(
+      `/categories/admin/${id}`,
+      payload,
+    );
+    return data;
+  }
+
+  /** [ADMIN] Excluir categoria (falha se tiver transações ou for DEFAULT). */
+  async deleteAdmin(id: string): Promise<void> {
+    await apiClient.delete(`/categories/admin/${id}`);
+  }
 }
 
 export const categoryService = new CategoryService();

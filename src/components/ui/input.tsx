@@ -40,26 +40,26 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
 
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
-    // Border logic — consistent with PhoneInput style
-    const stateClasses = isError 
-      ? "border-red-500 bg-red-50/30" 
-      : isFocused 
-        ? "border-[#003cc3] bg-white ring-4 ring-[#003cc3]/[0.06]" 
-        : "border-slate-200 bg-slate-50/50 hover:border-slate-300";
+    // Border logic — tokens do design system
+    const stateClasses = isError
+      ? "border-danger-300 bg-danger-300/5"
+      : isFocused
+        ? "border-primary-300 bg-(--bg-card) ring-4 ring-primary-300/10"
+        : "border-(--border-button) bg-(--background) hover:border-(--border-hover)";
 
-    const iconColorClass = isError 
-      ? "text-red-500" 
-      : isFocused 
-        ? "text-[#003cc3]" 
-        : "text-slate-400";
+    const iconColorClass = isError
+      ? "text-danger-300"
+      : isFocused
+        ? "text-primary-300"
+        : "text-(--text-description)";
 
     return (
       <div className="flex w-full flex-col gap-2 group">
         {label && (
           <label
             htmlFor={id}
-            className={`text-sm font-semibold transition-colors duration-150 ${
-              isError ? "text-red-500" : "text-slate-500"
+            className={`font-manrope text-sm font-semibold transition-colors duration-150 ${
+              isError ? "text-danger-300" : "text-(--text-description)"
             }`}
           >
             {label}
@@ -95,8 +95,8 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
             aria-invalid={isError || undefined}
             aria-describedby={isError && errorMessage && id ? `${id}-error` : undefined}
             className={`
-              w-full rounded-lg border py-3 text-[15px] text-slate-900 
-              placeholder:text-slate-400 placeholder:font-normal
+              w-full rounded-lg border py-3 font-manrope text-[15px] text-(--text-title)
+              placeholder:text-(--text-description)/60 placeholder:font-normal
               transition-all duration-150 ease-in-out
               focus:outline-none
               ${stateClasses}
@@ -111,7 +111,7 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
             <button
               type="button"
               tabIndex={-1}
-              className={`absolute inset-y-0 right-3 flex items-center justify-center p-2 transition-colors duration-150 ${iconColorClass} hover:text-slate-900`}
+              className={`absolute inset-y-0 right-3 flex items-center justify-center p-2 transition-colors duration-150 ${iconColorClass} hover:text-(--text-title)`}
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? "Ocultar palavra-passe" : "Mostrar palavra-passe"}
             >
@@ -124,7 +124,7 @@ const Input = forwardRef<HTMLInputElement, BaseInputProps>(
           <p
             id={id ? `${id}-error` : undefined}
             role="alert"
-            className="text-xs font-semibold text-red-600"
+            className="font-manrope text-xs font-semibold text-danger-300"
           >
             {errorMessage}
           </p>

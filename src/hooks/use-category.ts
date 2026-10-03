@@ -109,6 +109,55 @@ export function useCategory() {
     [],
   );
 
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: { name?: string; flow?: "EXPENSE" | "INCOME" };
+    }) => categoryService.updateAdmin(id, payload),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<Category[]>(CATEGORIES_KEY, (old = []) =>
+        old.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)),
+      );
+      useUiStore
+        .getState()
+        .showNotification("success", "Categoria atualizada", "Alterações guardadas com sucesso!");
+    },
+    onError: (error: any) => {
+      const err = error instanceof Error ? error.message : "Erro ao atualizar categoria";
+      useUiStore.getState().showNotification("error", "Erro", err);
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (id: string) => categoryService.deleteAdmin(id),
+    onSuccess: (_void, id) => {
+      queryClient.setQueryData<Category[]>(CATEGORIES_KEY, (old = []) =>
+        old.filter((c) => c.id !== id),
+      );
+      useUiStore
+        .getState()
+        .showNotification("success", "Categoria removida", "Categoria removida com sucesso!");
+    },
+    onError: (error: any) => {
+      const err = error instanceof Error ? error.message : "Erro ao remover categoria";
+      useUiStore.getState().showNotification("error", "Erro", err);
+    },
+  });
+
+  const updateCategory = useCallback(
+    (id: string, payload: { name?: string; flow?: "EXPENSE" | "INCOME" }) =>
+      updateMutation.mutateAsync({ id, payload }).then(() => true).catch(() => false),
+    [updateMutation.mutateAsync],
+  );
+
+  const removeCategory = useCallback(
+    (id: string) => removeMutation.mutateAsync(id).then(() => true).catch(() => false),
+    [removeMutation.mutateAsync],
+  );
+
   return {
     categories: data ?? [],
     isLoading,
@@ -119,6 +168,8 @@ export function useCategory() {
     clearCategories,
     clearAll,
     createCategory,
+    updateCategory,
+    removeCategory,
     getCategoryById,
   };
 }
