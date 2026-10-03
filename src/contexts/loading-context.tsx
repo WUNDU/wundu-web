@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useMemo, useEffect } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/store/user-store";
 import { usePathname } from "next/navigation";
@@ -48,7 +48,7 @@ function GlobalLoadingOverlay() {
   if (!context) return null;
 
   const { isLoading: globalIsLoading, message } = context;
-  
+
   // Do not show any loading overlay on the Landing Page
   if (pathname === "/") return null;
 
@@ -59,35 +59,22 @@ function GlobalLoadingOverlay() {
     <AnimatePresence>
       {isAnyLoading && (
         <motion.div
-          className="fixed inset-0 bg-[#FDFCFB]/90 flex flex-col items-center justify-center z-[9999]"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-(--bg-body)/80 backdrop-blur-[2px]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.15 }}
+          role="status"
+          aria-label={message || "A carregar"}
         >
-          <div className="relative flex flex-col items-center gap-6">
-            {/* CSS spinner — matches Google link page speed */}
-            <div className="relative w-12 h-12">
-              <div className="absolute inset-0 border-[3px] border-primary/15 rounded-full" />
-              <div className="absolute inset-0 border-[3px] border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin" />
-            </div>
-
-            {/* Subtle Message */}
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary/70 italic">
-                {message || (authIsLoading ? "Autenticando" : "Carregando")}
-              </p>
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 h-1 bg-primary/50 rounded-full"
-                    animate={{ opacity: [0.2, 1, 0.2] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                  />
-                ))}
-              </div>
-            </div>
+          <div className="flex items-center gap-3 rounded-2xl border border-(--card-barras) bg-(--bg-card) px-5 py-4 shadow-[0px_8px_30px_rgba(2,21,69,0.12)]">
+            <span
+              aria-hidden="true"
+              className="size-6 shrink-0 animate-spin rounded-full border-2 border-primary-300/20 border-t-primary-300"
+            />
+            <p className="font-manrope text-sm font-semibold text-(--text-title)">
+              {message || (authIsLoading ? "Autenticando…" : "Carregando…")}
+            </p>
           </div>
         </motion.div>
       )}

@@ -4,10 +4,9 @@ import { provinceEnumToSlug } from "@/types/dtos/angola-location.dto";
 /**
  * Cópia estática (nome/slug) das províncias de Angola, usada só quando a API
  * pública angolaprovinciasapi está inacessível. Mantém o picker de província
- * a produzir sempre um enum válido para o backend — nunca degrada para texto
- * livre nesse campo, porque o backend valida `province` contra um enum fixo.
- * Município não tem essa restrição, por isso nesse modo cai para texto livre
- * (não temos os municípios completos offline).
+ * a produzir sempre um enum válido para o backend. Os municípios vêm da
+ * cópia estática `ANGOLA_MUNICIPALITIES`, por isso o seletor de município
+ * continua com opções mesmo offline.
  *
  * Reflecte a reorganização administrativa de 2024 (21 províncias): Cuando
  * Cubango dividiu-se em "Cubango"+"Cuando", Moxico em "Moxico"+"Moxico Leste",

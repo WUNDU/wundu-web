@@ -315,8 +315,26 @@ class TransactionService {
 
   async getAllNotPaginated(options?: NonPaginatedQueryOptions): Promise<TransactionResponse[]> {
     if (!options?.startDate && !options?.endDate) {
-      const { data } = await apiClient.get<TransactionResponse[]>("/transactions/me");
-      return Array.isArray(data) ? data : [];
+      // `GET /transactions/me` é paginado (máx. 100/pág.) e pode devolver
+      // array puro ou Page — percorre todas as páginas em vez de assumir array.
+      const aggregated: TransactionResponse[] = [];
+      let page = 0;
+      for (;;) {
+        const { data } = await apiClient.get<unknown>("/transactions/me", {
+          params: { page, size: 100 },
+        });
+        const items = normalizeTransactionsResponse(data);
+        aggregated.push(...(items as TransactionResponse[]));
+        const meta = extractPaginationMeta(data);
+        if (!meta.isPaginated) break;
+        const done =
+          items.length === 0 ||
+          meta.last === true ||
+          (typeof meta.totalPages === "number" && page + 1 >= meta.totalPages);
+        if (done) break;
+        page += 1;
+      }
+      return aggregated;
     }
 
     // 1. Fetch first page to get metadata (total pages)

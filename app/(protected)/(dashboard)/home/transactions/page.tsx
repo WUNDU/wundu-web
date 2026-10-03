@@ -1,477 +1,356 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import PageHeader from "app/components/layout/PageHeader";
+import TransactionCard from "app/components/transaction/TransactionCard";
+import { FilterIcon, Grid, MenuIcon, PlusIcon, SearchIcon } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import GroupedTransactionList from "app/components/transaction/grouped-transaction-list";
+import TransactionForm, {
+  type TransactionFormValues,
+} from "app/components/transaction/TransactionForm";
+import TransactionFilter, {
+  DEFAULT_TRANSACTION_FILTERS,
+  type TransactionFilters,
+} from "app/components/transaction/TransactionFilter";
+import TransactionPagination from "app/components/transaction/TransactionPagination";
+import type { TransactionDTO } from "app/types/dto/transaction.dto";
+import { toAppTransaction } from "app/utils/transaction-map";
 import { useTransaction } from "@/hooks/use-transaction";
-import { useAiQuery } from "@/hooks/use-ai-query";
-import { isExpense, isIncome } from "@/utils/transaction-type";
-import type { TransactionDTO } from "@/types/dtos/transaction.dto";
-import { TransactionDetailPanel } from "@/components/ui/transaction-detail-panel";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Filter,
-  X,
-  Loader2,
-  Sparkles,
-  SendHorizontal,
-} from "lucide-react";
-import { CalendarIcon, ArrowRotateIcon, NoMovementIcon } from "@/constants/icons";
-import { TransactionItem } from "@/components/transactions/transaction-item";
-import { FilterModal } from "@/components/transactions/filter-modal";
-import type { SortField, SortDir, TypeFilter } from "@/components/transactions/filter-modal";
-import { groupByDate } from "@/utils/transaction-groups";
-import { captureEvent } from "@/lib/analytics";
 
-const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+type TransactionView = "list" | "grid";
 
-export default function TransactionsPage() {
+const MAX_SEARCH_LENGTH = 100;
+const PAGE_SIZE = 10;
+
+function compareTransactions(
+  a: TransactionDTO,
+  b: TransactionDTO,
+  filters: TransactionFilters,
+) {
+  let result: number;
+  if (filters.sortField === "Valor") result = a.amount - b.amount;
+  else if (filters.sortField === "Nome")
+    result = a.title.localeCompare(b.title, "pt-AO");
+  else result = (a.date ?? "").localeCompare(b.date ?? "");
+  return filters.sortOrder === "Crescente" ? result : -result;
+}
+
+function page() {
   const {
-    allTransactions,
-    isLoading,
-    isLoadingMore,
-    isLastPage,
-    totalElements,
-    loadPage,
-    loadMore,
-    resetPagination,
-  } = useTransaction({ autoFetch: false });
-
-  const {
-    query: aiQuery,
-    results: aiResults,
-    filter: aiFilter,
-    isLoading: aiLoading,
-    error: aiError,
-    rateLimitSeconds: aiRateLimit,
-    hasQueried,
-    reset: aiReset,
-  } = useAiQuery();
-
-  const [search, setSearch]               = useState("");
-  const [showSearch, setShowSearch]       = useState(false);
-  const [showAiSearch, setShowAiSearch]   = useState(false);
-  const [aiInput, setAiInput]             = useState("");
-  const [filterOpen, setFilterOpen]       = useState(false);
-  const [sortField, setSortField]         = useState<SortField>("date");
-  const [sortDir, setSortDir]             = useState<SortDir>("desc");
-  const [typeFilter, setTypeFilter]       = useState<TypeFilter>("all");
-  const [selected, setSelected]           = useState<TransactionDTO | null>(null);
+    notPaginated: apiTransactions,
+    isLoadingAll,
+    error: transactionsError,
+    getAllNotPaginated,
+    createTransaction,
+    updateTransaction,
+    removeTransaction,
+  } = useTransaction();
+  const [view, setView] = useState<TransactionView>("list");
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingTx, setEditingTx] = useState<TransactionDTO | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<TransactionFilters>(
+    DEFAULT_TRANSACTION_FILTERS,
+  );
+  const [query, setQuery] = useState("");
+  const isList = view === "list";
+  const remaining = MAX_SEARCH_LENGTH - query.length;
+  const normalizedQuery = query.trim().toLowerCase();
 
   useEffect(() => {
-    if (!allTransactions || allTransactions.length === 0) {
-      loadPage(0);
-    }
-  }, [allTransactions, loadPage]);
+    void getAllNotPaginated();
+  }, [getAllNotPaginated]);
 
-  const transactions = allTransactions ?? [];
+  const transactions = useMemo(
+    () => (apiTransactions ?? []).map(toAppTransaction),
+    [apiTransactions],
+  );
 
-  const filtered = useMemo(() => {
-    let list = [...transactions];
-    if (typeFilter !== "all") {
-      list = list.filter((t) =>
-        typeFilter === "EXPENSE" ? isExpense(t.type) : isIncome(t.type),
+  const filteredTransactions = useMemo(() => {
+    let list = transactions;
+    if (normalizedQuery) {
+      list = list.filter((tx) =>
+        [tx.title, tx.category, tx.description ?? ""].some((field) =>
+          field.toLowerCase().includes(normalizedQuery),
+        ),
       );
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(t =>
-        t.description?.toLowerCase().includes(q) ||
-        t.category?.name?.toLowerCase().includes(q),
-      );
+    if (filters.type !== "all") {
+      list = list.filter((tx) => tx.type === filters.type);
     }
-    list.sort((a, b) => {
-      if (sortField === "amount") return sortDir === "desc" ? b.amount - a.amount : a.amount - b.amount;
-      const dA = new Date(a.transactionDate ?? a.createdAt ?? 0).getTime();
-      const dB = new Date(b.transactionDate ?? b.createdAt ?? 0).getTime();
-      return sortDir === "desc" ? dB - dA : dA - dB;
+    if (filters.category) {
+      list = list.filter((tx) => tx.category === filters.category);
+    }
+    return [...list].sort((a, b) => compareTransactions(a, b, filters));
+  }, [transactions, normalizedQuery, filters]);
+
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery, filters]);
+  const pageCount = Math.max(
+    1,
+    Math.ceil(filteredTransactions.length / PAGE_SIZE),
+  );
+  const safePage = Math.min(page, pageCount);
+  const pagedTransactions = filteredTransactions.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
+
+  async function handleSaveTransaction(
+    values: TransactionFormValues,
+  ): Promise<boolean> {
+    const flow = values.type === "income" ? "INCOME" : "EXPENSE";
+    if (editingTx) {
+      const updated = await updateTransaction(editingTx.id, {
+        amount: values.amount,
+        description: values.description || undefined,
+        transactionDate: values.date,
+        category: values.category ? { name: values.category, flow } : undefined,
+      });
+      return updated !== null;
+    }
+    return createTransaction({
+      type: values.type === "income" ? "INCOME" : "EXPENSE",
+      source: "MANUAL",
+      amount: values.amount,
+      description: values.description || undefined,
+      transactionDate: values.date,
+      category: values.category ? { name: values.category, flow } : undefined,
     });
-    return list;
-  }, [transactions, typeFilter, search, sortField, sortDir]);
+  }
 
-  const groups = useMemo(() => groupByDate(filtered), [filtered]);
+  async function handleDeleteTransaction(id: string): Promise<boolean> {
+    return removeTransaction(id);
+  }
 
-  const handleRefresh = useCallback(() => {
-    resetPagination();
-    loadPage(0, true);
-  }, [loadPage, resetPagination]);
-
-  const handleSetSortField = useCallback((field: SortField) => {
-    setSortField(field);
-    captureEvent("transaction_filter_applied", { sort_field: field, sort_dir: sortDir, type_filter: typeFilter });
-  }, [sortDir, typeFilter]);
-
-  const handleSetSortDir = useCallback((dir: SortDir) => {
-    setSortDir(dir);
-    captureEvent("transaction_filter_applied", { sort_field: sortField, sort_dir: dir, type_filter: typeFilter });
-  }, [sortField, typeFilter]);
-
-  const handleSetTypeFilter = useCallback((type: TypeFilter) => {
-    setTypeFilter(type);
-    captureEvent("transaction_filter_applied", { sort_field: sortField, sort_dir: sortDir, type_filter: type });
-  }, [sortField, sortDir]);
-
-  const handleAiSearch = useCallback(() => {
-    const q = aiInput.trim();
-    if (!q) return;
-    captureEvent("ai_transaction_query", { query_length: q.length });
-    aiQuery(q);
-  }, [aiInput, aiQuery]);
-
-  const handleToggleAiSearch = useCallback(() => {
-    setShowAiSearch((v) => {
-      if (v) { aiReset(); setAiInput(""); }
-      return !v;
-    });
-    setShowSearch(false);
-  }, [aiReset]);
-
-  let runningIdx = 0;
+  const isLoading = isLoadingAll && transactions.length === 0;
+  const hasActiveFilters =
+    filters.type !== "all" ||
+    filters.category !== "" ||
+    filters.sortField !== DEFAULT_TRANSACTION_FILTERS.sortField ||
+    filters.sortOrder !== DEFAULT_TRANSACTION_FILTERS.sortOrder;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: EASE_OUT }}
-      className="flex flex-col gap-3 pb-6"
-    >
-      {/* ── Top card: back + title + actions ─────────────────────────── */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
-        <div className="flex items-center gap-3 px-4 py-4">
-          <Link
-            href="/home"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Link>
-
-          <h1 className="flex-1 text-base font-bold text-slate-900">Transações</h1>
-
-          <div className="flex items-center gap-2">
+    <>
+      <div className="flex h-full flex-col bg-(--bg-card)">
+        <div className="shrink-0">
+          <PageHeader title="Transações">
             <button
-              onClick={handleRefresh}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
-              aria-label="Atualizar"
+              type="button"
+              onClick={() => setIsAddOpen(true)}
+              className="group flex w-42.5 h-12.25 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-primary-300 bg-primary-300 px-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_4px_14px_rgba(5,61,196,0.35)] active:translate-y-0 active:scale-[0.98]"
             >
-              <ArrowRotateIcon className="w-4 h-4" />
+              <PlusIcon
+                width={16}
+                height={16}
+                className="text-base-white transition-transform duration-300 ease-out group-hover:rotate-90"
+              />
+              <span className="font-inter text-[14px] not-italic leading-normal text-base-white">
+                Nova Transação
+              </span>
             </button>
-            <button
-              onClick={handleToggleAiSearch}
-              title="Pesquisa inteligente com IA"
-              className={`p-2 rounded-xl border transition-all duration-200 ${
-                showAiSearch
-                  ? "bg-secondary/8 border-secondary/20 text-secondary"
-                  : "bg-white border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20"
-              }`}
-              aria-label="Pesquisa IA"
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => { setShowSearch(v => !v); if (showAiSearch) handleToggleAiSearch(); }}
-              className={`p-2 rounded-xl border transition-all duration-200 ${
-                showSearch
-                  ? "bg-secondary/8 border-secondary/20 text-secondary"
-                  : "bg-white border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20"
-              }`}
-              aria-label="Pesquisar"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setFilterOpen(true)}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-secondary hover:border-secondary/20 transition-all duration-200"
-              aria-label="Filtros"
-            >
-              <Filter className="w-4 h-4" />
-            </button>
-          </div>
+          </PageHeader>
+          <section className="flex py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card)">
+            <div className="flex items-start gap-3 self-stretch">
+              <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
+                <div className="flex items-center gap-3 self-stretch">
+                  <div className="flex h-12 py-0 px-4 items-center gap-3 flex-1 rounded-xl border border-(--border-button) bg-(--background) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
+                    <SearchIcon
+                      width={16}
+                      className="shrink-0 text-(--text-description) transition-colors duration-200"
+                    />
+                    <input
+                      type="search"
+                      value={query}
+                      maxLength={MAX_SEARCH_LENGTH}
+                      onChange={(event) =>
+                        setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
+                      }
+                      placeholder={`Consultar ${transactions.length} transações...`}
+                      className="min-w-0 flex-1 bg-transparent text-[14px] not-italic font-normal leading-[150%] text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
+                    />
+                    <p
+                      aria-live="polite"
+                      className={`text-[12px] not-italic font-normal leading-normal transition-colors duration-150 ${
+                        remaining === 0
+                          ? "text-danger-300"
+                          : "text-(--text-description)"
+                      }`}
+                    >
+                      {remaining} /
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="flex gap-3 items-center">
+                      <button
+                        type="button"
+                        onClick={() => setIsFilterOpen((value) => !value)}
+                        aria-expanded={isFilterOpen}
+                        className={`group flex h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 py-4.5 inset-shadow-2xs transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)] active:translate-y-0 active:scale-[0.98] ${
+                          isFilterOpen || hasActiveFilters
+                            ? "border-primary-300 bg-primary-300/10"
+                            : "border-(--card-barras) bg-(--background)"
+                        }`}
+                      >
+                        <FilterIcon
+                          width={16}
+                          height={14}
+                          className={`shrink-0 transition-all duration-200 ease-out group-hover:-translate-y-0.5 ${
+                            isFilterOpen || hasActiveFilters
+                              ? "text-primary-300"
+                              : "text-(--icon) group-hover:text-primary-300"
+                          }`}
+                        />
+                        <p
+                          className={`text-[16px] not-italic font-normal leading-normal text-center transition-colors duration-200 group-hover:text-primary-300 ${
+                            isFilterOpen || hasActiveFilters
+                              ? "text-primary-300"
+                              : "text-(--text-title)"
+                          }`}
+                        >
+                          Filtrar
+                        </p>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 self-stretch">
+                    <button
+                      type="button"
+                      onClick={() => setView("list")}
+                      aria-pressed={isList}
+                      title="Ver em linha"
+                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border-2 transition-colors duration-200 ${
+                        isList
+                          ? "border-primary-300 bg-(--bg-filter)"
+                          : "border-(--card-barras) bg-(--background)"
+                      }`}
+                    >
+                      <MenuIcon
+                        width={16}
+                        height={16}
+                        className={`aspect-square ${isList ? "text-primary-300" : "text-(--icon)"}`}
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setView("grid")}
+                      aria-pressed={!isList}
+                      title="Ver em grelha"
+                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border-2 transition-colors duration-200 ${
+                        !isList
+                          ? "border-primary-300 bg-(--bg-filter)"
+                          : "border-(--card-barras) bg-(--background)"
+                      }`}
+                    >
+                      <Grid
+                        width={16}
+                        height={16}
+                        className={`aspect-square ${!isList ? "text-primary-300" : "text-(--icon)"}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-
-        {/* AI Search bar */}
-        <AnimatePresence>
-          {showAiSearch && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: EASE_OUT }}
-              className="overflow-hidden"
+        {isLoading ? (
+          <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-(--bg-card) p-8">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <div
+                key={index}
+                aria-hidden="true"
+                className="h-16 shrink-0 animate-pulse rounded-2xl bg-(--bg-filter)"
+              />
+            ))}
+            <span className="sr-only">A carregar transações…</span>
+          </main>
+        ) : transactionsError && transactions.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Não foi possível carregar as transações.
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              {transactionsError}
+            </p>
+            <button
+              type="button"
+              onClick={() => void getAllNotPaginated()}
+              className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              <div className="px-4 pb-4">
-                <div className="flex items-center gap-2 bg-[rgba(0,60,195,0.04)] border border-secondary/20 rounded-xl px-4 py-2.5 focus-within:border-secondary/40 focus-within:bg-white transition-all duration-150">
-                  <Sparkles className="w-4 h-4 text-secondary flex-shrink-0" />
-                  <input
-                    autoFocus
-                    value={aiInput}
-                    onChange={e => setAiInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") handleAiSearch(); }}
-                    placeholder="Pergunta em linguagem natural… ex: Quanto gastei em alimentação este mês?"
-                    className="flex-1 text-sm text-slate-900 placeholder:text-slate-400 outline-none bg-transparent"
-                    disabled={aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
-                  />
-                  {aiInput && (
-                    <button onClick={() => { setAiInput(""); aiReset(); }} className="p-0.5 text-slate-400 hover:text-slate-600">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                  <button
-                    onClick={handleAiSearch}
-                    disabled={!aiInput.trim() || aiLoading || (aiRateLimit != null && aiRateLimit > 0)}
-                    className="p-1 text-secondary disabled:opacity-30 hover:text-secondary-dark transition-colors"
-                  >
-                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendHorizontal className="w-4 h-4" />}
-                  </button>
-                </div>
-                {aiRateLimit != null && aiRateLimit > 0 && (
-                  <p className="text-xs text-amber-600 font-medium mt-1.5 px-1">
-                    Limite atingido. Tenta em {aiRateLimit}s.
-                  </p>
-                )}
-                {aiError && (
-                  <p className="text-xs text-red-500 mt-1.5 px-1">{aiError}</p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Search bar */}
-        <AnimatePresence>
-          {showSearch && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: EASE_OUT }}
-              className="overflow-hidden"
-            >
-              <div className="px-4 pb-4">
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus-within:border-secondary/40 focus-within:bg-white transition-all duration-150">
-                  <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <input
-                    autoFocus
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Pesquisar por descrição ou categoria…"
-                    className="flex-1 text-sm text-slate-900 placeholder:text-slate-400 outline-none bg-transparent"
-                  />
-                  {search && (
-                    <button onClick={() => setSearch("")} className="p-0.5 text-slate-400 hover:text-slate-600">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Active filters summary */}
-        {(typeFilter !== "all" || sortField !== "date" || sortDir !== "desc") && (
-          <div className="flex items-center gap-2 px-4 pb-3 flex-wrap">
-            {typeFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary/8 text-secondary">
-                {typeFilter === "EXPENSE" ? "Despesas" : "Receitas"}
-                <button onClick={() => setTypeFilter("all")}><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {(sortField !== "date" || sortDir !== "desc") && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary/8 text-secondary">
-                {sortField === "amount" ? "Por valor" : "Por data"} · {sortDir === "desc" ? "↓" : "↑"}
-                <button onClick={() => { setSortField("date"); setSortDir("desc"); }}><X className="w-3 h-3" /></button>
-              </span>
-            )}
-          </div>
+              Tentar novamente
+            </button>
+          </main>
+        ) : transactions.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Sem transações
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              Registe a primeira transação com o botão “Nova Transação”.
+            </p>
+          </main>
+        ) : filteredTransactions.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Nenhuma transação encontrada
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              Tente outro termo de pesquisa ou ajuste os filtros.
+            </p>
+          </main>
+        ) : isList ? (
+          <main className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-8 bg-(--bg-card)">
+            <GroupedTransactionList
+              transactions={pagedTransactions}
+              limit={pagedTransactions.length}
+              onSelect={setEditingTx}
+            />
+          </main>
+        ) : (
+          <main className="grid min-h-0 flex-1 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 p-8 bg-(--bg-card) w-full content-start items-start overflow-y-auto">
+            {pagedTransactions.map((tx) => (
+              <TransactionCard
+                key={tx.id}
+                transaction={tx}
+                onSelect={() => setEditingTx(tx)}
+              />
+            ))}
+          </main>
+        )}
+        {filteredTransactions.length > 0 && (
+          <TransactionPagination
+            page={safePage}
+            pageCount={pageCount}
+            total={filteredTransactions.length}
+            pageSize={PAGE_SIZE}
+            onChange={setPage}
+          />
         )}
       </div>
-
-      {/* ── AI Results card ───────────────────────────────────────────── */}
-      <AnimatePresence>
-        {hasQueried && (
-          <motion.div
-            key="ai-results"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2, ease: EASE_OUT }}
-            className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden"
-          >
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-secondary" />
-                <h2 className="font-bold text-slate-900 text-sm">Resultados IA</h2>
-                <span className="text-xs text-slate-400 font-medium">{aiResults.length} encontradas</span>
-              </div>
-              <button
-                onClick={() => { aiReset(); setAiInput(""); }}
-                className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                aria-label="Fechar resultados IA"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            {aiFilter && Object.keys(aiFilter).some(k => aiFilter[k] != null && aiFilter[k] !== "") && (
-              <div className="flex flex-wrap gap-1.5 px-5 pb-3">
-                {aiFilter.type && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary/8 text-secondary">
-                    {isExpense(aiFilter.type) ? "Despesas" : "Receitas"}
-                  </span>
-                )}
-                {aiFilter.categoryName && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
-                    {aiFilter.categoryName}
-                  </span>
-                )}
-                {aiFilter.startDate && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                    Desde {aiFilter.startDate}
-                  </span>
-                )}
-                {aiFilter.endDate && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                    Até {aiFilter.endDate}
-                  </span>
-                )}
-              </div>
-            )}
-            {aiResults.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 gap-3 text-center px-5">
-                <NoMovementIcon className="w-10 h-10 text-slate-300" />
-                <p className="text-sm text-slate-400">Nenhuma transação encontrada para esta consulta.</p>
-              </div>
-            ) : (
-              <div className="pb-3">
-                {aiResults.map((tx, i) => (
-                  <React.Fragment key={tx.id ?? i}>
-                    {i > 0 && <div className="h-px mx-5 bg-[rgba(0,33,107,0.05)]" />}
-                    <TransactionItem tx={tx as TransactionDTO} index={i} onClick={() => setSelected(tx as TransactionDTO)} />
-                  </React.Fragment>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Transaction list card ────────────────────────────────────── */}
-      {isLoading ? (
-        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden" aria-label="A carregar transações" aria-busy="true">
-          <div className="px-5 pt-5 pb-3">
-            <div className="h-5 bg-slate-100 rounded-full w-1/3 animate-pulse" />
-          </div>
-          <div className="pb-3 space-y-0">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex items-center gap-3 px-5 py-3.5 animate-pulse">
-                <div className="w-9 h-9 rounded-full bg-slate-100 flex-shrink-0" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="h-3.5 bg-slate-100 rounded-full w-2/3" />
-                  <div className="h-3 bg-slate-100 rounded-full w-1/3" />
-                </div>
-                <div className="h-4 bg-slate-100 rounded-full w-16" />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : groups.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
-          <div className="flex flex-col items-center justify-center py-16 gap-4 text-center px-5">
-            <NoMovementIcon className="w-12 h-12 text-slate-300" />
-            <div>
-              <p className="text-base font-bold text-slate-900">Nenhuma transação encontrada</p>
-              <p className="text-sm text-slate-400 mt-1">
-                {search ? "Tente outro termo de pesquisa." : "As suas transações aparecerão aqui."}
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,60,195,0.08)] overflow-hidden">
-          {/* Summary bar */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-3">
-            <h2 className="text-base font-bold text-slate-900">
-              {filtered.length} {filtered.length === 1 ? "transação" : "transações"}
-              {totalElements > transactions.length && (
-                <span className="text-slate-400 font-medium text-sm ml-1">
-                  de {totalElements}
-                </span>
-              )}
-            </h2>
-            <div className="flex items-center gap-1.5 bg-[rgba(0,60,195,0.06)] px-2.5 py-1.5 rounded-full">
-              <ChevronRight className="w-3 h-3 text-secondary" />
-              <span className="text-secondary font-bold text-xs">Lista completa</span>
-            </div>
-          </div>
-
-          {/* Groups */}
-          <div className="pb-3">
-            {groups.map((group, gi) => (
-              <div key={group.dateKey}>
-                {/* Date badge */}
-                <div className="px-5 py-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 bg-[rgba(0,60,195,0.06)]">
-                    <CalendarIcon className="w-[11px] h-[11px] text-secondary" />
-                    <span className="text-secondary font-bold text-xs">{group.label}</span>
-                    <span className="text-secondary/50 text-[10px] font-medium">
-                      · {group.items.length}
-                    </span>
-                  </span>
-                </div>
-
-                {/* Items */}
-                {group.items.map((tx, i) => {
-                  const idx = runningIdx++;
-                  return (
-                    <React.Fragment key={tx.id ?? `${group.dateKey}-${i}`}>
-                      {i > 0 && <div className="h-px mx-5 bg-[rgba(0,33,107,0.05)]" />}
-                      <TransactionItem tx={tx} index={idx} onClick={() => setSelected(tx)} />
-                    </React.Fragment>
-                  );
-                })}
-
-                {gi < groups.length - 1 && <div className="h-2" />}
-              </div>
-            ))}
-          </div>
-
-          {/* Load more */}
-          {!isLastPage && (
-            <div className="px-5 pb-5">
-              <button
-                onClick={() => loadMore()}
-                disabled={isLoadingMore}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-secondary/20 bg-[rgba(0,60,195,0.04)] text-secondary font-bold text-sm hover:bg-secondary/8 transition-all duration-150 disabled:opacity-60"
-              >
-                {isLoadingMore ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-                {isLoadingMore
-                  ? "A carregar…"
-                  : "Ver mais transações"}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Filter modal */}
-      <FilterModal
-        open={filterOpen} onClose={() => setFilterOpen(false)}
-        sortField={sortField} setSortField={handleSetSortField}
-        sortDir={sortDir} setSortDir={handleSetSortDir}
-        typeFilter={typeFilter} setTypeFilter={handleSetTypeFilter}
+      <TransactionForm
+        isOpen={isAddOpen || editingTx !== null}
+        transaction={editingTx}
+        onSave={handleSaveTransaction}
+        onClose={() => {
+          setIsAddOpen(false);
+          setEditingTx(null);
+        }}
+        onDelete={handleDeleteTransaction}
       />
-
-      {/* Detail panel */}
-      <TransactionDetailPanel
-        transaction={selected}
-        isOpen={selected !== null}
-        onClose={() => setSelected(null)}
+      <TransactionFilter
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        value={filters}
+        onApply={(next) => {
+          setFilters(next);
+          setIsFilterOpen(false);
+        }}
       />
-    </motion.div>
+    </>
   );
 }
+
+export default page;

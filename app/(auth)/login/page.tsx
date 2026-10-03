@@ -77,10 +77,10 @@ function StatusBanner({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex w-full items-center gap-3 rounded-xl border border-orange-100 bg-orange-50/40 p-3.5"
+            className="flex w-full items-center gap-3 rounded-xl border border-warning/30 bg-warning/10 p-3.5"
           >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-orange-500 animate-pulse" />
-            <p className="text-xs font-bold text-orange-600">
+            <div className="h-2 w-2 shrink-0 rounded-full bg-warning animate-pulse" />
+            <p className="font-manrope text-xs font-bold text-warning">
               Demasiadas tentativas. Tente novamente em{" "}
               {formatCountdown(countdown!)}
             </p>
@@ -91,10 +91,10 @@ function StatusBanner({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="flex w-full items-center gap-3 rounded-xl border border-red-100 bg-red-50/30 p-3.5"
+            className="flex w-full items-center gap-3 rounded-xl border border-danger-300/30 bg-danger-300/5 p-3.5"
           >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
-            <p className="text-xs font-bold text-red-600">{errorMessage}</p>
+            <div className="h-2 w-2 shrink-0 rounded-full bg-danger-300" />
+            <p className="font-manrope text-xs font-bold text-danger-300">{errorMessage}</p>
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -257,7 +257,7 @@ const LoginPage: React.FC = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
+    <div className="flex min-h-screen flex-col bg-(--bg-card) md:bg-(--bg-body)">
       {/* Brand Header */}
       <header className="flex h-16 shrink-0 items-center justify-start px-8 md:px-12">
         <Link
@@ -280,9 +280,9 @@ const LoginPage: React.FC = () => {
            * overflow-hidden is retained only on the card itself (not per-breakpoint)
            * so the shadow renders correctly everywhere.
            */}
-          <div className="flex w-full flex-col bg-white md:flex-row md:rounded-3xl md:border md:border-slate-200/50 md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)] overflow-hidden">
+          <div className="flex w-full flex-col bg-(--bg-card) md:flex-row md:rounded-3xl md:border md:border-(--card-barras) md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)] overflow-hidden">
             {/* Visual Column */}
-            <div className="hidden flex-1 items-center justify-center border-r border-slate-100/80 bg-[#f9f9f9]/50 p-12 lg:flex">
+            <div className="hidden flex-1 items-center justify-center border-r border-(--card-barras)/80 bg-(--bg-filter) p-12 lg:flex">
               {/*
                * FIX: added explicit width/height to next/image to prevent CLS.
                * Using fill + a sized container is the alternative, but explicit
@@ -315,18 +315,18 @@ const LoginPage: React.FC = () => {
                   {/* Avatar + user info */}
                   <div className="mb-10 flex flex-col items-center gap-4">
                     <div className="relative group cursor-default">
-                      <div className="absolute inset-0 bg-yellow-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-                      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-yellow-400 shadow-lg border-4 border-white">
-                        <span className="text-2xl font-black tracking-tight text-slate-900">
+                      <div className="absolute inset-0 bg-secondary-300 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-secondary-300 shadow-lg border-4 border-(--background)">
+                        <span className="text-2xl font-black tracking-tight text-base-black">
                           {getInitials(savedUser.name)}
                         </span>
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-xl font-bold tracking-tight text-slate-900">
+                      <p className="font-manrope text-xl font-bold tracking-tight text-(--text-title)">
                         {savedUser.name.split(" ")[0]}
                       </p>
-                      <p className="text-sm font-semibold text-slate-400 tracking-tight">
+                      <p className="font-manrope text-sm font-semibold text-(--text-description-60) tracking-tight">
                         {savedUser.email}
                       </p>
                     </div>
@@ -344,7 +344,7 @@ const LoginPage: React.FC = () => {
                     isError={!!errors.password || !!loginError}
                     disabled={isSubmitting}
                     autoFocus
-                    className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                    className="h-12 transition-all"
                   />
 
                   <StatusBanner
@@ -359,7 +359,7 @@ const LoginPage: React.FC = () => {
                     fullWidth
                     loading={isSubmitting}
                     disabled={isBlocked}
-                    className="h-12 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+                    className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                   >
                     {isBlocked
                       ? `Aguarde ${formatCountdown(countdown!)}`
@@ -367,12 +367,12 @@ const LoginPage: React.FC = () => {
                   </Button>
 
                   {/* FIX: aligned footer spacing to mt-8 pt-6 (same as RegisterPage footer) */}
-                  <div className="mt-8 border-t border-slate-100 pt-6 text-center">
-                    <button
-                      type="button"
-                      onClick={handleSwitchAccount}
-                      className="text-sm font-bold text-slate-400 transition-colors hover:text-slate-900"
-                    >
+                  <div className="mt-8 border-t border-(--card-barras) pt-6 text-center">
+                      <button
+                        type="button"
+                        onClick={handleSwitchAccount}
+                        className="font-manrope text-sm font-bold text-(--text-description-60) transition-colors hover:text-(--text-title)"
+                      >
                       Usar outra conta
                     </button>
                   </div>
@@ -391,10 +391,10 @@ const LoginPage: React.FC = () => {
                    * left alignment for a consistent reading axis.
                    */}
                   <header className="mb-8">
-                    <h1 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
+                    <h1 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
                       Acesse sua conta
                     </h1>
-                    <p className="mt-2 text-sm font-medium text-slate-500">
+                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description)">
                       Gestão financeira de alta precisão.
                     </p>
                   </header>
@@ -417,7 +417,7 @@ const LoginPage: React.FC = () => {
                         autoFocus
                         // FIX: email is the first field → it gets autoFocus,
                         // not the password field which came after it in the original
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
                       <Input
                         id="password"
@@ -430,12 +430,12 @@ const LoginPage: React.FC = () => {
                         isError={!!errors.password || !!loginError}
                         disabled={isSubmitting}
                         // FIX: removed autoFocus — only one field per form should have it
-                        className="h-12 border-slate-200 bg-slate-50/40 transition-all"
+                        className="h-12 transition-all"
                       />
                       <div className="flex justify-end">
-                        <Link
+                      <Link
                           href="/reset_password"
-                          className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
+                          className="font-manrope text-xs text-(--text-description) hover:text-(--text-title) transition-colors"
                         >
                           Esqueceu a senha?
                         </Link>
@@ -454,7 +454,7 @@ const LoginPage: React.FC = () => {
                       fullWidth
                       loading={isSubmitting}
                       disabled={isBlocked}
-                      className="h-12 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+                      className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
                     >
                       {isBlocked
                         ? `Aguarde ${formatCountdown(countdown!)}`
@@ -464,10 +464,10 @@ const LoginPage: React.FC = () => {
                     {/* Separador + entrada com Google */}
                     <div className="relative my-5">
                       <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-100" />
+                        <div className="w-full border-t border-(--card-barras)" />
                       </div>
                       <div className="relative flex justify-center">
-                        <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        <span className="bg-(--bg-card) px-3 font-manrope text-[11px] font-bold uppercase tracking-wider text-(--text-description-60)">
                           ou
                         </span>
                       </div>
@@ -478,12 +478,12 @@ const LoginPage: React.FC = () => {
                     {/* FIX: aligned footer spacing to mt-8 pt-6 — original had pt-8
                         which was inconsistent with the Quick mode footer (pt-6)
                         and with the RegisterPage footer pattern */}
-                    <footer className="mt-8 border-t border-slate-100 pt-6 text-center">
-                      <p className="text-sm font-medium text-slate-500">
+                    <footer className="mt-8 border-t border-(--card-barras) pt-6 text-center">
+                      <p className="font-manrope text-sm font-medium text-(--text-description)">
                         Novo por aqui?{" "}
                         <Link
                           href={ROUTES.REGISTER}
-                          className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline transition-all"
+                          className="font-manrope font-bold text-(--text-title) decoration-secondary-300 decoration-2 underline-offset-4 hover:underline transition-all"
                         >
                           Crie uma conta
                         </Link>
@@ -497,18 +497,18 @@ const LoginPage: React.FC = () => {
 
           {/* Legal Footer */}
           <footer className="mt-8 px-8 text-center">
-            <p className="text-[10px] leading-relaxed text-slate-400 font-medium max-w-sm mx-auto">
+            <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
               Ao acessar, você aceita nossos{" "}
               <Link
                 href={ROUTES.LEGAL}
-                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
               >
                 Termos
               </Link>{" "}
               e{" "}
               <Link
                 href={ROUTES.LEGAL}
-                className="text-slate-500 hover:text-slate-900 transition-colors underline underline-offset-2"
+                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
               >
                 Privacidade
               </Link>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Open_Sans } from "next/font/google";
+import { Inter, Manrope, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
 // import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 // import { CookieConsent } from "@/components/layout/cookie-consent";
@@ -17,6 +17,12 @@ const inter = Inter({
 const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
+  preload: false,
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
   preload: false,
 });
 
@@ -60,23 +66,23 @@ export default function RootLayout({
   return (
     <html lang="pt" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${openSans.variable} antialiased`}
+        className={`${inter.variable} ${openSans.variable} ${manrope.variable} antialiased`}
         suppressHydrationWarning
       >
         <SessionProvider>
           <QueryProvider>
             <AnalyticsProvider>
               {/* <CookieConsentProvider> */}
-                {children}
-                {/* <CookieConsent /> */}
-                <Toaster
-                  position="top-right"
-                  closeButton
-                  richColors={false}
-                  theme="light"
-                  expand={false}
-                  gap={12}
-                />
+              {children}
+              {/* <CookieConsent /> */}
+              <Toaster
+                position="top-right"
+                closeButton
+                richColors={false}
+                theme="light"
+                expand={false}
+                gap={12}
+              />
               {/* </CookieConsentProvider> */}
             </AnalyticsProvider>
           </QueryProvider>

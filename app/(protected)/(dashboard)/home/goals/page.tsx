@@ -1,172 +1,379 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
-import { buildGoalCardData } from "@/utils/goal";
-import { useGoal } from "@/hooks/use-goal";
-import { NoMovementIcon } from "@/constants/icons";
-import EditModal from "@/components/ui/edit-modal";
+import PageHeader from "app/components/layout/PageHeader";
+import GoalItem from "app/components/goal/GoalItem";
+import GoalDetails from "app/components/goal/GoalDetails";
+import GoalForm, {
+  type GoalFormMode,
+  type GoalProgressValues,
+  type GoalSaveValues,
+} from "app/components/goal/GoalForm";
+import GoalFilter, {
+  emptyGoalFilters,
+  type GoalFilterValue,
+} from "app/components/goal/GoalFilter";
+import { goalPercent, statusFor } from "app/components/goal/goal-status";
+import type { GoalDTO } from "app/types/dto/goal.dto";
 import type { Goal } from "@/types/dtos/goal.dto";
-import { GoalRow } from "@/components/goals/goal-row";
-import { NewGoalModal } from "@/components/goals/new-goal-modal";
-import { GoalDetailModal } from "@/components/goals/goal-detail-modal";
+import type { TransactionCategory } from "app/types/transaction";
+import { useGoal } from "@/hooks/use-goal";
+import { FilterIcon, PlusIcon, SearchIcon } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
-const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
+const MAX_SEARCH_LENGTH = 100;
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+const GOAL_CATEGORIES: readonly TransactionCategory[] = [
+  "Levantamento",
+  "Transporte",
+  "Freelance",
+  "Educação",
+  "Salário",
+  "Saúde",
+  "Outros",
+  "Alimentação",
+  "Habitação",
+  "Lazer",
+  "Negócio",
+  "Biscato",
+];
 
-export default function GoalsPage() {
-  const { goals, isLoading, getGoals: fetch, refreshGoals: refresh } = useGoal();
-  const [showNew, setShowNew]           = useState(false);
-  const [editTarget, setEditTarget]     = useState<Goal | null>(null);
-  const [detailTarget, setDetailTarget] = useState<Goal | null>(null);
-
-  const items = useMemo(() => goals.map(buildGoalCardData), [goals]);
-  const active    = items.filter(g => !g.isCompleted);
-  const completed = items.filter(g => g.isCompleted);
-
-  const handleNewSuccess = useCallback(() => {
-    setShowNew(false);
-    refresh();
-  }, [refresh]);
-
-  const handleEditClose = useCallback(() => setEditTarget(null), []);
-  const handleEditUpdated = useCallback(() => { setEditTarget(null); refresh(); }, [refresh]);
-
-  const handleDetailEdit = useCallback(() => {
-    if (detailTarget) {
-      setEditTarget(detailTarget);
-      setDetailTarget(null);
-    }
-  }, [detailTarget]);
-
+function getCategory(name?: string | null): TransactionCategory {
   return (
-    <div className="w-full max-w-[1360px] mx-auto flex flex-col gap-3">
-
-      {/* Page header — same style as home */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: EASE_OUT }}
-        className="flex items-center justify-between"
-      >
-        <div>
-          <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-            Objectivos Financeiros
-          </h2>
-          <p className="text-sm text-slate-500 font-medium">
-            Acompanhe e gira os seus objectivos de poupança.
-          </p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => setShowNew(true)}
-          className="flex items-center gap-1.5 bg-secondary text-white text-xs font-bold px-3 sm:px-4 py-2.5 rounded-full shadow-sm hover:bg-secondary-dark transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="hidden xs:inline sm:inline">Novo objectivo</span>
-        </motion.button>
-      </motion.div>
-
-      {/* Active goals */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.08 }}
-        className="flex flex-col gap-3"
-      >
-        {/* Section header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-900">Em andamento</h3>
-          <span className="text-xs text-slate-400">
-            {active.length} {active.length === 1 ? "objectivo" : "objectivos"}
-          </span>
-        </div>
-
-        {isLoading ? (
-          <div className="flex flex-col gap-3" aria-label="A carregar objectivos" aria-busy="true">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-[20px] p-[18px] animate-pulse shadow-[0_4px_16px_rgba(0,60,195,0.06)]">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-[52px] h-[52px] rounded-[16px] bg-slate-100 flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-100 rounded-full w-3/4" />
-                    <div className="h-3 bg-slate-100 rounded-full w-1/2" />
-                    <div className="h-[7px] bg-slate-100 rounded-full w-full" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : active.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 gap-3 px-5 text-center bg-white rounded-[20px] shadow-[0_4px_16px_rgba(0,60,195,0.06)]">
-            <NoMovementIcon className="w-10 h-10 text-slate-200" />
-            <p className="text-sm font-semibold text-slate-700">Nenhum objectivo em andamento.</p>
-            <p className="text-xs text-slate-400">Crie um objectivo para começar a poupar.</p>
-          </div>
-        ) : (
-          active.map((g, i) => (
-            <GoalRow
-              key={g.id}
-              data={g}
-              index={i}
-              onEdit={() => setDetailTarget(g.goal)}
-            />
-          ))
-        )}
-      </motion.div>
-
-      {/* Completed goals */}
-      {completed.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: EASE_OUT, delay: 0.14 }}
-          className="flex flex-col gap-3"
-        >
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900">Concluídos</h3>
-            <span className="text-xs text-slate-400">
-              {completed.length} {completed.length === 1 ? "objectivo" : "objectivos"}
-            </span>
-          </div>
-          {completed.map((g, i) => (
-            <GoalRow key={g.id} data={g} index={i} onEdit={() => setDetailTarget(g.goal)} />
-          ))}
-        </motion.div>
-      )}
-
-      {/* Modals */}
-      <AnimatePresence>
-        {showNew && (
-          <NewGoalModal onClose={() => setShowNew(false)} onSuccess={handleNewSuccess} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {detailTarget && (
-          <GoalDetailModal
-            goal={detailTarget}
-            onClose={() => setDetailTarget(null)}
-            onEdit={handleDetailEdit}
-            onProgressAdded={() => { refresh(); }}
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {editTarget && (
-          <EditModal
-            isOpen={Boolean(editTarget)}
-            onClose={handleEditClose}
-            onUpdated={handleEditUpdated}
-            objective={editTarget}
-          />
-        )}
-      </AnimatePresence>
-
-    </div>
+    GOAL_CATEGORIES.find(
+      (category) => category.toLocaleLowerCase() === name?.trim().toLocaleLowerCase(),
+    ) ?? "Outros"
   );
 }
+
+function toAppGoal(goal: Goal, index: number): GoalDTO {
+  const categoryName = goal.categoryName ?? goal.category?.name;
+  return {
+    id: goal.id ?? `api-${index}`,
+    title: goal.title?.trim() || categoryName || "Meta",
+    description: goal.description ?? undefined,
+    type: goal.type === "LONG_TERM" ? "LONG_TERM" : "SHORT_TERM",
+    targetAmount: goal.targetAmount,
+    currentAmount: goal.currentAmount,
+    startDate: goal.startDate ?? "",
+    endDate: goal.endDate ?? "",
+    category: getCategory(categoryName),
+    categoryId: goal.categoryId ?? goal.category?.id ?? "",
+  };
+}
+
+function formatHistoryDate(raw?: string | null): string {
+  if (!raw) return "—";
+  const date = new Date(raw);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return date.toLocaleDateString("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function page() {
+  const {
+    goals: apiGoals,
+    isLoading,
+    error: goalsError,
+    refreshGoals,
+    addGoal,
+    updateGoal,
+    addProgress,
+    removeGoal: removeGoalApi,
+  } = useGoal();
+  const [query, setQuery] = useState("");
+  const [detailsGoal, setDetailsGoal] = useState<GoalDTO | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<GoalFormMode>("create");
+  const [startDelete, setStartDelete] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<GoalDTO | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<GoalFilterValue>(emptyGoalFilters);
+  const remaining = MAX_SEARCH_LENGTH - query.length;
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const goals = useMemo(
+    () => apiGoals.map(toAppGoal),
+    [apiGoals],
+  );
+
+  const searchedGoals = normalizedQuery
+    ? goals.filter((goal) =>
+        [goal.title, goal.category, goal.description ?? ""].some((field) =>
+          field.toLowerCase().includes(normalizedQuery),
+        ),
+      )
+    : goals;
+  const statusFiltered = filters.statuses.length
+    ? searchedGoals.filter((goal) =>
+        filters.statuses.includes(statusFor(goalPercent(goal)).label),
+      )
+    : searchedGoals;
+  const typeFiltered = filters.types.length
+    ? statusFiltered.filter((goal) => filters.types.includes(goal.type))
+    : statusFiltered;
+  const filteredGoals = [...typeFiltered].sort((a, b) => {
+    if (filters.sortBy === "progress") {
+      const diff = goalPercent(a) - goalPercent(b);
+      return filters.sortDir === "desc" ? -diff : diff;
+    }
+    if (filters.sortBy === "value") {
+      return filters.sortDir === "desc"
+        ? b.targetAmount - a.targetAmount
+        : a.targetAmount - b.targetAmount;
+    }
+    if (filters.sortBy === "endDate") {
+      const diff = a.endDate.localeCompare(b.endDate);
+      return filters.sortDir === "desc" ? -diff : diff;
+    }
+    const diff = a.title.localeCompare(b.title, "pt");
+    return filters.sortDir === "asc" ? diff : -diff;
+  });
+
+  const detailsHistory = useMemo(() => {
+    if (!detailsGoal) return undefined;
+    const api = apiGoals.find((goal) => goal.id === detailsGoal.id);
+    const progress = api?.progress ?? [];
+    return [...progress]
+      .sort((a, b) =>
+        (b.progressDate ?? b.createdAt ?? "").localeCompare(
+          a.progressDate ?? a.createdAt ?? "",
+        ),
+      )
+      .map((entry) => ({
+        amount: entry.amount,
+        date: formatHistoryDate(entry.progressDate ?? entry.createdAt),
+      }));
+  }, [detailsGoal, apiGoals]);
+
+  async function handleSaveGoal(values: GoalSaveValues): Promise<boolean> {
+    const payload = {
+      title: values.title,
+      description: values.description || undefined,
+      type: values.type,
+      targetAmount: values.targetAmount,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      categoryId: values.categoryId,
+    };
+    if (editingGoal) return updateGoal(editingGoal.id, payload);
+    return addGoal(payload);
+  }
+
+  async function handleSaveProgress(
+    values: GoalProgressValues,
+  ): Promise<boolean> {
+    if (!editingGoal) return false;
+    return addProgress(editingGoal.id, values.amount, values.date);
+  }
+
+  async function handleDeleteGoal(id: string): Promise<boolean> {
+    return removeGoalApi(id);
+  }
+
+  const openForm = (
+    mode: GoalFormMode,
+    goal: GoalDTO | null,
+    deleteFirst = false,
+  ) => {
+    setFormMode(mode);
+    setEditingGoal(goal);
+    setStartDelete(deleteFirst);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingGoal(null);
+    setStartDelete(false);
+  };
+
+  const hasActiveFilters =
+    filters.statuses.length > 0 ||
+    filters.types.length > 0 ||
+    filters.sortBy !== emptyGoalFilters.sortBy ||
+    filters.sortDir !== emptyGoalFilters.sortDir;
+
+  return (
+    <div className="flex h-full flex-col">
+        <PageHeader title="Metas">
+          <button
+            type="button"
+            onClick={() => openForm("create", null)}
+            className="group flex w-42.5 h-12.25 cursor-pointer justify-center items-center gap-3 rounded-2xl border border-primary-300 bg-primary-300 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_4px_14px_rgba(5,61,196,0.35)] active:translate-y-0 active:scale-[0.98]"
+          >
+            <PlusIcon
+              width={16}
+              height={16}
+              className="text-base-white transition-transform duration-300 ease-out group-hover:rotate-90"
+            />
+            <span className="text-sm not-italic font-semibold font-inter text-base-white">
+              Nova meta
+            </span>
+          </button>
+        </PageHeader>
+        <section className="shrink-0 flex py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card)">
+          <div className="flex items-start gap-3 self-stretch">
+            <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
+              <div className="flex items-center gap-3 self-stretch">
+                <div className="flex h-12 py-0 px-4 items-center gap-3 flex-1 rounded-xl border border-(--border-button) bg-(--background) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
+                  <SearchIcon
+                    width={16}
+                    className="shrink-0 text-(--text-description) transition-colors duration-200"
+                  />
+                  <input
+                    type="search"
+                    value={query}
+                    maxLength={MAX_SEARCH_LENGTH}
+                    onChange={(event) =>
+                      setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
+                    }
+                    placeholder={`Consultar ${goals.length} metas...`}
+                    className="min-w-0 flex-1 bg-transparent text-[14px] not-italic font-normal leading-[150%] text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
+                  />
+                  <p
+                    aria-live="polite"
+                    className={`text-[12px] not-italic font-normal leading-normal transition-colors duration-150 ${
+                      remaining === 0
+                        ? "text-danger-300"
+                        : "text-(--text-description)"
+                    }`}
+                  >
+                    {remaining} /
+                  </p>
+                </div>
+                <div className="flex h-9 items-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsFilterOpen((value) => !value)}
+                    aria-expanded={isFilterOpen}
+                    className={`group flex w-28 h-12 justify-center items-center gap-1.5 px-4 rounded-xl border transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)] active:translate-y-0 active:scale-[0.98] ${
+                      isFilterOpen || hasActiveFilters
+                        ? "border-primary-300 bg-primary-300/10 shadow-[0_4px_12px_rgba(5,61,196,0.15)]"
+                        : "border-(--card-barras) bg-(--background) shadow-[inset_0px_0px_4px_0px_rgba(0,0,0,0.02)]"
+                    }`}
+                  >
+                    <FilterIcon
+                      width={16}
+                      height={14}
+                      className={`shrink-0 transition-all duration-200 ease-out group-hover:-translate-y-0.5 ${
+                        isFilterOpen || hasActiveFilters
+                          ? "text-primary-300"
+                          : "text-(--icon) group-hover:text-primary-300"
+                      }`}
+                    />
+                    <p
+                      className={`text-center text-base not-italic font-normal font-manrope transition-colors duration-200 group-hover:text-primary-300 ${
+                        isFilterOpen || hasActiveFilters
+                          ? "text-primary-300"
+                          : "text-(--text-title)"
+                      }`}
+                    >
+                      Filtrar
+                    </p>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {isLoading && goals.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--bg-card) p-8">
+            {[0, 1, 2].map((index) => (
+              <div
+                key={index}
+                aria-hidden="true"
+                className="h-24 shrink-0 animate-pulse rounded-2xl bg-(--bg-filter)"
+              />
+            ))}
+            <span className="sr-only">A carregar metas…</span>
+          </main>
+        ) : goalsError && goals.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Não foi possível carregar as metas.
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              {goalsError}
+            </p>
+            <button
+              type="button"
+              onClick={() => refreshGoals()}
+              className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Tentar novamente
+            </button>
+          </main>
+        ) : goals.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Sem metas
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              Crie a primeira meta com o botão “Nova meta”.
+            </p>
+          </main>
+        ) : filteredGoals.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
+            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              Nenhuma meta encontrada
+            </p>
+            <p className="font-manrope text-[14px] text-(--text-description)">
+              Tente outro termo de pesquisa ou ajuste os filtros.
+            </p>
+          </main>
+        ) : (
+          <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-8 bg-(--bg-card)">
+            {filteredGoals.map((goal) => (
+              <GoalItem
+                key={goal.id}
+                goal={goal}
+                onSelect={() => setDetailsGoal(goal)}
+              />
+            ))}
+          </main>
+        )}
+        <GoalFilter
+          isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
+          value={filters}
+          onApply={(next) => {
+            setFilters(next);
+            setIsFilterOpen(false);
+          }}
+        />
+        <GoalDetails
+          isOpen={detailsGoal !== null}
+          goal={detailsGoal}
+          history={detailsHistory}
+          onClose={() => setDetailsGoal(null)}
+          onEdit={(goal) => {
+            setDetailsGoal(null);
+            openForm("edit", goal);
+          }}
+          onAddSavings={(goal) => {
+            openForm("savings", goal);
+          }}
+          onDelete={(goal) => {
+            setDetailsGoal(null);
+            openForm("edit", goal, true);
+          }}
+        />
+        <GoalForm
+          isOpen={isFormOpen}
+          mode={formMode}
+          goal={editingGoal}
+          startInDelete={startDelete}
+          onClose={closeForm}
+          onBack={closeForm}
+          onSave={handleSaveGoal}
+          onSaveProgress={handleSaveProgress}
+          onDelete={handleDeleteGoal}
+        />
+      </div>
+  );
+}
+
+export default page;
