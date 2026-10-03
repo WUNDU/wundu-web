@@ -416,7 +416,8 @@ function GoalForm({
                             }
                             placeholder="0,00"
                             aria-label="Valor da poupança"
-                            className="w-44 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
+                            size={Math.max(savingsAmount.length, 4)}
+                            className="w-auto max-w-full min-w-0 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
                           />
                           <span className="font-manrope text-[16px] font-bold text-(--text-description)">
                             Kz
@@ -583,7 +584,8 @@ function GoalForm({
                           }
                           placeholder="0,00"
                           aria-label="Valor objetivo da meta"
-                          className="w-44 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
+                          size={Math.max(target.length, 4)}
+                          className="w-auto max-w-full min-w-0 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
                         />
                         <span className="font-manrope text-[16px] font-bold text-(--text-description)">
                           Kz

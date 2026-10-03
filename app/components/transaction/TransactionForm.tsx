@@ -328,7 +328,8 @@ function TransactionForm({
                           }
                           placeholder="0,00"
                           aria-label="Valor da transação"
-                          className="w-44 bg-transparent text-center font-sans text-[30px] not-italic font-bold leading-normal text-(--text) outline-none placeholder:text-(--text-description)/40"
+                          size={Math.max(amount.length, 4)}
+                          className="w-auto max-w-full min-w-0 bg-transparent text-center font-sans text-[30px] not-italic font-bold leading-normal text-(--text) outline-none placeholder:text-(--text-description)/40"
                         />
                         <span className="font-manrope text-[16px] font-bold text-(--text-description)">
                           Kz
