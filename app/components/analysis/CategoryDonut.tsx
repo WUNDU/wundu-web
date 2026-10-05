@@ -137,7 +137,7 @@ export default function CategoryDonut({
                   y={tipY + 21}
                   textAnchor="middle"
                   fontFamily="Manrope, sans-serif"
-                  fontSize={14}
+                  fontSize={12}
                   fontWeight={700}
                   style={{ fill: "var(--text-title)" }}
                 >

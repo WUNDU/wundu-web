@@ -259,8 +259,8 @@ export function MiniChart({
             caretPadding: 8,
             padding: 8,
             displayColors: false,
-            titleFont: { family: "Manrope, sans-serif", size: 14, weight: "bold" },
-            bodyFont: { family: "Inter, sans-serif", size: 14, weight: "normal" },
+            titleFont: { family: "Manrope, sans-serif", size: 12, weight: "bold" },
+            bodyFont: { family: "Inter, sans-serif", size: 12, weight: "normal" },
             callbacks: {
               title: (items) => {
                 const label =

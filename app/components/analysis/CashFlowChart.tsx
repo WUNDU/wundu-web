@@ -184,7 +184,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
               y={Y_LABEL_Y[i]}
               textAnchor="end"
               fontFamily="Manrope, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={700}
               style={{ fill: "var(--text-title)" }}
             >
@@ -200,7 +200,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
               y={X_LABEL_Y}
               textAnchor="middle"
               fontFamily="Manrope, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={700}
               style={{ fill: "var(--text-title)" }}
             >
@@ -315,7 +315,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
                     x={tipX + 26}
                     y={tipY + 21 + r * 22}
                     fontFamily="Inter, sans-serif"
-                    fontSize={14}
+                    fontSize={12}
                     fontWeight={700}
                     style={{ fill: "var(--text-title)" }}
                   >

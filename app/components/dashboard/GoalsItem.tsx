@@ -37,7 +37,7 @@ function GoalsItem({ goal }: GoalsItemProps) {
               className={`flex shrink-0 px-3 py-1 justify-center items-center gap-2.5 rounded-2xl ${categoryConfig.background}`}
             >
               <p
-                className={`font-inter leading-normal font-bold tracking-[-0.48px] text-[-16px] ${categoryConfig.color}`}
+                className={`font-inter leading-normal font-bold tracking-[-0.48px] text-[16px] ${categoryConfig.color}`}
               >
                 {percent}%
               </p>
@@ -48,7 +48,7 @@ function GoalsItem({ goal }: GoalsItemProps) {
               {formatAOA(goal.currentAmount)}
             </p>
             <p
-              className={`font-inter tracking-[-0.48px] text-[-16px] leading-normal ${isComplete ? `${categoryConfig.color} font-bold` : "text-(--text-description) font-medium"} text-right`}
+              className={`font-inter tracking-[-0.48px] text-[16px] leading-normal ${isComplete ? `${categoryConfig.color} font-bold` : "text-(--text-description) font-medium"} text-right`}
             >
               {isComplete
                 ? "Concluído"

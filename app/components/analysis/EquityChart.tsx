@@ -180,7 +180,7 @@ export default function EquityChart() {
               y={y + 5}
               textAnchor="end"
               fontFamily="Manrope, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={700}
               style={{ fill: "var(--text-title)" }}
             >
@@ -252,7 +252,7 @@ export default function EquityChart() {
                 i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle"
               }
               fontFamily="Manrope, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={700}
               style={{ fill: "var(--text-title)" }}
             >
@@ -277,7 +277,7 @@ export default function EquityChart() {
               y={tipBoxY + 28}
               textAnchor="middle"
               fontFamily="Manrope, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={400}
               style={{ fill: "var(--text-description-60)" }}
             >
@@ -288,7 +288,7 @@ export default function EquityChart() {
               y={tipBoxY + 48}
               textAnchor="middle"
               fontFamily="Inter, sans-serif"
-              fontSize={14}
+              fontSize={12}
               fontWeight={700}
               style={{ fill: "var(--text)" }}
             >

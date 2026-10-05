@@ -717,6 +717,69 @@ html {
 }
 
 /* ============================================================
+   8. COMPACT DENSITY — escala compacta para telas < 2xl (~13–14")
+   ============================================================
+   Contexto: o layout foi desenhado numa tela de 16" (≥ 96rem /
+   1536px, breakpoint 2xl do Tailwind). Em telas menores os cards,
+   textos e gráficos ficam grandes demais.
+
+   Estratégia (best practice Tailwind: variante max-2xl, ver docs
+   de Responsive design):
+   - O markup continua a representar o desenho original (16").
+   - Abaixo de 96rem, `.density-compact` (aplicado no
+     `app/(protected)/(dashboard)/home/layout.tsx`, que envolve todas
+     as telas internas: dashboard, accounts, goals, transactions,
+     analytics, categories, profile, etc.) comprime a
+     escala segundo a regra: 18→16, 16→14, 14→12, 12→10, 10→8.
+   - Escopado a `.density-compact`: nada fora dessas telas é afetado.
+   - Sem `!important`: os seletores (0,2,0) vencem os utilities
+     (0,1,0) e o media query é mutuamente exclusivo com `2xl:`.
+   ============================================================ */
+@layer utilities {
+  @media (width < 96rem) {
+    /* ---- Tipografia (regra -2pt) ---- */
+    .density-compact .text-\[18px\] { font-size: 1rem; }        /* 18 → 16 */
+    .density-compact .text-\[16px\] { font-size: 0.875rem; }    /* 16 → 14 */
+    .density-compact .text-\[14px\] { font-size: 0.75rem; }     /* 14 → 12 */
+    .density-compact .text-\[13px\] { font-size: 0.6875rem; }   /* 13 → 11 */
+    .density-compact .text-\[12px\] { font-size: 0.625rem; }    /* 12 → 10 */
+    .density-compact .text-\[11px\] { font-size: 0.5625rem; }   /* 11 → 9 */
+    .density-compact .text-\[20px\] { font-size: 1.125rem; }    /* 20 → 18 */
+    .density-compact .text-\[30px\] { font-size: 1.625rem; }    /* 30 → 26 */
+    .density-compact .text-3xl { font-size: 1.625rem; }         /* 30 → 26 */
+    .density-compact .text-2xl { font-size: 1.25rem; }          /* 24 → 20 */
+    .density-compact .text-xl { font-size: 1.125rem; }          /* 20 → 18 */
+    .density-compact .text-lg { font-size: 1rem; }              /* 18 → 16 */
+    .density-compact .text-base { font-size: 0.875rem; }        /* 16 → 14 */
+    .density-compact .text-sm { font-size: 0.75rem; }           /* 14 → 12 */
+    .density-compact .text-xs { font-size: 0.625rem; }          /* 12 → 10 */
+
+    /* Altura de linha dos títulos quando a fonte encolhe */
+    .density-compact .leading-9 { line-height: 1.75rem; }
+    .density-compact .leading-8 { line-height: 1.75rem; }
+
+    /* ---- Densidade dos cards / layout (~-20%) ---- */
+    .density-compact .p-8 { padding: 1.25rem; }
+    .density-compact .p-6 { padding: 1.25rem; }
+    .density-compact .px-8 { padding-inline: 1.25rem; }
+    .density-compact .gap-8 { gap: 1rem; }
+    .density-compact .gap-6 { gap: 1rem; }
+    .density-compact .gap-x-8 { column-gap: 1rem; }
+    .density-compact .h-72 { height: 15rem; }                   /* 288 → 240 */
+    .density-compact .h-69 { height: 14rem; }                   /* skeleton */
+    .density-compact .h-\[640px\] { height: 32.5rem; }         /* 640 → 520 */
+    .density-compact .h-20 { height: 4rem; }                    /* PageHeader */
+    .density-compact .h-16 { height: 3rem; }                    /* faixa chart */
+    .density-compact .h-15\.75 { height: 3rem; }                /* faixa chart */
+    .density-compact .h-12 { height: 2.5rem; }                  /* controlos */
+    .density-compact .size-14 { width: 2.75rem; height: 2.75rem; }
+    .density-compact .size-15 { width: 3rem; height: 3rem; }
+    .density-compact .w-15 { width: 3rem; }
+    .density-compact .h-15 { height: 3rem; }
+  }
+}
+
+/* ============================================================
    ACESSIBILIDADE
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {

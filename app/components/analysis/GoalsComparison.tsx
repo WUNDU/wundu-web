@@ -189,7 +189,7 @@ export default function GoalsComparison({
                   y={tipBox.y + 26}
                   textAnchor="middle"
                   fontFamily="Manrope, sans-serif"
-                  fontSize={14}
+                  fontSize={12}
                   fontWeight={700}
                   style={{ fill: "var(--text-title)" }}
                 >
@@ -202,7 +202,7 @@ export default function GoalsComparison({
                   y={tipBox.y + 48}
                   textAnchor="middle"
                   fontFamily="Inter, sans-serif"
-                  fontSize={14}
+                  fontSize={12}
                   fontWeight={700}
                   style={{ fill: `var(${tipGoal.colorVar})` }}
                 >
