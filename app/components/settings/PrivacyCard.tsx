@@ -22,7 +22,7 @@ function PrivacyCard() {
   return (
     <section
       aria-labelledby="privacy-title"
-      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-2xl border border-(--card-barras) bg-(--background) p-6"
+      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-2xl border border-(--card-barras) bg-(--bg-card) p-6"
     >
       <div className="flex items-center justify-start gap-3">
         <Lock

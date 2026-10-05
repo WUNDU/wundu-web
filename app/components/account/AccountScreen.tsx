@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { Lock, PlusIcon, SearchIcon } from "lucide-react";
+import { FilterIcon, Lock, PlusIcon, SearchIcon } from "lucide-react";
 import AccountForm, { type AccountFormMode } from "./AccountForm";
 import AccountList from "./AccountList";
+import MobileCategoryList from "./MobileCategoryList";
 import CategoryFilter, {
   emptyCategoryFilters,
   type CategoryFilterValue,
@@ -19,6 +20,7 @@ import TransactionPagination from "app/components/transaction/TransactionPaginat
 import { mockAccounts, type AccountDTO } from "../mock/account";
 import type { CategoryBadge, CategoryDTO } from "../mock/category";
 import { getCategory } from "app/utils/transaction-map";
+import { formatAOA } from "app/utils/format-AOA";
 import { useCategory } from "@/hooks/use-category";
 import { useLimit } from "@/hooks/use-limit";
 import { useTransaction } from "@/hooks/use-transaction";
@@ -294,8 +296,8 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
     categoryFilters.sortDir !== emptyCategoryFilters.sortDir;
 
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex shrink-0 items-center justify-between gap-3 self-stretch border-b border-(--card-barras) bg-(--bg-card) px-8 py-4">
+    <div className="relative flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
+      <header className={`hidden shrink-0 items-center justify-between gap-3 self-stretch border-b border-(--card-barras) bg-(--bg-card) px-8 py-4 lg:flex ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
         <nav aria-label="Secções de contas">
           <ul className="flex items-start justify-start">
             {TABS.map((tab) => {
@@ -429,11 +431,108 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
           </button>
         </section>
       </header>
+      <div className={`flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
+        <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
+          {isAccounts ? "Contas" : "Categorias"}
+        </h1>
+        {isAccounts ? (
+          <button
+            type="button"
+            disabled
+            title="Disponível em breve"
+            className="flex h-9 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4 opacity-40"
+          >
+            <PlusIcon
+              width={16}
+              height={16}
+              className="shrink-0 text-(--button-icon-yellow)"
+              aria-hidden="true"
+            />
+            <span className="font-manrope text-xs font-medium text-(--button-fg)">
+              Adicionar
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => openCategoryForm("create", null)}
+            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
+          >
+            <PlusIcon
+              width={16}
+              height={16}
+              className="shrink-0 text-(--button-icon-yellow)"
+              aria-hidden="true"
+            />
+            <span className="font-manrope text-xs font-medium text-(--button-fg)">
+              Adicionar
+            </span>
+          </button>
+        )}
+      </div>
+      <div className={`flex items-center gap-2 self-stretch px-6 py-2 lg:hidden ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
+        <label className="flex h-12 flex-1 items-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors duration-200 focus-within:border-primary-300">
+          <SearchIcon
+            width={16}
+            height={16}
+            className="shrink-0 text-slate-600"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={query}
+            maxLength={MAX_SEARCH_LENGTH}
+            onChange={(event) =>
+              setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
+            }
+            placeholder={
+              isAccounts ? "Pesquisar conta…" : "Consultar categorias…"
+            }
+            aria-label={isAccounts ? "Pesquisar conta" : "Consultar categorias"}
+            className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+          />
+        </label>
+        {!isAccounts ? (
+          <button
+            type="button"
+            onClick={() => setIsCategoryFilterOpen(true)}
+            aria-label="Filtrar categorias"
+            className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-(--border-button) bg-(--bg-card)"
+          >
+            <FilterIcon
+              width={20}
+              height={16}
+              className={`shrink-0 ${
+                isCategoryFilterOpen || hasActiveCategoryFilters
+                  ? "text-primary-300"
+                  : "text-(--icon)"
+              }`}
+            />
+          </button>
+        ) : null}
+      </div>
 
-      <div className="relative flex min-h-0 flex-1 flex-col bg-(--background)">
+      {isAccounts ? (
+        <div className={`mx-6 mt-2 flex flex-col gap-1 self-stretch rounded-2xl bg-primary-300 px-5 py-5 lg:hidden ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
+          <p className="font-manrope text-xs font-medium text-white">
+            Saldo total
+          </p>
+          <p className="font-manrope text-2xl font-extrabold text-white">
+            {formatAOA(
+              filteredAccounts.reduce((sum, account) => sum + account.balance, 0),
+            )}
+          </p>
+          <p className="font-manrope text-xs font-medium text-white">
+            {filteredAccounts.length}{" "}
+            {filteredAccounts.length === 1 ? "conta ativa" : "contas ativas"}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="relative flex min-h-0 flex-1 flex-col bg-transparent lg:bg-(--background)">
       <main
         inert={isAccounts}
-        className={`flex min-h-0 flex-1 flex-col overflow-y-auto px-8 py-4 ${
+        className={`flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-6 py-4 lg:px-8 ${
           isAccounts ? "select-none blur-sm pointer-events-none" : ""
         }`}
       >
@@ -485,12 +584,22 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
             </p>
           </div>
         ) : (
-          <CategoryList
-            categories={pagedCategories}
-            selectedIds={selectedCategoryIds}
-            onToggle={toggleCategory}
-            onSelect={(category) => openCategoryForm("edit", category)}
-          />
+          <>
+            <div className="flex min-h-0 w-full flex-1 flex-col items-start justify-start gap-4 self-stretch lg:hidden">
+              <MobileCategoryList
+                categories={pagedCategories}
+                onSelect={(category) => openCategoryForm("edit", category)}
+              />
+            </div>
+            <div className="hidden min-h-0 w-full flex-1 flex-col items-start justify-start self-stretch lg:flex">
+              <CategoryList
+                categories={pagedCategories}
+                selectedIds={selectedCategoryIds}
+                onToggle={toggleCategory}
+                onSelect={(category) => openCategoryForm("edit", category)}
+              />
+            </div>
+          </>
         )}
       </main>
       {!isAccounts && sortedCategories.length > 0 ? (
@@ -504,9 +613,10 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
           navLabel="Paginação de categorias"
         />
       ) : null}
+      </div>
       {isAccounts ? (
-        <div className="absolute inset-0 z-10 flex items-center justify-center p-8">
-          <div className="flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border border-(--card-barras) bg-(--bg-card) p-8 text-center shadow-[0px_8px_30px_rgba(2,21,69,0.12)]">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6 lg:p-8">
+          <div className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border border-(--card-barras) bg-(--bg-card) p-6 text-center shadow-[0px_8px_30px_rgba(2,21,69,0.12)] lg:p-8">
             <span className="flex size-14 items-center justify-center rounded-2xl bg-primary-300/10">
               <Lock width={24} height={24} className="text-primary-300" aria-hidden="true" />
             </span>
@@ -527,7 +637,6 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
           </div>
         </div>
       ) : null}
-      </div>
       <AccountForm
         isOpen={isFormOpen}
         mode={formMode}

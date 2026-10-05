@@ -4,12 +4,14 @@ import { useState } from "react";
 import ChartCard from "./ChartCard";
 import { formatAOACompact } from "../../utils/format-AOA";
 
-/* Níveis 1:1 com o Figma: primary-50 → 100 → 200 → 300 */
+/* Escala só com variações do primary (1:1 da base):
+   0 → Colors/Primary/50, 1 → Colors/Primary/100, 2 → Colors/Primary/200,
+   3 → Colors/Base/Primary, 4 → Colors/Primary/300 */
 const INTENSITY_BG = [
-  "bg-(--bg-filter)",
   "bg-primary-50",
   "bg-primary-100",
   "bg-primary-200",
+  "bg-(--color-primary)",
   "bg-primary-300",
 ] as const;
 

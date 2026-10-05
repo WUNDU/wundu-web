@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, LogOut, Menu as MenuIcon, Moon, Search, Settings } from "lucide-react";
-import { avatar } from "@/constants/images";
+import { avatar, logo } from "@/constants/images";
 import { BellIcon, ExpandIcon, SunIcon } from "@/constants/icons";
 import { useUserStore } from "@/store/user-store";
 import { useApiNotification } from "@/hooks/use-api-notification";
@@ -16,12 +16,15 @@ type TopBarProps = {
   collapsed?: boolean;
   onToggleMenu?: () => void;
   className?: string;
+  /** Título exibido só no mobile (base Figma: "Dashboard") */
+  title?: string;
 };
 
 export default function TopBar({
   collapsed = false,
   onToggleMenu,
   className,
+  title = "Dashboard",
 }: TopBarProps) {
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
@@ -37,6 +40,9 @@ export default function TopBar({
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname() ?? "";
+  // Variante mobile: dashboard (logo + título) vs restantes páginas (avatar + barra azul-marinho).
+  const isDashboard = pathname === "/home";
   const profileAnchorRef = useRef<HTMLButtonElement>(null);
   const logoutUser = useUserStore((s) => s.logoutUser);
   const { unreadCount, fetchUnreadCount } = useApiNotification();
@@ -58,7 +64,13 @@ export default function TopBar({
     <div>
       <header
         className={[
-          "flex h-22.5 shrink-0 items-center justify-between border-b border-(--card-barras) bg-(--bg-card) px-6 py-6",
+          "flex shrink-0 items-center gap-3 border-b border-(--card-barras)",
+          // Mobile: dashboard (h-14, fundo do card) vs restantes
+          // (h-24, fundo aside, avatar e ícones nos extremos).
+          isDashboard
+            ? "h-14 bg-(--bg-card) px-5"
+            : "h-24 justify-between bg-(--menu-bg-aside) p-6",
+          "lg:h-22.5 lg:justify-between lg:gap-0 lg:bg-(--bg-card) lg:px-6 lg:py-6",
           className,
         ]
           .filter(Boolean)
@@ -68,15 +80,55 @@ export default function TopBar({
         <button
           type="button"
           onClick={onToggleMenu}
-          className="flex size-10 items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:bg-(--background-variant) hover:text-(--menu-hover)"
+          className="hidden size-10 items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:bg-(--background-variant) hover:text-(--menu-hover) lg:flex"
           aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           title={collapsed ? "Expandir menu" : "Recolher menu"}
         >
           <ExpandIcon className="size-8" aria-hidden="true" />
         </button>
 
-        <div className="flex h-full items-center gap-6">
-          <label className="flex h-12 w-78.75 items-center gap-2 rounded-xl border-[1.5px] border-(--card-barras) bg-(--background-variant) px-3.5 py-2 text-(--text-description) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
+        <div
+          className={
+            isDashboard
+              ? "flex min-w-0 flex-1 items-center gap-3 lg:hidden"
+              : "hidden"
+          }
+        >
+          <Image
+            src={logo}
+            alt="Wundu"
+            width={44}
+            height={44}
+            className="size-11 shrink-0"
+            priority
+          />
+          <span className="min-w-0 flex-1 truncate font-manrope text-2xl font-semibold leading-9 text-(--text-title)">
+            {title}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => router.push("/home/profile/settings")}
+          aria-label={`Abrir perfil de ${displayName}`}
+          className={
+            isDashboard
+              ? "hidden"
+              : "flex shrink-0 items-center justify-center lg:hidden"
+          }
+        >
+          <Image
+            src={user?.profilePhotoUrl || avatar}
+            alt={`Foto de perfil de ${displayName}`}
+            width={40}
+            height={40}
+            className="size-10 shrink-0 rounded-lg object-cover"
+            unoptimized={Boolean(user?.profilePhotoUrl)}
+          />
+        </button>
+
+        <div className="flex h-full items-center gap-3 lg:gap-6">
+          <label className="hidden h-12 w-78.75 items-center gap-2 rounded-xl border-[1.5px] border-(--card-barras) bg-(--background-variant) px-3.5 py-2 text-(--text-description) transition-colors duration-200 hover:border-primary-300 hover:bg-(--bg-body) focus-within:border-primary-300 focus-within:bg-(--bg-body) lg:flex">
             <Search className="size-4 shrink-0" strokeWidth={1.5} />
             <input
               type="search"
@@ -93,38 +145,49 @@ export default function TopBar({
           </label>
 
           <div className="flex items-center gap-3">
+            {/* Variante dashboard (mobile): alternar tema. Nas restantes
+                páginas a base pede pesquisa + notificações. */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="group flex size-10 items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:bg-(--background-variant) hover:text-(--menu-hover)"
+              className={`group size-11 items-center justify-center rounded-xl bg-(--background-variant) text-(--menu-icon) transition-colors hover:text-(--menu-hover) lg:flex lg:size-10 lg:bg-transparent lg:hover:bg-(--background-variant) ${isDashboard ? "flex" : "hidden"}`}
               aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
               title={isDark ? "Tema claro" : "Tema escuro"}
               aria-pressed={isDark}
             >
               {isDark ? (
                 <SunIcon
-                  className="size-8 [--sun-opacity:0.5] group-hover:[--sun-opacity:1]"
+                  className="size-5 [--sun-opacity:0.5] group-hover:[--sun-opacity:1] lg:size-8"
                   aria-hidden="true"
                 />
               ) : (
-                <Moon className="size-8" strokeWidth={1.5} aria-hidden="true" />
+                <Moon className="size-5 lg:size-8" strokeWidth={1.5} aria-hidden="true" />
               )}
             </button>
-            <span className="h-5 w-px bg-(--menu-divider)" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={() => router.push("/home/transactions")}
+              aria-label="Pesquisar"
+              title="Pesquisar"
+              className={`size-10 items-center justify-center text-(--menu-icon) transition-colors hover:text-(--menu-hover) lg:hidden ${isDashboard ? "hidden" : "flex"}`}
+            >
+              <Search className="size-6" strokeWidth={1.5} aria-hidden="true" />
+            </button>
+            <span className={`h-5 w-px lg:block lg:bg-(--menu-divider) ${isDashboard ? "hidden bg-(--menu-divider)" : "block bg-zinc-200"}`} aria-hidden="true" />
             <button
               type="button"
               onClick={() => setIsNotificationOpen(true)}
-              className="group relative flex size-10 items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:bg-(--background-variant) hover:text-(--menu-hover)"
+              className={`group relative items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:text-(--menu-hover) lg:flex lg:size-10 lg:bg-transparent lg:hover:bg-(--background-variant) ${isDashboard ? "flex size-11 bg-(--background-variant)" : "flex size-10 bg-transparent"}`}
               aria-label={unreadCount > 0 ? `${unreadCount} notificações por ler` : "Sem notificações por ler"}
               title="Notificações"
             >
-              <span className="relative size-10">
+              <span className={`relative lg:size-10 ${isDashboard ? "size-11" : "size-10"}`}>
                 <BellIcon
-                  className="absolute left-2 top-2 size-6"
+                  className={`absolute size-6 lg:left-2 lg:top-2 ${isDashboard ? "left-2.5 top-2.5" : "left-2 top-2"}`}
                   aria-hidden="true"
                 />
                 {unreadCount > 0 ? (
-                  <span className="absolute right-1.5 p-1.5 top-0.75 flex size-3.5 min-w-3.5 items-center justify-center rounded-full border-2 border-(--bg-card) bg-danger-300 px-0.5 text-[9px] font-extrabold leading-none text-white">
+                  <span className={`absolute right-1.5 p-1.5 top-0.75 flex size-3.5 min-w-3.5 items-center justify-center rounded-full border-2 bg-danger-300 px-0.5 text-[9px] font-extrabold leading-none text-white ${isDashboard ? "border-(--bg-card)" : "border-white"}`}>
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 ) : null}
@@ -138,7 +201,7 @@ export default function TopBar({
             onClick={() => setIsProfileMenuOpen((value) => !value)}
             aria-expanded={isProfileMenuOpen}
             aria-label={`Abrir perfil de ${displayName}`}
-            className="flex h-12 w-60 items-center gap-2 rounded-md p-2 text-left transition-colors hover:bg-(--menu-bg-hover)"
+            className="hidden h-12 w-60 items-center gap-2 rounded-md p-2 text-left transition-colors hover:bg-(--menu-bg-hover) lg:flex"
           >
             <Image
               src={user?.profilePhotoUrl || avatar}

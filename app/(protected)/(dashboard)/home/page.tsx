@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import CardViews, { type CardTrend } from "app/components/dashboard/CardViews";
+import BalanceHero from "app/components/dashboard/BalanceHero";
+import MiniStatCard from "app/components/dashboard/MiniStatCard";
+import AiNotify from "app/components/dashboard/AiNotify";
 import GoalsSection from "app/components/dashboard/GoalsSection";
 import TransactionSection from "app/components/dashboard/TransactionSection";
 import PageHeader from "app/components/layout/PageHeader";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Wallet } from "lucide-react";
 import { useBalance } from "@/hooks/use-balance";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
@@ -289,7 +292,8 @@ function Page() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader title="Dashboard">
+      <div className="hidden lg:block">
+        <PageHeader title="Dashboard">
         <div className="flex items-center justify-center gap-1 rounded-2xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
           <button
             type="button"
@@ -322,7 +326,8 @@ function Page() {
           </button>
         </div>
       </PageHeader>
-      <main className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto p-8">
+      </div>
+      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--background-variant) px-6 pb-8 pt-4 lg:gap-8 lg:bg-transparent lg:p-8">
         {errorMessages.length > 0 && (
           <div
             role="alert"
@@ -331,7 +336,7 @@ function Page() {
             {errorMessages.join(" ")} Atualize a página para tentar novamente.
           </div>
         )}
-        <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="hidden grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid xl:grid-cols-4">
           <CardViews
             property1="Default"
             title="Entradas"
@@ -392,7 +397,126 @@ function Page() {
             className="min-w-0! max-w-none!"
           />
         </div>
-        <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
+        <div className="grid grid-cols-2 items-stretch gap-4 lg:hidden">
+          <BalanceHero
+            className="col-span-2"
+            value={
+              isCardsLoading
+                ? "A carregar…"
+                : balance
+                  ? formatAOA(balance.balance)
+                  : "—"
+            }
+            change={
+              isCardsLoading || balancePct === null
+                ? ""
+                : formatPct(balancePct)
+            }
+            trend={
+              balancePct === null ? undefined : trendOf(balancePct)
+            }
+            comparison={comparisonLabel}
+            loading={isCardsLoading}
+          />
+          <MiniStatCard
+            icon={ArrowDown}
+            label="Entradas"
+            value={
+              isCardsLoading
+                ? "A carregar…"
+                : balance
+                  ? formatAOA(balance.totalIncome)
+                  : "—"
+            }
+            change={
+              isCardsLoading || incomePct === null ? "" : formatPct(incomePct)
+            }
+            trend={incomePct === null ? undefined : trendOf(incomePct)}
+            tone={{ background: "bg-success/10", text: "text-success" }}
+            chartColor="green"
+            chartData={periodTransactions ? incomeChart : []}
+            chartLabels={incomeSeries.labels}
+            chartLabel="Entradas diárias nos últimos sete dias do período"
+          />
+          <MiniStatCard
+            icon={ArrowUp}
+            label="Gastos"
+            value={
+              isCardsLoading
+                ? "A carregar…"
+                : balance
+                  ? formatAOA(balance.totalExpense)
+                  : "—"
+            }
+            change={
+              isCardsLoading || expensePct === null
+                ? ""
+                : formatPct(expensePct)
+            }
+            trend={expensePct === null ? undefined : trendOf(expensePct)}
+            tone={{
+              background: "bg-danger-300/10",
+              text: "text-danger-300",
+            }}
+            chartColor="red"
+            chartData={periodTransactions ? expenseChart : []}
+            chartLabels={expenseSeries.labels}
+            chartLabel="Gastos diários nos últimos sete dias do período"
+          />
+          <MiniStatCard
+            icon={Equal}
+            label="Saldo do mês"
+            value={
+              isCardsLoading
+                ? "A carregar…"
+                : balance
+                  ? formatAOA(balance.balance)
+                  : "—"
+            }
+            change={
+              isCardsLoading || balancePct === null
+                ? ""
+                : formatPct(balancePct)
+            }
+            trend={balancePct === null ? undefined : trendOf(balancePct)}
+            tone={{
+              background: "bg-warning/10",
+              text: "text-warning",
+              badgeText: "text-yellow-600",
+            }}
+            chartColor="yellow"
+            chartData={periodTransactions ? balanceSeries.data : []}
+            chartLabels={balanceSeries.labels}
+            chartLabel="Saldo líquido diário nos últimos sete dias do período"
+          />
+          <MiniStatCard
+            icon={Wallet}
+            label="Património"
+            value="—"
+            change=""
+            tone={{ background: "bg-blue-800/10", text: "text-blue-800" }}
+            chartColor="blue"
+            chartData={[]}
+            chartLabel="Sem dados de património disponíveis"
+          />
+          <div className="col-span-2">
+            <TransactionSection
+              transactions={transactions}
+              isLoading={areTransactionsLoading}
+              error={transactionsError}
+              totalElements={totalElements}
+            />
+          </div>
+          <div className="col-span-2">
+            <GoalsSection
+              goals={goals}
+              isLoading={areGoalsLoading}
+              error={goalsError}
+            />
+          </div>
+          <AiNotify className="col-span-2" />
+        </div>
+        <div className="hidden items-stretch gap-6 lg:grid xl:grid-cols-2">
           <TransactionSection
             transactions={transactions}
             isLoading={areTransactionsLoading}

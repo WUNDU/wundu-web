@@ -5,6 +5,7 @@ import TransactionCard from "app/components/transaction/TransactionCard";
 import { FilterIcon, Grid, MenuIcon, PlusIcon, SearchIcon } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import GroupedTransactionList from "app/components/transaction/grouped-transaction-list";
+import MobileTransactionList from "app/components/transaction/MobileTransactionList";
 import TransactionForm, {
   type TransactionFormValues,
 } from "app/components/transaction/TransactionForm";
@@ -148,8 +149,8 @@ function page() {
 
   return (
     <>
-      <div className="flex h-full flex-col bg-(--bg-card)">
-        <div className="shrink-0">
+      <div className="flex h-full flex-col bg-(--background-variant) lg:bg-(--bg-card)">
+        <div className="hidden shrink-0 lg:block">
           <PageHeader title="Transações">
             <button
               type="button"
@@ -166,7 +167,27 @@ function page() {
               </span>
             </button>
           </PageHeader>
-          <section className="flex py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card)">
+        </div>
+        <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
+          <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
+            Transações
+          </h1>
+          <button
+            type="button"
+            onClick={() => setIsAddOpen(true)}
+            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
+          >
+            <PlusIcon
+              width={16}
+              height={16}
+              className="shrink-0 text-(--button-icon-yellow)"
+            />
+            <span className="font-manrope text-xs font-medium text-(--button-fg)">
+              Nova
+            </span>
+          </button>
+        </div>
+          <section className="hidden py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
             <div className="flex items-start gap-3 self-stretch">
               <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
                 <div className="flex items-center gap-3 self-stretch">
@@ -269,7 +290,42 @@ function page() {
               </div>
             </div>
           </section>
-        </div>
+          <div className="flex items-center gap-2 self-stretch px-6 py-2 lg:hidden">
+            <label className="flex h-12 flex-1 items-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors duration-200 focus-within:border-primary-300">
+              <SearchIcon
+                width={16}
+                height={16}
+                className="shrink-0 text-slate-600"
+              />
+              <input
+                type="search"
+                value={query}
+                maxLength={MAX_SEARCH_LENGTH}
+                onChange={(event) =>
+                  setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
+                }
+                placeholder={`Pesquisar em ${transactions.length} transações…`}
+                aria-label="Pesquisar transações"
+                className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Filtrar transações"
+              className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-(--border-button) bg-(--bg-card)"
+            >
+              <FilterIcon
+                width={20}
+                height={16}
+                className={`shrink-0 ${
+                  isFilterOpen || hasActiveFilters
+                    ? "text-primary-300"
+                    : "text-(--icon)"
+                }`}
+              />
+            </button>
+          </div>
         {isLoading ? (
           <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-(--bg-card) p-8">
             {[0, 1, 2, 3, 4].map((index) => (
@@ -316,15 +372,23 @@ function page() {
             </p>
           </main>
         ) : isList ? (
-          <main className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-8 bg-(--bg-card)">
-            <GroupedTransactionList
-              transactions={pagedTransactions}
-              limit={pagedTransactions.length}
-              onSelect={setEditingTx}
-            />
-          </main>
+          <>
+            <main className="hidden min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-8 bg-(--bg-card) lg:flex">
+              <GroupedTransactionList
+                transactions={pagedTransactions}
+                limit={pagedTransactions.length}
+                onSelect={setEditingTx}
+              />
+            </main>
+            <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-8 pt-2 lg:hidden">
+              <MobileTransactionList
+                transactions={pagedTransactions}
+                onSelect={setEditingTx}
+              />
+            </main>
+          </>
         ) : (
-          <main className="grid min-h-0 flex-1 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 p-8 bg-(--bg-card) w-full content-start items-start overflow-y-auto">
+          <main className="hidden min-h-0 flex-1 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 p-8 bg-(--bg-card) w-full content-start items-start overflow-y-auto lg:grid">
             {pagedTransactions.map((tx) => (
               <TransactionCard
                 key={tx.id}

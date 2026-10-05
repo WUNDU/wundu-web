@@ -33,7 +33,7 @@ function CategoryItem({
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`group flex h-20 items-center justify-start gap-3 self-stretch rounded-3xl bg-(--bg-list) px-4 py-3 outline outline-1 outline-offset-[-1px] outline-(--border-button) transition-all duration-200 hover:outline-(--border-hover) ${
+      className={`group flex h-20 items-center justify-start gap-3 self-stretch rounded-3xl bg-(--bg-card) px-4 py-3 outline outline-1 outline-offset-[-1px] outline-transparent transition-all duration-200 hover:bg-(--bg-list) hover:outline-(--border-button) has-checked:rounded-3xl has-checked:border-transparent has-checked:bg-(--bg-list) ${
         onSelect ? "cursor-pointer" : ""
       }`}>
       <div className="flex min-w-0 flex-1 items-center justify-start gap-6 px-2 py-1.5">

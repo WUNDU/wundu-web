@@ -250,23 +250,27 @@ function GoalForm({
         : "Adicionar";
 
   const fieldLabel =
-    "text-sm not-italic font-semibold font-manrope leading-5 text-(--text-description)";
+    "text-sm not-italic font-semibold font-manrope leading-5 text-slate-500";
   const fieldBox =
     "rounded-2xl border border-(--border-button) bg-(--background) focus:border-(--border) focus:outline-none";
 
   return (
     <div
-      className={`fixed inset-0 z-40 backdrop-blur transition-opacity duration-300 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`flex fixed right-0 top-0 z-50 h-screen max-h-dvh w-125 max-w-full flex-col justify-between items-start border-l border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`flex fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] w-full max-w-full flex-col justify-between items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+        />
         {confirmDelete && goal ? (
           <>
             <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
-              <header className="flex p-6 justify-between items-center self-stretch border-b border-(--card-barras)">
+              <header className="flex h-20 p-4 justify-between items-center self-stretch border-b border-(--card-barras) lg:h-auto lg:p-6">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -280,7 +284,7 @@ function GoalForm({
                       className="text-(--icon)"
                     />
                   </button>
-                  <p className="text-lg not-italic font-bold font-manrope leading-7 text-(--text-title)">
+                  <p className="text-base not-italic font-bold font-manrope leading-7 text-(--text-title) lg:text-lg">
                     Eliminar meta
                   </p>
                 </div>
@@ -290,10 +294,10 @@ function GoalForm({
                   <Trash2 width={24} height={24} className="text-danger-300" />
                 </div>
                 <div className="flex flex-col justify-center items-center gap-1.5 self-stretch">
-                  <p className="text-center text-base not-italic font-bold font-manrope leading-6 text-(--text)">
+                  <p className="text-center text-sm not-italic font-bold font-manrope leading-6 text-(--text) lg:text-base">
                     Tem certeza que deseja eliminar esta meta?
                   </p>
-                  <p className="w-96 text-center text-sm not-italic font-medium font-manrope leading-5 text-(--text-description)">
+                  <p className="w-full max-w-96 text-center text-xs not-italic font-medium font-manrope leading-5 text-(--text-description) lg:text-sm">
                     Esta acção irá remover permanentemente a meta &quot;
                     <span className="font-bold">{goal.title}</span>&quot; e todo
                     o progresso associado. Esta operação não pode ser desfeita.
@@ -301,14 +305,14 @@ function GoalForm({
                 </div>
               </section>
             </div>
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras)">
+            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border border-(--card-barras)">
               <div className="flex items-start gap-4 self-stretch">
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                  className="flex flex-1 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-56 lg:flex-none"
                 >
-                  <p className="text-base not-italic font-bold font-manrope leading-normal">
+                  <p className="text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
                     Não
                   </p>
                 </button>
@@ -318,7 +322,7 @@ function GoalForm({
                   disabled={deleting}
                   className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl bg-danger-300 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60"
                 >
-                  <p className="text-center text-base not-italic font-bold font-manrope leading-normal">
+                  <p className="text-center text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
                     {deleting ? "A eliminar…" : "Sim, Eliminar"}
                   </p>
                 </button>
@@ -328,7 +332,7 @@ function GoalForm({
         ) : (
           <>
             <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
-              <header className="flex p-6 justify-between items-center self-stretch border-b border-(--card-barras)">
+              <header className="flex h-20 p-4 justify-between items-center self-stretch border-b border-(--card-barras) lg:h-auto lg:p-6">
                 <div className="flex items-center gap-2">
                   {resolvedMode !== "create" && (
                     <button
@@ -344,7 +348,7 @@ function GoalForm({
                       />
                     </button>
                   )}
-                  <p className="text-lg not-italic font-bold font-manrope leading-7 text-(--text-title)">
+                  <p className="text-base not-italic font-bold font-manrope leading-7 text-(--text-title) lg:text-lg">
                     {headerTitle}
                   </p>
                 </div>
@@ -367,7 +371,7 @@ function GoalForm({
                       aria-label="Fechar"
                       className="rounded-lg hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-90 transition-all"
                     >
-                      <CloseIcon width={24} className="text-primary-900/50" />
+                      <CloseIcon width={24} className="text-(--menu-icon-cinza)" />
                     </button>
                   )}
                 </span>
@@ -375,26 +379,26 @@ function GoalForm({
 
               {isSavings ? (
                 <>
-                  <section className="flex flex-col justify-center items-center gap-6 self-stretch px-6 py-6 border-b border-(--card-barras)">
+                  <section className="flex flex-col justify-center items-center gap-4 self-stretch px-4 py-4 border-b border-(--card-barras) lg:gap-6 lg:px-6 lg:py-6">
                     {goal && (
                       <div className="flex items-center gap-4 p-2 rounded-3xl bg-(--bg-card) border border-(--card-barras) self-stretch">
                         <span
-                          className={`flex size-16 shrink-0 justify-center items-center rounded-2xl ${status.tint}`}
+                          className={`flex size-12 shrink-0 justify-center items-center rounded-2xl ${status.tint} lg:size-16`}
                         >
                           <GoalsIcon className={status.color} />
                         </span>
                         <div className="flex flex-1 min-w-0 flex-col justify-between gap-2">
-                          <p className="truncate text-base not-italic font-bold font-manrope text-(--text-title)">
+                          <p className="truncate text-sm not-italic font-bold font-manrope text-(--text-title) lg:text-base">
                             {goal.title}
                           </p>
                           <div className="flex items-center gap-2">
-                            <p className="text-base not-italic font-bold font-inter text-(--text-description)">
+                            <p className="text-sm not-italic font-bold font-inter text-(--text-description) lg:text-base">
                               {formatAOA(goal.currentAmount)}
                             </p>
-                            <p className="text-base not-italic font-medium font-inter text-(--text-description)">
+                            <p className="text-sm not-italic font-medium font-inter text-(--text-description) lg:text-base">
                               de
                             </p>
-                            <p className="text-base not-italic font-medium font-inter text-(--text-description)">
+                            <p className="text-sm not-italic font-medium font-inter text-(--text-description) lg:text-base">
                               {formatAOA(goal.targetAmount)}
                             </p>
                           </div>
@@ -417,13 +421,13 @@ function GoalForm({
                             placeholder="0,00"
                             aria-label="Valor da poupança"
                             size={Math.max(savingsAmount.length, 4)}
-                            className="w-auto max-w-full min-w-0 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
+                            className="w-auto max-w-full min-w-0 bg-transparent text-center text-2xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
                           />
-                          <span className="font-manrope text-[16px] font-bold text-(--text-description)">
+                          <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-[16px]">
                             Kz
                           </span>
                         </div>
-                        <p className="text-sm not-italic font-semibold font-manrope leading-5 text-(--text-description)">
+                        <p className="text-xs not-italic font-semibold font-manrope leading-5 text-(--text-description) lg:text-sm">
                           MÁX. {formatAOA(goal?.targetAmount ?? 0)}
                         </p>
                       </div>
@@ -434,7 +438,7 @@ function GoalForm({
                       ) : null}
                     </div>
                   </section>
-                  <section className="flex flex-col justify-center items-start gap-5 self-stretch px-6 pt-6 pb-4">
+                  <section className="flex flex-col justify-center items-start gap-4 self-stretch px-4 pt-4 pb-4 lg:gap-5 lg:px-6 lg:pt-6">
                     <div className="grid grid-cols-2 gap-4 items-start self-stretch">
                       <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
                         <p className={fieldLabel}>DATA</p>
@@ -488,23 +492,23 @@ function GoalForm({
                       </div>
                     </div>
                   </section>
-                  <section className="flex flex-col items-start gap-4 self-stretch px-6 pt-2 pb-6">
+                  <section className="flex flex-col items-start gap-4 self-stretch px-4 pt-2 pb-4 lg:px-6 lg:pb-6">
                     <div className="flex flex-col items-start gap-2 self-stretch">
                       <p className={fieldLabel}>DESCRIÇÃO</p>
                       <input
                         type="text"
                         placeholder="Descreva a sua transação..."
-                        className={`w-full p-3 font-manrope text-base not-italic font-medium leading-normal text-(--text-description) ${fieldBox}`}
+                        className={`w-full p-3 font-manrope text-sm not-italic font-medium leading-normal text-(--text-description) lg:text-base ${fieldBox}`}
                       />
                     </div>
                   </section>
-                  <div className="self-stretch px-6">
+                  <div className="self-stretch px-4 lg:px-6">
                     <hr className="w-full h-px text-(--card-barras)" />
                   </div>
-                  <section className="flex flex-col items-start gap-2 self-stretch h-20 px-6 pt-4 pb-6">
+                  <section className="flex flex-col items-start gap-2 self-stretch px-4 pt-4 pb-4 lg:px-6 lg:pb-6">
                     <p className={fieldLabel}>CATEGORIA</p>
                     <div
-                      className={`flex h-11 p-3 justify-between items-center self-stretch rounded-2xl border border-(--border-button) bg-(--background-variant) opacity-80`}
+                      className={`flex min-h-11 p-3 justify-between items-center self-stretch rounded-2xl border border-(--border-button) bg-(--background-variant) opacity-80`}
                     >
                       <span className="flex items-center gap-2 rounded-lg px-2.5 py-1 bg-(--background-variant)">
                         <CategoryIcon className="size-5 text-(--text-description-60)" />
@@ -517,10 +521,10 @@ function GoalForm({
                       <ChevronRight width={16} className="text-(--icon)" />
                     </div>
                   </section>
-                  <div className="self-stretch px-6">
+                  <div className="self-stretch px-4 lg:px-6">
                     <hr className="w-full h-px text-(--card-barras)" />
                   </div>
-                  <section className="flex flex-col items-start gap-2 self-stretch px-6 pb-10 pt-4">
+                  <section className="flex flex-col items-start gap-2 self-stretch px-4 pb-8 pt-4 lg:px-6 lg:pb-10">
                     <p className={fieldLabel}>NOTA ADICIONAL</p>
                     <textarea
                       placeholder="Adicione notas adicionais aqui..."
@@ -585,9 +589,9 @@ function GoalForm({
                           placeholder="0,00"
                           aria-label="Valor objetivo da meta"
                           size={Math.max(target.length, 4)}
-                          className="w-auto max-w-full min-w-0 bg-transparent text-center text-3xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40"
+                          className="w-auto max-w-full min-w-0 bg-transparent text-center text-2xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
                         />
-                        <span className="font-manrope text-[16px] font-bold text-(--text-description)">
+                        <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-[16px]">
                           Kz
                         </span>
                       </div>
@@ -703,7 +707,7 @@ function GoalForm({
                           )}
                           <ChevronRight
                             width={16}
-                            className={`text-(--icon) transition-transform duration-200 ${categoryOpen ? "rotate-90" : ""}`}
+                            className={`text-(--menu-icon-cinza) transition-transform duration-200 ${categoryOpen ? "rotate-90" : ""}`}
                           />
                         </button>
                         <FloatingMenu
@@ -746,14 +750,14 @@ function GoalForm({
               )}
             </div>
 
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras)">
+            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border border-(--card-barras)">
               <div className="flex items-start gap-4 self-stretch">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                  className="flex flex-1 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-56 lg:flex-none"
                 >
-                  <p className="text-base not-italic font-bold font-manrope leading-normal">
+                  <p className="text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
                     Cancelar
                   </p>
                 </button>
@@ -763,7 +767,7 @@ function GoalForm({
                   disabled={saving}
                   className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl bg-primary-300 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60"
                 >
-                  <p className="text-center text-base not-italic font-bold font-manrope leading-normal">
+                  <p className="text-center text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
                     {saving ? "A guardar…" : primaryLabel}
                   </p>
                 </button>

@@ -151,8 +151,9 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
         </div>
       }
     >
-      <div ref={wrapRef} className="w-full">
-        <svg
+      <div className="w-full overflow-x-auto lg:overflow-visible">
+        <div ref={wrapRef} className="w-full min-w-[560px] lg:min-w-0">
+          <svg
           viewBox={`0 0 ${plotW} ${PLOT_H}`}
           className="block h-auto w-full"
           role="img"
@@ -195,7 +196,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
           {/* Rótulos dos meses */}
           {monthLabels.map((month, i) => (
             <text
-              key={month}
+              key={`${month}-${i}`}
               x={barX[i] + BAR_W / 2}
               y={X_LABEL_Y}
               textAnchor="middle"
@@ -326,6 +327,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
             </g>
           )}
         </svg>
+        </div>
       </div>
     </ChartCard>
   );

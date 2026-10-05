@@ -149,11 +149,38 @@ function page() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
+      <div className="hidden lg:block">
         <PageHeader title={"Definições"} />
+      </div>
+      <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
+        <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
+          Definições
+        </h1>
+      </div>
+      <div className="flex items-center gap-2 overflow-x-auto px-6 pb-3 pt-3 lg:hidden">
+        {TABS.map((tab) => {
+          const isActive = tab === activeTab;
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              aria-current={isActive ? "page" : undefined}
+              className={`shrink-0 rounded-2xl px-3.5 py-2 font-manrope text-sm ${
+                isActive
+                  ? "bg-primary-300 font-bold text-white"
+                  : "bg-(--background-variant) font-semibold text-(--text-title)"
+              }`}
+            >
+              {tab}
+            </button>
+          );
+        })}
+      </div>
         <section
           aria-label="Navegação das definições"
-          className="flex shrink-0 flex-col items-start justify-center gap-2.5 self-stretch border-b border-(--card-barras) bg-(--bg-card) px-8 py-4"
+          className="hidden shrink-0 flex-col items-start justify-center gap-2.5 self-stretch border-b border-(--card-barras) bg-(--bg-card) px-8 py-4 lg:flex"
         >
           <nav aria-label="Secções de definições">
             <ul className="flex items-start justify-start">
@@ -189,10 +216,10 @@ function page() {
             </ul>
           </nav>
         </section>
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-8">
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--background-variant) px-6 pb-8 pt-2 lg:gap-8 lg:bg-transparent lg:p-8">
           <h1 className="sr-only">{activeTab}</h1>
           {activeTab === "Perfil" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               {!profile ? (
                 <div
                   aria-label="A carregar perfil"
@@ -227,7 +254,7 @@ function page() {
             </div>
           ) : null}
           {activeTab === "Segurança" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <SecurityCard
                 onChangePassword={() => setIsPasswordOpen(true)}
                 onViewSessions={() => setActiveTab("Sessões")}
@@ -235,22 +262,22 @@ function page() {
             </div>
           ) : null}
           {activeTab === "Privacidade" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <PrivacyCard />
             </div>
           ) : null}
           {activeTab === "Notificações" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <NotificationsCard />
             </div>
           ) : null}
           {activeTab === "Aparência" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <AppearanceCard />
             </div>
           ) : null}
           {activeTab === "Sessões" ? (
-            <div className="flex flex-col items-start justify-start gap-8 self-stretch">
+            <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <SessionsCard />
             </div>
           ) : null}

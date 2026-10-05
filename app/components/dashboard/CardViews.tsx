@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import { ArrowDown, ArrowUp, Equal, Wallet } from "lucide-react";
 import { formatAOACompact } from "app/utils/format-AOA";
+import { useThemeStore } from "app/store/theme-store";
 
 export type CardTrend = "up" | "down" | "flat";
 export type TrendPolarity = "higher-is-better" | "lower-is-better";
@@ -200,6 +201,7 @@ export function MiniChart({
   labels?: string[];
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const theme = useThemeStore((s) => s.theme);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -207,14 +209,12 @@ export function MiniChart({
     if (!canvas || !context) return;
 
     const { accent: accentToken } = COLORS[color];
-    const getToken = (token: string) =>
+    // Lê o valor atual do token CSS — chamado no render do tooltip,
+    // por isso acompanha sempre o tema ativo sem precisar de refresh.
+    const getTokenLive = (token: string) =>
       getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-    const accent = getToken(accentToken.slice(4, -1));
+    const accent = getTokenLive(accentToken.slice(4, -1));
     if (!accent) return;
-    const tooltipBackground = getToken("--background") || "#ffffff";
-    const tooltipText = getToken("--text-title") || "#0f172a";
-    const tooltipMuted = getToken("--text-description-60") || "#64748b";
-    const tooltipBorder = getToken("--border-card") || "rgba(15, 23, 42, 0.12)";
     const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
     gradient.addColorStop(0, `${accent}2e`);
     gradient.addColorStop(1, `${accent}00`);
@@ -235,7 +235,7 @@ export function MiniChart({
             pointHoverRadius: 4,
             pointHitRadius: 8,
             pointBackgroundColor: accent,
-            pointBorderColor: tooltipBackground,
+            pointBorderColor: () => getTokenLive("--background") || "#ffffff",
             pointBorderWidth: 0,
           },
         ],
@@ -249,10 +249,11 @@ export function MiniChart({
           tooltip: {
             enabled: true,
             position: "nearest",
-            backgroundColor: tooltipBackground,
-            titleColor: tooltipText,
-            bodyColor: tooltipMuted,
-            borderColor: tooltipBorder,
+            backgroundColor: () => getTokenLive("--background") || "#ffffff",
+            titleColor: () => getTokenLive("--text-title") || "#0f172a",
+            bodyColor: () => getTokenLive("--text-description-60") || "#64748b",
+            borderColor: () =>
+              getTokenLive("--border-card") || "rgba(15, 23, 42, 0.12)",
             borderWidth: 1,
             cornerRadius: 8,
             caretSize: 6,
@@ -282,7 +283,7 @@ export function MiniChart({
     });
 
     return () => chart.destroy();
-  }, [color, data, labels]);
+  }, [color, data, labels, theme]);
 
   return <canvas ref={canvasRef} className="block h-full w-full" />;
 }

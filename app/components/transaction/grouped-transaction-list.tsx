@@ -41,13 +41,15 @@ export function GroupedTransactionList({
               {group.label}
             </p>
           </div>
-          {group.items.map((tx) => (
-            <TransactionItem
-              key={tx.id}
-              transaction={tx}
-              onSelect={onSelect ? () => onSelect(tx) : undefined}
-            />
-          ))}
+          <div className="flex flex-col self-stretch max-lg:[&>article:nth-of-type(even)]:rounded-3xl max-lg:[&>article:nth-of-type(even)]:bg-(--background-variant)">
+            {group.items.map((tx) => (
+              <TransactionItem
+                key={tx.id}
+                transaction={tx}
+                onSelect={onSelect ? () => onSelect(tx) : undefined}
+              />
+            ))}
+          </div>
         </div>
       ))}
     </div>

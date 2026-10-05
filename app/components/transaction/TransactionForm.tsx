@@ -169,13 +169,17 @@ function TransactionForm({
 
   return (
     <div
-      className={`fixed inset-0 z-40 backdrop-blur transition-opacity duration-300 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`flex fixed right-0 top-0 z-50 h-screen max-h-dvh w-125 max-w-full flex-col justify-between items-start border-l border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`flex fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] w-full max-w-full flex-col justify-between items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+        />
         {confirmDelete && transaction ? (
           <>
             <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
@@ -206,7 +210,7 @@ function TransactionForm({
                   <p className="text-center text-base not-italic font-bold font-manrope leading-6 text-(--text)">
                     Tem certeza que deseja eliminar esta transação?
                   </p>
-                  <p className="w-96 text-center text-sm not-italic font-medium font-manrope leading-5 text-(--text-description)">
+                  <p className="w-full max-w-96 text-center text-sm not-italic font-medium font-manrope leading-5 text-(--text-description)">
                     Esta acção irá remover permanentemente a transação &quot;
                     {transaction.title}&quot; e todo o progresso associado. Esta
                     operação não pode ser desfeita.
@@ -219,7 +223,7 @@ function TransactionForm({
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                  className="flex flex-1 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-56 lg:flex-none"
                 >
                   <p className="text-base not-italic font-bold font-manrope leading-normal">
                     Não
@@ -242,7 +246,7 @@ function TransactionForm({
           <>
             <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
               <header className="flex p-6 justify-between items-center self-stretch border-b border-(--card-barras)">
-                <p className="text-[18px] not-italic font-bold leading-[155.99%] text-(--text-title)">
+                <p className="text-base not-italic font-bold leading-[155.99%] text-(--text-title) lg:text-[18px]">
                   {isEdit ? "Editar transação" : "Adicionar transação"}
                 </p>
                 <span className="flex items-center gap-3">
@@ -251,7 +255,7 @@ function TransactionForm({
                       type="button"
                       className="flex py-2 px-3 justify-center items-center gap-2 rounded-xl border-(--border-button) border bg-(--background) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all"
                     >
-                      <p className="text-[14px] not-italic font-semibold leading-[155.99%] text-(--text-description)">
+                      <p className="text-xs not-italic font-semibold leading-[155.99%] text-(--text-description) lg:text-[14px]">
                         Regular
                       </p>
                       <ChevronDown width={14} className="text-primary-900/50" />
@@ -274,17 +278,17 @@ function TransactionForm({
                     aria-label="Fechar"
                     className="rounded-lg hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-90 transition-all"
                   >
-                    <CloseIcon width={24} className="text-primary-900/50" />
+                    <CloseIcon width={24} className="text-(--menu-icon-cinza)" />
                   </button>
                 </span>
               </header>
               <section className="flex flex-col items-start self-stretch">
                 <div className="flex py-2 px-6 flex-col justify-center items-center gap-5 self-stretch border border-(--card-barras)">
                   <div className="flex flex-col py-0 px-8 items-center gap-2.5 self-stretch">
-                    <p className="text-(--text-description) text-[14px] not-italic font-semibold leading-[155.99%] uppercase">
+                    <p className="text-(--text-description) text-xs not-italic font-semibold leading-[155.99%] uppercase lg:text-[14px]">
                       Tipo de tansação
                     </p>
-                    <div className="relative flex p-0.75 items-start gap-1 rounded-2xl border border-(--card-barras) bg-(--background) w-97">
+                    <div className="relative flex p-0.75 items-start gap-1 rounded-2xl border border-(--card-barras) bg-(--background) w-full">
                       <span
                         aria-hidden="true"
                         className={`absolute top-0.75 bottom-0.75 left-0.75 w-[calc(50%-5px)] rounded-xl transition-transform duration-300 ease-out ${txType === "income" ? "translate-x-[calc(100%+4px)] bg-primary-300/20" : "translate-x-0 bg-danger-300/10"}`}
@@ -293,10 +297,10 @@ function TransactionForm({
                         type="button"
                         onClick={() => handleTypeChange("expense")}
                         aria-pressed={txType === "expense"}
-                        className="relative flex py-3 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                        className="relative flex py-2.5 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:py-3"
                       >
                         <p
-                          className={`${txType === "expense" ? "text-danger-300" : "text-(--text-title)"} text-[16px] not-italic font-medium leading-normal transition-colors`}
+                          className={`${txType === "expense" ? "text-danger-300" : "text-(--text-title)"} text-sm not-italic font-medium leading-normal transition-colors lg:text-[16px]`}
                         >
                           Gastos
                         </p>
@@ -305,17 +309,17 @@ function TransactionForm({
                         type="button"
                         onClick={() => handleTypeChange("income")}
                         aria-pressed={txType === "income"}
-                        className="relative flex py-3 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                        className="relative flex py-2.5 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:py-3"
                       >
                         <p
-                          className={`${txType === "income" ? "text-primary-300" : "text-(--text-title)"} text-[16px] not-italic font-medium leading-normal transition-colors`}
+                          className={`${txType === "income" ? "text-primary-300" : "text-(--text-title)"} text-sm not-italic font-medium leading-normal transition-colors lg:text-[16px]`}
                         >
                           Receitas
                         </p>
                       </button>
                     </div>
                     <div className="flex flex-col justify-center items-center gap-1.5 shrink-0 self-stretch">
-                      <p className="text-[14px] not-italic leading-[155.99%] font-semibold text-(--text-description) uppercase">
+                      <p className="text-xs not-italic leading-[155.99%] font-semibold text-(--text-description) uppercase lg:text-[14px]">
                         VALOR DA TRANSAÇÃO
                       </p>
                       <div className="flex items-center justify-center gap-2 rounded-2xl border border-transparent px-4 py-2">
@@ -329,9 +333,9 @@ function TransactionForm({
                           placeholder="0,00"
                           aria-label="Valor da transação"
                           size={Math.max(amount.length, 4)}
-                          className="w-auto max-w-full min-w-0 bg-transparent text-center font-sans text-[30px] not-italic font-bold leading-normal text-(--text) outline-none placeholder:text-(--text-description)/40"
+                          className="w-auto max-w-full min-w-0 bg-transparent text-center font-sans text-2xl not-italic font-bold leading-normal text-(--text) lg:text-[30px] outline-none placeholder:text-(--text-description)/40"
                         />
-                        <span className="font-manrope text-[16px] font-bold text-(--text-description)">
+                        <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-[16px]">
                           Kz
                         </span>
                       </div>
@@ -347,7 +351,7 @@ function TransactionForm({
               <section className="flex flex-col justify-center items-start gap-5 self-stretch px-6 pt-6 pb-4">
                 <div className="grid grid-cols-2 gap-4 items-start self-stretch">
                   <div className="flex min-w-0 flex-col items-start gap-2">
-                    <p className="font-manrope text-[14px] not-italic font-semibold leading-[155.99%] text-(--text-description)">
+                    <p className="font-manrope text-xs not-italic font-semibold leading-[155.99%] text-(--text-description) lg:text-[14px]">
                       Data
                     </p>
                     <div className="relative w-full min-w-0">
@@ -380,7 +384,7 @@ function TransactionForm({
                   </div>
                   <div className="flex min-w-0 flex-col items-start gap-2">
                     <div className="flex items-center gap-2">
-                      <p className="font-manrope text-[14px] not-italic font-semibold leading-[155.99%] text-(--text-description)">
+                      <p className="font-manrope text-xs not-italic font-semibold leading-[155.99%] text-(--text-description) lg:text-[14px]">
                         Conta
                       </p>
                       <span className="rounded-md bg-primary-300/10 px-2 py-0.5 font-manrope text-[11px] font-bold leading-4 text-primary-300">
@@ -405,7 +409,7 @@ function TransactionForm({
               </section>
               <section className="flex flex-col items-start gap-4 self-stretch pt-2 px-6 pb-6">
                 <div className="flex flex-col items-start gap-2 self-stretch">
-                  <p className="text-(--text-description) font-manrope text-[14px] not-italic font-semibold leading-[21.839px]">
+                  <p className="text-(--text-description) font-manrope text-xs not-italic font-semibold leading-[21.839px] lg:text-[14px]">
                     DESCRIÇÃO
                   </p>
                   <input
@@ -413,7 +417,7 @@ function TransactionForm({
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                     placeholder="Descreva a sua transação..."
-                    className={`w-full border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex p-3 items-start font-manrope text-base not-italic font-semibold leading-normal ${
+                    className={`w-full border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex p-3 items-start font-manrope text-sm not-italic font-semibold leading-normal lg:text-base ${
                       description
                         ? "text-(--text-title)"
                         : "text-(--text-description)"
@@ -422,11 +426,11 @@ function TransactionForm({
                 </div>
               </section>
               <div className="flex flex-col items-start self-stretch pt-4 px-6 pb-6">
-                <hr className="w-113 h-px text-(--card-barras)" />
+                <hr className="h-px w-full text-(--card-barras)" />
               </div>
               <section className="flex flex-col items-start gap-4 self-stretch pt-2 px-6 pb-6">
                 <div className="flex flex-col items-start gap-2 self-stretch">
-                  <p className="text-(--text-description) font-manrope text-[14px] not-italic font-semibold leading-[21.839px]">
+                  <p className="text-(--text-description) font-manrope text-xs not-italic font-semibold leading-[21.839px] lg:text-[14px]">
                     CATEGORIA
                   </p>
                     <div className="relative w-full">
@@ -435,7 +439,7 @@ function TransactionForm({
                         ref={categoryAnchorRef}
                         onClick={() => setCategoryOpen((value) => !value)}
                       aria-expanded={categoryOpen}
-                      className="w-full border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex p-3 items-center justify-between font-manrope text-base not-italic font-medium leading-normal text-(--text) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.99] transition-all"
+                      className="w-full border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex p-3 items-center justify-between font-manrope text-sm not-italic font-medium leading-normal text-(--text) hover:bg-neutrals-300/10 lg:text-base active:bg-neutrals-300/20 active:scale-[0.99] transition-all"
                     >
                       {selectedCategory && categoryConfig ? (
                         <span
@@ -476,28 +480,28 @@ function TransactionForm({
                 </div>
               </section>
               <div className="flex flex-col items-start self-stretch pt-4 px-6 pb-6">
-                <hr className="w-113 h-px text-(--card-barras)" />
+                <hr className="h-px w-full text-(--card-barras)" />
               </div>
               <section className="flex flex-col items-start gap-4 self-stretch pt-2 px-6 pb-6">
                 <div className="flex flex-col items-start gap-2 self-stretch">
-                  <p className="text-(--text-description) font-manrope text-[14px] not-italic font-semibold leading-[21.839px]">
+                  <p className="text-(--text-description) font-manrope text-xs not-italic font-semibold leading-[21.839px] lg:text-[14px]">
                     NOTA ADICIONAL
                   </p>
                   <textarea
                     placeholder="Adicione notas adicionais aqui..."
-                    className="border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex w-113 p-3 items-start font-manrope text-base not-italic font-medium leading-normal text-(--text-description)"
+                    className="border border-(--border-button) focus:border-(--border) focus:outline-none bg-(--background) rounded-2xl flex w-full p-3 items-start font-manrope text-sm not-italic font-medium leading-normal text-(--text-description) lg:text-base"
                   />
                 </div>
               </section>
             </div>
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border border-(--card-barras)">
+            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras) lg:border">
               <div className="flex items-start gap-4 self-stretch">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex w-54.5 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--card-barras) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all"
+                  className="flex flex-1 p-3 justify-center items-center gap-2.5 rounded-2xl border border-(--card-barras) text-(--text-title) lg:p-3.5 hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-54.5 lg:flex-none"
                 >
-                  <p className="text-(--text-description)font-manrope text-base not-italic font-bold leading-normal">
+                  <p className="text-(--text-description) font-manrope text-sm not-italic font-bold leading-normal lg:text-base">
                     Cancelar
                   </p>
                 </button>
@@ -505,9 +509,9 @@ function TransactionForm({
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex w-54.5 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--card-barras) bg-primary-300 hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60"
+                  className="flex w-56 p-3 justify-center items-center gap-2.5 rounded-2xl border border-(--card-barras) bg-primary-300 lg:p-3.5 hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60 lg:w-54.5"
                 >
-                  <p className="text-base-white font-manrope text-base not-italic font-bold leading-normal">
+                  <p className="text-base-white font-manrope text-sm not-italic font-bold leading-normal lg:text-base">
                     {saving ? "A guardar…" : isEdit ? "Actualizar" : "Salvar"}
                   </p>
                 </button>

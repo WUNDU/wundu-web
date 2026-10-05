@@ -32,7 +32,7 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
   );
 
   return (
-    <article className="flex w-113 flex-col items-start rounded-2xl border border-(--card-barras) bg-(--background)">
+    <article className="flex w-full flex-col items-start rounded-2xl border border-(--card-barras) bg-(--background) lg:w-113">
       <header className="flex py-3 px-4 items-center gap-3 self-stretch border-b border-(--card-barras) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
         <Search width={16} className="text-(--text-description)/60" />
         <input

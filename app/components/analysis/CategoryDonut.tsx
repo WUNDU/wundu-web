@@ -155,7 +155,7 @@ export default function CategoryDonut({
             </span>
           </p>
         </div>
-        <ul className="flex w-full min-w-0 flex-1 flex-col items-end gap-4">
+        <ul className="flex max-h-64 w-full min-w-0 flex-1 flex-col items-end gap-4 overflow-y-auto pr-1 overscroll-contain">
           {expenseCategories.map((item) => (
             <li
               key={item.name}

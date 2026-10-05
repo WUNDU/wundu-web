@@ -21,9 +21,9 @@ function ProfileCard({ profile, createdLabel, onEdit }: ProfileCardProps) {
   return (
     <section
       aria-labelledby="profile-title"
-      className="flex flex-col self-stretch overflow-hidden rounded-2xl border border-(--card-barras) bg-(--background) lg:flex-row"
+      className="flex flex-col gap-4 self-stretch border-0 bg-transparent lg:gap-0 lg:overflow-hidden lg:rounded-2xl lg:border lg:border-(--card-barras) lg:bg-(--bg-card) lg:flex-row"
     >
-      <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch border-l-12 border-l-(--border-blue) bg-(--bg-card) p-7 lg:w-96">
+      <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch rounded-tl-2xl rounded-bl-2xl border-l-[12px] border-l-(--border-blue) bg-(--bg-card) p-7 lg:w-96 lg:rounded-none">
         <Image
           src={profile.photo ?? avatar}
           alt="Foto de perfil"
@@ -50,26 +50,26 @@ function ProfileCard({ profile, createdLabel, onEdit }: ProfileCardProps) {
 
       <span
         aria-hidden="true"
-        className="h-px w-full bg-(--card-barras) lg:h-auto lg:w-px"
+        className="hidden h-px w-full bg-(--card-barras) lg:block lg:h-auto lg:w-px"
       />
 
-      <div className="flex flex-1 flex-col items-start justify-start gap-5 px-8 py-7">
+      <div className="flex flex-1 flex-col items-start justify-start gap-4 self-stretch rounded-2xl border border-(--card-barras) bg-(--bg-card) p-4 lg:gap-5 lg:rounded-none lg:border-0 lg:bg-transparent lg:px-8 lg:py-7">
         <div className="flex items-center justify-between self-stretch">
-          <h3 className="flex-1 font-manrope text-lg font-bold text-(--text-title)">
+          <h3 className="flex-1 font-manrope text-base font-bold text-(--text-title) lg:text-lg">
             Informações da conta
           </h3>
           <button
             type="button"
             onClick={onEdit}
-            className="flex h-10 items-center justify-center gap-2 rounded-xl border-[1.5px] border-(--button-icon-blue) bg-transparent px-5 transition-all duration-200 hover:bg-primary-300/10 active:scale-[0.98]"
+            className="flex h-9 items-center justify-center gap-2 rounded-xl border-[1.5px] border-(--button-border) bg-transparent px-4 transition-all duration-200 hover:bg-primary-300/10 active:scale-[0.98] lg:h-10 lg:border-(--button-icon-blue) lg:px-5"
           >
             <Pencil
               width={20}
               height={20}
               aria-hidden="true"
-              className="text-(--button-icon-blue)"
+              className="hidden text-(--button-icon-blue) lg:block"
             />
-            <span className="text-center font-manrope text-sm font-medium leading-5 text-(--button-icon-blue)">
+            <span className="text-center font-manrope text-xs font-medium leading-5 text-(--button-icon-blue) lg:text-sm">
               Editar perfil
             </span>
           </button>
@@ -89,12 +89,14 @@ function ProfileCard({ profile, createdLabel, onEdit }: ProfileCardProps) {
                   <Icon width={16} height={16} className="text-primary-300" />
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col items-start justify-start">
-                  <p className="self-stretch font-manrope text-sm font-bold leading-5 text-(--text-description-60)">
+                  <p className="self-stretch px-3 font-manrope text-sm font-bold leading-5 text-(--text-description-60)">
                     {label}
                   </p>
-                  <p className="self-stretch truncate font-manrope text-base font-normal text-(--text-title)">
-                    {value}
-                  </p>
+                  <span className="flex self-stretch bg-transparent px-3.5 py-4 lg:contents">
+                    <p className="min-w-0 flex-1 truncate font-manrope text-base font-normal text-(--text-title)">
+                      {value}
+                    </p>
+                  </span>
                 </div>
               </div>
             </div>

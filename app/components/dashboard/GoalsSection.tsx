@@ -12,26 +12,26 @@ interface GoalsSectionProps {
 
 function GoalsSection({ goals, isLoading, error }: GoalsSectionProps) {
   return (
-    <section className="flex p-6 flex-col items-center gap-4 flex-1 h-[640px] rounded-[20px] border border-(--card-barras) bg-(--card) shadow-2xs">
+    <section className="flex h-auto flex-col items-center gap-3 self-stretch rounded-[20px] border border-(--card-barras) bg-(--card) p-4 shadow-2xs sm:p-5 xl:h-[640px] xl:gap-4 xl:p-6">
       <header className="flex justify-between items-center self-stretch">
-        <h1 className="text-[18px] not-italic font-semibold leading-[155.99%] tracking-[-0.54px] text-(--text-padro)">
+        <h1 className="text-base not-italic font-semibold leading-[155.99%] tracking-[-0.54px] text-(--text-padro) xl:text-[18px]">
           Metas Financeiras
         </h1>
         <Link
           href="/home/goals"
           className="group flex shrink-0 items-center gap-1 whitespace-nowrap text-(--text-description) transition-colors duration-200 hover:text-primary-300"
         >
-          <span className="text-[18px] text-right not-italic font-semibold leading-[155.99%] tracking-[-0.54px]">
+          <span className="text-right text-sm not-italic font-semibold leading-[155.99%] tracking-[-0.54px] xl:text-[18px]">
             Ver todas
           </span>
           <ChevronRight
             stroke="4"
-            className="w-5 transition-transform duration-200 ease-out group-hover:translate-x-1"
+            className="w-4 transition-transform duration-200 ease-out group-hover:translate-x-1 xl:w-5"
           />
         </Link>
       </header>
       <div
-        className="flex min-h-0 flex-1 flex-col items-start gap-4 self-stretch overflow-y-auto overscroll-contain"
+        className="flex min-h-0 flex-1 flex-col items-start gap-3 self-stretch overflow-visible overscroll-contain xl:gap-4 xl:overflow-y-auto"
         aria-busy={isLoading}
       >
         {isLoading ? (

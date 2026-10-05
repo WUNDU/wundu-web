@@ -2,6 +2,8 @@
 
 import PageHeader from "app/components/layout/PageHeader";
 import GoalItem from "app/components/goal/GoalItem";
+import MobileGoalCard from "app/components/goal/MobileGoalCard";
+import { formatGoalAmount } from "app/utils/format-goal-amount";
 import GoalDetails from "app/components/goal/GoalDetails";
 import GoalForm, {
   type GoalFormMode,
@@ -197,7 +199,8 @@ function page() {
     filters.sortDir !== emptyGoalFilters.sortDir;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
+      <div className="hidden lg:block">
         <PageHeader title="Metas">
           <button
             type="button"
@@ -214,7 +217,27 @@ function page() {
             </span>
           </button>
         </PageHeader>
-        <section className="shrink-0 flex py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card)">
+        </div>
+        <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
+          <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
+            Metas
+          </h1>
+          <button
+            type="button"
+            onClick={() => openForm("create", null)}
+            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
+          >
+            <PlusIcon
+              width={16}
+              height={16}
+              className="shrink-0 text-(--button-icon-yellow)"
+            />
+            <span className="font-manrope text-xs font-medium text-(--button-fg)">
+              Nova meta
+            </span>
+          </button>
+        </div>
+        <section className="shrink-0 hidden py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
           <div className="flex items-start gap-3 self-stretch">
             <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
               <div className="flex items-center gap-3 self-stretch">
@@ -279,6 +302,42 @@ function page() {
             </div>
           </div>
         </section>
+        <div className="flex items-center gap-2 self-stretch px-6 py-2 lg:hidden">
+          <label className="flex h-12 flex-1 items-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors duration-200 focus-within:border-primary-300">
+            <SearchIcon
+              width={16}
+              height={16}
+              className="shrink-0 text-slate-600"
+            />
+            <input
+              type="search"
+              value={query}
+              maxLength={MAX_SEARCH_LENGTH}
+              onChange={(event) =>
+                setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
+              }
+              placeholder={`Pesquisar em ${goals.length} metas…`}
+              aria-label="Pesquisar metas"
+              className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Filtrar metas"
+            className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-(--border-button) bg-(--bg-card)"
+          >
+            <FilterIcon
+              width={20}
+              height={16}
+              className={`shrink-0 ${
+                isFilterOpen || hasActiveFilters
+                  ? "text-primary-300"
+                  : "text-(--icon)"
+              }`}
+            />
+          </button>
+        </div>
         {isLoading && goals.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--bg-card) p-8">
             {[0, 1, 2].map((index) => (
@@ -325,15 +384,63 @@ function page() {
             </p>
           </main>
         ) : (
-          <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-8 bg-(--bg-card)">
-            {filteredGoals.map((goal) => (
-              <GoalItem
-                key={goal.id}
-                goal={goal}
-                onSelect={() => setDetailsGoal(goal)}
-              />
-            ))}
-          </main>
+          <>
+            <main className="hidden min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-8 bg-(--bg-card) lg:flex">
+              {filteredGoals.map((goal) => (
+                <GoalItem
+                  key={goal.id}
+                  goal={goal}
+                  onSelect={() => setDetailsGoal(goal)}
+                />
+              ))}
+            </main>
+            <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-8 pt-2 lg:hidden">
+              <div className="grid grid-cols-2 items-stretch gap-3">
+                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-2xl bg-(--bg-card) p-4">
+                  <p className="font-manrope text-xs font-medium text-(--text-description)">
+                    Total poupado
+                  </p>
+                  <p
+                    className="w-full truncate font-manrope text-lg font-bold text-(--text-title)"
+                    title={`${formatGoalAmount(
+                      filteredGoals.reduce(
+                        (sum, goal) => sum + goal.currentAmount,
+                        0,
+                      ),
+                    )} Kz`}
+                  >
+                    {formatGoalAmount(
+                      filteredGoals.reduce(
+                        (sum, goal) => sum + goal.currentAmount,
+                        0,
+                      ),
+                    )}{" "}
+                    Kz
+                  </p>
+                </div>
+                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-2xl bg-(--bg-card) p-4">
+                  <p className="font-manrope text-xs font-medium text-(--text-description)">
+                    Metas ativas
+                  </p>
+                  <p className="font-manrope text-lg font-bold text-(--text-title)">
+                    {
+                      filteredGoals.filter(
+                        (goal) => goalPercent(goal) < 100,
+                      ).length
+                    }{" "}
+                    de {filteredGoals.length}
+                  </p>
+                </div>
+              </div>
+              {filteredGoals.map((goal) => (
+                <MobileGoalCard
+                  key={goal.id}
+                  goal={goal}
+                  onSelect={() => setDetailsGoal(goal)}
+                />
+              ))}
+            </main>
+          </>
         )}
         <GoalFilter
           isOpen={isFilterOpen}

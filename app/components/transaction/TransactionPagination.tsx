@@ -40,32 +40,45 @@ export default function TransactionPagination({
   return (
     <nav
       aria-label={navLabel}
-      className="flex items-center justify-between gap-4 self-stretch px-8 py-4"
+      className="flex items-center justify-center gap-2 self-stretch px-6 py-2 lg:justify-between lg:gap-4 lg:px-8 lg:py-4"
     >
-      <p className="flex-1 font-manrope text-sm font-normal leading-5 text-(--text-description)">
+      <p className="hidden flex-1 font-manrope text-sm font-normal leading-5 text-(--text-description) lg:block">
         Exibindo {from}–{to} de {total} {itemName}
       </p>
-      <ul className="flex items-start gap-1">
+      <ul className="flex items-center gap-1">
         <li>
           <button
             type="button"
             disabled={page <= 1}
             onClick={() => onChange(page - 1)}
             aria-label="Página anterior"
-            className="rounded-md px-3 py-1.5 font-manrope text-sm font-semibold leading-5 text-(--text-description) transition-colors duration-150 hover:bg-(--background-variant) hover:text-(--text-title) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--text-description)"
+            className="rounded-md px-3 py-1 font-manrope text-sm font-semibold leading-5 text-(--text-description) transition-colors duration-150 hover:bg-(--background-variant) hover:text-(--text-title) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--text-description) lg:py-1.5"
           >
             Anterior
           </button>
         </li>
+        <li
+          aria-hidden="true"
+          className="flex min-w-8 items-center justify-center rounded-md bg-(--background-variant) px-2 py-1 text-center font-manrope text-sm font-semibold leading-5 text-(--text-title) lg:hidden"
+        >
+          {page}/{pageCount}
+        </li>
+        <span className="sr-only lg:hidden">
+          Página {page} de {pageCount}
+        </span>
         {pageItems(page, pageCount).map((item, i) =>
           item === "…" ? (
-            <li key={`gap-${i}`} aria-hidden="true">
+            <li
+              key={`gap-${i}`}
+              aria-hidden="true"
+              className="hidden lg:block"
+            >
               <span className="flex justify-center px-3 py-1.5 font-manrope text-sm font-semibold leading-5 text-(--text-description)">
                 …
               </span>
             </li>
           ) : (
-            <li key={item}>
+            <li key={item} className="hidden lg:block">
               <button
                 type="button"
                 onClick={() => onChange(item)}
@@ -88,7 +101,7 @@ export default function TransactionPagination({
             disabled={page >= pageCount}
             onClick={() => onChange(page + 1)}
             aria-label="Próxima página"
-            className="rounded-md px-3 py-1.5 font-manrope text-sm font-semibold leading-5 text-(--text-description) transition-colors duration-150 hover:bg-(--background-variant) hover:text-(--text-title) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--text-description)"
+            className="rounded-md px-3 py-1 font-manrope text-sm font-semibold leading-5 text-(--text-description) transition-colors duration-150 hover:bg-(--background-variant) hover:text-(--text-title) disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-(--text-description) lg:py-1.5"
           >
             Próximo
           </button>

@@ -23,14 +23,14 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`group flex w-full items-center gap-4 px-1.5 py-2 rounded-xl transition-colors duration-200 hover:bg-(--card-bg-hover) ${
+      className={`group flex w-full items-center gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:bg-(--card-bg-hover) lg:gap-4 lg:px-1.5 lg:py-2 ${
         onSelect ? "cursor-pointer" : ""
       }`}
     >
-      {/* Checkbox — marca ao passar o mouse na linha */}
+      {/* Checkbox — marca ao passar o mouse na linha (desktop) */}
       <span
         onClick={(event) => event.stopPropagation()}
-        className="relative flex size-4 shrink-0 items-center justify-center"
+        className="relative hidden size-4 shrink-0 items-center justify-center lg:flex"
       >
         <input
           type="checkbox"
@@ -41,24 +41,49 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
 
       {/* Ícone */}
       <div
-        className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${typeConfig.background}`}
+        className={`flex size-14 shrink-0 items-center justify-center rounded-2xl lg:size-10 lg:rounded-xl ${typeConfig.background}`}
       >
-        <TypeIcon className={`size-4 ${typeConfig.color}`} />
+        <TypeIcon className={`size-5 lg:size-4 ${typeConfig.color}`} />
       </div>
 
       {/* Título + data */}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="truncate text-[16px] font-bold leading-normal text-(--text)">
+        <p className="truncate text-sm font-bold leading-5 text-(--text) lg:text-[16px] lg:leading-normal">
           {transaction.title}
         </p>
 
-        <p className="text-[14px] font-semibold leading-[155.99%] text-(--text-description)">
+        <p className="hidden text-[14px] font-semibold leading-[155.99%] text-(--text-description) lg:block">
           {transaction.description ?? transaction.date}
         </p>
+
+        {/* Linha categoria + valor (mobile) */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <div
+            className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${categoryConfig.background}`}
+          >
+            <CategoryIcon
+              className={`size-5 shrink-0 p-0.5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+            />
+            <p
+              className={`text-sm font-semibold leading-5 ${categoryConfig.color}`}
+            >
+              {transaction.category}
+            </p>
+          </div>
+          <div
+            className={`flex h-7 flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-2 ${typeConfig.background}`}
+          >
+            <p
+              className={`text-sm font-bold leading-5 ${typeConfig.color}`}
+            >
+              {formatAOA(transaction.amount)}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Informações à direita */}
-      <div className="flex shrink-0 items-center gap-6">
+      {/* Informações à direita (desktop) */}
+      <div className="hidden shrink-0 items-center gap-6 lg:flex">
         {/* Categoria */}
         <div className="flex w-45 shrink-0 items-center justify-end">
           <div

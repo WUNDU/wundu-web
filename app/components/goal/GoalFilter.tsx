@@ -165,13 +165,17 @@ function GoalFilter({ isOpen, onClose, value, onApply }: GoalFilterProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-40 backdrop-blur transition-opacity duration-300 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
         onClick={(e) => e.stopPropagation()}
-        className={`fixed right-0 top-0 z-50 flex h-screen max-h-dvh w-125 max-w-full flex-col items-start border-l border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] flex w-full max-w-full flex-col items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
       >
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+        />
         <header className="flex flex-col items-start gap-2 self-stretch border-b border-(--card-barras) p-6">
           <div className="flex items-center justify-between self-stretch">
             <h2 className="font-manrope text-[18px] font-bold leading-7 text-(--text-title)">

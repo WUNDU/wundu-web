@@ -368,7 +368,8 @@
   --menu-bg: rgba(255, 255, 255, 0);
   --menu-bg-hover: #f4f4f5;
   --menu-bg-active: #e6ecf9;
-  --menu-bg-aside: #021545;
+  --menu-bg-aside: #ffffff;
+  --menu-icon-cinza: #62748e;
   --menu-text: rgba(2, 21, 69, 0.6);
   --menu-icon: rgba(2, 21, 69, 0.5);
   --menu-hover: #053dc4;
@@ -461,7 +462,8 @@
   --menu-bg: rgba(2, 27, 88, 0);
   --menu-bg-hover: rgba(98, 116, 142, 0.3);
   --menu-bg-active: #021545;
-  --menu-bg-aside: #021545;
+  --menu-bg-aside: #07162b;
+  --menu-icon-cinza: #053dc4;
   --menu-text: #ffffff;
   --menu-icon: #62748e;
   --menu-hover: #ffffff;

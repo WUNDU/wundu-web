@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import Menu from "./Menu";
 import TopBar from "./TopBar";
+import BottomNav from "./BottomNav";
 
 type LayoutProps = {
   children: ReactNode;
@@ -18,6 +19,7 @@ export default function Layout({ children, className }: LayoutProps) {
       <Menu
         collapsed={collapsed}
         onToggle={() => setCollapsed((value) => !value)}
+        className="max-lg:hidden"
       />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
@@ -33,6 +35,7 @@ export default function Layout({ children, className }: LayoutProps) {
             {children}
           </div>
         </main>
+        <BottomNav />
       </div>
     </div>
   );

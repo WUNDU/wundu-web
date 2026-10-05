@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
 import { BellIcon, CheckmarkIcon, EyeOffIcon } from "@/constants/icons";
 import { useApiNotification } from "@/hooks/use-api-notification";
 import NotificationItem from "./NotificationItem";
 
 /** Data relativa curta em pt-AO ("5 min", "2 horas", "3 dias"). */
-function relativeDate(iso: string) {
+function relativeDate(iso: string, prefix = "") {
   const time = new Date(iso).getTime();
   if (!Number.isFinite(time)) return "";
   const diffMs = Date.now() - time;
   if (diffMs < 0) return "agora";
   const minutes = Math.floor(diffMs / 60_000);
   if (minutes < 1) return "agora";
-  if (minutes < 60) return `${minutes} min`;
+  if (minutes < 60) return `${prefix}${minutes} min`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours === 1 ? "1 hora" : `${hours} horas`;
+  if (hours < 24) return hours === 1 ? `${prefix}1 hora` : `${prefix}${hours} horas`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return days === 1 ? "1 dia" : `${days} dias`;
+  if (days < 30) return days === 1 ? `${prefix}1 dia` : `${prefix}${days} dias`;
   const months = Math.floor(days / 30);
-  return months === 1 ? "1 mês" : `${months} meses`;
+  return months === 1 ? `${prefix}1 mês` : `${prefix}${months} meses`;
 }
 
 function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
@@ -35,6 +36,16 @@ function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
   const [markingId, setMarkingId] = useState<string | null>(null);
   const [markingAll, setMarkingAll] = useState(false);
   const [attempted, setAttempted] = useState(false);
+  /* "há ..." só no mobile (base Figma); desktop mantém o formato curto. */
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023.5px)");
+    const sync = () => setIsMobile(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -47,7 +58,7 @@ function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
     id: n.id,
     title: n.title,
     description: n.message,
-    date: relativeDate(n.createdAt),
+    date: relativeDate(n.createdAt, isMobile ? "há " : ""),
     lida: n.isRead,
   }));
   const unread = items.filter((n) => !n.lida).length;
@@ -69,21 +80,38 @@ function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-40 backdrop-blur transition-opacity duration-300 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`flex fixed right-0 top-0 z-50 w-125 h-screen flex-col items-center border border-(--card-barras) rounded-l-[20px] bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`flex fixed right-0 top-0 z-50 w-125 max-w-full h-screen flex-col items-center border border-(--card-barras) rounded-l-[20px] bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Notificações"
       >
-        <header className="flex h-22.5 py-6 px-8 justify-between items-center shrink-0 self-stretch border-b border-(--card-barras)">
+        <header className="flex h-24 py-6 px-8 justify-between items-center shrink-0 self-stretch border-b border-(--card-barras) lg:h-22.5">
           <div className="flex items-center gap-2">
-            <BellIcon className="text-primary-300" />
-            <span className="font-manrope text-[18px] not-italic leading-[155.99%] text-(--text-title)">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Voltar"
+              className="rounded-lg p-1 transition-all hover:bg-neutrals-300/10 active:scale-90 lg:hidden"
+            >
+              <ChevronLeft
+                width={20}
+                height={20}
+                className="text-(--menu-icon-cinza)"
+                aria-hidden="true"
+              />
+            </button>
+            <BellIcon className="text-(--icon-hover)" />
+            <span className="font-manrope text-[18px] not-italic font-bold leading-[155.99%] text-(--text) lg:font-normal lg:text-(--text-title)">
               Notificações
-              {unread > 0 ? ` (${unread} por ler)` : ""}
+              {unread > 0 ? (
+                <span className="hidden lg:inline">{` (${unread} por ler)`}</span>
+              ) : (
+                ""
+              )}
             </span>
           </div>
           <div className="flex items-center gap-1">

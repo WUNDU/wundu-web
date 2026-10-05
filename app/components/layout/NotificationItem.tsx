@@ -14,7 +14,7 @@ function NotificationItem(item: NotificationProps) {
           <p className="font-medium not-italic text-[14px] text-(--text-description) leading-[155.99%] tracking-[-0.42px]">
             {item.description}
           </p>
-          <span className="font-semibold not-italic text-[12px] text-primary-300 leading-[155.99%] pt-3 tracking-[-0.36px]">
+          <span className="font-semibold not-italic text-[12px] text-(--text-link) leading-[155.99%] pt-3 tracking-[-0.36px]">
             {item.date}
           </span>
         </div>
