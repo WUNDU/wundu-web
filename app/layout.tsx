@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Open_Sans } from "next/font/google";
+import { Suspense } from "react";
+import { Inter, Manrope, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
-// import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-// import { CookieConsent } from "@/components/layout/cookie-consent";
+import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
+import { CookieConsent } from "@/components/layout/cookie-consent";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { PostHogPageView } from "@/components/providers/posthog-pageview";
 import { AnalyticsProvider } from "@/contexts/analytics-context";
 import { Toaster } from "sonner";
 
@@ -17,6 +19,12 @@ const inter = Inter({
 const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
+  preload: false,
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
   preload: false,
 });
 
@@ -60,24 +68,27 @@ export default function RootLayout({
   return (
     <html lang="pt" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${openSans.variable} antialiased`}
+        className={`${inter.variable} ${openSans.variable} ${manrope.variable} antialiased`}
         suppressHydrationWarning
       >
         <SessionProvider>
           <QueryProvider>
             <AnalyticsProvider>
-              {/* <CookieConsentProvider> */}
-                {children}
-                {/* <CookieConsent /> */}
-                <Toaster
-                  position="top-right"
-                  closeButton
-                  richColors={false}
-                  theme="light"
-                  expand={false}
-                  gap={12}
-                />
-              {/* </CookieConsentProvider> */}
+              <CookieConsentProvider>
+              <Suspense fallback={null}>
+                <PostHogPageView />
+              </Suspense>
+              {children}
+              <CookieConsent />
+              <Toaster
+                position="top-right"
+                closeButton
+                richColors={false}
+                theme="light"
+                expand={false}
+                gap={12}
+              />
+              </CookieConsentProvider>
             </AnalyticsProvider>
           </QueryProvider>
         </SessionProvider>

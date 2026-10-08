@@ -67,7 +67,8 @@ export function CookieConsent() {
                 </h3>
                 <p className="text-gray-600 text-sm">
                   Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e
-                  analisar o tráfego do site.{" "}
+                  analisar o tráfego do site. A gravação de sessão (replay de ecrã) só é
+                  activada se aceitar os cookies analíticos.{" "}
                   <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800">
                     Saiba mais sobre nossa política de cookies
                   </Link>
@@ -109,7 +110,7 @@ export function CookieConsent() {
               {[
                 { id: "essential-cookies", label: "Essenciais", desc: "Necessários para o funcionamento do site. Não podem ser desativados.", disabled: true },
                 { id: "functional-cookies", label: "Funcionais", desc: "Permitem recursos avançados e personalização.", disabled: false },
-                { id: "analytics-cookies", label: "Analíticos", desc: "Ajudam a entender como você usa o site e melhorar a experiência.", disabled: false },
+                { id: "analytics-cookies", label: "Analíticos", desc: "Medição de acessos e eventos. A gravação de sessão (replay de ecrã) só é activada com este consentimento.", disabled: false },
                 { id: "marketing-cookies", label: "Marketing", desc: "Utilizados para exibir anúncios relevantes e compartilhar com parceiros.", disabled: false },
               ].map(({ id, label, desc, disabled }) => (
                 <div key={id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">

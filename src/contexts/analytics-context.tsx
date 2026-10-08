@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useCallback, ReactNode } from "react";
 import { useUserStore } from "@/store/user-store";
 import { analyticsConsentService } from "@/services/analytics-consent.service";
-import { initAnalytics, stopAnalytics, captureEvent } from "@/lib/analytics";
+import { initAnalytics, stopAnalytics } from "@/lib/analytics";
 
 const ANALYTICS_CONSENT_KEY = "wundu_analytics_consent";
 
@@ -46,27 +46,17 @@ export const AnalyticsProvider = ({ children }: AnalyticsProviderProps) => {
   const setUser = useUserStore((s) => s.setUser);
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
 
-  // Estado: usa backend se logado, senão usa localStorage
+  // Estado: usa backend se logado, senão usa localStorage.
+  // O consentimento controla APENAS a gravação de sessão; eventos e acessos
+  // fluem sempre (ver src/lib/analytics.ts).
   const analyticsConsent = isAuthenticated
     ? (user?.analyticsConsent ?? false)
     : getLocalConsent();
 
-  // Guarda o consentimento anterior para detectar mudanças
-  const prevConsentRef = useRef(analyticsConsent);
-
+  // Aplica o consentimento (gravação on/off) sempre que muda, incluindo mount.
   useEffect(() => {
-    // Evita chamadas duplicadas se o consentimento não mudou
-    if (prevConsentRef.current === analyticsConsent) return;
-    prevConsentRef.current = analyticsConsent;
-
     initAnalytics(analyticsConsent);
   }, [analyticsConsent]);
-
-  // Init na primeira renderização (mount)
-  useEffect(() => {
-    initAnalytics(analyticsConsent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Sincroniza consentimento local com backend após login
   useEffect(() => {
@@ -80,12 +70,13 @@ export const AnalyticsProvider = ({ children }: AnalyticsProviderProps) => {
     }
   }, [isAuthenticated, user, setUser]);
 
-  // Para analytics quando utilizador faz logout
+  // Para a gravação quando utilizador faz logout. O evento user_signed_out é
+  // capturado de forma síncrona no handler de logout (sidebar-right) porque
+  // o redirect por window.location.href mata beacons disparados em useEffect.
   const prevAuthRef = useRef(isAuthenticated);
   useEffect(() => {
     if (prevAuthRef.current && !isAuthenticated) {
       // Transição de logado → deslogado
-      captureEvent("user_signed_out");
       stopAnalytics();
       clearLocalConsent();
     }
