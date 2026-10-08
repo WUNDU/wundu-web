@@ -1,52 +1,68 @@
 import posthog from "posthog-js";
 
-let consented = false;
+// Consentimento (analyticsConsent) controla APENAS a gravação de sessão
+// (screen recording). Acessos ($pageview), eventos e identify funcionam
+// sempre, com ou sem consentimento.
+let recordingConsented = false;
 
-export function initAnalytics(analyticsConsent: boolean): void {
-  consented = analyticsConsent;
+function isLoaded(): boolean {
+  return typeof window !== "undefined" && posthog.__loaded;
+}
 
-  if (!analyticsConsent) {
-    if (posthog.__loaded) {
-      posthog.opt_out_capturing();
-      posthog.reset();
-    }
-    return;
-  }
+// Eventos/acessos/identify são enfileirados pelo SDK mesmo antes do init
+// terminar — por isso só bloqueiam no SSR, nunca por falta de consentimento
+// ou por SDK ainda a carregar.
+function isClient(): boolean {
+  return typeof window !== "undefined";
+}
 
-  // PostHog já está inicializado em instrumentation-client.ts com opt_out_capturing_by_default.
-  // Apenas activamos a captação se o consentimento for dado.
-  if (posthog.__loaded) {
-    posthog.opt_in_capturing();
+export function initAnalytics(recordingConsent: boolean): void {
+  recordingConsented = recordingConsent;
+  if (!isLoaded()) return;
+
+  // Eventos/acessos sempre activos — garante que um opt-out anterior não bloqueie.
+  posthog.opt_in_capturing();
+
+  if (recordingConsent) {
+    posthog.startSessionRecording();
+  } else {
+    posthog.stopSessionRecording();
   }
 }
 
 export function identifyUser(userId: string, properties?: Record<string, unknown>): void {
-  if (!consented) return;
+  if (!isClient()) return;
   posthog.identify(userId, properties);
 }
 
 export function resetIdentification(): void {
+  if (!isClient()) return;
   posthog.reset();
 }
 
 export function captureEvent(event: string, properties?: Record<string, unknown>): void {
-  if (!consented) return;
+  if (!isClient()) return;
   posthog.capture(event, { ...properties, $source: "web" });
 }
 
+export function capturePageview(extra?: Record<string, unknown>): void {
+  if (!isClient()) return;
+  posthog.capture("$pageview", extra);
+}
+
 export function captureException(error: unknown): void {
-  if (!consented) return;
+  if (!isClient()) return;
   posthog.captureException(error);
 }
 
 export function stopAnalytics(): void {
-  consented = false;
-  if (posthog.__loaded) {
-    posthog.opt_out_capturing();
-  }
+  recordingConsented = false;
+  if (!isClient()) return;
+  // Para a gravação mas MANTÉM a captura de eventos/acessos activa.
+  if (isLoaded()) posthog.stopSessionRecording();
   posthog.reset();
 }
 
 export function hasConsent(): boolean {
-  return consented;
+  return recordingConsented;
 }

@@ -17,6 +17,7 @@ import { useUiStore } from "@/store/ui-store";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
 import { formatAOA } from "@/lib/currency";
+import { captureEvent } from "@/lib/analytics";
 import { ROUTES } from "@/constants/routes";
 import { BRAND_COLORS } from "@/constants/brand-colors";
 
@@ -53,6 +54,9 @@ const SidebarRight: FC<SidebarRightProps> = ({ isOpen, onClose }) => {
   const isPremium = user?.planType === "PREMIUM";
 
   const handleLogout = async () => {
+    // Captura síncrona ANTES do logout: user-store faz window.location.href
+    // (full reload) que mata beacons disparados em useEffect.
+    captureEvent("user_signed_out");
     await logoutUser();
   };
 

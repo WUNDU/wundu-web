@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, Manrope, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
-// import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
-// import { CookieConsent } from "@/components/layout/cookie-consent";
+import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
+import { CookieConsent } from "@/components/layout/cookie-consent";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { PostHogPageView } from "@/components/providers/posthog-pageview";
 import { AnalyticsProvider } from "@/contexts/analytics-context";
 import { Toaster } from "sonner";
 
@@ -72,9 +74,12 @@ export default function RootLayout({
         <SessionProvider>
           <QueryProvider>
             <AnalyticsProvider>
-              {/* <CookieConsentProvider> */}
+              <CookieConsentProvider>
+              <Suspense fallback={null}>
+                <PostHogPageView />
+              </Suspense>
               {children}
-              {/* <CookieConsent /> */}
+              <CookieConsent />
               <Toaster
                 position="top-right"
                 closeButton
@@ -83,7 +88,7 @@ export default function RootLayout({
                 expand={false}
                 gap={12}
               />
-              {/* </CookieConsentProvider> */}
+              </CookieConsentProvider>
             </AnalyticsProvider>
           </QueryProvider>
         </SessionProvider>
