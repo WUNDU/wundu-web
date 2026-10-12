@@ -3,6 +3,7 @@ import type { TransactionItemProps } from "../../types/transaction";
 import { transactionTypeConfig } from "../config/transaction-config";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
+import { formatTransactionDate } from "app/utils/format-transaction-date";
 
 interface TransactionCardProps extends TransactionItemProps {
   description?: string;
@@ -75,7 +76,7 @@ function TransactionCard({
           </p>
         </div>
         <p className="text-(--text-description) font-manrope text-xs font-medium leading-5">
-          {transaction.date}
+          {formatTransactionDate(transaction.date)}
         </p>
       </aside>
     </article>

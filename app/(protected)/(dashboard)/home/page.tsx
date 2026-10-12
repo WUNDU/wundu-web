@@ -11,10 +11,11 @@ import FlowCard from "app/components/dashboard/FlowCard";
 import CategoryCard from "app/components/dashboard/CategoryCard";
 import WeeklyCard from "app/components/dashboard/WeeklyCard";
 import PageHeader from "app/components/layout/PageHeader";
-import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Wallet } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Plus, Wallet } from "lucide-react";
 import { useBalance } from "@/hooks/use-balance";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
+import { useTransactionAction } from "app/components/layout/TransactionActionProvider";
 import type { Goal } from "@/types/dtos/goal.dto";
 import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
 import type { GoalDTO } from "app/types/dto/goal.dto";
@@ -165,6 +166,7 @@ function getDailySeries(
 }
 
 function Page() {
+  const { openTransactionForm } = useTransactionAction();
   const now = new Date();
   const currentKey = now.getFullYear() * 12 + now.getMonth();
   // Mês selecionado no filtro do cabeçalho (por omissão, o mês atual).
@@ -314,6 +316,7 @@ function Page() {
     <div className="flex h-full flex-col">
       <div className="hidden lg:block">
         <PageHeader title="Dashboard">
+        <div className="flex items-center gap-3">
         <div className="flex items-center justify-center gap-1 rounded-xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
           <button
             type="button"
@@ -344,6 +347,17 @@ function Page() {
           >
             <ChevronRight className="size-5" strokeWidth={2} />
           </button>
+        </div>
+        <button
+          type="button"
+          onClick={openTransactionForm}
+          className="group flex h-12 items-center justify-center gap-2 rounded-xl border border-primary-300 bg-primary-300 px-5 transition-colors duration-200 hover:bg-primary-400 active:opacity-90"
+        >
+          <Plus className="size-4 text-base-white transition-transform duration-300 ease-out group-hover:rotate-90" aria-hidden="true" />
+          <span className="font-inter text-sm leading-6 text-base-white">
+            Nova Transação
+          </span>
+        </button>
         </div>
       </PageHeader>
       </div>

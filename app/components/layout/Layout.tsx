@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import Menu from "./Menu";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
-import MobileTransactionFab from "./MobileTransactionFab";
+import TransactionActionProvider from "./TransactionActionProvider";
 
 type LayoutProps = {
   children: ReactNode;
@@ -32,11 +32,10 @@ export default function Layout({ children, className }: LayoutProps) {
             .filter(Boolean)
             .join(" ")}
         >
-          <div className="h-full min-h-full">
-            {children}
-          </div>
+          <TransactionActionProvider>
+            <div className="h-full min-h-full">{children}</div>
+          </TransactionActionProvider>
         </main>
-        <MobileTransactionFab />
         <BottomNav />
       </div>
     </div>

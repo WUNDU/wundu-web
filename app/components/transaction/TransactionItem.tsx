@@ -4,6 +4,7 @@ import type { TransactionItemProps } from "../../types/transaction";
 import { transactionTypeConfig } from "../config/transaction-config";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
+import { formatTransactionDate } from "app/utils/format-transaction-date";
 
 function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
   const typeConfig = transactionTypeConfig[transaction.type];
@@ -53,7 +54,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
         </p>
 
         <p className="hidden text-sm font-semibold leading-6 text-(--text-description) lg:block">
-          {transaction.description ?? transaction.date}
+          {transaction.description ?? formatTransactionDate(transaction.date)}
         </p>
 
         {/* Linha categoria + valor (mobile) */}
