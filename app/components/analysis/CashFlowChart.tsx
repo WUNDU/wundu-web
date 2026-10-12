@@ -141,7 +141,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
             { swatch: "bg-secondary-300", label: "Gastos" },
             { swatch: "bg-(--bg-chart-info)", label: "Saldo" },
           ].map((item) => (
-            <span key={item.label} className="flex items-center justify-center gap-2.5">
+            <span key={item.label} className="flex items-center justify-center gap-2">
               <span aria-hidden="true" className={`size-3 rounded-full ${item.swatch}`} />
               <span className="font-manrope text-sm font-semibold leading-5 text-(--text-title)">
                 {item.label}
@@ -152,7 +152,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
       }
     >
       <div className="w-full overflow-x-auto lg:overflow-visible">
-        <div ref={wrapRef} className="w-full min-w-[560px] lg:min-w-0">
+        <div ref={wrapRef} className="w-full min-w-140 lg:min-w-0">
           <svg
           viewBox={`0 0 ${plotW} ${PLOT_H}`}
           className="block h-auto w-full"

@@ -328,7 +328,7 @@ function LargeCard({
   return (
     <article
       className={[
-        "relative flex h-72 min-h-56 w-full min-w-0 flex-col items-center justify-between overflow-hidden rounded-3xl border border-(--card-barras) bg-(--bg-card) shadow-[0px_4px_12px_0px_rgba(0,0,0,0.04)]",
+        "relative flex w-full min-w-0 flex-col items-center justify-between overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card)",
         className,
       ]
         .filter(Boolean)
@@ -337,13 +337,13 @@ function LargeCard({
       data-property={property1}
     >
       <div
-        className="box-border flex w-full flex-1 flex-col items-center px-8 py-6"
+        className="box-border flex w-full flex-1 flex-col items-center p-6"
       >
         <div className="flex w-full flex-1 flex-col items-start justify-center">
           <div className="flex w-full items-start gap-3">
             <div
               className={[
-                "flex size-14 shrink-0 items-center justify-center rounded-2xl",
+                "flex size-11 shrink-0 items-center justify-center rounded-xl",
                 config.color === "blue"
                   ? "border border-(--border-button)"
                   : "",
@@ -360,40 +360,28 @@ function LargeCard({
             </div>
             <div className="flex min-w-0 flex-1 flex-col items-start gap-4">
               <div className="flex w-full min-w-0 flex-col items-start gap-1 text-(--text-title)">
-                <p
-                  className="w-full truncate text-lg font-semibold leading-7"
-                  style={{ fontFamily: "var(--font-manrope)" }}
-                >
+                <p className="w-full truncate font-manrope text-sm font-medium leading-5">
                   {config.title}
                 </p>
-                <p
-                  className="w-full truncate text-xl font-extrabold leading-8"
-                  style={{ fontFamily: "var(--font-inter)" }}
-                >
+                <p className="w-full truncate font-inter text-xl font-extrabold leading-8">
                   {config.value}
                 </p>
               </div>
               <div className="flex w-full min-w-0 items-center justify-start gap-2">
                 {config.change && (
                   <div
-                    className="flex min-w-20 shrink-0 items-center justify-center gap-1 rounded-3xl px-2 py-1"
+                    className="flex min-w-20 shrink-0 items-center justify-center gap-1 rounded-full px-2 py-1"
                     style={badgeTone}
                   >
                     {isNeutralChange ? null : (
                       <BadgeIcon size={20} strokeWidth={2.5} aria-hidden />
                     )}
-                    <span
-                      className="text-base font-bold leading-none whitespace-nowrap"
-                      style={{ fontFamily: "var(--font-inter)" }}
-                    >
+                    <span className="font-inter text-sm font-bold leading-none whitespace-nowrap">
                       {config.change}
                     </span>
                   </div>
                 )}
-                <p
-                  className="min-w-0 shrink truncate text-base font-semibold leading-none text-(--text-description-60)"
-                  style={{ fontFamily: "var(--font-manrope)" }}
-                >
+                <p className="min-w-0 shrink truncate font-manrope text-xs font-semibold leading-none text-(--text-description-60)">
                   {config.comparison}
                 </p>
               </div>
@@ -402,7 +390,7 @@ function LargeCard({
         </div>
       </div>
       <div
-        className="relative h-16 w-full shrink-0 overflow-hidden"
+        className="relative h-15 w-full shrink-0 overflow-hidden"
         role="img"
         aria-label={chartLabel ?? `Evolução de ${config.title.toLowerCase()}`}
       >
@@ -459,32 +447,25 @@ function SmallCard({
   return (
     <article
       className={[
-        "relative flex h-45 w-full min-w-0 max-w-[320px] flex-col gap-3 rounded-2xl border border-(--card-barras) bg-(--bg-card)",
+        "relative flex w-full min-w-0 flex-col gap-3 rounded-xl border border-(--card-barras) bg-(--bg-card) p-6",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
       data-node-id="2234:20387"
       data-property={property1}
-      style={{ padding: "var(--spacing-xl)" }}
     >
       <div className="flex h-full items-start justify-between gap-6">
         <div className="flex h-full min-w-0 flex-1 flex-col items-start justify-between">
-          <p
-            className="w-full truncate text-[16px] font-semibold leading-none text-neutrals-900"
-            style={{ fontFamily: "var(--font-open-sans)" }}
-          >
+          <p className="w-full truncate font-manrope text-base font-semibold leading-none text-(--text-title)">
             {config.title}
           </p>
-          <p
-            className="w-full truncate text-[30px] font-bold leading-none text-(--text-title)"
-            style={{ fontFamily: "var(--font-inter)" }}
-          >
+          <p className="w-full truncate font-inter text-3xl font-bold leading-none text-(--text-title)">
             {config.value}
           </p>
           <div className="flex w-full min-w-0 items-center gap-2">
             <span
-              className="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[16px] font-semibold leading-none"
+              className="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-sm font-semibold leading-none"
               style={badgeTone}
             >
               {activeTrend && !isNeutralChange && (
@@ -492,16 +473,13 @@ function SmallCard({
               )}
               {change ?? config.change}
             </span>
-            <span
-              className="min-w-0 flex-1 truncate text-[16px] font-medium leading-none text-(--text-title)"
-              style={{ fontFamily: "var(--font-open-sans)" }}
-            >
+            <span className="min-w-0 flex-1 truncate font-manrope text-sm font-medium leading-none text-(--text-title)">
               {comparison ?? config.comparison}
             </span>
           </div>
         </div>
         <div
-          className="flex size-11.25 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
+          className="flex size-11 shrink-0 items-center justify-center rounded-xl text-lg font-bold"
           style={{ backgroundColor: colors.soft, color: colors.accent }}
         >
           {config.icon}

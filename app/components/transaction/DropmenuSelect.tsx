@@ -26,7 +26,7 @@ function DropmenuSelect({ options, value, isOpen, onSelect }: DropmenuSelectProp
                 }`}
               >
                 <span
-                  className={`truncate font-manrope text-[14px] font-semibold leading-[155.99%] ${
+                  className={`truncate font-manrope text-sm font-semibold leading-5 ${
                     isActive ? "text-primary-300" : "text-(--text)"
                   }`}
                 >

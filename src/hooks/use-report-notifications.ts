@@ -10,6 +10,7 @@ export const REPORT_NOTIFICATION_TYPES = new Set([
   "MONTHLY_REPORT",
 ]);
 
+/** @deprecated Automatic report notification popups were discontinued. */
 export function useReportNotifications(enabled: boolean) {
   const { unreadNotifications: notifications, fetchUnread, markAsRead } = useApiNotification();
 

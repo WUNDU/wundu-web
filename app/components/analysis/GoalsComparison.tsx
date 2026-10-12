@@ -111,7 +111,7 @@ export default function GoalsComparison({
             >
               <span
                 aria-hidden="true"
-                className="size-3.5 shrink-0 rounded-full"
+                className="size-3 shrink-0 rounded-full"
                 style={{ backgroundColor: `var(${goal.colorVar})` }}
               />
               <span className="truncate font-manrope text-base font-bold text-(--text-title)">

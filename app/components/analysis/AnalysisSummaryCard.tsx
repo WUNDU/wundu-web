@@ -41,23 +41,17 @@ export default function AnalysisSummaryCard({
   return (
     <article
       className={[
-        "relative flex h-69 min-h-55 w-full min-w-0 max-w-98 flex-col items-center justify-between overflow-hidden rounded-3xl border border-(--card-barras) bg-(--bg-card) shadow-[0_4px_6px_rgba(0,0,0,0.04)]",
+        "relative flex w-full min-w-0 flex-col items-center justify-between overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card)",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div
-        className="box-border flex w-full flex-1 flex-col items-center"
-        style={{
-          paddingInline: "var(--spacing-2xl)",
-          paddingBlock: "var(--spacing-xl)",
-        }}
-      >
+      <div className="box-border flex w-full flex-1 flex-col items-center px-8 py-6">
         <div className="flex w-full flex-1 flex-col items-start justify-center">
           <div className="flex w-full items-start gap-3">
             <div
-              className="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-(--border-button)"
+              className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-(--border-button)"
               style={{ backgroundColor: SOFT_BG[color] }}
             >
               {icon === "wallet" ? (
@@ -72,16 +66,10 @@ export default function AnalysisSummaryCard({
               )}
             </div>
             <div className="flex min-w-0 flex-1 flex-col items-start gap-1 text-(--text-title)">
-              <p
-                className="w-full truncate text-[18px] font-semibold leading-[1.56] tracking-[-0.54px]"
-                style={{ fontFamily: "var(--font-open-sans)" }}
-              >
+              <p className="w-full truncate font-manrope text-sm font-medium leading-5 tracking-tight">
                 {title}
               </p>
-              <p
-                className="w-full truncate text-[20px] font-extrabold leading-[1.56] tracking-[-0.6px]"
-                style={{ fontFamily: "var(--font-inter)" }}
-              >
+              <p className="w-full truncate font-inter text-xl font-extrabold leading-8 tracking-tight">
                 {value}
               </p>
             </div>
@@ -89,7 +77,7 @@ export default function AnalysisSummaryCard({
         </div>
       </div>
       <div
-        className="relative h-15.75 w-full shrink-0 overflow-hidden"
+        className="relative h-15 w-full shrink-0 overflow-hidden"
         role="img"
         aria-label={`Evolução de ${title.toLowerCase()}`}
       >

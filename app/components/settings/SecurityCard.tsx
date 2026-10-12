@@ -21,7 +21,7 @@ function SecurityCard({ onChangePassword, onViewSessions }: SecurityCardProps) {
           type="button"
           onClick={() => setTwoFactorEnabled((value) => !value)}
           aria-pressed={twoFactorEnabled}
-          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-all hover:opacity-80 active:scale-[0.98]"
+          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-opacity hover:opacity-80 active:scale-95"
         >
           <span className="font-manrope text-sm font-bold leading-5 text-(--text-link)">
             {twoFactorEnabled ? "Habilitado" : "Habilitar"}
@@ -37,7 +37,7 @@ function SecurityCard({ onChangePassword, onViewSessions }: SecurityCardProps) {
         <button
           type="button"
           onClick={onChangePassword}
-          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-all hover:opacity-80 active:scale-[0.98]"
+          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-opacity hover:opacity-80 active:scale-95"
         >
           <span className="font-manrope text-sm font-bold leading-5 text-(--text-link)">
             Mudar
@@ -53,7 +53,7 @@ function SecurityCard({ onChangePassword, onViewSessions }: SecurityCardProps) {
         <button
           type="button"
           onClick={onViewSessions}
-          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-all hover:opacity-80 active:scale-[0.98]"
+          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-300/10 px-4 py-2 transition-opacity hover:opacity-80 active:scale-95"
         >
           <span className="font-manrope text-sm font-bold leading-5 text-(--text-link)">
             Visualizar
@@ -66,7 +66,7 @@ function SecurityCard({ onChangePassword, onViewSessions }: SecurityCardProps) {
   return (
     <section
       aria-labelledby="security-title"
-      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-2xl border border-(--card-barras) bg-(--bg-card) p-6"
+      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-6"
     >
       <div className="flex items-center justify-start gap-3">
         <ShieldCheck

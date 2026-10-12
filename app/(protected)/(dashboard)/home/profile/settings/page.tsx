@@ -149,14 +149,9 @@ function page() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
+    <div className="flex h-full flex-col bg-(--bg-card) lg:bg-transparent">
       <div className="hidden lg:block">
         <PageHeader title={"Definições"} />
-      </div>
-      <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
-        <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
-          Definições
-        </h1>
       </div>
       <div className="flex items-center gap-2 overflow-x-auto px-6 pb-3 pt-3 lg:hidden">
         {TABS.map((tab) => {
@@ -167,9 +162,9 @@ function page() {
               type="button"
               onClick={() => setActiveTab(tab)}
               aria-current={isActive ? "page" : undefined}
-              className={`shrink-0 rounded-2xl px-3.5 py-2 font-manrope text-sm ${
+              className={`shrink-0 rounded-full px-4 py-2 font-manrope text-sm ${
                 isActive
-                  ? "bg-primary-300 font-bold text-white"
+                  ? "bg-primary-300 font-bold text-base-white"
                   : "bg-(--background-variant) font-semibold text-(--text-title)"
               }`}
             >
@@ -195,7 +190,7 @@ function page() {
                       className="flex flex-col items-center justify-center"
                     >
                       <span
-                        className={`flex items-center justify-center gap-2 px-4 pt-4 pb-3.5 text-center font-manrope text-base ${
+                        className={`flex items-center justify-center gap-2 px-4 pt-4 pb-3 text-center font-manrope text-base ${
                           isActive
                             ? "font-bold text-(--text-link)"
                             : "font-medium text-(--text-description-button)"
@@ -216,7 +211,7 @@ function page() {
             </ul>
           </nav>
         </section>
-        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--background-variant) px-6 pb-8 pt-2 lg:gap-8 lg:bg-transparent lg:p-8">
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--bg-card) px-6 pb-8 pt-2 lg:gap-8 lg:bg-transparent lg:p-8">
           <h1 className="sr-only">{activeTab}</h1>
           {activeTab === "Perfil" ? (
             <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
@@ -227,11 +222,11 @@ function page() {
                 >
                   <div
                     aria-hidden="true"
-                    className="h-64 animate-pulse rounded-2xl bg-(--bg-filter)"
+                    className="h-64 animate-pulse rounded-xl bg-(--bg-filter)"
                   />
                   <div
                     aria-hidden="true"
-                    className="h-24 animate-pulse rounded-2xl bg-(--bg-filter)"
+                    className="h-24 animate-pulse rounded-xl bg-(--bg-filter)"
                   />
                   <span className="sr-only">A carregar perfil…</span>
                 </div>

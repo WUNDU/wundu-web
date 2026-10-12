@@ -149,7 +149,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
   const fieldLabel =
     "font-manrope text-sm font-medium leading-5 text-(--text-description)";
   const fieldBox =
-    "rounded-lg border border-(--card-barras) bg-(--background) focus:border-(--border) focus:outline-none";
+    "rounded-xl border border-(--card-barras) bg-(--background) focus:border-(--border) focus:outline-none";
 
   function handlePickPhoto(file: File | undefined) {
     if (!file) return;
@@ -201,17 +201,17 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
         aria-label="Editar perfil"
         onClick={(event) => event.stopPropagation()}
-        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-[860px] lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}}`}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-224 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
         <header className="flex h-24 shrink-0 items-center justify-between self-stretch border-b border-(--card-barras) p-6">
           <div className="flex items-center justify-start gap-2">
@@ -236,15 +236,16 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col items-start justify-start self-stretch overflow-y-auto py-6">
-          <div className="flex flex-col items-start justify-start gap-6 self-stretch px-6 pt-6 pb-3">
-            <div className="flex flex-col items-start justify-start gap-10 self-stretch rounded-2xl border border-(--card-barras) bg-(--background) p-6">
+            <div className="flex flex-col items-start justify-start gap-6 self-stretch px-6 pt-6 pb-3">
+              <div className="flex flex-col items-start justify-start gap-10 self-stretch rounded-xl border border-(--card-barras) bg-(--background) p-6">
               <div className="flex flex-col items-start justify-start gap-4 self-stretch sm:flex-row sm:items-center sm:gap-6">
                 <Image
                   src={photo ?? avatar}
                   alt="Foto de perfil"
                   width={180}
                   height={180}
-                  className="size-44 shrink-0 rounded-3xl object-cover outline-[2.5px] outline-offset-[-2.5px] outline-(--border-blue)"
+                  unoptimized={Boolean(photo)}
+                  className="size-44 shrink-0 rounded-3xl object-cover outline-2 outline-(--border-blue)"
                 />
                 <div className="flex w-40 flex-col items-start justify-start gap-2.5">
                   <input
@@ -261,7 +262,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl border-[1.5px] border-(--border-hover) bg-transparent px-3 transition-all hover:bg-neutrals-300/10 active:scale-[0.98]"
+                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl border border-(--border-hover) bg-transparent px-3 transition-colors hover:bg-neutrals-300/10 active:scale-95"
                   >
                     <ImageUploadIcon
                       width={24}
@@ -276,7 +277,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                   <button
                     type="button"
                     onClick={handleRemovePhoto}
-                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl bg-(--button-bg-danger) px-3 transition-all hover:opacity-90 active:scale-[0.98]"
+                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl bg-(--button-bg-danger) px-3 transition-opacity hover:opacity-90 active:scale-95"
                   >
                     <Trash2
                       width={20}
@@ -332,7 +333,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                         onClick={() => setBirthOpen((value) => !value)}
                         aria-expanded={birthOpen}
                         aria-labelledby="profile-birth-label"
-                        className={`flex w-full items-center justify-start gap-2.5 px-4 py-3 transition-all hover:bg-neutrals-300/10 active:scale-[0.99] ${fieldBox}`}
+                        className={`flex w-full items-center justify-start gap-2.5 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                       >
                         <Calendar
                           width={16}
@@ -389,7 +390,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                         onClick={() => setProvinceOpen((value) => !value)}
                         aria-expanded={provinceOpen}
                         aria-labelledby="profile-province-label"
-                        className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-all hover:bg-neutrals-300/10 active:scale-[0.99] ${fieldBox}`}
+                        className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                       >
                         <span
                           className={`min-w-0 flex-1 truncate text-left font-manrope text-base font-normal ${
@@ -442,7 +443,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                           onClick={() => setMunicipalityOpen((value) => !value)}
                           aria-expanded={municipalityOpen}
                           aria-labelledby="profile-municipality-label"
-                          className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-all hover:bg-neutrals-300/10 active:scale-[0.99] ${fieldBox}`}
+                          className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                         >
                           <span
                             className={`min-w-0 flex-1 truncate text-left font-manrope text-base font-normal ${
@@ -505,7 +506,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                 </div>
 
                 {formError ? (
-                  <p role="alert" className="font-manrope text-[13px] font-semibold text-danger-300">
+                  <p role="alert" className="font-manrope text-sm font-semibold text-danger-300">
                     {formError}
                   </p>
                 ) : null}
@@ -518,9 +519,9 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
           <button
             type="button"
             onClick={onClose}
-            className="flex flex-1 items-center justify-center gap-2.5 rounded-2xl border border-(--border-button) p-3.5 text-(--text-title) transition-all hover:bg-neutrals-300/10 active:scale-[0.98] active:bg-neutrals-300/20 lg:w-56 lg:flex-none"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 lg:w-56 lg:flex-none"
           >
-            <span className="font-manrope text-base font-bold leading-normal">
+            <span className="font-manrope text-base font-bold leading-6">
               Cancelar
             </span>
           </button>
@@ -528,9 +529,9 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex w-56 items-center justify-center gap-2.5 rounded-2xl bg-primary-300 p-3.5 text-base-white shadow-[0px_4px_12px_0px_rgba(5,61,196,0.15)] transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-wait disabled:opacity-60"
+            className="flex w-56 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 disabled:cursor-wait disabled:opacity-60"
           >
-            <span className="text-center font-manrope text-base font-bold leading-normal">
+            <span className="text-center font-manrope text-base font-bold leading-6">
               {saving ? "A guardar…" : "Salvar alterações"}
             </span>
           </button>

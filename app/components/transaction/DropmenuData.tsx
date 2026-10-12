@@ -146,7 +146,7 @@ function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onT
         {WEEKDAYS.map((day, i) => (
           <span
             key={`weekday-${i}`}
-            className="flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5.25 text-(--text-description)"
+            className="flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5 text-(--text-description)"
           >
             {day}
           </span>
@@ -166,7 +166,7 @@ function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onT
               onClick={() =>
                 pickDay(prev.getFullYear(), prev.getMonth(), day)
               }
-              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5.25 rounded-md transition-all ${dayClass(prev.getFullYear(), prev.getMonth(), day, false)}`}
+              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5 rounded-md transition-all ${dayClass(prev.getFullYear(), prev.getMonth(), day, false)}`}
             >
               {day}
             </button>
@@ -180,7 +180,7 @@ function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onT
               type="button"
               disabled={isDisabledDay(viewYear, viewMonth, day)}
               onClick={() => pickDay(viewYear, viewMonth, day)}
-              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5.25 rounded-md transition-all ${dayClass(viewYear, viewMonth, day, true)}`}
+              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5 rounded-md transition-all ${dayClass(viewYear, viewMonth, day, true)}`}
             >
               {day}
             </button>
@@ -201,7 +201,7 @@ function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onT
               onClick={() =>
                 pickDay(next.getFullYear(), next.getMonth(), day)
               }
-              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5.25 rounded-md transition-all ${dayClass(next.getFullYear(), next.getMonth(), day, false)}`}
+              className={`flex h-8 w-8 items-center justify-center text-center font-manrope text-sm font-normal leading-5 rounded-md transition-all ${dayClass(next.getFullYear(), next.getMonth(), day, false)}`}
             >
               {day}
             </button>
@@ -224,7 +224,7 @@ function DropmenuData({ isOpen, selected, onSelect, minDate, showTime, time, onT
             placeholder="12:00"
             aria-label="Hora (HH:MM)"
             maxLength={5}
-            className="w-[68px] rounded-lg border border-(--border-button) bg-(--background) px-2 py-1.5 text-center font-manrope text-sm font-semibold text-(--text-title) outline-none placeholder:text-(--text-description)/40 focus:border-primary-300"
+            className="w-17 rounded-lg border border-(--border-button) bg-(--background) px-2 py-1.5 text-center font-manrope text-sm font-semibold text-(--text-title) outline-none placeholder:text-(--text-description)/40 focus:border-primary-300"
           />
         </div>
       ) : null}

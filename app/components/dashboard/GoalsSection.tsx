@@ -12,16 +12,16 @@ interface GoalsSectionProps {
 
 function GoalsSection({ goals, isLoading, error }: GoalsSectionProps) {
   return (
-    <section className="flex h-auto flex-col items-center gap-3 self-stretch rounded-[20px] border border-(--card-barras) bg-(--card) p-4 shadow-2xs sm:p-5 xl:h-[640px] xl:gap-4 xl:p-6">
+    <section className="flex h-auto flex-col items-center gap-3 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 xl:gap-4 xl:p-6">
       <header className="flex justify-between items-center self-stretch">
-        <h1 className="text-base not-italic font-semibold leading-[155.99%] tracking-[-0.54px] text-(--text-padro) xl:text-[18px]">
+        <h1 className="font-manrope text-base font-semibold leading-6 tracking-tight text-(--text-title) xl:text-lg">
           Metas Financeiras
         </h1>
         <Link
           href="/home/goals"
           className="group flex shrink-0 items-center gap-1 whitespace-nowrap text-(--text-description) transition-colors duration-200 hover:text-primary-300"
         >
-          <span className="text-right text-sm not-italic font-semibold leading-[155.99%] tracking-[-0.54px] xl:text-[18px]">
+          <span className="text-right font-manrope text-sm font-semibold leading-5 tracking-tight xl:text-base">
             Ver todas
           </span>
           <ChevronRight
@@ -31,7 +31,7 @@ function GoalsSection({ goals, isLoading, error }: GoalsSectionProps) {
         </Link>
       </header>
       <div
-        className="flex min-h-0 flex-1 flex-col items-start gap-3 self-stretch overflow-visible overscroll-contain xl:gap-4 xl:overflow-y-auto"
+        className="flex min-h-0 flex-1 flex-col items-start gap-3 self-stretch overflow-visible overscroll-contain xl:gap-4"
         aria-busy={isLoading}
       >
         {isLoading ? (
@@ -45,7 +45,7 @@ function GoalsSection({ goals, isLoading, error }: GoalsSectionProps) {
                 key={item}
                 className="flex w-full animate-pulse items-center gap-4 p-2"
               >
-                <div className="size-15 shrink-0 rounded-2xl bg-(--bg-filter)" />
+                <div className="size-11 shrink-0 rounded-xl bg-(--bg-filter)" />
                 <div className="flex min-w-0 flex-1 flex-col gap-3">
                   <div className="h-4 w-2/3 rounded bg-(--bg-filter)" />
                   <div className="h-3 w-full rounded-full bg-(--bg-filter)" />

@@ -43,7 +43,7 @@ export default function MiniStatCard({
   return (
     <article
       className={[
-        "flex h-full w-full min-w-0 flex-col items-start overflow-hidden rounded-2xl border border-(--border-card) bg-(--bg-card)",
+        "flex h-full w-full min-w-0 flex-col items-start overflow-hidden rounded-xl border border-(--border-card) bg-(--bg-card)",
         className,
       ]
         .filter(Boolean)
@@ -51,9 +51,9 @@ export default function MiniStatCard({
       role="img"
       aria-label={`${label}: ${value}`}
     >
-      <div className="flex flex-col items-start justify-start gap-px self-stretch px-3.5 pt-3.5">
+      <div className="flex flex-col items-start justify-start gap-1 self-stretch px-4 pt-4">
         <span
-          className={`flex w-8 items-center justify-center rounded-xl py-2 ${tone.background}`}
+          className={`flex size-9 items-center justify-center rounded-xl ${tone.background}`}
         >
           <Icon
             className={`size-4 ${tone.text}`}
@@ -65,7 +65,7 @@ export default function MiniStatCard({
           {label}
         </p>
         <p
-          className="self-stretch truncate pb-[0.64px] font-manrope text-base font-bold leading-6 text-(--text-title)"
+          className="self-stretch truncate font-manrope text-base font-bold leading-6 text-(--text-title)"
           title={value}
         >
           {value}
@@ -73,7 +73,7 @@ export default function MiniStatCard({
         <div className="self-stretch pt-1.5">
           {change ? (
             <span
-              className={`inline-flex h-6 items-center gap-1 rounded-lg px-2 ${tone.background}`}
+              className={`inline-flex h-6 items-center gap-1 rounded-md px-2 ${tone.background}`}
             >
               <TrendIcon
                 className={`size-3 ${tone.text}`}

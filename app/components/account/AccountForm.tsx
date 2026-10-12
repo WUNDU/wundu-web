@@ -110,16 +110,16 @@ function AccountForm({
 
   return (
     <div
-      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}}`}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-128 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
         {confirmDelete && account ? (
           <>
@@ -140,7 +140,7 @@ function AccountForm({
                 </div>
               </header>
               <section className="flex flex-col items-center justify-center gap-5 self-stretch px-6 py-10">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-danger-300/10">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-danger-300/10">
                   <Trash2 width={24} height={24} className="text-danger-300" />
                 </div>
                 <div className="flex flex-col items-center justify-center gap-1.5 self-stretch">
@@ -161,9 +161,9 @@ function AccountForm({
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="flex w-56 items-center justify-center gap-2.5 rounded-2xl border border-(--border-button) p-3.5 text-(--text-title) transition-all hover:bg-neutrals-300/10 active:scale-[0.98] active:bg-neutrals-300/20"
+                  className="flex w-56 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95"
                 >
-                  <span className="font-manrope text-base font-bold leading-normal">
+                  <span className="font-manrope text-base font-bold leading-6">
                     Não
                   </span>
                 </button>
@@ -173,9 +173,9 @@ function AccountForm({
                     onDelete?.(account);
                     onClose();
                   }}
-                  className="flex w-56 items-center justify-center gap-2.5 rounded-2xl bg-danger-300 p-3.5 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80"
+                  className="flex w-56 items-center justify-center gap-2.5 rounded-xl bg-danger-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95"
                 >
-                  <span className="text-center font-manrope text-base font-bold leading-normal">
+                  <span className="text-center font-manrope text-base font-bold leading-6">
                     Sim, Eliminar
                   </span>
                 </button>
@@ -196,7 +196,7 @@ function AccountForm({
                       onClick={() => setTypeOpen((value) => !value)}
                       aria-expanded={typeOpen}
                       aria-label="Tipo de conta"
-                      className={`flex w-32 items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 py-2 transition-all hover:bg-neutrals-300/10 active:scale-[0.98]`}
+                      className={`flex w-32 items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 py-2 transition-colors hover:bg-neutrals-300/10 active:scale-95`}
                     >
                       <span className="flex-1 text-left font-manrope text-sm font-semibold leading-5 text-(--text-title)">
                         {kind}
@@ -208,7 +208,7 @@ function AccountForm({
                       />
                     </button>
                     {typeOpen ? (
-                      <ul className="absolute top-full right-0 z-30 mt-2 w-32 rounded-xl border border-(--card-barras) bg-(--background) p-1.5 shadow-lg">
+                      <ul className="absolute top-full right-0 z-30 mt-2 w-32 rounded-xl border border-(--card-barras) bg-(--background) p-1.5">
                         {ACCOUNT_TYPES.map((option) => (
                           <li key={option}>
                             <button
@@ -260,16 +260,16 @@ function AccountForm({
                 <div
                   role="img"
                   aria-label={`Pré-visualização da conta ${name || "nova conta"}`}
-                  className={`relative flex h-52 w-80 flex-col items-start justify-start gap-2 overflow-hidden rounded-xl p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.30),0px_4px_8px_3px_rgba(0,0,0,0.15)] ${color.dot}`}
+                  className={`relative flex h-52 w-80 flex-col items-start justify-start gap-2 overflow-hidden rounded-xl p-6 ${color.dot}`}
                 >
-                  <AccountCardMark className="pointer-events-none absolute -right-[7.5px] -bottom-[7.3px] w-[149px] text-white/50" />
+                  <AccountCardMark className="pointer-events-none absolute -right-2 -bottom-2 w-37 text-base-white/50" />
                   <div className="relative flex flex-1 flex-col items-start justify-between self-stretch">
-                    <span className="flex h-6 items-center justify-center gap-2.5 rounded-lg bg-base-white/10 px-1.5 py-0.5">
+                    <span className="flex h-6 items-center justify-center gap-2.5 rounded-md bg-base-white/10 px-2 py-0.5">
                       <span className="font-manrope text-sm font-bold leading-5 text-base-white">
                         {previewSigla}
                       </span>
                     </span>
-                    <span className="flex items-center justify-center gap-2.5 rounded-lg bg-base-white/10 px-2 py-0.5">
+                    <span className="flex items-center justify-center gap-2.5 rounded-md bg-base-white/10 px-2 py-0.5">
                       <span className="font-manrope text-sm font-bold leading-5 text-base-white">
                         {kind.toUpperCase()}
                       </span>
@@ -326,7 +326,7 @@ function AccountForm({
                           aria-pressed={isActive}
                           aria-label={`Cor ${option.id}`}
                           title={option.id}
-                          className={`flex size-10 items-center justify-center rounded-3xl border bg-(--background) transition-all hover:scale-105 active:scale-95 ${
+                          className={`flex size-10 items-center justify-center rounded-full border bg-(--background) transition-all hover:scale-105 active:scale-95 ${
                             isActive
                               ? "border-(--border-hover)"
                               : "border-(--border-button)"
@@ -342,7 +342,7 @@ function AccountForm({
                   </div>
                 </fieldset>
 
-                <hr className="h-px w-full text-(--card-barras)" />
+                <hr className="w-full border-0 border-t border-(--card-barras)" />
 
                 <div className="flex flex-col items-start justify-start gap-2 self-stretch">
                   <span id="account-currency-label" className={fieldLabel}>
@@ -354,7 +354,7 @@ function AccountForm({
                       onClick={() => setCurrencyOpen((value) => !value)}
                       aria-expanded={currencyOpen}
                       aria-labelledby="account-currency-label"
-                      className={`flex w-full items-center justify-between bg-(--background) px-3.5 py-3 transition-all hover:bg-neutrals-300/10 active:scale-[0.99] ${fieldBox}`}
+                      className={`flex w-full items-center justify-between bg-(--background) px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                     >
                       <span
                         className={`font-manrope text-base font-medium ${
@@ -370,7 +370,7 @@ function AccountForm({
                       />
                     </button>
                     {currencyOpen ? (
-                      <ul className="absolute right-0 bottom-full left-0 z-30 mb-2 rounded-xl border border-(--card-barras) bg-(--background) p-1.5 shadow-lg">
+                      <ul className="absolute right-0 bottom-full left-0 z-30 mb-2 rounded-xl border border-(--card-barras) bg-(--background) p-1.5">
                         {CURRENCIES.map((option) => (
                           <li key={option}>
                             <button
@@ -415,7 +415,7 @@ function AccountForm({
                       value={initialBalance}
                       onChange={(event) => setInitialBalance(event.target.value)}
                       placeholder="0,00"
-                      className={`w-full bg-(--background) px-3.5 py-3 font-manrope text-base font-medium text-(--text-description-60) placeholder:text-(--text-description-60) ${fieldBox}`}
+                      className={`w-full bg-(--background) px-4 py-3 font-manrope text-base font-medium text-(--text-description-60) placeholder:text-(--text-description-60) ${fieldBox}`}
                     />
                   </div>
                 )}
@@ -423,24 +423,24 @@ function AccountForm({
             </div>
 
             <footer className="flex shrink-0 items-start justify-start gap-4 self-stretch border-t border-(--card-barras) p-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex w-56 items-center justify-center gap-2.5 rounded-2xl border border-(--border-button) p-3.5 text-(--text-title) transition-all hover:bg-neutrals-300/10 active:scale-[0.98] active:bg-neutrals-300/20"
-              >
-                <span className="font-manrope text-base font-bold leading-normal">
-                  Cancelar
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                className="flex w-56 items-center justify-center gap-2.5 rounded-2xl bg-primary-300 p-3.5 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80"
-              >
-                <span className="text-center font-manrope text-base font-bold leading-normal">
-                  {primaryLabel}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex w-56 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95"
+                >
+                  <span className="font-manrope text-base font-bold leading-6">
+                    Cancelar
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="flex w-56 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95"
+                >
+                  <span className="text-center font-manrope text-base font-bold leading-6">
+                    {primaryLabel}
+                  </span>
+                </button>
             </footer>
           </>
         )}

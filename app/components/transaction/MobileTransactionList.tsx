@@ -60,10 +60,10 @@ function MobileTransactionRow({
         </span>
         <span className="flex items-center gap-2 overflow-hidden">
           <span
-            className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${categoryConfig.background}`}
+            className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
           >
             <CategoryIcon
-              className={`size-5 shrink-0 p-0.5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+              className={`size-4 shrink-0 ${categoryConfig.iconColor ?? categoryConfig.color}`}
               aria-hidden="true"
             />
             <span
@@ -117,7 +117,7 @@ export default function MobileTransactionList({
           <p className="px-0 pb-1 pt-3 font-manrope text-xs font-bold text-(--text-description)">
             {group.label}
           </p>
-          <div className="flex flex-col items-start justify-start self-stretch rounded-2xl bg-(--bg-card) px-4 pb-2 pt-1">
+          <div className="flex flex-col items-start justify-start self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) px-4 pb-2 pt-1">
             {group.items.map((tx, index) => (
               <div key={tx.id} className="self-stretch">
                 <MobileTransactionRow

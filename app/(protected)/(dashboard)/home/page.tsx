@@ -7,6 +7,9 @@ import MiniStatCard from "app/components/dashboard/MiniStatCard";
 import AiNotify from "app/components/dashboard/AiNotify";
 import GoalsSection from "app/components/dashboard/GoalsSection";
 import TransactionSection from "app/components/dashboard/TransactionSection";
+import FlowCard from "app/components/dashboard/FlowCard";
+import CategoryCard from "app/components/dashboard/CategoryCard";
+import WeeklyCard from "app/components/dashboard/WeeklyCard";
 import PageHeader from "app/components/layout/PageHeader";
 import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Wallet } from "lucide-react";
 import { useBalance } from "@/hooks/use-balance";
@@ -192,6 +195,16 @@ function Page() {
           lastDayOfMonth(selected.y, selected.m),
         ),
       );
+  const currentWeekStartDate = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - ((now.getDay() + 6) % 7),
+  );
+  const previousWeekStartDate = new Date(currentWeekStartDate);
+  previousWeekStartDate.setDate(previousWeekStartDate.getDate() - 7);
+  const currentWeekStart = toDateKey(currentWeekStartDate);
+  const previousWeekStart = toDateKey(previousWeekStartDate);
+  const today = toDateKey(now);
   const prevMonthDate = new Date(selected.y, selected.m - 1, 1);
   const prevStart = toDateKey(prevMonthDate);
   // Compara o período selecionado com o mês anterior completo. Assim,
@@ -240,6 +253,13 @@ function Page() {
     error: transactionsError,
   } = useTransaction({
     range: { startDate: monthStart, endDate: monthEnd },
+  });
+  const {
+    notPaginated: weeklyApiTransactions,
+    isLoadingAll: isWeeklyTransactionsLoading,
+    error: weeklyTransactionsError,
+  } = useTransaction({
+    range: { startDate: previousWeekStart, endDate: today },
   });
 
   const transactions = useMemo(
@@ -294,11 +314,11 @@ function Page() {
     <div className="flex h-full flex-col">
       <div className="hidden lg:block">
         <PageHeader title="Dashboard">
-        <div className="flex items-center justify-center gap-1 rounded-2xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
+        <div className="flex items-center justify-center gap-1 rounded-xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
           <button
             type="button"
             onClick={() => shiftMonth(-1)}
-            className="flex size-8 items-center justify-center rounded-xl text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-8 items-center justify-center rounded-lg text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Ver mês anterior"
           >
             <ChevronLeft className="size-5" strokeWidth={2} />
@@ -306,7 +326,7 @@ function Page() {
           <button
             type="button"
             onClick={() => setSelected({ y: now.getFullYear(), m: now.getMonth() })}
-            className="flex items-center justify-center gap-3 rounded-xl px-2 py-1 transition-colors hover:bg-(--menu-bg-hover)"
+            className="flex items-center justify-center gap-3 rounded-lg px-2 py-1 transition-colors hover:bg-(--menu-bg-hover)"
             aria-label="Voltar ao mês atual"
             title={isCurrentMonth ? "Mês atual" : "Voltar ao mês atual"}
           >
@@ -319,7 +339,7 @@ function Page() {
             type="button"
             onClick={() => shiftMonth(1)}
             disabled={isCurrentMonth}
-            className="flex size-8 items-center justify-center rounded-xl text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-8 items-center justify-center rounded-lg text-primary-300 transition-colors hover:bg-(--menu-bg-hover) disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Ver mês seguinte"
           >
             <ChevronRight className="size-5" strokeWidth={2} />
@@ -327,7 +347,7 @@ function Page() {
         </div>
       </PageHeader>
       </div>
-      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--background-variant) px-6 pb-8 pt-4 lg:gap-8 lg:bg-transparent lg:p-8">
+      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--bg-card) px-6 pb-8 pt-4 lg:gap-5 lg:p-8">
         {errorMessages.length > 0 && (
           <div
             role="alert"
@@ -336,7 +356,7 @@ function Page() {
             {errorMessages.join(" ")} Atualize a página para tentar novamente.
           </div>
         )}
-        <div className="hidden grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid xl:grid-cols-4">
+        <div className="hidden grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid xl:grid-cols-4">
           <CardViews
             property1="Default"
             title="Entradas"
@@ -482,7 +502,6 @@ function Page() {
             tone={{
               background: "bg-warning/10",
               text: "text-warning",
-              badgeText: "text-yellow-600",
             }}
             chartColor="yellow"
             chartData={periodTransactions ? balanceSeries.data : []}
@@ -494,7 +513,7 @@ function Page() {
             label="Património"
             value="—"
             change=""
-            tone={{ background: "bg-blue-800/10", text: "text-blue-800" }}
+            tone={{ background: "bg-primary-300/10", text: "text-primary-300" }}
             chartColor="blue"
             chartData={[]}
             chartLabel="Sem dados de património disponíveis"
@@ -514,9 +533,33 @@ function Page() {
               error={goalsError}
             />
           </div>
+          <div className="col-span-2 lg:col-span-1">
+            <FlowCard
+              transactions={monthlyTransactions}
+              year={selected.y}
+              month={selected.m}
+              loading={isPeriodTransactionsLoading}
+            />
+          </div>
+          <div className="col-span-2 lg:col-span-1">
+            <CategoryCard
+              transactions={monthlyTransactions}
+              loading={isPeriodTransactionsLoading}
+            />
+          </div>
+          <div className="col-span-2">
+            <WeeklyCard
+              transactions={weeklyApiTransactions ?? []}
+              currentWeekStart={currentWeekStart}
+              previousWeekStart={previousWeekStart}
+              today={today}
+              loading={isWeeklyTransactionsLoading}
+              error={weeklyTransactionsError}
+            />
+          </div>
           <AiNotify className="col-span-2" />
         </div>
-        <div className="hidden items-stretch gap-6 lg:grid xl:grid-cols-2">
+        <div className="hidden items-stretch gap-5 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <TransactionSection
             transactions={transactions}
             isLoading={areTransactionsLoading}
@@ -524,6 +567,27 @@ function Page() {
             totalElements={totalElements}
           />
           <GoalsSection goals={goals} isLoading={areGoalsLoading} error={goalsError} />
+          <FlowCard
+            transactions={monthlyTransactions}
+            year={selected.y}
+            month={selected.m}
+            loading={isPeriodTransactionsLoading}
+          />
+          <CategoryCard
+            transactions={monthlyTransactions}
+            loading={isPeriodTransactionsLoading}
+          />
+          <div className="col-span-2">
+            <WeeklyCard
+              transactions={weeklyApiTransactions ?? []}
+              currentWeekStart={currentWeekStart}
+              previousWeekStart={previousWeekStart}
+              today={today}
+              loading={isWeeklyTransactionsLoading}
+              error={weeklyTransactionsError}
+            />
+          </div>
+          <AiNotify className="col-span-2" />
         </div>
       </main>
     </div>

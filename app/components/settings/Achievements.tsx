@@ -11,10 +11,10 @@ function Achievements({ achievements = [] }: { achievements?: Achievement[] }) {
   return (
     <section
       aria-labelledby="achievements-title"
-      className="flex flex-col items-start justify-start gap-3 self-stretch rounded-2xl border border-(--card-barras) bg-(--bg-card) p-4 lg:gap-5 lg:p-7"
+      className="flex flex-col items-start justify-start gap-3 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 lg:gap-4 lg:p-6"
     >
       <div className="flex items-start justify-start gap-2.5">
-        <span className="hidden py-1.5 lg:flex" aria-hidden="true">
+        <span className="hidden lg:flex" aria-hidden="true">
           <Trophy width={20} height={20} className="text-(--icon-hover)" />
         </span>
         <div className="flex flex-col items-start justify-start gap-1">
@@ -37,7 +37,7 @@ function Achievements({ achievements = [] }: { achievements?: Achievement[] }) {
           Conclua uma meta para ver a sua conquista aqui.
         </p>
       ) : (
-        <ul className="flex content-start items-start justify-start gap-2.5 self-stretch flex-wrap">
+        <ul className="flex content-start items-start justify-start gap-2 self-stretch flex-wrap">
           {achievements.map((achievement, index) => (
             <li
               key={`${achievement.title}-${index}`}
@@ -47,7 +47,7 @@ function Achievements({ achievements = [] }: { achievements?: Achievement[] }) {
                 <h3 className="min-w-0 flex-1 truncate font-manrope text-base font-bold text-(--text-title)">
                   {achievement.title}
                 </h3>
-                <span className="flex shrink-0 items-center justify-center rounded-[20px] bg-success px-3.5 py-1 font-manrope text-xs font-bold text-white">
+                <span className="flex shrink-0 items-center justify-center rounded-full bg-success px-3 py-1 font-manrope text-xs font-bold text-base-white">
                   Concluída
                 </span>
               </article>

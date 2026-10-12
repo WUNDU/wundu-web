@@ -16,23 +16,13 @@ import TransactionFilter, {
 import TransactionPagination from "app/components/transaction/TransactionPagination";
 import type { TransactionDTO } from "app/types/dto/transaction.dto";
 import { toAppTransaction } from "app/utils/transaction-map";
+import { toTransactionDateTimeISO } from "app/utils/transaction-date";
 import { useTransaction } from "@/hooks/use-transaction";
 
 type TransactionView = "list" | "grid";
 
 const MAX_SEARCH_LENGTH = 100;
 const PAGE_SIZE = 10;
-
-/**
- * Data (YYYY-MM-DD) + hora (HH:MM) → datetime ISO completo para a API.
- * Fixa o meio-dia quando a hora for inválida, para o dia não trocar no UTC.
- */
-function toDateTimeISO(dateKey: string, time: string): string {
-  const match = time.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
-  const hours = match ? match[1] : "12";
-  const minutes = match ? match[2] : "00";
-  return new Date(`${dateKey}T${hours}:${minutes}:00`).toISOString();
-}
 
 function compareTransactions(
   a: TransactionDTO,
@@ -116,7 +106,7 @@ function page() {
     const flow = values.type === "income" ? "INCOME" : "EXPENSE";
     // A API espera datetime ISO completo (ex. "...T12:00:00.000Z");
     // só-dia ("2026-10-03") dá 400.
-    const transactionDate = toDateTimeISO(values.date, values.time);
+    const transactionDate = toTransactionDateTimeISO(values.date, values.time);
     if (editingTx) {
       const updated = await updateTransaction(editingTx.id, {
         amount: values.amount,
@@ -149,47 +139,28 @@ function page() {
 
   return (
     <>
-      <div className="flex h-full flex-col bg-(--background-variant) lg:bg-(--bg-card)">
+      <div className="flex h-full flex-col bg-(--bg-card)">
         <div className="hidden shrink-0 lg:block">
           <PageHeader title="Transações">
             <button
               type="button"
               onClick={() => setIsAddOpen(true)}
-              className="group flex w-42.5 h-12.25 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-primary-300 bg-primary-300 px-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_4px_14px_rgba(5,61,196,0.35)] active:translate-y-0 active:scale-[0.98]"
+              className="group flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary-300 bg-primary-300 px-6 transition-colors duration-200 hover:bg-primary-400 active:opacity-90"
             >
               <PlusIcon
                 width={16}
                 height={16}
                 className="text-base-white transition-transform duration-300 ease-out group-hover:rotate-90"
               />
-              <span className="font-inter text-[14px] not-italic leading-normal text-base-white">
+              <span className="font-inter text-sm not-italic leading-6 text-base-white">
                 Nova Transação
               </span>
             </button>
           </PageHeader>
         </div>
-        <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
-          <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
-            Transações
-          </h1>
-          <button
-            type="button"
-            onClick={() => setIsAddOpen(true)}
-            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
-          >
-            <PlusIcon
-              width={16}
-              height={16}
-              className="shrink-0 text-(--button-icon-yellow)"
-            />
-            <span className="font-manrope text-xs font-medium text-(--button-fg)">
-              Nova
-            </span>
-          </button>
-        </div>
           <section className="hidden py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
             <div className="flex items-start gap-3 self-stretch">
-              <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
+              <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-xl border border-(--border-button) bg-(--bg-filter)">
                 <div className="flex items-center gap-3 self-stretch">
                   <div className="flex h-12 py-0 px-4 items-center gap-3 flex-1 rounded-xl border border-(--border-button) bg-(--background) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
                     <SearchIcon
@@ -204,11 +175,11 @@ function page() {
                         setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
                       }
                       placeholder={`Consultar ${transactions.length} transações...`}
-                      className="min-w-0 flex-1 bg-transparent text-[14px] not-italic font-normal leading-[150%] text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
+                      className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-6 text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
                     />
                     <p
                       aria-live="polite"
-                      className={`text-[12px] not-italic font-normal leading-normal transition-colors duration-150 ${
+                      className={`font-manrope text-xs font-normal leading-6 transition-colors duration-150 ${
                         remaining === 0
                           ? "text-danger-300"
                           : "text-(--text-description)"
@@ -223,7 +194,7 @@ function page() {
                         type="button"
                         onClick={() => setIsFilterOpen((value) => !value)}
                         aria-expanded={isFilterOpen}
-                        className={`group flex h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 py-4.5 inset-shadow-2xs transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)] active:translate-y-0 active:scale-[0.98] ${
+                        className={`group flex h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 transition-colors duration-200 hover:border-primary-300 hover:bg-primary-300/10 ${
                           isFilterOpen || hasActiveFilters
                             ? "border-primary-300 bg-primary-300/10"
                             : "border-(--card-barras) bg-(--background)"
@@ -239,7 +210,7 @@ function page() {
                           }`}
                         />
                         <p
-                          className={`text-[16px] not-italic font-normal leading-normal text-center transition-colors duration-200 group-hover:text-primary-300 ${
+                          className={`font-manrope text-base font-normal leading-6 text-center transition-colors duration-200 group-hover:text-primary-300 ${
                             isFilterOpen || hasActiveFilters
                               ? "text-primary-300"
                               : "text-(--text-title)"
@@ -256,7 +227,7 @@ function page() {
                       onClick={() => setView("list")}
                       aria-pressed={isList}
                       title="Ver em linha"
-                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border-2 transition-colors duration-200 ${
+                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border transition-colors duration-200 ${
                         isList
                           ? "border-primary-300 bg-(--bg-filter)"
                           : "border-(--card-barras) bg-(--background)"
@@ -273,7 +244,7 @@ function page() {
                       onClick={() => setView("grid")}
                       aria-pressed={!isList}
                       title="Ver em grelha"
-                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border-2 transition-colors duration-200 ${
+                      className={`flex p-2.5 justify-center items-center flex-col self-stretch aspect-square w-12 rounded-lg border transition-colors duration-200 ${
                         !isList
                           ? "border-primary-300 bg-(--bg-filter)"
                           : "border-(--card-barras) bg-(--background)"
@@ -290,12 +261,12 @@ function page() {
               </div>
             </div>
           </section>
-          <div className="flex items-center gap-2 self-stretch px-6 py-2 lg:hidden">
-            <label className="flex h-12 flex-1 items-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors duration-200 focus-within:border-primary-300">
+          <div className="flex w-full min-w-0 shrink-0 flex-col gap-3 self-stretch px-6 py-2 lg:hidden">
+            <label className="flex h-12 w-full min-w-0 flex-none items-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors duration-200 focus-within:border-primary-300">
               <SearchIcon
                 width={16}
                 height={16}
-                className="shrink-0 text-slate-600"
+                className="shrink-0 text-(--text-description)"
               />
               <input
                 type="search"
@@ -306,25 +277,60 @@ function page() {
                 }
                 placeholder={`Pesquisar em ${transactions.length} transações…`}
                 aria-label="Pesquisar transações"
-                className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+                className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-(--text-description-60)"
               />
             </label>
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen(true)}
-              aria-label="Filtrar transações"
-              className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-(--border-button) bg-(--bg-card)"
-            >
-              <FilterIcon
-                width={20}
-                height={16}
-                className={`shrink-0 ${
+            <div className="flex items-center gap-3">
+              <div
+                role="group"
+                aria-label="Tipo de transação"
+                className="flex h-11 min-w-0 flex-1 items-center rounded-xl border border-(--card-barras) bg-(--background-variant) p-1"
+              >
+                {(
+                  [
+                    ["all", "Todos"],
+                    ["income", "Entradas"],
+                    ["expense", "Gastos"],
+                  ] as const
+                ).map(([type, label]) => {
+                  const active = filters.type === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setFilters((current) => ({ ...current, type }))}
+                      className={`h-full min-w-0 flex-1 rounded-lg px-2 font-manrope text-xs font-semibold transition-colors ${
+                        active
+                          ? "border border-(--card-barras) bg-(--bg-card) text-(--text-title) shadow-sm"
+                          : "text-(--text-description)"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(true)}
+                aria-label="Abrir filtros avançados"
+                aria-expanded={isFilterOpen}
+                className={`relative flex size-11 shrink-0 items-center justify-center rounded-xl border bg-(--bg-card) transition-colors ${
                   isFilterOpen || hasActiveFilters
-                    ? "text-primary-300"
-                    : "text-(--icon)"
+                    ? "border-primary-300 text-primary-300"
+                    : "border-(--border-button) text-(--icon)"
                 }`}
-              />
-            </button>
+              >
+                <FilterIcon width={19} height={18} aria-hidden="true" />
+                {hasActiveFilters ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-2 top-2 size-1.5 rounded-full bg-primary-300"
+                  />
+                ) : null}
+              </button>
+            </div>
           </div>
         {isLoading ? (
           <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-(--bg-card) p-8">
@@ -332,17 +338,17 @@ function page() {
               <div
                 key={index}
                 aria-hidden="true"
-                className="h-16 shrink-0 animate-pulse rounded-2xl bg-(--bg-filter)"
+                className="h-16 shrink-0 animate-pulse rounded-xl bg-(--bg-filter)"
               />
             ))}
             <span className="sr-only">A carregar transações…</span>
           </main>
         ) : transactionsError && transactions.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Não foi possível carregar as transações.
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               {transactionsError}
             </p>
             <button
@@ -355,19 +361,19 @@ function page() {
           </main>
         ) : transactions.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Sem transações
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               Registe a primeira transação com o botão “Nova Transação”.
             </p>
           </main>
         ) : filteredTransactions.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Nenhuma transação encontrada
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               Tente outro termo de pesquisa ou ajuste os filtros.
             </p>
           </main>

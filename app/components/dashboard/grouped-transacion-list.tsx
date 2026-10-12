@@ -34,7 +34,7 @@ export function GroupedTransactionList({
         <div key={group.dateKey} className="flex flex-col gap-1 self-stretch">
           <div className="flex px-0.5 py-1.5 items-center gap-2 h-8">
             <Calendar height={20} width={18} />
-            <p className="text-[14px] not-italic font-semibold leading-[155.99%] text-(--text-title) px-1.5">
+            <p className="font-manrope text-sm font-semibold leading-5 text-(--text-title) px-1.5">
               {group.label}
             </p>
           </div>

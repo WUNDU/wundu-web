@@ -199,13 +199,13 @@ function page() {
     filters.sortDir !== emptyGoalFilters.sortDir;
 
   return (
-    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
+    <div className="flex h-full flex-col bg-(--bg-card) lg:bg-transparent">
       <div className="hidden lg:block">
         <PageHeader title="Metas">
           <button
             type="button"
             onClick={() => openForm("create", null)}
-            className="group flex w-42.5 h-12.25 cursor-pointer justify-center items-center gap-3 rounded-2xl border border-primary-300 bg-primary-300 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_4px_14px_rgba(5,61,196,0.35)] active:translate-y-0 active:scale-[0.98]"
+            className="group flex h-12 cursor-pointer justify-center items-center gap-2 rounded-xl border border-primary-300 bg-primary-300 px-6 transition-colors duration-200 hover:bg-primary-400 active:opacity-90"
           >
             <PlusIcon
               width={16}
@@ -218,28 +218,9 @@ function page() {
           </button>
         </PageHeader>
         </div>
-        <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
-          <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
-            Metas
-          </h1>
-          <button
-            type="button"
-            onClick={() => openForm("create", null)}
-            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
-          >
-            <PlusIcon
-              width={16}
-              height={16}
-              className="shrink-0 text-(--button-icon-yellow)"
-            />
-            <span className="font-manrope text-xs font-medium text-(--button-fg)">
-              Nova meta
-            </span>
-          </button>
-        </div>
         <section className="shrink-0 hidden py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
           <div className="flex items-start gap-3 self-stretch">
-            <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-2xl border border-(--border-button) bg-(--bg-filter)">
+            <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-xl border border-(--border-button) bg-(--bg-filter)">
               <div className="flex items-center gap-3 self-stretch">
                 <div className="flex h-12 py-0 px-4 items-center gap-3 flex-1 rounded-xl border border-(--border-button) bg-(--background) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
                   <SearchIcon
@@ -254,11 +235,11 @@ function page() {
                       setQuery(event.target.value.slice(0, MAX_SEARCH_LENGTH))
                     }
                     placeholder={`Consultar ${goals.length} metas...`}
-                    className="min-w-0 flex-1 bg-transparent text-[14px] not-italic font-normal leading-[150%] text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-6 text-(--text-description) outline-none placeholder:text-(--text-description)/60 transition-colors duration-200 focus:outline-none"
                   />
                   <p
                     aria-live="polite"
-                    className={`text-[12px] not-italic font-normal leading-normal transition-colors duration-150 ${
+                    className={`font-manrope text-xs font-normal leading-6 transition-colors duration-150 ${
                       remaining === 0
                         ? "text-danger-300"
                         : "text-(--text-description)"
@@ -272,16 +253,16 @@ function page() {
                     type="button"
                     onClick={() => setIsFilterOpen((value) => !value)}
                     aria-expanded={isFilterOpen}
-                    className={`group flex w-28 h-12 justify-center items-center gap-1.5 px-4 rounded-xl border transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)] active:translate-y-0 active:scale-[0.98] ${
+                    className={`group flex h-12 w-28 justify-center items-center gap-1.5 px-4 rounded-xl border transition-colors duration-200 hover:border-primary-300 hover:bg-primary-300/10 ${
                       isFilterOpen || hasActiveFilters
-                        ? "border-primary-300 bg-primary-300/10 shadow-[0_4px_12px_rgba(5,61,196,0.15)]"
-                        : "border-(--card-barras) bg-(--background) shadow-[inset_0px_0px_4px_0px_rgba(0,0,0,0.02)]"
+                        ? "border-primary-300 bg-primary-300/10"
+                        : "border-(--card-barras) bg-(--background)"
                     }`}
                   >
                     <FilterIcon
                       width={16}
                       height={14}
-                      className={`shrink-0 transition-all duration-200 ease-out group-hover:-translate-y-0.5 ${
+                      className={`shrink-0 transition-colors duration-200 group-hover:text-primary-300 ${
                         isFilterOpen || hasActiveFilters
                           ? "text-primary-300"
                           : "text-(--icon) group-hover:text-primary-300"
@@ -307,7 +288,7 @@ function page() {
             <SearchIcon
               width={16}
               height={16}
-              className="shrink-0 text-slate-600"
+              className="shrink-0 text-(--text-description)"
             />
             <input
               type="search"
@@ -318,7 +299,7 @@ function page() {
               }
               placeholder={`Pesquisar em ${goals.length} metas…`}
               aria-label="Pesquisar metas"
-              className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+              className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-(--text-description-60)"
             />
           </label>
           <button
@@ -337,6 +318,19 @@ function page() {
               }`}
             />
           </button>
+          <button
+            type="button"
+            onClick={() => openForm("create", null)}
+            aria-label="Criar meta"
+            className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-(--button-bg)"
+          >
+            <PlusIcon
+              width={18}
+              height={18}
+              className="text-(--button-icon-yellow)"
+              aria-hidden="true"
+            />
+          </button>
         </div>
         {isLoading && goals.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-(--bg-card) p-8">
@@ -344,17 +338,17 @@ function page() {
               <div
                 key={index}
                 aria-hidden="true"
-                className="h-24 shrink-0 animate-pulse rounded-2xl bg-(--bg-filter)"
+                className="h-24 shrink-0 animate-pulse rounded-xl bg-(--bg-filter)"
               />
             ))}
             <span className="sr-only">A carregar metas…</span>
           </main>
         ) : goalsError && goals.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Não foi possível carregar as metas.
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               {goalsError}
             </p>
             <button
@@ -367,19 +361,19 @@ function page() {
           </main>
         ) : goals.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Sem metas
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               Crie a primeira meta com o botão “Nova meta”.
             </p>
           </main>
         ) : filteredGoals.length === 0 ? (
           <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 bg-(--bg-card) p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Nenhuma meta encontrada
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               Tente outro termo de pesquisa ou ajuste os filtros.
             </p>
           </main>
@@ -396,7 +390,7 @@ function page() {
             </main>
             <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-8 pt-2 lg:hidden">
               <div className="grid grid-cols-2 items-stretch gap-3">
-                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-2xl bg-(--bg-card) p-4">
+                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-xl bg-(--bg-card) p-4">
                   <p className="font-manrope text-xs font-medium text-(--text-description)">
                     Total poupado
                   </p>
@@ -418,7 +412,7 @@ function page() {
                     Kz
                   </p>
                 </div>
-                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-2xl bg-(--bg-card) p-4">
+                <div className="flex min-w-0 flex-col items-start gap-1 overflow-hidden rounded-xl bg-(--bg-card) p-4">
                   <p className="font-manrope text-xs font-medium text-(--text-description)">
                     Metas ativas
                   </p>

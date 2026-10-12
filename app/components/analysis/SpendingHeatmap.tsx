@@ -11,7 +11,7 @@ const INTENSITY_BG = [
   "bg-primary-50",
   "bg-primary-100",
   "bg-primary-200",
-  "bg-(--color-primary)",
+  "bg-primary-300/70",
   "bg-primary-300",
 ] as const;
 
@@ -41,7 +41,7 @@ export default function SpendingHeatmap({
       description="Em que dia da semana gastas mais?"
     >
       <div className="flex flex-col gap-4">
-        <table className="w-full table-fixed border-separate border-spacing-x-3.5 border-spacing-y-[15px]">
+        <table className="w-full table-fixed border-separate border-spacing-x-4 border-spacing-y-4">
           <caption className="sr-only">
             Intensidade dos gastos por período do dia e dia da semana
           </caption>
@@ -89,7 +89,7 @@ export default function SpendingHeatmap({
                         className={`relative block h-8 rounded-lg outline-none ${INTENSITY_BG[intensity]} ${isActive ? "ring-2 ring-primary-300" : ""}`}
                       >
                         {isActive && (
-                          <span className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-xl border border-(--border-card) bg-(--background) px-3 py-2 text-center shadow-lg">
+                          <span className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-xl border border-(--border-card) bg-(--background) px-3 py-2 text-center">
                             <span className="block font-inter text-sm font-bold leading-5 text-(--text-title)">
                               {formatAOACompact(value)}
                             </span>
@@ -116,7 +116,7 @@ export default function SpendingHeatmap({
           </p>
           <span
             aria-hidden="true"
-            className="h-3.5 flex-1 rounded-md bg-gradient-to-r from-primary-50 to-primary-300"
+            className="h-4 flex-1 rounded-md bg-gradient-to-r from-primary-50 to-primary-300"
           />
           <p className="font-manrope text-base font-bold text-(--text-title)">
             Mais gastos

@@ -84,7 +84,7 @@ function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
       onClick={onClose}
     >
       <aside
-        className={`flex fixed right-0 top-0 z-50 w-125 max-w-full h-screen flex-col items-center border border-(--card-barras) rounded-l-[20px] bg-(--background) transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-50 flex h-screen w-125 max-w-full flex-col items-center border border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:rounded-l-[20px] ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Notificações"

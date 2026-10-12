@@ -41,28 +41,28 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
 
       {/* Ícone */}
       <div
-        className={`flex size-14 shrink-0 items-center justify-center rounded-2xl lg:size-10 lg:rounded-xl ${typeConfig.background}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-xl lg:size-10 lg:rounded-xl ${typeConfig.background}`}
       >
         <TypeIcon className={`size-5 lg:size-4 ${typeConfig.color}`} />
       </div>
 
       {/* Título + data */}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="truncate text-sm font-bold leading-5 text-(--text) lg:text-[16px] lg:leading-normal">
+        <p className="truncate text-sm font-bold leading-5 text-(--text) lg:text-base lg:leading-6">
           {transaction.title}
         </p>
 
-        <p className="hidden text-[14px] font-semibold leading-[155.99%] text-(--text-description) lg:block">
+        <p className="hidden text-sm font-semibold leading-6 text-(--text-description) lg:block">
           {transaction.description ?? transaction.date}
         </p>
 
         {/* Linha categoria + valor (mobile) */}
         <div className="flex items-center gap-2 lg:hidden">
           <div
-            className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${categoryConfig.background}`}
+            className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
           >
             <CategoryIcon
-              className={`size-5 shrink-0 p-0.5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+              className={`size-4 shrink-0 ${categoryConfig.iconColor ?? categoryConfig.color}`}
             />
             <p
               className={`text-sm font-semibold leading-5 ${categoryConfig.color}`}
@@ -71,7 +71,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
             </p>
           </div>
           <div
-            className={`flex h-7 flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-2 ${typeConfig.background}`}
+            className={`flex h-7 flex-col items-center justify-center gap-1 rounded-md px-2 ${typeConfig.background}`}
           >
             <p
               className={`text-sm font-bold leading-5 ${typeConfig.color}`}
@@ -85,16 +85,16 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
       {/* Informações à direita (desktop) */}
       <div className="hidden shrink-0 items-center gap-6 lg:flex">
         {/* Categoria */}
-        <div className="flex w-45 shrink-0 items-center justify-end">
+        <div className="flex w-44 shrink-0 items-center justify-end">
           <div
-            className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${categoryConfig.background}`}
+            className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
           >
             <CategoryIcon
-              className={`size-5 shrink-0 p-0.5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+              className={`size-4 shrink-0 ${categoryConfig.iconColor ?? categoryConfig.color}`}
             />
 
             <p
-              className={`text-right text-[14px] font-semibold leading-[155.99%] ${categoryConfig.color}`}
+              className={`text-right text-sm font-semibold leading-6 ${categoryConfig.color}`}
             >
               {transaction.category}
             </p>
@@ -102,18 +102,18 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
         </div>
 
         {/* Banco */}
-        <div className="flex w-15 items-center">
-          <p className="text-[14px] font-medium leading-[155.99%] tracking-[-0.42px] text-(--text-description)">
+        <div className="flex w-14 items-center">
+          <p className="text-sm font-medium leading-6 text-(--text-description)">
             BAI
           </p>
         </div>
 
         {/* Amount */}
         <div
-          className={`flex w-32.5 items-center justify-end rounded-xl px-3 py-2 ${typeConfig.background}`}
+          className={`flex w-32 items-center justify-end rounded-md px-3 py-2 ${typeConfig.background}`}
         >
           <p
-            className={`text-right text-[14px] font-bold leading-[155.99%] ${typeConfig.color}`}
+            className={`text-right text-sm font-bold leading-6 ${typeConfig.color}`}
           >
             {formatAOA(transaction.amount)}
           </p>

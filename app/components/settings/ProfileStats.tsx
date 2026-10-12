@@ -16,12 +16,12 @@ function ProfileStats({ activeGoals, transactions, saved }: ProfileStatsProps) {
   return (
     <section
       aria-label="Resumo da conta"
-      className="flex self-stretch flex-col gap-0 rounded-2xl border border-(--card-barras) bg-(--bg-card) p-4 md:flex-row md:items-center lg:gap-4 lg:p-7"
+      className="flex self-stretch flex-col gap-0 rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 md:flex-row md:items-center lg:gap-4 lg:p-6"
     >
       {stats.map((stat, index) => (
         <Fragment key={stat.title}>
           <div className="flex flex-1 items-center justify-between gap-4 self-stretch py-3 lg:py-0">
-            <div className="flex min-w-0 flex-1 flex-col items-start justify-start gap-0.5 lg:justify-center lg:gap-1 lg:px-6 lg:py-4">
+            <div className="flex min-w-0 flex-1 flex-col items-start justify-start gap-1 lg:justify-center lg:px-6 lg:py-4">
               <p className="font-manrope text-sm font-bold leading-7 text-(--text-title) lg:text-lg">
                 {stat.title}
               </p>

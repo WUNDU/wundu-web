@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Ellipsis } from "lucide-react";
+import { UserRound } from "lucide-react";
 import Icon, { type MenuIconName } from "./Icon";
 
 type BottomNavItem = {
@@ -29,8 +29,8 @@ const PRIMARY_ITEMS: BottomNavItem[] = [
   },
 ];
 
-/** Rotas que mantêm a tab "Mais" ativa. */
-const MORE_HREFS = [
+/** Rotas que mantêm a tab "Perfil" ativa, incluindo os destinos de "Mais". */
+const PROFILE_HREFS = [
   "/home/more",
   "/home/accounts",
   "/home/categories",
@@ -45,7 +45,7 @@ function isActive(pathname: string, item: BottomNavItem) {
 
 export default function BottomNav() {
   const pathname = usePathname() ?? "";
-  const moreActive = MORE_HREFS.some(
+  const profileActive = PROFILE_HREFS.some(
     (href) => pathname === href || pathname.startsWith(`${href}/`),
   );
 
@@ -94,34 +94,34 @@ export default function BottomNav() {
 
       <Link
         href="/home/more"
-        aria-current={moreActive ? "page" : undefined}
-        aria-label="Mais opções"
+        aria-current={profileActive ? "page" : undefined}
+        aria-label="Perfil"
         className={[
           "flex min-w-0 flex-1 flex-col items-center gap-1 overflow-hidden py-1.5",
-          moreActive ? "text-(--text-link)" : "text-(--menu-icon)",
+          profileActive ? "text-(--text-link)" : "text-(--menu-icon)",
         ].join(" ")}
       >
         <span
           className={[
             "flex h-7 items-center justify-center overflow-hidden rounded-2xl px-4 py-1",
-            moreActive ? "bg-primary-300/10" : "",
+            profileActive ? "bg-primary-300/10" : "",
           ].join(" ")}
         >
-          <Ellipsis
-            className="size-6"
-            strokeWidth={moreActive ? 2 : 1.5}
+          <UserRound
+            className="size-5"
+            strokeWidth={profileActive ? 1.75 : 1.5}
             aria-hidden="true"
           />
         </span>
         <span
           className={[
             "truncate font-manrope text-xs leading-none",
-            moreActive
+            profileActive
               ? "font-bold text-(--text-link)"
               : "font-semibold text-(--text-title)",
           ].join(" ")}
         >
-          Mais
+          Perfil
         </span>
       </Link>
     </nav>

@@ -47,7 +47,7 @@ export default function SearchableMenu({
           onChange={(event) => setQuery(event.target.value)}
           placeholder={placeholder}
           aria-label={placeholder}
-          className="min-w-0 flex-1 bg-transparent font-manrope text-[14px] not-italic font-medium leading-[155.99%] tracking-[-0.42px] text-(--text-description) outline-none placeholder:text-(--text-description)/60"
+          className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-medium leading-5 text-(--text-description) outline-none placeholder:text-(--text-description)/60"
         />
       </header>
       <section className="flex max-h-52 items-start self-stretch overflow-y-auto p-2">

@@ -162,6 +162,7 @@ function getCatColor(name: string) {
   return CATEGORY_COLORS[name] ?? CATEGORY_COLORS["Outros"];
 }
 
+/** @deprecated The automatic weekly/monthly report popup was discontinued. */
 export function WeeklyReportModal({ period, transactions, onClose }: WeeklyReportModalProps) {
   const today = new Date();
 

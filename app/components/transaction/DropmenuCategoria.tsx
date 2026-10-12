@@ -32,7 +32,7 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
   );
 
   return (
-    <article className="flex w-full flex-col items-start rounded-2xl border border-(--card-barras) bg-(--background) lg:w-113">
+    <article className="flex w-full flex-col items-start rounded-2xl border border-(--card-barras) bg-(--background) lg:w-112">
       <header className="flex py-3 px-4 items-center gap-3 self-stretch border-b border-(--card-barras) transition-colors duration-200 hover:border-primary-300 focus-within:border-primary-300">
         <Search width={16} className="text-(--text-description)/60" />
         <input
@@ -40,7 +40,7 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Pesquisar"
-          className="font-manrope text-[14px] not-italic font-medium leading-[155.99%] tracking-[-0.42px] bg-transparent outline-none flex-1 text-(--text-description) placeholder:text-(--text-description)/60"
+          className="font-manrope text-sm font-medium leading-5 bg-transparent outline-none flex-1 text-(--text-description) placeholder:text-(--text-description)/60"
         />
       </header>
       <section className="flex h-52 p-2 items-start self-stretch overflow-y-auto">
@@ -59,7 +59,7 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
                 <button
                   type="button"
                   onClick={() => onSelect?.(category)}
-                  className="group relative flex h-7.5 py-1 px-2.5 items-center gap-2 self-stretch rounded-lg w-full text-left"
+                  className="group relative flex h-8 py-1 px-2.5 items-center gap-2 self-stretch rounded-lg w-full text-left"
                 >
                   <span
                     aria-hidden="true"
@@ -74,7 +74,7 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
                       <Icon width={20} />
                     </span>
                   </span>
-                  <span className="relative font-manrope text-[14px] not-italic font-semibold leading-[155.99%]">
+                  <span className="relative font-manrope text-sm font-semibold leading-5">
                     <span className="text-(--text)">
                       {category}
                     </span>
@@ -92,9 +92,9 @@ function DropmenuCategoria({ isOpen, onSelect, flow }: DropmenuCategoriaProps) {
           <li className="flex py-3 px-4 items-center gap-3 self-stretch border-t border-(--card-barras)">
             <Plus
               width={20}
-              className="flex p-[1.116px_1px_0.884px_1px] justify-center items-center aspect-square text-neutral-300"
+              className="flex justify-center items-center aspect-square text-neutrals-300"
             />
-            <p className="text-(--text-description) font-manrope text-[14px] not-italic font-medium leading-[155.99%] tracking-[-0.42px]">
+            <p className="text-(--text-description) font-manrope text-sm font-medium leading-5">
               Nova categoria
             </p>
           </li>

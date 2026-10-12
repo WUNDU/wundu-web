@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import Menu from "./Menu";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
+import MobileTransactionFab from "./MobileTransactionFab";
 
 type LayoutProps = {
   children: ReactNode;
@@ -27,7 +28,7 @@ export default function Layout({ children, className }: LayoutProps) {
           onToggleMenu={() => setCollapsed((value) => !value)}
         />
         <main
-          className={["min-h-0 flex-1 overflow-auto", className]
+          className={["min-h-0 flex-1 overflow-auto max-lg:bg-(--bg-card)", className]
             .filter(Boolean)
             .join(" ")}
         >
@@ -35,6 +36,7 @@ export default function Layout({ children, className }: LayoutProps) {
             {children}
           </div>
         </main>
+        <MobileTransactionFab />
         <BottomNav />
       </div>
     </div>

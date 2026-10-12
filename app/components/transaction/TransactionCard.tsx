@@ -33,7 +33,7 @@ function TransactionCard({
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`flex w-full flex-col items-start gap-4 rounded-2xl p-5 border border-(--card-barras) bg-(--bg-card) transition-colors duration-200 hover:border-(--border-hover) ${
+      className={`flex w-full flex-col items-start gap-4 rounded-xl p-6 border border-(--card-barras) bg-(--bg-card) transition-colors duration-200 hover:border-(--border-hover) ${
         onSelect ? "cursor-pointer" : ""
       }`}
     >
@@ -44,37 +44,37 @@ function TransactionCard({
           <TypeIcon className={`w-4 h-4 ${typeConfig.color}`} />
         </div>
         <p
-          className={`font-inter leading-normal font-bold text-[18px] ${typeConfig.color}`}
+          className={`font-inter leading-6 font-bold text-lg ${typeConfig.color}`}
         >
           {typeConfig.sign} {formatAOA(transaction.amount)}
         </p>
       </header>
-      <p className="font-manrope text-[16px] not-italic font-semibold leading-normal text-(--text)">
+      <p className="font-manrope text-base font-semibold leading-6 text-(--text)">
         {transaction.title}
       </p>
-      <p className="text-(--text-description) text-[14px] not-italic font-normal leading-[150%]">
+      <p className="text-(--text-description) font-manrope text-sm font-normal leading-6">
         {transaction.description ?? description}
       </p>
       <hr className="w-full border-0 border-t border-(--card-barras)" />
       <aside className="flex justify-between w-full items-center">
         <div className="flex items-center gap-2.5 self-stretch">
           <div
-            className={`flex py-1 px-2.5 justify-center items-center gap-2 rounded-lg ${categoryConfig.background}`}
+            className={`flex py-1 px-2 justify-center items-center gap-2 rounded-md ${categoryConfig.background}`}
           >
             <CategoryIcon
-              className={`w-5 h-5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+              className={`size-4 ${categoryConfig.iconColor ?? categoryConfig.color}`}
             />
             <p
-              className={`text-[14px] not-italic font-semibold leading-[155.99%] ${categoryConfig.color}`}
+              className={`font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
             >
               {transaction.category}
             </p>
           </div>
-          <p className="text-[14px] font-medium leading-[155.99%] tracking-[-0.42px] text-(--text-description)">
+          <p className="font-manrope text-sm font-medium leading-6 text-(--text-description)">
             {accountName}
           </p>
         </div>
-        <p className="text-(--text-description) text-[12px] font-medium leading-normal">
+        <p className="text-(--text-description) font-manrope text-xs font-medium leading-5">
           {transaction.date}
         </p>
       </aside>

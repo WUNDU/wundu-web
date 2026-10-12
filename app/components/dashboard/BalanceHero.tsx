@@ -29,7 +29,7 @@ export default function BalanceHero({
     <section
       aria-label="Saldo disponível"
       className={[
-        "flex w-full min-w-0 flex-col items-start gap-[5px] rounded-2xl bg-blue-800 p-5",
+        "flex w-full min-w-0 flex-col items-start gap-1 rounded-xl bg-(--button-bg) p-6",
         className,
       ]
         .filter(Boolean)
@@ -53,11 +53,11 @@ export default function BalanceHero({
           )}
         </button>
       </div>
-      <p className="self-stretch pb-1.5 font-manrope text-4xl font-bold leading-[49.30px] text-white">
+      <p className="self-stretch pb-1.5 font-manrope text-3xl font-bold leading-9 text-white">
         {loading ? "A carregar…" : masked ? "••••••" : value}
       </p>
       {!loading && change ? (
-        <span className="inline-flex items-center gap-1 rounded-lg bg-white/[0.16] px-2.5 py-1">
+        <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2.5 py-1">
           <TrendIcon
             className="size-3 text-white"
             strokeWidth={2.5}

@@ -26,7 +26,7 @@ function DropmenuContas({ isOpen, onSelect }: DropmenuContasProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Pesquisar"
-          className="font-manrope text-[14px] not-italic font-medium leading-[155.99%] tracking-[-0.42px] bg-transparent outline-none flex-1 text-(--text-description) placeholder:text-(--text-description)/60"
+          className="font-manrope text-sm font-medium leading-5 bg-transparent outline-none flex-1 text-(--text-description) placeholder:text-(--text-description)/60"
         />
       </header>
       <section className="flex max-h-52 p-2 items-start self-stretch overflow-y-auto">
@@ -39,7 +39,7 @@ function DropmenuContas({ isOpen, onSelect }: DropmenuContasProps) {
               <button
                 type="button"
                 onClick={() => onSelect?.(account)}
-                className="group relative flex h-7.5 py-1 px-2.5 items-center gap-2 self-stretch rounded-lg w-full text-left"
+                className="group relative flex h-8 py-1 px-2.5 items-center gap-2 self-stretch rounded-lg w-full text-left"
               >
                 <span
                   aria-hidden="true"
@@ -54,7 +54,7 @@ function DropmenuContas({ isOpen, onSelect }: DropmenuContasProps) {
                     <DotIcon width={20} />
                   </span>
                 </span>
-                <span className="relative font-manrope text-[14px] not-italic font-semibold leading-[155.99%]">
+                <span className="relative font-manrope text-sm font-semibold leading-5">
                   <span className="text-(--text-description)">
                     {account.name}
                   </span>

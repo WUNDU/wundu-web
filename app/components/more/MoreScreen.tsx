@@ -121,7 +121,7 @@ export default function MoreScreen() {
                 aria-hidden="true"
               />
               {unreadCount > 0 ? (
-                <span className="absolute -right-1 -top-1 flex size-3 min-w-3 items-center justify-center rounded-full bg-danger-300 px-0.5 text-[8px] font-extrabold leading-none text-white">
+                <span className="absolute -right-1 -top-1 flex size-4 min-w-4 items-center justify-center rounded-full bg-danger-300 px-0.5 text-xs font-extrabold leading-none text-base-white">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               ) : null}
@@ -161,28 +161,22 @@ export default function MoreScreen() {
   ];
 
   return (
-    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-transparent">
-      <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
-        <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
-          Mais
-        </h1>
-      </div>
-
+    <div className="flex h-full flex-col bg-(--bg-card) lg:bg-transparent">
       <div className="flex min-h-0 flex-1 flex-col items-start justify-start gap-4 self-stretch overflow-y-auto px-6 pb-8 pt-2 lg:mx-auto lg:w-full lg:max-w-3xl">
         <Link
           href="/home/profile/settings"
-          className="flex items-center gap-3 self-stretch rounded-2xl bg-(--bg-card) p-4"
+          className="flex items-center gap-3 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4"
           aria-label={`Abrir perfil de ${displayName}`}
         >
           <Image
             src={user?.profilePhotoUrl || avatar}
             alt={`Foto de perfil de ${displayName}`}
-            width={56}
-            height={56}
-            className="size-14 shrink-0 rounded-full object-cover"
+            width={60}
+            height={60}
+            className="size-15 shrink-0 rounded-full object-cover"
             unoptimized={Boolean(user?.profilePhotoUrl)}
           />
-          <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 overflow-hidden">
+          <span className="flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden">
             <span className="truncate font-manrope text-base font-bold text-(--text-title)">
               {displayName}
             </span>
@@ -201,12 +195,12 @@ export default function MoreScreen() {
             <p className="px-0 pb-1 pt-3 font-manrope text-xs font-bold text-(--text-description)">
               {section.label}
             </p>
-            <div className="flex flex-col items-start justify-start self-stretch rounded-2xl bg-(--bg-card) px-4 py-1">
+            <div className="flex flex-col items-start justify-start self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) px-4 py-1">
               {section.items.map((item, index) => {
                 const content = (
                   <>
                     <ItemIcon danger={item.danger}>{item.icon}</ItemIcon>
-                    <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 overflow-hidden">
+                    <span className="flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden">
                       <span
                         className={`line-clamp-1 self-stretch font-manrope text-sm font-bold ${
                           item.danger ? "text-danger-text" : "text-(--text-title)"
@@ -226,7 +220,7 @@ export default function MoreScreen() {
                     {item.href ? (
                       <Link
                         href={item.href}
-                        className="flex w-full items-center gap-3 py-3.5 text-left"
+                        className="flex w-full items-center gap-3 py-3 text-left"
                       >
                         {content}
                       </Link>
@@ -234,7 +228,7 @@ export default function MoreScreen() {
                       <button
                         type="button"
                         onClick={item.onClick}
-                        className="flex w-full items-center gap-3 py-3.5 text-left"
+                        className="flex w-full items-center gap-3 py-3 text-left"
                       >
                         {content}
                       </button>

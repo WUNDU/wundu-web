@@ -39,7 +39,7 @@ export default function AnalysisCarousel({
       <div
         ref={trackRef}
         onScroll={handleScroll}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1"
       >
         {slides.map((slide, slideIndex) => (
           <div key={slideIndex} className="min-w-full snap-center">
@@ -56,8 +56,8 @@ export default function AnalysisCarousel({
             key={dotIndex}
             className={
               dotIndex === index
-                ? "h-1.5 w-5 rounded-[3px] bg-primary-300"
-                : "size-1.5 rounded-[3px] bg-(--text-description)"
+                ? "h-1.5 w-5 rounded-full bg-primary-300"
+                : "size-1.5 rounded-full bg-(--text-description)"
             }
           />
         ))}

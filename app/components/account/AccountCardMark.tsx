@@ -5,7 +5,7 @@ type AccountCardMarkProps = {
 
 /**
  * Símbolo W da Wundu (extraído do logótipo) para marca de água do cartão.
- * Usa currentColor — defina a cor via className (ex.: text-white/50).
+ * Usa currentColor — defina a cor via className (ex.: text-base-white/50).
  */
 function AccountCardMark({ className, title }: AccountCardMarkProps) {
   return (

@@ -28,7 +28,7 @@ function MobileCategoryRow({
           className={`size-4 ${config.iconColor ?? config.color}`}
         />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 overflow-hidden">
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden">
         <span className="line-clamp-1 self-stretch font-manrope text-sm font-bold text-(--text-title)">
           {category.name}
         </span>
@@ -38,7 +38,7 @@ function MobileCategoryRow({
         </span>
       </span>
       <span
-        className={`flex w-28 shrink-0 items-center justify-center gap-2 rounded-lg px-2.5 py-1 font-manrope text-sm font-semibold leading-5 ${
+        className={`flex w-28 shrink-0 items-center justify-center gap-2 rounded-md px-2 py-1 font-manrope text-sm font-semibold leading-5 ${
           isSystem
             ? "bg-primary-300/10 text-primary-300"
             : "bg-neutrals-300/10 text-(--text)"
@@ -66,7 +66,7 @@ export default function MobileCategoryList({
   }
 
   return (
-    <div className="flex flex-col items-start justify-start self-stretch rounded-2xl bg-(--bg-card) px-4 py-1">
+    <div className="flex flex-col items-start justify-start self-stretch rounded-xl bg-(--bg-card) px-4 py-1">
       {categories.map((category, index) => (
         <div key={category.id} className="self-stretch">
           <MobileCategoryRow category={category} onSelect={onSelect} />

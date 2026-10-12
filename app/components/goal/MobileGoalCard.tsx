@@ -20,7 +20,7 @@ export default function MobileGoalCard({
     <button
       type="button"
       onClick={onSelect}
-      className="flex w-full flex-col items-start gap-3 rounded-2xl border border-(--card-barras) bg-(--bg-card) p-4 text-left"
+      className="flex w-full flex-col items-start gap-3 rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 text-left"
     >
       <span className="flex items-center gap-3 self-stretch overflow-hidden">
         <span
@@ -43,10 +43,10 @@ export default function MobileGoalCard({
           </span>
         </span>
         <span
-          className={`shrink-0 px-2.5 py-1 font-manrope text-sm font-bold ${
+          className={`shrink-0 px-2 py-1 font-manrope text-sm font-bold rounded-md ${
             complete
-              ? "rounded-xl bg-success/10 text-success-text"
-              : "rounded-xl bg-primary-300/10 text-primary-300"
+              ? "bg-success/10 text-success-text"
+              : "bg-primary-300/10 text-primary-300"
           }`}
         >
           {percent}%
@@ -58,18 +58,16 @@ export default function MobileGoalCard({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={`Progresso de ${goal.title}`}
-        className="relative h-1.5 self-stretch overflow-hidden rounded-[3px] bg-zinc-200"
+        className="relative h-1.5 self-stretch overflow-hidden rounded-full bg-(--background-variant)"
       >
         <span
           aria-hidden="true"
-          className={`absolute left-0 top-0 h-1.5 rounded-[3px] ${
-            complete ? "bg-success-text" : "bg-primary-300"
-          }`}
+          className={`absolute left-0 top-0 h-1.5 rounded-full ${status.bar}`}
           style={{ width: `${percent}%` }}
         />
       </span>
       <span className="flex items-center justify-between self-stretch overflow-hidden">
-        <span className="rounded-lg bg-neutrals-300/10 px-2.5 py-1 font-manrope text-sm font-bold leading-5 text-(--text-description)">
+        <span className="rounded-md bg-neutrals-300/10 px-2 py-1 font-manrope text-sm font-bold leading-5 text-(--text-description)">
           {goal.type === "LONG_TERM" ? "Longo prazo" : "Curto Prazo"}
         </span>
         <span className={`font-inter text-base font-bold ${status.color}`}>

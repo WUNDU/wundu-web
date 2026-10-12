@@ -33,10 +33,10 @@ function CategoryItem({
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`group flex h-20 items-center justify-start gap-3 self-stretch rounded-3xl bg-(--bg-card) px-4 py-3 outline outline-1 outline-offset-[-1px] outline-transparent transition-all duration-200 hover:bg-(--bg-list) hover:outline-(--border-button) has-checked:rounded-3xl has-checked:border-transparent has-checked:bg-(--bg-list) ${
+      className={`group flex h-20 items-center justify-start gap-3 self-stretch rounded-xl bg-(--bg-card) px-4 py-3 outline-1 outline-offset-0 outline-transparent transition-colors duration-200 hover:bg-(--bg-list) hover:outline-(--border-button) has-checked:rounded-xl has-checked:border-transparent has-checked:bg-(--bg-list) ${
         onSelect ? "cursor-pointer" : ""
       }`}>
-      <div className="flex min-w-0 flex-1 items-center justify-start gap-6 px-2 py-1.5">
+      <div className="flex min-w-0 flex-1 items-center justify-start gap-6 px-2 py-1">
         {/* Checkbox — marca ao passar o mouse na linha */}
         <span
           onClick={(event) => event.stopPropagation()}
@@ -50,12 +50,12 @@ function CategoryItem({
             aria-label={`Selecionar ${category.name}`}
             className="peer size-4 cursor-pointer appearance-none rounded-sm border border-(--border-hover) bg-transparent transition-colors group-hover:border-primary-300 group-hover:bg-primary-300 checked:border-primary-300 checked:bg-primary-300 focus:outline-none"
           />
-          <CheckIcon className="pointer-events-none absolute inset-0 m-auto size-3 text-white opacity-0 transition-opacity group-hover:opacity-100 peer-checked:opacity-100" />
+          <CheckIcon className="pointer-events-none absolute inset-0 m-auto size-3 text-base-white opacity-0 transition-opacity group-hover:opacity-100 peer-checked:opacity-100" />
         </span>
 
         <span
           aria-hidden="true"
-          className={`flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl ${config.background}`}
+          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl ${config.background}`}
         >
           <CategoryIcon
             className={`size-4 ${config.iconColor ?? config.color}`}
@@ -68,7 +68,7 @@ function CategoryItem({
               {category.name}
             </h3>
             <dl className="hidden items-center justify-start gap-4 lg:flex">
-              <div className="flex h-4 w-28 items-center justify-start gap-0.5">
+              <div className="flex h-4 w-28 items-center justify-start gap-1">
                 <dt className="shrink-0 font-manrope text-sm font-normal leading-5 text-(--text-description)">
                   Transações:
                 </dt>
@@ -77,7 +77,7 @@ function CategoryItem({
                 </dd>
               </div>
               <span aria-hidden="true" className="w-px self-stretch bg-(--text-description)" />
-              <div className="flex h-4 w-36 items-center justify-center gap-0.5">
+              <div className="flex h-4 w-36 items-center justify-center gap-1">
                 <dt className="shrink-0 font-manrope text-sm font-normal leading-5 text-(--text-description)">
                   {amountLabel}
                 </dt>
@@ -86,7 +86,7 @@ function CategoryItem({
                 </dd>
               </div>
               <span aria-hidden="true" className="w-px self-stretch bg-(--text-description)" />
-              <div className="flex h-4 w-36 items-center justify-start gap-0.5">
+              <div className="flex h-4 w-36 items-center justify-start gap-1">
                 <dt className="shrink-0 font-manrope text-sm font-normal leading-5 text-(--text-description)">
                   Limite:
                 </dt>
@@ -101,9 +101,9 @@ function CategoryItem({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-start gap-3 px-2 py-1.5">
+      <div className="flex shrink-0 items-center justify-start gap-3 px-2 py-1">
         <p
-          className={`flex w-28 items-center justify-center gap-2 rounded-lg px-2.5 py-1 text-center font-manrope text-sm font-semibold leading-5 ${
+          className={`flex w-28 items-center justify-center gap-2 rounded-md px-2 py-1 text-center font-manrope text-sm font-semibold leading-5 ${
             category.badge === "system"
               ? "bg-primary-300/20 text-primary-300"
               : "bg-neutrals-300/10 text-(--text)"

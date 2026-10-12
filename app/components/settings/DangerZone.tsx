@@ -8,7 +8,7 @@ function DangerZone({ onDelete }: DangerZoneProps) {
   return (
     <section
       aria-labelledby="danger-zone-title"
-      className="flex flex-col items-start justify-start gap-4 self-stretch rounded-2xl border border-transparent bg-danger-300/10 p-4 lg:border-danger-300 lg:bg-(--bg-card) lg:p-6"
+      className="flex flex-col items-start justify-start gap-4 self-stretch rounded-xl border border-transparent bg-danger-300/10 p-4 lg:border-danger-300 lg:bg-(--bg-card) lg:p-6"
     >
       <div className="hidden items-center justify-start gap-3 lg:flex">
         <TriangleAlert
@@ -36,7 +36,7 @@ function DangerZone({ onDelete }: DangerZoneProps) {
         <button
           type="button"
           onClick={onDelete}
-          className="flex h-10 w-full shrink-0 items-center justify-center gap-2.5 rounded-xl bg-danger-300 p-3.5 text-base-white shadow-[0px_4px_12px_0px_rgba(5,61,196,0.15)] transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 lg:h-auto lg:w-56 lg:rounded-2xl"
+          className="flex h-10 w-full shrink-0 items-center justify-center gap-2.5 rounded-xl bg-danger-300 px-4 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 lg:h-12 lg:w-56"
         >
           <span className="text-center font-manrope text-sm font-bold leading-5 lg:text-base lg:leading-normal">
             Eliminar

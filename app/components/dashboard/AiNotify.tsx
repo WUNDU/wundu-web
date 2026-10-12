@@ -96,18 +96,18 @@ export default function AiNotify({
   return (
     <article
       className={[
-        "flex w-full min-w-0 flex-col items-start overflow-hidden rounded-[20px] border border-(--card-barras) bg-(--bg-card) shadow-[0px_4px_12px_0px_rgba(0,0,0,0.04)]",
+        "flex w-full min-w-0 flex-col items-start overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card)",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
       aria-label="Insights inteligentes da Wundu AI"
     >
-      <div className="flex h-20 items-center justify-start self-stretch gap-2 overflow-hidden border-b border-(--card-barras) px-4 py-2 sm:px-5">
+      <div className="flex h-20 items-center justify-start self-stretch gap-2 overflow-hidden border-b border-(--card-barras) px-4 py-2">
         <div className="flex h-9 flex-1 items-center justify-between">
           <div className="flex h-9 items-center justify-start">
             <span className="flex size-10 shrink-0 items-center justify-center">
-              <IAIcon className="size-7" aria-hidden="true" />
+              <IAIcon className="size-6" aria-hidden="true" />
             </span>
             <span className="flex min-w-0 flex-col items-start justify-center">
               <span className="h-5 font-manrope text-sm font-semibold leading-5 text-(--text-description)">
@@ -118,12 +118,12 @@ export default function AiNotify({
               </span>
             </span>
           </div>
-          <span className="flex h-7 w-24 shrink-0 items-center justify-center gap-2 rounded-2xl border border-(--border-button) bg-(--background-variant) px-2.5 py-[4.87px]">
+          <span className="flex h-7 w-24 shrink-0 items-center justify-center gap-2 rounded-full border border-(--border-button) bg-(--background-variant) px-3 py-1">
             <Clock
-              className="size-3.5 shrink-0 text-(--menu-icon-cinza)"
+              className="size-4 shrink-0 text-(--menu-icon-cinza)"
               aria-hidden="true"
             />
-            <span className="font-inter text-[10px] font-semibold text-(--text-title)">
+            <span className="font-inter text-xs font-semibold text-(--text-title)">
               Actualizado
             </span>
           </span>
@@ -138,7 +138,7 @@ export default function AiNotify({
               <div className="flex flex-col items-start justify-start gap-2 overflow-hidden">
                 <div className="flex flex-col items-end justify-start gap-2.5">
                   <span
-                    className={`inline-flex items-center justify-center gap-2.5 rounded-2xl px-3 py-1 ${style.badge}`}
+                    className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-1 ${style.badge}`}
                   >
                     <span
                       className={`font-inter text-xs font-bold ${style.text}`}

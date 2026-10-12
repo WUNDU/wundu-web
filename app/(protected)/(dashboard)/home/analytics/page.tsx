@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Calendar, ChevronDown, Download, Plus } from "lucide-react";
+import { Calendar, ChevronDown, Download } from "lucide-react";
 import AnalysisSummaryCard from "app/components/analysis/AnalysisSummaryCard";
 import AnalysisCarousel from "app/components/analysis/AnalysisCarousel";
 import AnalysisEmpty from "app/components/analysis/AnalysisEmpty";
@@ -221,7 +221,7 @@ function page() {
       : null;
 
   return (
-    <div className="flex h-full flex-col bg-(--background-variant) lg:bg-(--bg-card)">
+    <div className="flex h-full flex-col bg-(--bg-card)">
         <div className="hidden shrink-0 lg:block">
           <PageHeader title="Análises">
             <div className="relative">
@@ -231,7 +231,7 @@ function page() {
                 onClick={() => setPeriodOpen((value) => !value)}
                 aria-expanded={periodOpen}
                 aria-label="Selecionar período"
-                className="flex h-12 w-auto min-w-48 items-center justify-center gap-3 rounded-2xl border border-(--border-button) bg-(--background) px-4 py-2"
+                className="flex h-12 w-auto min-w-48 items-center justify-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4"
               >
                 <Calendar
                   className="size-4 shrink-0 text-(--icon)"
@@ -269,7 +269,7 @@ function page() {
             <button
               type="button"
               onClick={() => exportTransactionsCSV(filtered)}
-              className="flex h-12 w-32 items-center justify-center gap-3 rounded-2xl border border-(--border-button) bg-(--background) px-4 py-2 transition-colors hover:border-primary-300"
+              className="flex h-12 w-32 items-center justify-center gap-3 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors hover:border-primary-300"
             >
               <Download
                 className="size-5 shrink-0 text-(--icon)"
@@ -299,7 +299,7 @@ function page() {
                     className="flex flex-col items-center justify-center"
                   >
                     <span
-                      className={`flex items-center justify-center gap-2 px-4 pb-3.5 pt-4 text-center font-manrope text-base ${
+                      className={`flex items-center justify-center gap-2 px-4 pb-3 pt-4 text-center font-manrope text-base ${
                         isActive
                           ? "font-bold text-(--text-link)"
                           : "font-medium text-(--text-description-button)"
@@ -319,26 +319,6 @@ function page() {
             </nav>
           </section>
         </div>
-        <div className="flex items-center justify-between self-stretch bg-(--background) px-6 py-4 lg:hidden">
-          <h1 className="font-manrope text-2xl font-bold text-(--text-title)">
-            Análises
-          </h1>
-          <button
-            type="button"
-            onClick={() => exportTransactionsCSV(filtered)}
-            className="flex h-9 items-center justify-center gap-2 rounded-xl bg-(--button-bg) px-4"
-          >
-            <Plus
-              width={16}
-              height={16}
-              className="shrink-0 text-(--button-icon-yellow)"
-              aria-hidden="true"
-            />
-            <span className="font-manrope text-xs font-medium text-(--button-fg)">
-              Exportar
-            </span>
-          </button>
-        </div>
         <div className="flex items-center gap-2 overflow-x-auto px-6 pb-3 pt-3 lg:hidden">
           {TABS.map((tab) => {
             const isActive = tab === activeTab;
@@ -348,9 +328,9 @@ function page() {
                 type="button"
                 onClick={() => selectTab(tab)}
                 aria-current={isActive ? "page" : undefined}
-                className={`shrink-0 rounded-2xl px-3.5 py-2 font-manrope text-sm ${
+                className={`shrink-0 rounded-full px-4 py-2 font-manrope text-sm ${
                   isActive
-                    ? "bg-primary-300 font-bold text-white"
+                    ? "bg-primary-300 font-bold text-base-white"
                     : "bg-(--background-variant) font-semibold text-(--text-title)"
                 }`}
               >
@@ -358,25 +338,38 @@ function page() {
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => exportTransactionsCSV(filtered)}
+            aria-label="Exportar análises"
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-(--button-bg)"
+          >
+            <Download
+              width={16}
+              height={16}
+              className="text-(--button-icon-yellow)"
+              aria-hidden="true"
+            />
+          </button>
         </div>
-        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain bg-(--background-variant) px-6 pb-8 pt-2 lg:bg-(--bg-card) lg:p-8">
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain bg-(--bg-card) px-6 pb-8 pt-2 lg:p-8">
           {isLoading ? (
             <section aria-label="A carregar análises" className="grid grid-cols-1 content-start items-start gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[0, 1, 2, 3].map((index) => (
                 <div
                   key={index}
                   aria-hidden="true"
-                  className="h-69 shrink-0 animate-pulse rounded-3xl bg-(--bg-filter)"
+                  className="h-44 shrink-0 animate-pulse rounded-xl bg-(--bg-filter)"
                 />
               ))}
               <span className="sr-only">A carregar análises…</span>
             </section>
           ) : loadError ? (
             <section aria-label="Erro" className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-              <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+              <p className="font-manrope text-base font-semibold text-(--text-title)">
                 Não foi possível carregar as análises.
               </p>
-              <p className="font-manrope text-[14px] text-(--text-description)">
+              <p className="font-manrope text-sm text-(--text-description)">
                 {loadError}
               </p>
               <button
@@ -385,7 +378,7 @@ function page() {
                   void getAllNotPaginated();
                   refreshGoals();
                 }}
-                className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-base-white transition-opacity hover:opacity-90"
               >
                 Tentar novamente
               </button>

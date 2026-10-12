@@ -15,11 +15,11 @@ export default function ChartCard({
   description,
   actions,
   children,
-  contentGapClass = "gap-2.5",
+  contentGapClass = "gap-4",
 }: ChartCardProps) {
   return (
     <article
-      className={`flex min-w-0 flex-col ${contentGapClass} rounded-3xl border border-(--card-barras) bg-(--bg-card) p-6 shadow-[0px_2px_6px_0px_rgba(13,10,44,0.08)]`}
+      className={`flex min-w-0 flex-col ${contentGapClass} rounded-xl border border-(--card-barras) bg-(--bg-card) p-6`}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-4">

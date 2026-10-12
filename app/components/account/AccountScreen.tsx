@@ -311,7 +311,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
                     className="relative flex flex-col items-center justify-center"
                   >
                     <span
-                      className={`flex items-center justify-center gap-2 px-4 pt-4 pb-3.5 text-center font-manrope text-base ${
+                      className={`flex items-center justify-center gap-2 px-4 pt-4 pb-3 text-center font-manrope text-base ${
                         isActive
                           ? "font-bold text-(--text-link)"
                           : "font-medium text-(--text-description-button)"
@@ -388,10 +388,10 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
               type="button"
               onClick={() => setIsCategoryFilterOpen(true)}
               aria-expanded={isCategoryFilterOpen}
-              className={`group flex h-12 w-28 items-center justify-center gap-1.5 rounded-xl border px-4 py-4 shadow-[inset_0px_0px_4px_0px_rgba(0,0,0,0.02)] transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] ${
+              className={`group flex h-12 w-28 items-center justify-center gap-1.5 rounded-xl border px-4 transition-colors duration-200 hover:border-primary-300 hover:bg-primary-300/10 ${
                 isCategoryFilterOpen || hasActiveCategoryFilters
-                  ? "border-primary-300 bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)]"
-                  : "border-(--border-button) bg-(--background) hover:border-primary-300 hover:bg-primary-300/10 hover:shadow-[0_4px_12px_rgba(5,61,196,0.15)]"
+                  ? "border-primary-300 bg-primary-300/10"
+                  : "border-(--border-button) bg-(--background) hover:border-primary-300 hover:bg-primary-300/10"
               }`}
             >
               <span
@@ -415,9 +415,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
                 ? undefined
                 : () => openCategoryForm("create", null)
             }
-            className={`group flex h-12 items-center justify-center gap-3 rounded-2xl border border-primary-300 bg-primary-300 px-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_4px_14px_rgba(5,61,196,0.35)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none ${
-              isAccounts ? "w-44" : "w-48"
-            }`}
+            className="group flex h-12 items-center justify-center gap-2 rounded-xl border border-primary-300 bg-primary-300 px-6 transition-colors duration-200 hover:bg-primary-400 active:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <PlusIcon
               width={16}
@@ -475,7 +473,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
           <SearchIcon
             width={16}
             height={16}
-            className="shrink-0 text-slate-600"
+            className="shrink-0 text-(--text-description)"
             aria-hidden="true"
           />
           <input
@@ -489,7 +487,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
               isAccounts ? "Pesquisar conta…" : "Consultar categorias…"
             }
             aria-label={isAccounts ? "Pesquisar conta" : "Consultar categorias"}
-            className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-slate-600"
+            className="min-w-0 flex-1 bg-transparent font-manrope text-sm font-normal leading-5 text-(--text-description) outline-none placeholder:text-(--text-description-60)"
           />
         </label>
         {!isAccounts ? (
@@ -513,16 +511,16 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
       </div>
 
       {isAccounts ? (
-        <div className={`mx-6 mt-2 flex flex-col gap-1 self-stretch rounded-2xl bg-primary-300 px-5 py-5 lg:hidden ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
-          <p className="font-manrope text-xs font-medium text-white">
+        <div className={`mx-6 mt-2 flex flex-col gap-1 self-stretch rounded-xl bg-primary-300 px-5 py-5 lg:hidden ${isAccounts ? "select-none blur-sm pointer-events-none" : ""}`}>
+          <p className="font-manrope text-xs font-medium text-base-white">
             Saldo total
           </p>
-          <p className="font-manrope text-2xl font-extrabold text-white">
+          <p className="font-manrope text-2xl font-extrabold text-base-white">
             {formatAOA(
               filteredAccounts.reduce((sum, account) => sum + account.balance, 0),
             )}
           </p>
-          <p className="font-manrope text-xs font-medium text-white">
+          <p className="font-manrope text-xs font-medium text-base-white">
             {filteredAccounts.length}{" "}
             {filteredAccounts.length === 1 ? "conta ativa" : "contas ativas"}
           </p>
@@ -553,33 +551,33 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
               <div
                 key={index}
                 aria-hidden="true"
-                className="h-20 shrink-0 animate-pulse self-stretch rounded-2xl bg-(--bg-filter)"
+                className="h-20 shrink-0 animate-pulse self-stretch rounded-xl bg-(--bg-filter)"
               />
             ))}
             <span className="sr-only">A carregar categorias…</span>
           </div>
         ) : categoriesError && categories.length === 0 ? (
           <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Não foi possível carregar as categorias.
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               {categoriesError}
             </p>
             <button
               type="button"
               onClick={() => void getCategories()}
-              className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-base-white transition-opacity hover:opacity-90"
             >
               Tentar novamente
             </button>
           </div>
         ) : categories.length === 0 ? (
           <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-            <p className="font-manrope text-[16px] font-semibold text-(--text-title)">
+            <p className="font-manrope text-base font-semibold text-(--text-title)">
               Sem categorias
             </p>
-            <p className="font-manrope text-[14px] text-(--text-description)">
+            <p className="font-manrope text-sm text-(--text-description)">
               Crie a primeira categoria com o botão “Adicionar categoria”.
             </p>
           </div>
@@ -616,8 +614,8 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
       </div>
       {isAccounts ? (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6 lg:p-8">
-          <div className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border border-(--card-barras) bg-(--bg-card) p-6 text-center shadow-[0px_8px_30px_rgba(2,21,69,0.12)] lg:p-8">
-            <span className="flex size-14 items-center justify-center rounded-2xl bg-primary-300/10">
+          <div className="pointer-events-auto flex w-full max-w-md flex-col items-center gap-3 rounded-xl border border-(--card-barras) bg-(--bg-card) p-6 text-center lg:p-8">
+            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-300/10">
               <Lock width={24} height={24} className="text-primary-300" aria-hidden="true" />
             </span>
             <h2 className="font-manrope text-xl font-bold leading-8 text-(--text-title)">
@@ -630,7 +628,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
             <button
               type="button"
               onClick={() => router.push(CATEGORIES_HREF)}
-              className="mt-2 rounded-2xl bg-primary-300 px-6 py-3 font-manrope text-base font-bold text-base-white transition-opacity hover:opacity-90 active:opacity-80"
+              className="mt-2 rounded-xl bg-primary-300 px-6 py-3 font-manrope text-base font-bold text-base-white transition-opacity hover:opacity-90 active:opacity-80"
             >
               Ver categorias
             </button>

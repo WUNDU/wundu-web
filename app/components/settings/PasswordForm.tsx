@@ -47,7 +47,7 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
   const fieldLabel =
     "font-manrope text-sm font-semibold leading-5 text-(--text-description)";
   const fieldBox =
-    "rounded-lg border bg-(--settings-bg-config) focus:outline-none";
+    "rounded-xl border bg-(--settings-bg-config) focus:outline-none";
 
   const passwordField = (
     id: string,
@@ -66,8 +66,8 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
       <div
         className={`flex items-center justify-between self-stretch px-4 py-3 ${fieldBox} ${
           invalid
-            ? "border-[1.5px] border-danger-300"
-            : "border border-(--border-hover)"
+            ? "border border-danger-300"
+            : "border-(--border-hover)"
         } focus-within:border-(--border)`
       }
       >
@@ -109,16 +109,16 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}}`}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-128 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
         <div className="flex min-h-0 flex-1 flex-col items-start justify-start self-stretch">
           <header className="flex h-24 shrink-0 items-center justify-between self-stretch border-b border-(--card-barras) p-6">
@@ -200,7 +200,7 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
                   >
                     <span
                       aria-hidden="true"
-                      className={`size-3.5 rounded-full ${rule.met ? "bg-success" : "bg-neutrals-300"}`}
+                      className={`size-3 rounded-full ${rule.met ? "bg-success" : "bg-neutrals-300"}`}
                     />
                     <span
                       className={`font-manrope text-sm font-normal leading-5 ${
@@ -220,9 +220,9 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
           <button
             type="button"
             onClick={onClose}
-            className="flex w-56 items-center justify-center gap-2.5 rounded-2xl border border-(--border-button) p-3.5 text-(--text-title) transition-all hover:bg-neutrals-300/10 active:scale-[0.98] active:bg-neutrals-300/20"
+            className="flex w-56 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95"
           >
-            <span className="font-manrope text-base font-bold leading-normal">
+            <span className="font-manrope text-base font-bold leading-6">
               Cancelar
             </span>
           </button>
@@ -233,9 +233,9 @@ function PasswordForm({ isOpen, onClose, onSave }: PasswordFormProps) {
               onSave?.();
               onClose();
             }}
-            className="flex w-56 items-center justify-center gap-2.5 rounded-2xl bg-primary-300 p-3.5 text-base-white shadow-[0px_4px_12px_0px_rgba(5,61,196,0.15)] transition-all hover:opacity-90 active:scale-[0.98] active:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex w-56 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <span className="text-center font-manrope text-base font-bold leading-normal">
+            <span className="text-center font-manrope text-base font-bold leading-6">
               Salvar alterações
             </span>
           </button>

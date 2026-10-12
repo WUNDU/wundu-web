@@ -22,7 +22,7 @@ function GoalsItem({ goal }: GoalsItemProps) {
     <article className="flex p-1.5 flex-col justify-start items-stretch gap-3 self-stretch">
       <div className="flex justify-center items-center gap-4 self-stretch">
         <span
-          className={`flex w-15 h-15 flex-col justify-center items-center aspect-square rounded-2xl ${categoryConfig.background}`}
+          className={`flex size-11 flex-col justify-center items-center aspect-square rounded-xl ${categoryConfig.background}`}
         >
           <GoalsIcon
             className={categoryConfig.iconColor ?? categoryConfig.color}
@@ -30,25 +30,25 @@ function GoalsItem({ goal }: GoalsItemProps) {
         </span>
         <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
           <div className="flex justify-between items-center gap-2 self-stretch">
-            <p className="min-w-0 flex-1 truncate text-[16px] not-italic font-bold leading-normal text-(--text-title)">
+            <p className="min-w-0 flex-1 truncate font-manrope text-sm font-bold leading-6 text-(--text-title)">
               {goal.title}
             </p>
             <span
-              className={`flex shrink-0 px-3 py-1 justify-center items-center gap-2.5 rounded-2xl ${categoryConfig.background}`}
+              className={`flex shrink-0 px-2 py-1 justify-center items-center gap-2 rounded-md ${categoryConfig.background}`}
             >
               <p
-                className={`font-inter leading-normal font-bold tracking-[-0.48px] text-[16px] ${categoryConfig.color}`}
+                className={`font-inter leading-6 font-bold text-sm ${categoryConfig.color}`}
               >
                 {percent}%
               </p>
             </span>
           </div>
           <div className="flex justify-between items-center self-stretch">
-            <p className="text-[16px] not-italic font-inter font-medium leading-normal text-(--text-description) tracking-[-0.48px]">
+            <p className="font-inter text-sm font-medium leading-6 text-(--text-description)">
               {formatAOA(goal.currentAmount)}
             </p>
             <p
-              className={`font-inter tracking-[-0.48px] text-[16px] leading-normal ${isComplete ? `${categoryConfig.color} font-bold` : "text-(--text-description) font-medium"} text-right`}
+              className={`font-inter text-sm leading-6 ${isComplete ? `${categoryConfig.color} font-bold` : "text-(--text-description) font-medium"} text-right`}
             >
               {isComplete
                 ? "Concluído"

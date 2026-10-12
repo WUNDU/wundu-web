@@ -250,22 +250,22 @@ function GoalForm({
         : "Adicionar";
 
   const fieldLabel =
-    "text-sm not-italic font-semibold font-manrope leading-5 text-slate-500";
+    "font-manrope text-sm font-semibold leading-5 text-(--text-description)";
   const fieldBox =
-    "rounded-2xl border border-(--border-button) bg-(--background) focus:border-(--border) focus:outline-none";
+    "rounded-xl border border-(--border-button) bg-(--background) focus:border-(--border) focus:outline-none";
 
   return (
     <div
-      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
-        className={`flex fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] w-full max-w-full flex-col justify-between items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
+        className={`flex fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh w-full max-w-full flex-col justify-between items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-128 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
         {confirmDelete && goal ? (
           <>
@@ -290,7 +290,7 @@ function GoalForm({
                 </div>
               </header>
               <section className="flex flex-col justify-center items-center gap-5 self-stretch px-6 py-10">
-                <div className="flex size-14 shrink-0 justify-center items-center rounded-full bg-danger-300/10">
+                <div className="flex size-11 shrink-0 justify-center items-center rounded-full bg-danger-300/10">
                   <Trash2 width={24} height={24} className="text-danger-300" />
                 </div>
                 <div className="flex flex-col justify-center items-center gap-1.5 self-stretch">
@@ -305,14 +305,14 @@ function GoalForm({
                 </div>
               </section>
             </div>
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border border-(--card-barras)">
+            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras)">
               <div className="flex items-start gap-4 self-stretch">
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="flex flex-1 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-56 lg:flex-none"
+                  className="flex flex-1 px-4 py-3 justify-center items-center gap-2.5 rounded-xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:w-56 lg:flex-none"
                 >
-                  <p className="text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
+                  <p className="font-manrope text-sm font-bold leading-6 lg:text-base">
                     Não
                   </p>
                 </button>
@@ -320,9 +320,9 @@ function GoalForm({
                   type="button"
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl bg-danger-300 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60"
+                  className="flex w-56 px-4 py-3 justify-center items-center gap-2.5 rounded-xl bg-danger-300 text-base-white hover:opacity-90 active:opacity-80 active:scale-95 transition-all disabled:cursor-wait disabled:opacity-60"
                 >
-                  <p className="text-center text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
+                  <p className="text-center font-manrope text-sm font-bold leading-6 lg:text-base">
                     {deleting ? "A eliminar…" : "Sim, Eliminar"}
                   </p>
                 </button>
@@ -381,9 +381,9 @@ function GoalForm({
                 <>
                   <section className="flex flex-col justify-center items-center gap-4 self-stretch px-4 py-4 border-b border-(--card-barras) lg:gap-6 lg:px-6 lg:py-6">
                     {goal && (
-                      <div className="flex items-center gap-4 p-2 rounded-3xl bg-(--bg-card) border border-(--card-barras) self-stretch">
+                      <div className="flex items-center gap-4 p-2 rounded-xl bg-(--bg-card) border border-(--card-barras) self-stretch">
                         <span
-                          className={`flex size-12 shrink-0 justify-center items-center rounded-2xl ${status.tint} lg:size-16`}
+                          className={`flex size-11 shrink-0 justify-center items-center rounded-xl ${status.tint} lg:size-12`}
                         >
                           <GoalsIcon className={status.color} />
                         </span>
@@ -408,7 +408,7 @@ function GoalForm({
                     <div className="flex flex-col items-center gap-1.5">
                       <p className={fieldLabel}>VALOR DA TRANSAÇÃO</p>
                       <div className="flex flex-col items-center">
-                        <div className="flex items-center justify-center gap-2 rounded-2xl border border-transparent px-4 py-1">
+                        <div className="flex items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-1">
                           <input
                             type="text"
                             inputMode="numeric"
@@ -421,9 +421,9 @@ function GoalForm({
                             placeholder="0,00"
                             aria-label="Valor da poupança"
                             size={Math.max(savingsAmount.length, 4)}
-                            className="w-auto max-w-full min-w-0 bg-transparent text-center text-2xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
+                            className="w-auto max-w-full min-w-0 bg-transparent text-center font-manrope text-2xl font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
                           />
-                          <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-[16px]">
+                          <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-base">
                             Kz
                           </span>
                         </div>
@@ -432,7 +432,7 @@ function GoalForm({
                         </p>
                       </div>
                       {formError && isSavings ? (
-                        <p role="alert" className="font-manrope text-[13px] font-semibold text-danger-300">
+                        <p role="alert" className="font-manrope text-sm font-semibold text-danger-300">
                           {formError}
                         </p>
                       ) : null}
@@ -448,7 +448,7 @@ function GoalForm({
                             ref={savingsDateAnchorRef}
                             onClick={() => setSavingsDateOpen((v) => !v)}
                             aria-expanded={savingsDateOpen}
-                            className={`flex w-full min-w-0 px-4 py-3 justify-start items-center gap-2.5 rounded-2xl border border-(--border-button) bg-(--background) hover:bg-neutrals-300/10 active:scale-[0.98] transition-all`}
+                            className={`flex w-full min-w-0 px-4 py-3 justify-start items-center gap-2.5 rounded-xl border border-(--border-button) bg-(--background) hover:bg-neutrals-300/10 active:scale-95 transition-all`}
                           >
                             <Calendar width={16} className="shrink-0 text-primary-300" />
                             <p className="min-w-0 flex-1 truncate text-sm not-italic font-semibold font-manrope leading-5 text-(--text-description)">
@@ -474,7 +474,7 @@ function GoalForm({
                       <div className="flex min-w-0 flex-col items-start gap-2">
                         <div className="flex items-center gap-2">
                           <p className={fieldLabel}>CONTA</p>
-                          <span className="rounded-md bg-primary-300/10 px-2 py-0.5 font-manrope text-[11px] font-bold leading-4 text-primary-300">
+                          <span className="rounded-md bg-primary-300/10 px-2 py-0.5 font-manrope text-xs font-bold leading-4 text-primary-300">
                             Brevemente
                           </span>
                         </div>
@@ -483,7 +483,7 @@ function GoalForm({
                           disabled
                           aria-disabled="true"
                           title="Seleção de conta disponível em breve"
-                          className="flex w-full min-w-0 cursor-not-allowed items-center justify-start gap-2 rounded-2xl border border-(--border-button) bg-(--background) px-4 py-3 opacity-60"
+                          className="flex w-full min-w-0 cursor-not-allowed items-center justify-start gap-2 rounded-xl border border-(--border-button) bg-(--background) px-4 py-3 opacity-60"
                         >
                           <p className="min-w-0 flex-1 truncate text-left text-sm font-medium not-italic font-manrope leading-5 text-(--text-description-60)">
                             Conta padrão
@@ -503,15 +503,15 @@ function GoalForm({
                     </div>
                   </section>
                   <div className="self-stretch px-4 lg:px-6">
-                    <hr className="w-full h-px text-(--card-barras)" />
+                    <hr className="w-full border-0 border-t border-(--card-barras)" />
                   </div>
                   <section className="flex flex-col items-start gap-2 self-stretch px-4 pt-4 pb-4 lg:px-6 lg:pb-6">
                     <p className={fieldLabel}>CATEGORIA</p>
                     <div
-                      className={`flex min-h-11 p-3 justify-between items-center self-stretch rounded-2xl border border-(--border-button) bg-(--background-variant) opacity-80`}
+                      className={`flex min-h-11 p-3 justify-between items-center self-stretch rounded-xl border border-(--border-button) bg-(--background-variant) opacity-80`}
                     >
-                      <span className="flex items-center gap-2 rounded-lg px-2.5 py-1 bg-(--background-variant)">
-                        <CategoryIcon className="size-5 text-(--text-description-60)" />
+                      <span className="flex items-center gap-2 rounded-md px-2 py-1 bg-(--background-variant)">
+                        <CategoryIcon className="size-4 text-(--text-description-60)" />
                         <p className="text-sm not-italic font-semibold font-manrope leading-5 text-(--text-description-60)">
                           {goal?.category ??
                             selectedCategory ??
@@ -522,7 +522,7 @@ function GoalForm({
                     </div>
                   </section>
                   <div className="self-stretch px-4 lg:px-6">
-                    <hr className="w-full h-px text-(--card-barras)" />
+                    <hr className="w-full border-0 border-t border-(--card-barras)" />
                   </div>
                   <section className="flex flex-col items-start gap-2 self-stretch px-4 pb-8 pt-4 lg:px-6 lg:pb-10">
                     <p className={fieldLabel}>NOTA ADICIONAL</p>
@@ -537,7 +537,7 @@ function GoalForm({
                   <div className="flex flex-col justify-center items-center gap-6 self-stretch px-6 py-2 border-b border-(--card-barras)">
                     <div className="flex flex-col items-center gap-2 self-stretch">
                       <p className={fieldLabel}>TIPO DE PRAZO</p>
-                      <div className="flex items-start gap-1 self-stretch p-[3px] rounded-2xl bg-(--background-variant) border border-(--card-barras)">
+                      <div className="flex items-start gap-1 self-stretch p-1 rounded-xl bg-(--background-variant) border border-(--card-barras)">
                         <button
                           type="button"
                           onClick={() => setPrazo("short")}
@@ -578,7 +578,7 @@ function GoalForm({
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
                       <p className={fieldLabel}>VALOR OBJECTIVO DA META</p>
-                      <div className="flex items-center justify-center gap-2 rounded-2xl border border-transparent px-4 py-1">
+                      <div className="flex items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-1">
                         <input
                           type="text"
                           inputMode="numeric"
@@ -589,9 +589,9 @@ function GoalForm({
                           placeholder="0,00"
                           aria-label="Valor objetivo da meta"
                           size={Math.max(target.length, 4)}
-                          className="w-auto max-w-full min-w-0 bg-transparent text-center text-2xl not-italic font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
+                          className="w-auto max-w-full min-w-0 bg-transparent text-center font-manrope text-2xl font-bold text-(--text) outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
                         />
-                        <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-[16px]">
+                        <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-base">
                           Kz
                         </span>
                       </div>
@@ -643,7 +643,7 @@ function GoalForm({
                             ref={endDateAnchorRef}
                             onClick={() => setEndOpen((v) => !v)}
                             aria-expanded={endOpen}
-                            className={`flex w-full px-4 py-3 justify-start items-center gap-2.5 hover:bg-neutrals-300/10 active:scale-[0.98] transition-all ${fieldBox}`}
+                            className={`flex w-full px-4 py-3 justify-start items-center gap-2.5 hover:bg-neutrals-300/10 active:scale-95 transition-all ${fieldBox}`}
                           >
                             <Calendar width={16} className="text-primary-300" />
                             <p
@@ -685,14 +685,14 @@ function GoalForm({
                           ref={categoryAnchorRef}
                           onClick={() => setCategoryOpen((v) => !v)}
                           aria-expanded={categoryOpen}
-                          className={`w-full p-3 flex justify-between items-center hover:bg-neutrals-300/10 active:scale-[0.99] transition-all ${fieldBox}`}
+                          className={`w-full p-3 flex justify-between items-center hover:bg-neutrals-300/10 active:scale-95 transition-all ${fieldBox}`}
                         >
                           {selectedCategory && categoryConfig ? (
                             <span
-                              className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${categoryConfig.background}`}
+                              className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
                             >
                               <CategoryIcon
-                                className={`size-5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+                                className={`size-4 ${categoryConfig.iconColor ?? categoryConfig.color}`}
                               />
                               <span
                                 className={`text-sm font-semibold ${categoryConfig.color}`}
@@ -726,7 +726,7 @@ function GoalForm({
                       </div>
                     </div>
 
-                    <hr className="w-full h-px text-(--card-barras)" />
+                    <hr className="w-full border-0 border-t border-(--card-barras)" />
 
                     <div className="flex flex-col items-start gap-2 self-stretch">
                       <label htmlFor="goal-note" className={fieldLabel}>
@@ -740,7 +740,7 @@ function GoalForm({
                         className={`w-full h-20 p-3 rounded-xl font-manrope text-sm not-italic font-normal leading-5 text-(--text-description-60) resize-none ${fieldBox}`}
                       />
                       {formError && !isSavings ? (
-                        <p role="alert" className="font-manrope text-[13px] font-semibold text-danger-300">
+                        <p role="alert" className="font-manrope text-sm font-semibold text-danger-300">
                           {formError}
                         </p>
                       ) : null}
@@ -750,14 +750,14 @@ function GoalForm({
               )}
             </div>
 
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border border-(--card-barras)">
+            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras)">
               <div className="flex items-start gap-4 self-stretch">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex flex-1 p-3.5 justify-center items-center gap-2.5 rounded-2xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-[0.98] transition-all lg:w-56 lg:flex-none"
+                  className="flex flex-1 px-4 py-3 justify-center items-center gap-2.5 rounded-xl border border-(--border-button) text-(--text-title) hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:w-56 lg:flex-none"
                 >
-                  <p className="text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
+                  <p className="font-manrope text-sm font-bold leading-6 lg:text-base">
                     Cancelar
                   </p>
                 </button>
@@ -765,9 +765,9 @@ function GoalForm({
                   type="button"
                   onClick={isSavings ? handleSaveProgress : handleSave}
                   disabled={saving}
-                  className="flex w-56 p-3.5 justify-center items-center gap-2.5 rounded-2xl bg-primary-300 text-base-white shadow-[0px_4px_12px_rgba(5,61,196,0.15)] hover:opacity-90 active:opacity-80 active:scale-[0.98] transition-all disabled:cursor-wait disabled:opacity-60"
+                  className="flex w-56 px-4 py-3 justify-center items-center gap-2.5 rounded-xl bg-primary-300 text-base-white hover:opacity-90 active:opacity-80 active:scale-95 transition-all disabled:cursor-wait disabled:opacity-60"
                 >
-                  <p className="text-center text-sm not-italic font-bold font-manrope leading-normal lg:text-base">
+                  <p className="text-center font-manrope text-sm font-bold leading-6 lg:text-base">
                     {saving ? "A guardar…" : primaryLabel}
                   </p>
                 </button>

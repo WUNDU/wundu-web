@@ -48,7 +48,7 @@ function SessionsCard() {
   return (
     <section
       aria-labelledby="sessions-title"
-      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-2xl border border-(--card-barras) bg-(--bg-card) p-6"
+      className="flex flex-col items-start justify-start gap-2 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-6"
     >
       <div className="flex items-start justify-between self-stretch">
         <div className="flex items-center justify-start gap-3">
@@ -70,7 +70,7 @@ function SessionsCard() {
             type="button"
             onClick={() => void logoutAll()}
             disabled={isRevokingAll}
-            className="rounded-lg px-4 py-2 font-manrope text-base font-semibold text-(--text-title) transition-all hover:bg-neutrals-300/10 active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
+            className="rounded-lg px-4 py-2 font-manrope text-base font-semibold text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:scale-95 disabled:cursor-wait disabled:opacity-60"
           >
             {isRevokingAll ? "A terminar…" : "Terminar todas"}
           </button>
@@ -141,7 +141,7 @@ function SessionsCard() {
                   onClick={() => void revokeSession(session.id)}
                   disabled={revoking}
                   aria-label={`Terminar sessão ${prettyDevice(session.userAgent)} ${session.ipAddress}`}
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-danger-300/10 px-4 py-2 transition-all hover:opacity-80 active:scale-[0.98] disabled:cursor-wait disabled:opacity-60"
+                  className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-danger-300/10 px-4 py-2 transition-opacity hover:opacity-80 active:scale-95 disabled:cursor-wait disabled:opacity-60"
                 >
                   <span className="font-manrope text-sm font-bold leading-5 text-danger-300">
                     {revoking ? "A terminar…" : "Terminar"}

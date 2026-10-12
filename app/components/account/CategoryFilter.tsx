@@ -56,11 +56,11 @@ function FilterOption({ label, checked, onToggle }: FilterOptionProps) {
           type="checkbox"
           checked={checked}
           onChange={onToggle}
-          className="peer size-4 appearance-none rounded-sm border-[1.5px] border-(--border-hover) bg-(--background) transition-colors checked:border-primary-300 checked:bg-primary-300"
+          className="peer size-4 appearance-none rounded-sm border border-(--border-hover) bg-(--background) transition-colors checked:border-primary-300 checked:bg-primary-300"
         />
         <CheckIcon className="pointer-events-none absolute inset-0 m-auto size-3 text-base-white opacity-0 transition-opacity peer-checked:opacity-100" />
       </span>
-      <span className="truncate font-manrope text-[16px] font-medium leading-normal text-(--text-title)">
+      <span className="truncate font-manrope text-base font-medium leading-6 text-(--text-title)">
         {label}
       </span>
     </label>
@@ -97,9 +97,9 @@ function SortField({
         aria-label={ariaLabel}
         aria-expanded={isOpen}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--bg-body) px-3.5 py-3 text-left transition-colors duration-200 hover:border-(--border-hover)"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--bg-body) px-4 py-3 text-left transition-colors duration-200 hover:border-(--border-hover)"
       >
-        <span className="truncate font-manrope text-[16px] font-medium leading-normal text-(--text)">
+        <span className="truncate font-manrope text-base font-medium leading-6 text-(--text)">
           {value}
         </span>
         <ChevronDown
@@ -147,20 +147,20 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
 
   return (
     <div
-      className={`fixed inset-0 z-[60] bg-sky-950/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={onClose}
     >
       <aside
         onClick={(event) => event.stopPropagation()}
-        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-[calc(100dvh-3rem)] flex w-full max-w-full flex-col items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-125 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}}`}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh flex w-full max-w-full flex-col items-start rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-128 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-zinc-300 lg:hidden"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
         <header className="flex flex-col items-start gap-2 self-stretch border-b border-(--card-barras) p-6">
           <div className="flex items-center justify-between self-stretch">
-            <h2 className="font-manrope text-[18px] font-bold leading-7 text-(--text-title)">
+            <h2 className="font-manrope text-lg font-bold leading-7 text-(--text-title)">
               Filtros e ordenação
             </h2>
             <button
@@ -172,14 +172,14 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
               <X width={20} className="text-(--icon)" />
             </button>
           </div>
-          <p className="font-manrope text-[14px] font-normal leading-5 text-(--text-description)">
+          <p className="font-manrope text-sm font-normal leading-5 text-(--text-description)">
             Refine a lista de categorias pelos campos abaixo.
           </p>
         </header>
 
         <section className="flex min-h-0 flex-1 flex-col items-start gap-6 self-stretch overflow-y-auto p-6">
           <div className="flex flex-col items-start gap-3 self-stretch">
-            <h3 className="font-manrope text-[14px] font-bold leading-5 text-(--text-description)">
+            <h3 className="font-manrope text-sm font-bold leading-5 text-(--text-description)">
               TIPO
             </h3>
             <div className="grid grid-cols-2 gap-3 self-stretch">
@@ -194,10 +194,10 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
             </div>
           </div>
 
-          <hr className="h-px w-full text-(--card-barras)" />
+          <hr className="w-full border-0 border-t border-(--card-barras)" />
 
           <div className="flex flex-col items-start gap-3 self-stretch">
-            <h3 className="font-manrope text-[14px] font-bold leading-5 text-(--text-description)">
+            <h3 className="font-manrope text-sm font-bold leading-5 text-(--text-description)">
               ORDENAR POR
             </h3>
             <div className="flex items-start gap-3 self-stretch">
@@ -243,9 +243,9 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
           <button
             type="button"
             onClick={() => setDraft({ ...emptyCategoryFilters })}
-            className="flex flex-1 items-center justify-center gap-2.5 rounded-2xl border border-(--border-button) p-3.5 transition-colors duration-200 hover:border-(--border-hover)"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 transition-colors duration-200 hover:border-(--border-hover)"
           >
-            <span className="font-manrope text-[16px] font-bold leading-normal text-(--text-title)">
+            <span className="font-manrope text-base font-bold leading-6 text-(--text-title)">
               Limpar
             </span>
           </button>
@@ -255,9 +255,9 @@ function CategoryFilter({ isOpen, onClose, value, onApply }: CategoryFilterProps
               onApply(draft);
               onClose();
             }}
-            className="flex flex-1 items-center justify-center gap-2.5 rounded-2xl bg-primary-300 p-3.5 text-base-white shadow-[0px_4px_12px_0px_rgba(5,61,196,0.15)] transition-opacity duration-200 hover:opacity-90 active:opacity-80"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity duration-200 hover:opacity-90 active:opacity-80"
           >
-            <span className="font-manrope text-[16px] font-bold leading-normal">
+            <span className="font-manrope text-base font-bold leading-6">
               Aplicar filtro
             </span>
           </button>

@@ -12,35 +12,35 @@ function Transaction({ transaction }: TransactionItemProps) {
   return (
     <article className="flex items-center gap-3 flex-1 self-stretch px-1.5 py-2">
       <div
-        className={`flex w-15 h-15 flex-col justify-center items-center aspect-square rounded-2xl ${typeConfig.background}`}
+        className={`flex size-11 flex-col justify-center items-center aspect-square rounded-xl ${typeConfig.background}`}
       >
         <TypeIcon
-          className={`flex w-8 h-8 justify-center items-center aspect-square shrink-0 px-0.5 py-0 ${typeConfig.color}`}
+          className={`flex size-5 justify-center items-center aspect-square shrink-0 ${typeConfig.color}`}
         />
       </div>
 
       <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
-        <p className="w-full truncate text-[16px] not-italic font-bold leading-normal text-(--title)">
+        <p className="w-full truncate font-manrope text-sm font-semibold leading-6 text-(--text-title)">
           {transaction.title}
         </p>
         <div
-          className={`flex px-2.5 py-1 justify-center items-center gap-2 rounded-lg ${categoryConfig.background}`}
+          className={`flex px-2 py-1 justify-center items-center gap-2 rounded-md ${categoryConfig.background}`}
         >
           <CategoryIcon
-            className={`flex w-5 p-0.5 flex-col items-center gap-2.5 ${categoryConfig.iconColor ?? categoryConfig.color}`}
+            className={`flex size-4 flex-col items-center ${categoryConfig.iconColor ?? categoryConfig.color}`}
           />
           <p
-            className={`text-[14px] not-italic font-semibold leading-[155.99%] ${categoryConfig.color}`}
+            className={`font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
           >
             {transaction.category}
           </p>
         </div>
       </div>
       <div
-        className={`flex px-2 py-3 flex-col items-end gap-0.5 rounded-xl ${typeConfig.background}`}
+        className={`flex px-2 py-3 flex-col items-end gap-1 rounded-md ${typeConfig.background}`}
       >
         <p
-          className={`text-[14px] not-italic font-bold leading-[155.99%] font-inter  ${typeConfig.color}`}
+          className={`font-inter text-sm font-bold leading-5 ${typeConfig.color}`}
         >
           {formatAOA(transaction.amount)}
         </p>

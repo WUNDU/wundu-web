@@ -23,11 +23,11 @@ function AccountItem({ account, selected = false, onToggle, onSelect }: AccountI
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`group flex h-20 items-center justify-start gap-3 self-stretch border-b border-(--border-button) px-4 py-3 transition-all duration-200 hover:rounded-3xl hover:border-transparent hover:bg-(--bg-list) has-checked:rounded-3xl has-checked:border-transparent has-checked:bg-(--bg-list) ${
+      className={`group flex h-20 items-center justify-start gap-3 self-stretch border-b border-(--border-button) px-4 py-3 transition-colors duration-200 hover:rounded-xl hover:border-transparent hover:bg-(--bg-list) has-checked:rounded-xl has-checked:border-transparent has-checked:bg-(--bg-list) ${
         onSelect ? "cursor-pointer" : ""
       }`}
     >
-      <div className="flex flex-1 items-center justify-start gap-6 px-2 py-1.5">
+      <div className="flex flex-1 items-center justify-start gap-6 px-2 py-1">
         {/* Checkbox — marca ao passar o mouse na linha */}
         <span
           onClick={(event) => event.stopPropagation()}
@@ -41,7 +41,7 @@ function AccountItem({ account, selected = false, onToggle, onSelect }: AccountI
             aria-label={`Selecionar ${account.name}`}
             className="peer size-4 cursor-pointer appearance-none rounded-sm border border-(--border-hover) bg-transparent transition-colors group-hover:border-primary-300 group-hover:bg-primary-300 checked:border-primary-300 checked:bg-primary-300 focus:outline-none"
           />
-          <CheckIcon className="pointer-events-none absolute inset-0 m-auto size-3 text-white opacity-0 transition-opacity group-hover:opacity-100 peer-checked:opacity-100" />
+          <CheckIcon className="pointer-events-none absolute inset-0 m-auto size-3 text-base-white opacity-0 transition-opacity group-hover:opacity-100 peer-checked:opacity-100" />
         </span>
 
         <span
