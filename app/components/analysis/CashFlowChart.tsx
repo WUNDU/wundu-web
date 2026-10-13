@@ -152,7 +152,7 @@ export default function CashFlowChart({ months, income, expenses }: CashFlowData
       }
     >
       <div className="w-full overflow-x-auto lg:overflow-visible">
-        <div ref={wrapRef} className="w-full min-w-140 lg:min-w-0">
+        <div ref={wrapRef} className="w-full min-w-0">
           <svg
           viewBox={`0 0 ${plotW} ${PLOT_H}`}
           className="block h-auto w-full"

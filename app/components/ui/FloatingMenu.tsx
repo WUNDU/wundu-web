@@ -78,7 +78,12 @@ export default function FloatingMenu({
       );
       const pos =
         align === "right"
-          ? { right: Math.max(8, window.innerWidth - rect.right) }
+          ? {
+              right: Math.min(
+                Math.max(8, window.innerWidth - rect.right),
+                Math.max(8, window.innerWidth - (width ?? menuWidth) - 8),
+              ),
+            }
           : { left: Math.min(Math.max(8, rect.left), maxLeft) };
       setStyle({
         ...pos,

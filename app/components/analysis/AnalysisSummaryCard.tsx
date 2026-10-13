@@ -47,11 +47,11 @@ export default function AnalysisSummaryCard({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="box-border flex w-full flex-1 flex-col items-center px-8 py-6">
+      <div className="box-border flex w-full flex-1 flex-col items-center px-4 py-4 sm:px-8 sm:py-6">
         <div className="flex w-full flex-1 flex-col items-start justify-center">
-          <div className="flex w-full items-start gap-3">
+          <div className="flex w-full items-start gap-2 sm:gap-3">
             <div
-              className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-(--border-button)"
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-(--border-button) sm:size-11"
               style={{ backgroundColor: SOFT_BG[color] }}
             >
               {icon === "wallet" ? (
@@ -66,10 +66,10 @@ export default function AnalysisSummaryCard({
               )}
             </div>
             <div className="flex min-w-0 flex-1 flex-col items-start gap-1 text-(--text-title)">
-              <p className="w-full truncate font-manrope text-sm font-medium leading-5 tracking-tight">
+              <p className="w-full truncate font-manrope text-xs font-medium leading-5 tracking-tight sm:text-sm">
                 {title}
               </p>
-              <p className="w-full truncate font-inter text-xl font-extrabold leading-8 tracking-tight">
+              <p className="w-full truncate font-inter text-base font-extrabold leading-7 tracking-tight sm:text-xl sm:leading-8">
                 {value}
               </p>
             </div>

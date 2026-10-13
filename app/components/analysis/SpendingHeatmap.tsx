@@ -41,18 +41,19 @@ export default function SpendingHeatmap({
       description="Em que dia da semana gastas mais?"
     >
       <div className="flex flex-col gap-4">
-        <table className="w-full table-fixed border-separate border-spacing-x-4 border-spacing-y-4">
+        <div className="w-full overflow-x-auto overscroll-x-contain">
+        <table className="w-full min-w-130 table-fixed border-separate border-spacing-x-2 border-spacing-y-4 sm:border-spacing-x-4">
           <caption className="sr-only">
             Intensidade dos gastos por período do dia e dia da semana
           </caption>
           <thead>
             <tr>
-              <th scope="col" aria-label="Período do dia" className="w-20" />
+              <th scope="col" aria-label="Período do dia" className="w-12 sm:w-20" />
               {HEATMAP_DAYS.map((day) => (
                 <th
                   key={day}
                   scope="col"
-                  className="pb-3 text-center font-manrope text-base font-bold text-(--text-title)"
+                  className="pb-3 text-center font-manrope text-sm font-bold text-(--text-title) sm:text-base"
                 >
                   {day}
                 </th>
@@ -64,7 +65,7 @@ export default function SpendingHeatmap({
               <tr key={period}>
                 <th
                   scope="row"
-                  className="py-2 pr-2 text-center font-manrope text-base font-bold text-(--text-title)"
+                  className="py-2 pr-1 text-center font-manrope text-xs font-bold text-(--text-title) sm:pr-2 sm:text-base"
                 >
                   {period}
                 </th>
@@ -110,15 +111,16 @@ export default function SpendingHeatmap({
             ))}
           </tbody>
         </table>
-        <div className="flex items-center justify-between gap-4 px-6">
-          <p className="font-manrope text-base font-bold text-(--text-title)">
+        </div>
+        <div className="flex items-center justify-between gap-3 px-0 sm:gap-4 sm:px-6">
+          <p className="whitespace-nowrap font-manrope text-xs font-bold text-(--text-title) sm:text-base">
             Menos gastos
           </p>
           <span
             aria-hidden="true"
-            className="h-4 flex-1 rounded-md bg-gradient-to-r from-primary-50 to-primary-300"
+            className="h-3.5 flex-1 rounded-md bg-gradient-to-r from-primary-50 to-primary-300 sm:h-4"
           />
-          <p className="font-manrope text-base font-bold text-(--text-title)">
+          <p className="whitespace-nowrap font-manrope text-xs font-bold text-(--text-title) sm:text-base">
             Mais gastos
           </p>
         </div>

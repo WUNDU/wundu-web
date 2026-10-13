@@ -106,7 +106,7 @@ export default function EquityChart() {
         <div
           role="group"
           aria-label="Período do gráfico"
-          className="flex h-12 w-60 items-center justify-between rounded-2xl border border-(--card-barras) bg-(--background-variant) p-1"
+          className="flex h-11 w-full max-w-60 items-center justify-between rounded-2xl border border-(--card-barras) bg-(--background-variant) p-1 sm:h-12"
         >
           {equityPeriods.map((option) => {
             const isActive = option === period;
