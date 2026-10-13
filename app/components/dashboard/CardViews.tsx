@@ -201,6 +201,11 @@ export function MiniChart({
   labels?: string[];
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
+  const tipTitleRef = useRef<HTMLSpanElement>(null);
+  const tipBodyRef = useRef<HTMLSpanElement>(null);
+  const tipCaretRef = useRef<HTMLSpanElement>(null);
   const theme = useThemeStore((s) => s.theme);
 
   useEffect(() => {
@@ -218,6 +223,56 @@ export function MiniChart({
     const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
     gradient.addColorStop(0, `${accent}2e`);
     gradient.addColorStop(1, `${accent}00`);
+
+    // Tooltip externo em HTML — igual ao mobile: caixa flutuante ACIMA do
+    // ponto (com 10px de respiro + caret a apontar ao ponto), em vez do
+    // tooltip do canvas que, num gráfico de 44–60px, acaba centrado em cima
+    // do ponto por falta de espaço.
+    const TIP_W = 132;
+    const TIP_GAP = 10;
+    const renderExternalTip = (tip: {
+      opacity: number;
+      caretX?: number;
+      caretY?: number;
+      dataPoints?: readonly { label?: unknown; raw?: unknown }[];
+    }) => {
+      const el = tipRef.current;
+      if (!el) return;
+      if (tip.opacity === 0 || !tip.dataPoints?.length) {
+        el.style.opacity = "0";
+        return;
+      }
+      const point = tip.dataPoints[0];
+      const title =
+        labels?.length && point.label !== undefined
+          ? String(point.label ?? "").trim() || "Valor"
+          : "Valor";
+      const body =
+        typeof point.raw === "number"
+          ? formatAOACompact(point.raw)
+          : String(point.raw);
+      if (tipTitleRef.current) tipTitleRef.current.textContent = title;
+      if (tipBodyRef.current) tipBodyRef.current.textContent = body;
+      const wrapW = canvas.clientWidth || canvas.width || TIP_W;
+      const canvasH = canvas.clientHeight || canvas.height || 0;
+      const caretX = tip.caretX ?? 0;
+      const caretY = tip.caretY ?? 0;
+      const left = Math.max(
+        4,
+        Math.min(wrapW - TIP_W - 4, caretX - TIP_W / 2),
+      );
+      el.style.width = `${TIP_W}px`;
+      el.style.left = `${left}px`;
+      el.style.bottom = `${canvasH - caretY + TIP_GAP}px`;
+      if (tipCaretRef.current) {
+        const caretLeft = Math.min(
+          Math.max(caretX - left - 6, 8),
+          TIP_W - 20,
+        );
+        tipCaretRef.current.style.left = `${caretLeft}px`;
+      }
+      el.style.opacity = "1";
+    };
 
     const chart = new Chart(context, {
       type: "line",
@@ -244,37 +299,14 @@ export function MiniChart({
         responsive: true,
         maintainAspectRatio: false,
         animation: { duration: 450, easing: "easeOutQuart" },
+        // Igual ao mobile: qualquer posição ao longo do X mostra o ponto
+        // mais próximo (lá é o toque; aqui é o hover).
+        interaction: { mode: "index", intersect: false },
         plugins: {
           legend: { display: false },
           tooltip: {
-            enabled: true,
-            position: "nearest",
-            backgroundColor: () => getTokenLive("--background") || "#ffffff",
-            titleColor: () => getTokenLive("--text-title") || "#0f172a",
-            bodyColor: () => getTokenLive("--text-description-60") || "#64748b",
-            borderColor: () =>
-              getTokenLive("--border-card") || "rgba(15, 23, 42, 0.12)",
-            borderWidth: 1,
-            cornerRadius: 8,
-            caretSize: 6,
-            caretPadding: 8,
-            padding: 8,
-            displayColors: false,
-            titleFont: { family: "Manrope, sans-serif", size: 12, weight: "bold" },
-            bodyFont: { family: "Inter, sans-serif", size: 12, weight: "normal" },
-            callbacks: {
-              title: (items) => {
-                const label =
-                  labels?.length && items.length > 0
-                    ? String(items[0].label ?? "").trim()
-                    : "";
-                return label || "Valor";
-              },
-              label: (context) =>
-                typeof context.raw === "number"
-                  ? formatAOACompact(context.raw)
-                  : String(context.raw),
-            },
+            enabled: false,
+            external: (context) => renderExternalTip(context.tooltip),
           },
         },
         layout: { padding: { top: 4, right: 0, bottom: 0, left: 0 } },
@@ -285,7 +317,45 @@ export function MiniChart({
     return () => chart.destroy();
   }, [color, data, labels, theme]);
 
-  return <canvas ref={canvasRef} className="block h-full w-full" />;
+  return (
+    <div ref={wrapRef} className="relative block h-full w-full">
+      <canvas ref={canvasRef} className="block h-full w-full" />
+      {/* Tooltip flutuante — mesmo visual do mobile */}
+      <div
+        ref={tipRef}
+        className="pointer-events-none absolute z-10 opacity-0 transition-opacity duration-150"
+      >
+        <div
+          className="flex flex-col gap-0.5 rounded-lg border p-2"
+          style={{
+            backgroundColor: "var(--background)",
+            borderColor: "var(--border-card)",
+            boxShadow: "0 4px 8px rgba(15, 23, 42, 0.08)",
+          }}
+        >
+          <span
+            ref={tipTitleRef}
+            className="block truncate font-manrope text-xs font-bold leading-4"
+            style={{ color: "var(--text-title)" }}
+          />
+          <span
+            ref={tipBodyRef}
+            className="block truncate font-inter text-xs leading-4"
+            style={{ color: "var(--text-description-60)" }}
+          />
+        </div>
+        <span
+          ref={tipCaretRef}
+          aria-hidden="true"
+          className="absolute -bottom-[5px] size-3 rotate-45 border-b border-r"
+          style={{
+            backgroundColor: "var(--background)",
+            borderColor: "var(--border-card)",
+          }}
+        />
+      </div>
+    </div>
+  );
 }
 
 function LargeCard({
@@ -390,7 +460,7 @@ function LargeCard({
         </div>
       </div>
       <div
-        className="relative h-15 w-full shrink-0 overflow-hidden"
+        className="relative h-15 w-full shrink-0"
         role="img"
         aria-label={chartLabel ?? `Evolução de ${config.title.toLowerCase()}`}
       >

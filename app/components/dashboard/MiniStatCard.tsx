@@ -90,7 +90,7 @@ export default function MiniStatCard({
         </div>
       </div>
       <div
-        className="relative h-11 w-full overflow-hidden"
+        className="relative h-11 w-full"
         aria-label={chartLabel}
       >
         <MiniChart color={chartColor} data={chartData} labels={chartLabels} />

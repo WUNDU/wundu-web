@@ -327,7 +327,7 @@ function page() {
             <PlusIcon
               width={18}
               height={18}
-              className="text-(--button-icon-yellow)"
+              className="text-(--button-icon-white)"
               aria-hidden="true"
             />
           </button>

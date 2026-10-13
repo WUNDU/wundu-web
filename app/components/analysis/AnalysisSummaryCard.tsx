@@ -77,7 +77,7 @@ export default function AnalysisSummaryCard({
         </div>
       </div>
       <div
-        className="relative h-15 w-full shrink-0 overflow-hidden"
+        className="relative h-15 w-full shrink-0"
         role="img"
         aria-label={`Evolução de ${title.toLowerCase()}`}
       >
