@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, LogOut, Menu as MenuIcon, Moon, Search, Settings, Sparkles } from "lucide-react";
+import { ChevronDown, LogOut, Menu as MenuIcon, Moon, PanelLeftClose, PanelLeftOpen, Search, Settings, Sparkles } from "lucide-react";
 import { avatar, logo } from "@/constants/images";
-import { BellIcon, ExpandIcon, SunIcon } from "@/constants/icons";
+import { BellIcon, SunIcon } from "@/constants/icons";
 import { useUserStore } from "@/store/user-store";
 import { useApiNotification } from "@/hooks/use-api-notification";
 import FloatingMenu from "../ui/FloatingMenu";
@@ -50,6 +50,8 @@ export default function TopBar({
           ? "Metas"
           : pathname.startsWith("/home/analytics")
             ? "Análises"
+            : pathname.startsWith("/home/ai")
+              ? "Wundu IA"
             : pathname.startsWith("/home/accounts")
               ? "Contas"
               : pathname.startsWith("/home/categories")
@@ -96,7 +98,11 @@ export default function TopBar({
           aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           title={collapsed ? "Expandir menu" : "Recolher menu"}
         >
-          <ExpandIcon className="size-8" aria-hidden="true" />
+          {collapsed ? (
+            <PanelLeftOpen className="size-8" strokeWidth={1.5} aria-hidden="true" />
+          ) : (
+            <PanelLeftClose className="size-8" strokeWidth={1.5} aria-hidden="true" />
+          )}
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-3 lg:hidden">
@@ -133,7 +139,7 @@ export default function TopBar({
           <div className="flex items-center gap-2 lg:gap-3">
             <button
               type="button"
-              onClick={() => router.push("/home/chat")}
+              onClick={() => router.push("/home/ai")}
               aria-label="Abrir Wundu IA"
               title="Wundu IA"
               className="flex size-11 items-center justify-center rounded-xl bg-(--background-variant) text-(--menu-icon) transition-colors hover:text-primary-300 lg:size-10 lg:bg-transparent lg:hover:bg-(--background-variant)"

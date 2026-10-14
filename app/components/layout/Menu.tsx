@@ -15,6 +15,7 @@ type MenuItemKey =
   | "transacoes"
   | "metas"
   | "analises"
+  | "ai"
   | "Contas"
   | "categorias"
   | "definicoes"
@@ -60,6 +61,13 @@ const menuItems: MenuItem[] = [
     icon: "analytics",
   },
   {
+    key: "ai",
+    label: "Wundu IA",
+    description: "Pergunta sobre as tuas finanças",
+    href: "/home/ai",
+    icon: "ai",
+  },
+  {
     key: "Contas",
     label: "Contas",
     href: "/home/accounts",
@@ -90,9 +98,9 @@ const menuItems: MenuItem[] = [
 ];
 
 const principalSections: { label: string; items: MenuItem[] }[] = [
-  { label: "Geral", items: menuItems.slice(0, 4) },
-  { label: "Configurações", items: menuItems.slice(4, 6) },
-  { label: "Utilizador", items: menuItems.slice(6) },
+  { label: "Geral", items: menuItems.slice(0, 5) },
+  { label: "Configurações", items: menuItems.slice(5, 7) },
+  { label: "Utilizador", items: menuItems.slice(7) },
 ];
 
 const isMenuItemActive = (pathname: string, item: MenuItem) => {

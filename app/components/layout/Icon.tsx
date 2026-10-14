@@ -5,6 +5,7 @@ import {
   GoalsIcon,
   HelpIcon,
   HomeDeskIcon,
+  IAIcon,
   QuizIcon,
   SettingsDeskIcon,
   StatsIcon,
@@ -16,6 +17,7 @@ export type MenuIconName =
   | "transactions"
   | "goals"
   | "analytics"
+  | "ai"
   | "accounts"
   | "categories"
   | "settings"
@@ -32,6 +34,7 @@ const iconMap: Record<MenuIconName, IconComponent> = {
   transactions: ArrowSetIcon,
   goals: GoalsIcon,
   analytics: ChartDesktopIcon,
+  ai: IAIcon,
   accounts: WalletIcon,
   categories: StatsIcon,
   settings: SettingsDeskIcon,

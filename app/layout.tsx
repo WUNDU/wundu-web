@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter, Manrope, Open_Sans } from "next/font/google";
 import "@/public/styles/globals.css";
+import "app/components/ai/wundu-ai.css";
 import { CookieConsentProvider } from "@/contexts/cookie-conset-context";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { SessionProvider } from "@/components/providers/session-provider";
