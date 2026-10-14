@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import {
   Activity,
   Apple,
+  ArrowLeft,
   ArrowUp,
   History,
   PanelLeftClose,
@@ -18,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { WunduAIAvatar } from "./WunduAIAvatar";
 import { Typewriter } from "./Typewriter";
@@ -63,6 +65,7 @@ function toLocalMessages(
 }
 
 export default function WunduAI() {
+  const router = useRouter();
   const user = useUserStore((s) => s.user);
   const queryClient = useQueryClient();
   const displayName = user?.name?.trim() || "";
@@ -697,6 +700,14 @@ export default function WunduAI() {
 
       <section className="ai-chat">
         <header className="ai-chat-header">
+          <button
+            type="button"
+            className="ai-mobile-back"
+            aria-label="Voltar"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft size={20} />
+          </button>
           <button
             type="button"
             className="ai-sidebar-toggle"

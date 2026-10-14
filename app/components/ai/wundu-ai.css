@@ -246,6 +246,7 @@
   background: var(--ai-selected);
   border-radius: 12px !important;
 }
+.ai-mobile-back,
 .ai-mobile-history,
 .ai-mobile-title,
 .ai-mobile-subtitle {
@@ -678,6 +679,7 @@
   .ai-mobile-subtitle {
     display: inline;
   }
+  .ai-mobile-back,
   .ai-mobile-history {
     display: grid;
   }
