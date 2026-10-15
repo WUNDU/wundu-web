@@ -1,13 +1,17 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Equal, type LucideIcon } from "lucide-react";
-import { MiniChart, type CardColor, type CardTrend } from "./CardViews";
+import {
+  MiniChart,
+  getTrendBadgeTone,
+  type CardColor,
+  type CardTrend,
+  type TrendPolarity,
+} from "./CardViews";
 
 export type MiniStatTone = {
   background: string;
   text: string;
-  /** Cor do texto do badge (por omissão, igual à do ícone). */
-  badgeText?: string;
 };
 
 type MiniStatCardProps = {
@@ -16,6 +20,8 @@ type MiniStatCardProps = {
   value: string;
   change: string;
   trend?: CardTrend;
+  /** Determina se subir ou descer representa uma variação favorável. */
+  trendPolarity?: TrendPolarity;
   tone: MiniStatTone;
   chartColor: CardColor;
   chartData: number[];
@@ -30,6 +36,7 @@ export default function MiniStatCard({
   value,
   change,
   trend,
+  trendPolarity = "higher-is-better",
   tone,
   chartColor,
   chartData,
@@ -39,6 +46,9 @@ export default function MiniStatCard({
 }: MiniStatCardProps) {
   const TrendIcon =
     trend === "down" ? ArrowDown : trend === "flat" ? Equal : ArrowUp;
+  // Igual ao desktop: a cor do badge segue a tendência + polaridade,
+  // não a cor fixa do ícone (antes ficava sempre verde/vermelho).
+  const badgeTone = getTrendBadgeTone(trend, trendPolarity, change !== "");
 
   return (
     <article
@@ -73,16 +83,15 @@ export default function MiniStatCard({
         <div className="self-stretch pt-1.5">
           {change ? (
             <span
-              className={`inline-flex h-6 items-center gap-1 rounded-md px-2 ${tone.background}`}
+              className="inline-flex h-6 items-center gap-1 rounded-md px-2"
+              style={badgeTone}
             >
               <TrendIcon
-                className={`size-3 ${tone.text}`}
+                className="size-3"
                 strokeWidth={2.5}
                 aria-hidden="true"
               />
-              <span
-                className={`font-manrope text-xs font-bold leading-4 ${tone.badgeText ?? tone.text}`}
-              >
+              <span className="font-manrope text-xs font-bold leading-4">
                 {change}
               </span>
             </span>

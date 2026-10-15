@@ -133,13 +133,13 @@ export const transactionCategoryConfig: Record<
   },
   Restaurante: {
     flow: "EXPENSE",
-    icon: BillfoldIcon,
+    icon: CarIcon,
     color: "text-warning",
     background: "bg-warning/10",
   },
   Serviços: {
     flow: "EXPENSE",
-    icon: CarIcon,
+    icon: BillfoldIcon,
     color: "text-purple",
     background: "bg-purple/10",
   },

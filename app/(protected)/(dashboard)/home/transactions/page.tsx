@@ -158,7 +158,7 @@ function page() {
             </button>
           </PageHeader>
         </div>
-          <section className="hidden py-4 px-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
+          <section className="hidden p-8 flex-col justify-center items-center self-stretch gap-4 bg-(--bg-card) lg:flex">
             <div className="flex items-start gap-3 self-stretch">
               <div className="flex p-3 flex-col justify-center items-start gap-4 flex-1 self-stretch rounded-xl border border-(--border-button) bg-(--bg-filter)">
                 <div className="flex items-center gap-3 self-stretch">

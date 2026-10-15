@@ -10,7 +10,7 @@ function Transaction({ transaction }: TransactionItemProps) {
   const categoryConfig = transactionCategoryConfig[transaction.category];
   const CategoryIcon = categoryConfig.icon;
   return (
-    <article className="flex items-center gap-3 flex-1 self-stretch px-1.5 py-2">
+    <article className="flex items-center gap-3 flex-1 self-stretch p-2">
       <div
         className={`flex size-11 flex-col justify-center items-center aspect-square rounded-xl ${typeConfig.background}`}
       >
@@ -37,7 +37,7 @@ function Transaction({ transaction }: TransactionItemProps) {
         </div>
       </div>
       <div
-        className={`flex px-2 py-3 flex-col items-end gap-1 rounded-md ${typeConfig.background}`}
+        className={`flex p-2 flex-col items-end gap-1 rounded-xl ${typeConfig.background}`}
       >
         <p
           className={`font-inter text-sm font-bold leading-5 ${typeConfig.color}`}

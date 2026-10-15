@@ -488,6 +488,7 @@ function Page() {
                 : formatPct(expensePct)
             }
             trend={expensePct === null ? undefined : trendOf(expensePct)}
+            trendPolarity="lower-is-better"
             tone={{
               background: "bg-danger-300/10",
               text: "text-danger-300",

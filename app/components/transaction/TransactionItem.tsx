@@ -24,7 +24,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
       }}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      className={`group flex w-full items-center gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:bg-(--card-bg-hover) lg:gap-4 lg:px-1.5 lg:py-2 ${
+      className={`group flex w-full items-center gap-3 p-2 rounded-xl transition-colors duration-200 hover:bg-(--card-bg-hover) lg:gap-4 lg:p-2 ${
         onSelect ? "cursor-pointer" : ""
       }`}
     >
@@ -111,7 +111,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
 
         {/* Amount */}
         <div
-          className={`flex w-32 items-center justify-end rounded-md px-3 py-2 ${typeConfig.background}`}
+          className={`flex w-auto shrink-0 items-center justify-end rounded-xl px-3 py-2 ${typeConfig.background}`}
         >
           <p
             className={`text-right text-sm font-bold leading-6 ${typeConfig.color}`}

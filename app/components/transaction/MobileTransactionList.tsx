@@ -58,28 +58,28 @@ function MobileTransactionRow({
         <span className="line-clamp-1 self-stretch font-manrope text-sm font-bold text-(--text-title)">
           {transaction.title}
         </span>
-        <span className="flex items-center gap-2 overflow-hidden">
+        <span className="flex min-w-0 max-w-full items-center gap-2">
           <span
-            className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
+            className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
           >
             <CategoryIcon
               className={`size-4 shrink-0 ${categoryConfig.iconColor ?? categoryConfig.color}`}
               aria-hidden="true"
             />
             <span
-              className={`font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
+              className={`truncate font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
             >
               {transaction.category}
             </span>
           </span>
-          <span className="font-manrope text-xs font-medium text-(--text-description)">
+          <span className="shrink-0 font-manrope text-xs font-medium text-(--text-description)">
             {BANK_LABEL}
           </span>
         </span>
       </span>
-      <span className="flex shrink-0 flex-col items-end gap-1 overflow-hidden">
+      <span className="flex shrink-0 flex-col items-end gap-1">
         <span
-          className={`font-manrope text-sm font-bold ${
+          className={`whitespace-nowrap font-manrope text-sm font-bold ${
             isIncome ? "text-success-text" : "text-danger-300"
           }`}
         >
@@ -87,7 +87,7 @@ function MobileTransactionRow({
           {formatAOA(Math.abs(transaction.amount))}
         </span>
         {time ? (
-          <span className="font-manrope text-xs font-medium text-(--text-description)">
+          <span className="whitespace-nowrap font-manrope text-xs font-medium text-(--text-description)">
             {time}
           </span>
         ) : null}
@@ -117,7 +117,7 @@ export default function MobileTransactionList({
           <p className="px-0 pb-1 pt-3 font-manrope text-xs font-bold text-(--text-description)">
             {group.label}
           </p>
-          <div className="flex flex-col items-start justify-start self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) px-4 pb-2 pt-1">
+          <div className="flex flex-col items-start justify-start self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4">
             {group.items.map((tx, index) => (
               <div key={tx.id} className="self-stretch">
                 <MobileTransactionRow

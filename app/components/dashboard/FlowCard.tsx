@@ -54,6 +54,13 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
   );
   const hasData = buckets.some((b) => b.income > 0 || b.expense > 0);
 
+  // No toque (sem hover) o 1º toque dispara mouseenter/focus + click em
+  // sequência — o toggle do click fecharia logo o que o hover abriu,
+  // obrigando a 2 toques. Por isso hover/focus só valem com rato/teclado.
+  const canHover = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(hover: hover)").matches;
+
   return (
     <section className="flex h-auto flex-col gap-3 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 xl:gap-4 xl:p-6">
       <header className="flex items-center justify-between gap-3 self-stretch">
@@ -122,9 +129,13 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
                 tabIndex={0}
                 role="img"
                 aria-label={`${bucket.label}: entradas ${formatAOA(bucket.income)}, gastos ${formatAOA(bucket.expense)}`}
-                onMouseEnter={() => setHovered(i)}
+                onMouseEnter={() => {
+                  if (canHover()) setHovered(i);
+                }}
                 onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(i)}
+                onFocus={() => {
+                  if (canHover()) setHovered(i);
+                }}
                 onBlur={() => setHovered(null)}
                 onClick={() => setHovered((prev) => (prev === i ? null : i))}
                 onKeyDown={(e) => {

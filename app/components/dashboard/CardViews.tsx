@@ -19,7 +19,7 @@ type CardVariant =
   | "Variant7"
   | "Variant8";
 
-function getTrendBadgeTone(
+export function getTrendBadgeTone(
   trend: CardTrend | undefined,
   polarity: TrendPolarity,
   hasComparableValue: boolean,
