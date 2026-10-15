@@ -7,8 +7,8 @@ import { groupTransactionsByDate } from "app/utils/group-transactions";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
 
-/** Banco fixo — igual ao da linha desktop (sem fonte de dados para o banco). */
-const BANK_LABEL = "BAI";
+/** Rótulo fixo — bancos serão implementados brevemente. */
+const BANK_LABEL = "Manual";
 
 function transactionTime(transaction: TransactionDTO): string {
   const raw =

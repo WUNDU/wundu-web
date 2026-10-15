@@ -14,7 +14,14 @@ export type TransactionCategory =
   | "Habitação"
   | "Lazer"
   | "Negócio"
-  | "Biscato";
+  | "Biscato"
+  | "Supermercado"
+  | "Telecomunicações"
+  | "Transferências"
+  | "Restaurante"
+  | "Serviços"
+  | "Kixikila"
+  | "Remessa";
 
 
 export interface TransactionItemProps {

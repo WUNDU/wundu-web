@@ -12,6 +12,15 @@ import {
   Shapes,
   Wallet,
 } from "lucide-react";
+import {
+  BasketIcon,
+  BillfoldIcon,
+  CarIcon,
+  MoneyPouchIcon,
+  SmartphoneIcon,
+  TransferIcon,
+  UsersIcon,
+} from "@/constants/icons";
 import { TransactionCategory, CategoryConfig } from "../../types/transaction";
 
 /**
@@ -101,6 +110,49 @@ export const transactionCategoryConfig: Record<
   Biscato: {
     flow: "INCOME",
     icon: Hammer,
+    color: "text-info",
+    background: "bg-info/10",
+  },
+  Supermercado: {
+    flow: "EXPENSE",
+    icon: BasketIcon,
+    color: "text-orange",
+    background: "bg-orange/10",
+  },
+  Telecomunicações: {
+    flow: "EXPENSE",
+    icon: SmartphoneIcon,
+    color: "text-info",
+    background: "bg-info/10",
+  },
+  Transferências: {
+    flow: "EXPENSE",
+    icon: TransferIcon,
+    color: "text-primary-300",
+    background: "bg-primary-300/10",
+  },
+  Restaurante: {
+    flow: "EXPENSE",
+    icon: BillfoldIcon,
+    color: "text-warning",
+    background: "bg-warning/10",
+  },
+  Serviços: {
+    flow: "EXPENSE",
+    icon: CarIcon,
+    color: "text-purple",
+    background: "bg-purple/10",
+  },
+  Kixikila: {
+    flow: "INCOME",
+    icon: UsersIcon,
+    color: "text-success-text",
+    iconColor: "text-success",
+    background: "bg-success/10",
+  },
+  Remessa: {
+    flow: "INCOME",
+    icon: MoneyPouchIcon,
     color: "text-info",
     background: "bg-info/10",
   },

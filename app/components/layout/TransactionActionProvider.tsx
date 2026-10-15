@@ -41,8 +41,7 @@ export default function TransactionActionProvider({
   const { createTransaction } = useTransaction({ autoFetch: false });
   const isSupportedPage =
     pathname === "/home" ||
-    pathname.startsWith("/home/transactions") ||
-    pathname.startsWith("/home/analytics");
+    pathname.startsWith("/home/transactions");
 
   async function handleSave(values: TransactionFormValues): Promise<boolean> {
     const flow = values.type === "income" ? "INCOME" : "EXPENSE";

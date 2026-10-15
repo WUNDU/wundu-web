@@ -513,6 +513,15 @@ html {
   font-family: var(--font-open-sans);
 }
 
+/* Categoria — no dark o item usa o fundo do corpo e só um cinza
+   subtil no hover (no claro mantém o branco + border-bottom). */
+[data-theme="dark"] .category-item {
+  background-color: var(--bg-body);
+}
+[data-theme="dark"] .category-item:hover {
+  background-color: color-mix(in srgb, #ffffff 6%, var(--bg-body));
+}
+
 /* ============================================================
    UTILITÁRIOS
    ============================================================ */

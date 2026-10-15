@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { ChevronRightIcon } from "@/constants/icons";
 import { logo, logotype } from "@/constants/images";
 import Icon, { type MenuIconName } from "./Icon";
@@ -270,33 +270,73 @@ export default function Menu({
           collapsed ? "px-2 py-2" : "px-6 py-2",
         ].join(" ")}
       >
-        {isPrincipal && !collapsed && (
-          <div className="flex h-15 flex-col justify-center gap-0 px-2 text-(--menu-text)">
-            <p
-              className="text-[14px] font-semibold leading-[1.56]"
-              style={{ fontFamily: "var(--font-manrope)" }}
+        {onToggle ? (
+          collapsed ? (
+            <button
+              type="button"
+              onClick={onToggle}
+              className="flex w-full items-center justify-center rounded-xl p-2 text-(--menu-text) transition-colors hover:bg-(--menu-bg-hover) hover:text-(--menu-hover)"
+              aria-label="Expandir menu"
+              title="Expandir menu"
             >
-              © 2026 Wundu
-            </p>
-            <p
-              className="text-[12px] leading-none"
-              style={{ fontFamily: "var(--font-manrope)" }}
-            >
-              Versão 2.0
-            </p>
-          </div>
-        )}
-        {!isPrincipal && (
-          <button
-            type="button"
-            onClick={onToggle}
-            className="flex w-full items-center justify-center rounded-xl p-2 text-(--menu-text) transition-colors hover:bg-(--menu-bg-hover)"
-            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-          >
-            <ChevronLeft
-              className={collapsed ? "size-5 rotate-180" : "size-5"}
-            />
-          </button>
+              {isPrincipal ? (
+                <PanelLeftOpen className="size-5" strokeWidth={1.5} />
+              ) : (
+                <ChevronLeft className="size-5 rotate-180" />
+              )}
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              {isPrincipal && (
+                <div className="flex h-15 min-w-0 flex-1 flex-col justify-center gap-0 px-2 text-(--menu-text)">
+                  <p
+                    className="text-[14px] font-semibold leading-[1.56]"
+                    style={{ fontFamily: "var(--font-manrope)" }}
+                  >
+                    © 2026 Wundu
+                  </p>
+                  <p
+                    className="text-[12px] leading-none"
+                    style={{ fontFamily: "var(--font-manrope)" }}
+                  >
+                    Versão 2.0
+                  </p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={onToggle}
+                className="flex shrink-0 items-center justify-center rounded-xl p-2 text-(--menu-text) transition-colors hover:bg-(--menu-bg-hover) hover:text-(--menu-hover)"
+                aria-label="Recolher menu"
+                title="Recolher menu"
+              >
+                {isPrincipal ? (
+                  <PanelLeftClose className="size-5" strokeWidth={1.5} />
+                ) : (
+                  <ChevronLeft className="size-5" />
+                )}
+              </button>
+            </div>
+          )
+        ) : (
+          <>
+            {isPrincipal && !collapsed && (
+              <div className="flex h-15 flex-col justify-center gap-0 px-2 text-(--menu-text)">
+                <p
+                  className="text-[14px] font-semibold leading-[1.56]"
+                  style={{ fontFamily: "var(--font-manrope)" }}
+                >
+                  © 2026 Wundu
+                </p>
+                <p
+                  className="text-[12px] leading-none"
+                  style={{ fontFamily: "var(--font-manrope)" }}
+                >
+                  Versão 2.0
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </aside>

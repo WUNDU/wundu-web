@@ -158,11 +158,31 @@
   font-weight: 400;
   line-height: 1.6;
 }
+/* Por defeito só o título é visível; contagem + data/hora revelam-se
+   no hover/focus com transição suave (sem saltos de layout). */
 .ai-history-list small {
   color: var(--text-description);
   font-size: 11px;
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  transform: translateY(-4px);
+  transition:
+    max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 0.28s ease;
+}
+.ai-history-list section > div:hover small,
+.ai-history-list section > div:focus-within small {
+  max-height: 24px;
+  opacity: 1;
   margin-top: 2px;
+  transform: translateY(0);
 }
 .ai-delete {
   color: #ff383e;
@@ -170,6 +190,7 @@
   flex-shrink: 0;
   opacity: 0;
   border-radius: 8px;
+  transition: opacity 0.2s ease;
 }
 .ai-history-list section > div:hover .ai-delete,
 .ai-delete:focus-visible {
@@ -240,11 +261,6 @@
 }
 .ai-chat-header > button:hover {
   background: var(--ai-muted);
-}
-.ai-header-new {
-  color: var(--ai-brand) !important;
-  background: var(--ai-selected);
-  border-radius: 12px !important;
 }
 .ai-mobile-back,
 .ai-mobile-history,
@@ -600,6 +616,13 @@
 .ai-history-sheet .ai-history-list {
   padding: 0;
 }
+/* No sheet mobile (toque, sem hover) os detalhes ficam sempre visíveis. */
+.ai-history-sheet .ai-history-list small {
+  max-height: 24px;
+  opacity: 1;
+  margin-top: 2px;
+  transform: none;
+}
 .ai-history-sheet .ai-delete {
   opacity: 1;
 }
@@ -699,10 +722,6 @@
     background: var(--ai-muted);
     border-radius: 12px;
     padding: 0;
-  }
-  .ai-chat-header .ai-header-new {
-    display: grid;
-    background: var(--ai-selected);
   }
   .ai-chat-scroll {
     padding: 22px 16px;

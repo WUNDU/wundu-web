@@ -66,7 +66,7 @@ export default function MobileCategoryList({
   }
 
   return (
-    <div className="flex flex-col items-start justify-start self-stretch rounded-xl bg-(--bg-card) px-4 py-1">
+    <div className="flex flex-col items-start justify-start self-stretch rounded-xl border border-(--border-button) bg-(--bg-card) px-4 py-1">
       {categories.map((category, index) => (
         <div key={category.id} className="self-stretch">
           <MobileCategoryRow category={category} onSelect={onSelect} />

@@ -155,10 +155,7 @@ export default function TopBar({
               aria-pressed={isDark}
             >
               {isDark ? (
-                <SunIcon
-                  className="size-8 [--sun-opacity:0.5] group-hover:[--sun-opacity:1]"
-                  aria-hidden="true"
-                />
+                <SunIcon className="size-8" aria-hidden="true" />
               ) : (
                 <Moon className="size-8" strokeWidth={1.5} aria-hidden="true" />
               )}

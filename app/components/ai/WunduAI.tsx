@@ -734,9 +734,6 @@ export default function WunduAI() {
           >
             <History size={21} />
           </button>
-          <button type="button" className="ai-header-new" aria-label="Nova conversa" onClick={newConversation}>
-            <Plus size={22} />
-          </button>
         </header>
 
         <div className="ai-chat-scroll" role="log" aria-label="Mensagens da conversa">

@@ -18,6 +18,13 @@ export const CATEGORY_CHART_COLORS: Record<TransactionCategory, string> = {
   Salário: "--color-success",
   Negócio: "--color-success",
   Biscato: "--color-info",
+  Supermercado: "--color-orange",
+  Telecomunicações: "--color-info",
+  Transferências: "--color-primary-300",
+  Restaurante: "--color-warning",
+  Serviços: "--color-purple",
+  Kixikila: "--color-success",
+  Remessa: "--color-info",
 };
 
 const GOAL_CHART_COLORS = [

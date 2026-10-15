@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
 import { formatAOA } from "app/utils/format-AOA";
 
@@ -47,6 +47,7 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
     () => bucketize(transactions, year, month),
     [transactions, year, month],
   );
+  const [hovered, setHovered] = useState<number | null>(null);
   const peak = Math.max(
     1,
     ...buckets.flatMap((b) => [b.income, b.expense]),
@@ -99,25 +100,76 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
             )
             .join(". ")}
         >
-          {buckets.map((bucket) => (
-            <div key={bucket.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-              <div className="flex h-[170px] w-full items-end justify-center gap-1 sm:h-48 sm:gap-2">
-                <span
-                  title={`Entradas: ${formatAOA(bucket.income)}`}
-                  style={{ height: `${(bucket.income / peak) * 100}%` }}
-                  className="w-[22px] rounded-t-sm bg-success sm:w-7"
-                />
-                <span
-                  title={`Gastos: ${formatAOA(bucket.expense)}`}
-                  style={{ height: `${(bucket.expense / peak) * 100}%` }}
-                  className="w-[22px] rounded-t-sm bg-danger-300 sm:w-7"
-                />
+          {buckets.map((bucket, i) => {
+            const isHovered = hovered === i;
+            // Evita o tooltip sair do card nas extremidades.
+            const align =
+              i === 0
+                ? "left-0 -translate-x-0"
+                : i === buckets.length - 1
+                  ? "right-0 translate-x-0"
+                  : "left-1/2 -translate-x-1/2";
+            // Pontinha alinhada ao centro das barras do grupo.
+            const arrowAlign =
+              i === 0
+                ? "left-6"
+                : i === buckets.length - 1
+                  ? "right-6"
+                  : "left-1/2 -translate-x-1/2";
+            return (
+              <div
+                key={bucket.label}
+                tabIndex={0}
+                role="img"
+                aria-label={`${bucket.label}: entradas ${formatAOA(bucket.income)}, gastos ${formatAOA(bucket.expense)}`}
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(i)}
+                onBlur={() => setHovered(null)}
+                onClick={() => setHovered((prev) => (prev === i ? null : i))}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setHovered(null);
+                }}
+                className="relative flex min-w-0 flex-1 cursor-default flex-col items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
+              >
+                {isHovered && (
+                  <div
+                    role="tooltip"
+                    className={`pointer-events-none absolute -top-2 z-10 w-max max-w-[220px] -translate-y-full rounded-xl border border-(--card-barras) bg-(--background) px-3 py-2 shadow-[0px_8px_30px_rgba(2,21,69,0.12)] ${align}`}
+                  >
+                    <p className="font-manrope text-[11px] font-bold uppercase tracking-wide text-(--text-description)">
+                      {bucket.label}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
+                      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-success" />
+                      {formatAOA(bucket.income)}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
+                      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-danger-300" />
+                      {formatAOA(bucket.expense)}
+                    </p>
+                    <span
+                      aria-hidden="true"
+                      className={`absolute -bottom-[5px] size-2.5 rotate-45 border-b border-r border-(--card-barras) bg-(--background) ${arrowAlign}`}
+                    />
+                  </div>
+                )}
+                <div className="flex h-[170px] w-full items-end justify-center gap-1 sm:h-48 sm:gap-2">
+                  <span
+                    style={{ height: `${(bucket.income / peak) * 100}%` }}
+                    className="w-[22px] rounded-t-sm bg-success sm:w-7"
+                  />
+                  <span
+                    style={{ height: `${(bucket.expense / peak) * 100}%` }}
+                    className="w-[22px] rounded-t-sm bg-danger-300 sm:w-7"
+                  />
+                </div>
+                <small className="font-manrope text-xs font-medium text-(--text-description)">
+                  {bucket.label}
+                </small>
               </div>
-              <small className="font-manrope text-xs font-medium text-(--text-description)">
-                {bucket.label}
-              </small>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>

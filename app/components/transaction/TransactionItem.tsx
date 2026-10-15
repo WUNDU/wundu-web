@@ -105,7 +105,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
         {/* Banco */}
         <div className="flex w-14 items-center">
           <p className="text-sm font-medium leading-6 text-(--text-description)">
-            BAI
+            Manual
           </p>
         </div>
 

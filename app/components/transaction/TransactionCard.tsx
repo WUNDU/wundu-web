@@ -13,7 +13,7 @@ interface TransactionCardProps extends TransactionItemProps {
 function TransactionCard({
   transaction,
   description = "Transferência recebida da holding interna...",
-  accountName = "BAI",
+  accountName = "Manual",
   onSelect,
 }: TransactionCardProps) {
   const typeConfig = transactionTypeConfig[transaction.type];

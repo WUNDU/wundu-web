@@ -37,6 +37,13 @@ const GOAL_CATEGORIES: readonly TransactionCategory[] = [
   "Lazer",
   "Negócio",
   "Biscato",
+  "Supermercado",
+  "Telecomunicações",
+  "Transferências",
+  "Restaurante",
+  "Serviços",
+  "Kixikila",
+  "Remessa",
 ];
 
 function getCategory(name?: string | null): TransactionCategory {
