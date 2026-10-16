@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import DropmenuCategoria from "../transaction/DropmenuCategoria";
 import DropmenuData from "../transaction/DropmenuData";
 import FloatingMenu from "../ui/FloatingMenu";
+import { useCategoryAction } from "../layout/CategoryActionProvider";
+import { categoryVisual } from "../../utils/category-visual";
 import type { GoalDTO, GoalType } from "../../types/dto/goal.dto";
-import type { TransactionCategory } from "../../types/transaction";
-import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "../../utils/format-AOA";
 import { formatFullDatePT } from "../../utils/format-date-pt";
 import {
@@ -82,6 +82,7 @@ function GoalForm({
   const isEdit = resolvedMode === "edit";
   const isSavings = resolvedMode === "savings";
   const { categories } = useCategory();
+  const { openCategoryForm } = useCategoryAction();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [prazo, setPrazo] = useState<"short" | "long">("short");
@@ -227,8 +228,15 @@ function GoalForm({
     else setFormError("Não foi possível eliminar. Tente novamente.");
   }
 
+  const selectedApiFlow = selectedCategory
+    ? categories.find(
+        (c) =>
+          c.name.trim().toLowerCase() ===
+          selectedCategory.trim().toLowerCase(),
+      )?.flow
+    : undefined;
   const categoryConfig = selectedCategory
-    ? transactionCategoryConfig[selectedCategory as TransactionCategory]
+    ? categoryVisual(selectedCategory, selectedApiFlow)
     : undefined;
   const CategoryIcon = categoryConfig?.icon ?? MoneyIcon;
 
@@ -720,6 +728,13 @@ function GoalForm({
                             onSelect={(category) => {
                               setSelectedCategory(category);
                               setCategoryOpen(false);
+                            }}
+                            onAddCategory={() => {
+                              setCategoryOpen(false);
+                              openCategoryForm({
+                                onCreated: (name) =>
+                                  setSelectedCategory(name),
+                              });
                             }}
                           />
                         </FloatingMenu>

@@ -24,6 +24,7 @@ import { userService } from "@/services/user.service";
 import { provinceEnumToLabel } from "@/constants/angola-provinces-fallback";
 import { stripPhoneSpaces, formatPhoneInput } from "app/utils/phone-mask";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 type SettingsTab =
   | "Perfil"
@@ -153,7 +154,7 @@ function page() {
       <div className="hidden lg:block">
         <PageHeader title={"Definições"} />
       </div>
-      <div className="flex items-center gap-2 overflow-x-auto px-6 pb-3 pt-3 lg:hidden">
+      <div className="flex items-center gap-1 overflow-x-auto px-6 lg:hidden">
         {TABS.map((tab) => {
           const isActive = tab === activeTab;
           return (
@@ -162,13 +163,33 @@ function page() {
               type="button"
               onClick={() => setActiveTab(tab)}
               aria-current={isActive ? "page" : undefined}
-              className={`shrink-0 rounded-full px-4 py-2 font-manrope text-sm ${
-                isActive
-                  ? "bg-primary-300 font-bold text-base-white"
-                  : "bg-(--background-variant) font-semibold text-(--text-title)"
-              }`}
+              className="flex shrink-0 flex-col items-center justify-center"
             >
-              {tab}
+              <span
+                className={`flex items-center justify-center px-3 pb-2.5 pt-3 text-center font-manrope text-sm ${
+                  isActive
+                    ? "font-bold text-(--text-link)"
+                    : "font-medium text-(--text-description-button)"
+                }`}
+              >
+                {tab}
+              </span>
+              {isActive ? (
+                <motion.span
+                  layoutId="settings-tab-underline-mobile"
+                  aria-hidden="true"
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.33, 1, 0.68, 1],
+                  }}
+                  className="h-0.5 self-stretch bg-(--border-blue)"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="h-0.5 self-stretch bg-transparent"
+                />
+              )}
             </button>
           );
         })}
@@ -198,12 +219,22 @@ function page() {
                       >
                         {tab}
                       </span>
-                      <span
-                        aria-hidden="true"
-                        className={`h-0.5 self-stretch ${
-                          isActive ? "bg-(--border-blue)" : "bg-transparent"
-                        }`}
-                      />
+                      {isActive ? (
+                        <motion.span
+                          layoutId="settings-tab-underline-desktop"
+                          aria-hidden="true"
+                          transition={{
+                            duration: 0.3,
+                            ease: [0.33, 1, 0.68, 1],
+                          }}
+                          className="h-0.5 self-stretch bg-(--border-blue)"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="h-0.5 self-stretch bg-transparent"
+                        />
+                      )}
                     </button>
                   </li>
                 );

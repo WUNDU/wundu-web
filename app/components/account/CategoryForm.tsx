@@ -37,6 +37,8 @@ type CategoryFormProps = {
   onDelete?: (id: string) => Promise<boolean>;
   /** Chamado pelo botão "Voltar". Por omissão usa onClose. */
   onBack?: () => void;
+  /** Fluxo pré-seleccionado ao abrir em modo "create" (por omissão "EXPENSE"). */
+  defaultFlow?: "EXPENSE" | "INCOME";
 };
 
 function CategoryForm({
@@ -48,6 +50,7 @@ function CategoryForm({
   onSave,
   onDelete,
   onBack,
+  defaultFlow = "EXPENSE",
 }: CategoryFormProps) {
   const resolvedMode: CategoryFormMode = mode ?? (category ? "edit" : "create");
   const isEdit = resolvedMode === "edit";
@@ -74,10 +77,10 @@ function CategoryForm({
       );
     } else {
       setName("");
-      setFlow("EXPENSE");
+      setFlow(defaultFlow);
       setLimit("");
     }
-  }, [isOpen, category, mode]);
+  }, [isOpen, category, mode, defaultFlow]);
 
   const headerTitle = isEdit ? "Editar categoria" : "Nova categoria";
   const primaryLabel = isEdit ? "Actualizar" : "Salvar";

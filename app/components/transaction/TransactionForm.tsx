@@ -10,9 +10,13 @@ import React, { useEffect, useRef, useState } from "react";
 import DropmenuCategoria from "./DropmenuCategoria";
 import DropmenuData from "./DropmenuData";
 import FloatingMenu from "../ui/FloatingMenu";
+import { useCategoryAction } from "../layout/CategoryActionProvider";
+import { useCategory } from "@/hooks/use-category";
+import {
+  categoryVisual,
+  resolveCategoryFlow,
+} from "../../utils/category-visual";
 import type { TransactionDTO } from "../../types/dto/transaction.dto";
-import type { TransactionCategory } from "../../types/transaction";
-import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatFullDatePT } from "../../utils/format-date-pt";
 import {
   formatAmountInput,
@@ -74,6 +78,8 @@ function TransactionForm({
   const [deleting, setDeleting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { openCategoryForm } = useCategoryAction();
+  const { categories: apiCategories } = useCategory();
   const dateAnchorRef = useRef<HTMLButtonElement>(null);
   const categoryAnchorRef = useRef<HTMLButtonElement>(null);
 
@@ -155,15 +161,22 @@ function TransactionForm({
     setTxType(next);
     setSelectedCategory((current) => {
       if (!current) return current;
-      const config =
-        transactionCategoryConfig[current as TransactionCategory];
       const expected = next === "income" ? "INCOME" : "EXPENSE";
-      return config?.flow === expected ? current : "";
+      return resolveCategoryFlow(current, apiCategories) === expected
+        ? current
+        : "";
     });
   }
 
+  const selectedApiFlow = selectedCategory
+    ? apiCategories.find(
+        (c) =>
+          c.name.trim().toLowerCase() ===
+          selectedCategory.trim().toLowerCase(),
+      )?.flow
+    : undefined;
   const categoryConfig = selectedCategory
-    ? transactionCategoryConfig[selectedCategory as TransactionCategory]
+    ? categoryVisual(selectedCategory, selectedApiFlow)
     : undefined;
   const CategoryIcon = categoryConfig?.icon ?? MoneyIcon;
 
@@ -473,6 +486,15 @@ function TransactionForm({
                         onSelect={(category) => {
                           setSelectedCategory(category);
                           setCategoryOpen(false);
+                        }}
+                        onAddCategory={() => {
+                          setCategoryOpen(false);
+                          openCategoryForm({
+                            flow:
+                              txType === "income" ? "INCOME" : "EXPENSE",
+                            onCreated: (name) =>
+                              setSelectedCategory(name),
+                          });
                         }}
                       />
                     </FloatingMenu>

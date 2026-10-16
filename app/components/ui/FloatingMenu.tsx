@@ -95,11 +95,23 @@ export default function FloatingMenu({
       });
     };
     update();
-    window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
+    // Agrega as actualizações ao ritmo dos frames: sem isto, cada evento de
+    // scroll (incluindo os da própria lista do menu) fazia leitura síncrona
+    // + re-render, e o card "tremia"/deslizava durante o scroll.
+    let frame = 0;
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
+    };
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, true);
     return () => {
-      window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [isOpen, anchorRef, align, matchWidth, offset, children, render]);
 

@@ -6,6 +6,7 @@ import {
   HelpIcon,
   HomeDeskIcon,
   IAIcon,
+  MenuIcon,
   QuizIcon,
   SettingsDeskIcon,
   StatsIcon,
@@ -21,7 +22,8 @@ export type MenuIconName =
   | "accounts"
   | "categories"
   | "settings"
-  | "support";
+  | "support"
+  | "menu";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   name: MenuIconName;
@@ -39,6 +41,7 @@ const iconMap: Record<MenuIconName, IconComponent> = {
   categories: StatsIcon,
   settings: SettingsDeskIcon,
   support: QuizIcon,
+  menu: MenuIcon,
 };
 
 export default function Icon({ name, ...props }: IconProps) {

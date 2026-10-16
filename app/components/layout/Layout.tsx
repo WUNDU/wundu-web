@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Menu from "./Menu";
 import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
+import CategoryActionProvider from "./CategoryActionProvider";
 import TransactionActionProvider from "./TransactionActionProvider";
 
 type LayoutProps = {
@@ -39,9 +40,11 @@ export default function Layout({ children, className }: LayoutProps) {
             .filter(Boolean)
             .join(" ")}
         >
-          <TransactionActionProvider>
-            <div className="h-full min-h-full">{children}</div>
-          </TransactionActionProvider>
+          <CategoryActionProvider>
+            <TransactionActionProvider>
+              <div className="h-full min-h-full">{children}</div>
+            </TransactionActionProvider>
+          </CategoryActionProvider>
         </main>
         {!isAi && <BottomNav />}
       </div>

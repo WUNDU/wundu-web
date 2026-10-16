@@ -23,7 +23,7 @@ function ProfileCard({ profile, createdLabel, onEdit }: ProfileCardProps) {
       aria-labelledby="profile-title"
       className="flex flex-col gap-4 self-stretch border-0 bg-transparent lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:border lg:border-(--card-barras) lg:bg-(--bg-card) lg:flex-row"
     >
-      <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch rounded-xl border-l-8 border-l-(--border-blue) bg-(--bg-card) p-6 lg:w-96 lg:rounded-none">
+      <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch rounded-xl border-l-8 border-l-(--border-blue) bg-(--bg-card) p-6 max-lg:ring-1 max-lg:ring-(--card-barras) lg:w-96 lg:rounded-none">
         <Image
           src={profile.photo ?? avatar}
           alt="Foto de perfil"

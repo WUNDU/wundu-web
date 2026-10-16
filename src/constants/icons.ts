@@ -59,6 +59,7 @@ export { default as LibraryDeskIcon } from "../icons/library-desk";
 export { default as LocationIcon } from "../icons/location";
 export { default as LogoutIcon } from "../icons/logout";
 export { default as MessageIcon } from "../icons/message";
+export { default as MenuIcon } from "../icons/menu";
 export { default as MirantesIcon } from "../icons/mirantes";
 export { default as MobileIcon } from "../icons/mobile";
 export { default as MoneyIcon } from "../icons/money";

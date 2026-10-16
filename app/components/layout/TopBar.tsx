@@ -56,10 +56,11 @@ export default function TopBar({
               ? "Contas"
               : pathname.startsWith("/home/categories")
                 ? "Categorias"
-                : pathname.startsWith("/home/more") ||
-                    pathname.startsWith("/home/profile/settings")
-                  ? "Perfil"
-                  : pathname.startsWith("/home/profile/support")
+                : pathname.startsWith("/home/more")
+                  ? "Menu"
+                  : pathname.startsWith("/home/profile/settings")
+                    ? "Definições"
+                    : pathname.startsWith("/home/profile/support")
                     ? "Suporte"
                     : title;
   const profileAnchorRef = useRef<HTMLButtonElement>(null);
@@ -137,6 +138,7 @@ export default function TopBar({
           </label>
 
           <div className="flex items-center gap-2 lg:gap-3">
+            {/* Wundu IA temporariamente oculto — TopBar muito cheio
             <button
               type="button"
               onClick={() => router.push("/home/ai")}
@@ -146,6 +148,7 @@ export default function TopBar({
             >
               <Sparkles className="size-5" aria-hidden="true" />
             </button>
+            */}
             <button
               type="button"
               onClick={toggleTheme}

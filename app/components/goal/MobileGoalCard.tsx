@@ -14,7 +14,6 @@ export default function MobileGoalCard({
 }) {
   const percent = goalPercent(goal);
   const status = statusFor(percent);
-  const complete = percent >= 100;
 
   return (
     <button
@@ -24,14 +23,9 @@ export default function MobileGoalCard({
     >
       <span className="flex items-center gap-3 self-stretch overflow-hidden">
         <span
-          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl ${
-            complete ? "bg-success/10" : "bg-primary-300/10"
-          }`}
+          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl ${status.tint}`}
         >
-          <GoalsIcon
-            className="size-5 text-(--icon-hover)"
-            aria-hidden="true"
-          />
+          <GoalsIcon className={`size-5 ${status.color}`} aria-hidden="true" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden">
           <span className="line-clamp-1 self-stretch font-manrope text-sm font-bold text-(--text-title)">
@@ -43,11 +37,7 @@ export default function MobileGoalCard({
           </span>
         </span>
         <span
-          className={`shrink-0 px-2 py-1 font-manrope text-sm font-bold rounded-md ${
-            complete
-              ? "bg-success/10 text-success-text"
-              : "bg-primary-300/10 text-primary-300"
-          }`}
+          className={`shrink-0 px-2 py-1 font-manrope text-sm font-bold rounded-md ${status.tint} ${status.color}`}
         >
           {percent}%
         </span>

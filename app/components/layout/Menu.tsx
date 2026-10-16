@@ -179,7 +179,7 @@ export default function Menu({
           >
             {!collapsed && (
               <p
-                className="h-8 text-[12px] font-medium uppercase leading-none tracking-normal text-(--text-description-60)"
+                className="h-8 text-[12px] font-medium uppercase leading-normal tracking-normal text-(--text-description-60)"
                 style={{ fontFamily: "var(--font-manrope)" }}
               >
                 {section.label}
@@ -217,12 +217,12 @@ export default function Menu({
                     {!collapsed && (
                       <span className="flex min-w-0 flex-1 flex-col justify-center">
                         <span
-                          className="truncate text-base font-medium leading-none"
+                          className="truncate text-base font-medium leading-normal"
                           style={{
                             fontFamily: "var(--font-manrope)",
                             fontSize: "16px",
                             fontWeight: isPrincipal && active ? 700 : 500,
-                            lineHeight: 1,
+                            lineHeight: 1.5,
                           }}
                         >
                           {item.label}
