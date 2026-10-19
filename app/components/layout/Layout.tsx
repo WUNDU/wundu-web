@@ -8,6 +8,7 @@ import TopBar from "./TopBar";
 import BottomNav from "./BottomNav";
 import CategoryActionProvider from "./CategoryActionProvider";
 import TransactionActionProvider from "./TransactionActionProvider";
+import ReceiptProvider from "./ReceiptProvider";
 
 type LayoutProps = {
   children: ReactNode;
@@ -41,9 +42,11 @@ export default function Layout({ children, className }: LayoutProps) {
             .join(" ")}
         >
           <CategoryActionProvider>
-            <TransactionActionProvider>
-              <div className="h-full min-h-full">{children}</div>
-            </TransactionActionProvider>
+            <ReceiptProvider>
+              <TransactionActionProvider>
+                <div className="h-full min-h-full">{children}</div>
+              </TransactionActionProvider>
+            </ReceiptProvider>
           </CategoryActionProvider>
         </main>
         {!isAi && <BottomNav />}

@@ -11,6 +11,7 @@
 | [Páginas](paginas.md) | Listar, descrever, rotas, componentes, permissões, estados, fluxos |
 | [API Client](api-client.md) | Base URL, config, endpoints, métodos, headers, auth, request/response, status, erros, loading |
 | [Componentes](componentes.md) | Listar, props, events, states, dependências, regras, exemplos |
+| [Comprovativos no formulário](comprovativos-transaction-form.md) | Leitura de documentos (OCR) a partir do `TransactionForm`, fluxo, endpoints, regras |
 | [Variáveis de Ambiente](env.md) | Todas vars, DEV vs PROD, obrigatórias/opcionais, sem secrets |
 | [Build & Deploy](build-deploy.md) | Comando, config, variáveis, output, DEV/PROD, validação, deploy, health, rollback |
 | [Guia Local](guia-local.md) | Clonar, instalar, .env, executar, testes, lint, primeira alteração, commit, PR, portas, modos |

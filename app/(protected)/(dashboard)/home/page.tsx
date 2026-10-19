@@ -11,7 +11,7 @@ import FlowCard from "app/components/dashboard/FlowCard";
 import CategoryCard from "app/components/dashboard/CategoryCard";
 import WeeklyCard from "app/components/dashboard/WeeklyCard";
 import PageHeader from "app/components/layout/PageHeader";
-import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Plus, Wallet } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Eye, EyeOff, Plus, Wallet } from "lucide-react";
 import { useBalance } from "@/hooks/use-balance";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
@@ -21,6 +21,10 @@ import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.
 import type { GoalDTO } from "app/types/dto/goal.dto";
 import { formatAOA } from "app/utils/format-AOA";
 import { getCategory, toAppTransaction } from "app/utils/transaction-map";
+import {
+  ValuesVisibilityProvider,
+  useValuesVisibility,
+} from "app/components/dashboard/values-visibility";
 
 function toDashboardGoal(goal: Goal): GoalDTO {
   return {
@@ -165,8 +169,9 @@ function getDailySeries(
   };
 }
 
-function Page() {
+function DashboardContent() {
   const { openTransactionForm } = useTransactionAction();
+  const { hidden, toggle } = useValuesVisibility();
   const now = new Date();
   const currentKey = now.getFullYear() * 12 + now.getMonth();
   // Mês selecionado no filtro do cabeçalho (por omissão, o mês atual).
@@ -317,6 +322,20 @@ function Page() {
       <div className="hidden lg:block">
         <PageHeader title="Dashboard">
         <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={hidden ? "Mostrar valores" : "Ocultar valores"}
+          aria-pressed={hidden}
+          title={hidden ? "Mostrar valores" : "Ocultar valores"}
+          className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-(--border-button) bg-(--background) transition-colors hover:border-primary-300"
+        >
+          {hidden ? (
+            <EyeOff className="size-5 text-(--icon)" aria-hidden="true" />
+          ) : (
+            <Eye className="size-5 text-(--icon)" aria-hidden="true" />
+          )}
+        </button>
         <div className="flex items-center justify-center gap-1 rounded-xl border border-(--border-button) bg-(--bg-card) px-2 py-1.5">
           <button
             type="button"
@@ -609,4 +628,10 @@ function Page() {
   );
 }
 
-export default Page;
+export default function Page() {
+  return (
+    <ValuesVisibilityProvider>
+      <DashboardContent />
+    </ValuesVisibilityProvider>
+  );
+}

@@ -6,6 +6,7 @@ import type { TransactionCategory } from "app/types/transaction";
 import { getCategory } from "app/utils/transaction-map";
 import { CATEGORY_CHART_COLORS } from "app/utils/analysis-data";
 import { formatAOA, formatAOACompact } from "app/utils/format-AOA";
+import { useValuesVisibility } from "./values-visibility";
 
 type CategoryCardProps = {
   transactions: ApiTransaction[];
@@ -13,6 +14,7 @@ type CategoryCardProps = {
 };
 
 function CategoryCard({ transactions, loading = false }: CategoryCardProps) {
+  const { mask } = useValuesVisibility();
   const categories = useMemo(() => {
     const totals = new Map<TransactionCategory, number>();
     for (const tx of transactions) {
@@ -67,7 +69,7 @@ function CategoryCard({ transactions, loading = false }: CategoryCardProps) {
           <div
             className="relative hidden size-42 shrink-0 rounded-full md:block"
             role="img"
-            aria-label={`Distribuição dos gastos por categoria, total ${formatAOA(spent)}`}
+            aria-label={`Distribuição dos gastos por categoria, total ${mask(formatAOA(spent))}`}
             style={{ background: `conic-gradient(${donut})` }}
           >
             <div className="absolute inset-0 m-auto flex size-32 flex-col items-center justify-center gap-1 rounded-full bg-(--bg-card)">
@@ -75,10 +77,10 @@ function CategoryCard({ transactions, loading = false }: CategoryCardProps) {
                 Total de gastos
               </small>
               <strong
-                title={formatAOA(spent)}
+                title={mask(formatAOA(spent))}
                 className="font-manrope text-sm font-bold text-(--text-title)"
               >
-                {formatAOACompact(spent)}
+                {mask(formatAOACompact(spent))}
               </strong>
             </div>
           </div>

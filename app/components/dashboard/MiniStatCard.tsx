@@ -8,6 +8,7 @@ import {
   type CardTrend,
   type TrendPolarity,
 } from "./CardViews";
+import { useValuesVisibility } from "./values-visibility";
 
 export type MiniStatTone = {
   background: string;
@@ -44,11 +45,13 @@ export default function MiniStatCard({
   chartLabel,
   className,
 }: MiniStatCardProps) {
+  const { mask } = useValuesVisibility();
   const TrendIcon =
     trend === "down" ? ArrowDown : trend === "flat" ? Equal : ArrowUp;
   // Igual ao desktop: a cor do badge segue a tendência + polaridade,
   // não a cor fixa do ícone (antes ficava sempre verde/vermelho).
   const badgeTone = getTrendBadgeTone(trend, trendPolarity, change !== "");
+  const displayValue = mask(value);
 
   return (
     <article
@@ -59,7 +62,7 @@ export default function MiniStatCard({
         .filter(Boolean)
         .join(" ")}
       role="img"
-      aria-label={`${label}: ${value}`}
+      aria-label={`${label}: ${displayValue}`}
     >
       <div className="flex flex-col items-start justify-start gap-1 self-stretch px-4 pt-4">
         <span
@@ -76,9 +79,9 @@ export default function MiniStatCard({
         </p>
         <p
           className="self-stretch truncate font-manrope text-base font-bold leading-6 text-(--text-title)"
-          title={value}
+          title={displayValue}
         >
-          {value}
+          {displayValue}
         </p>
         <div className="self-stretch pt-1.5">
           {change ? (

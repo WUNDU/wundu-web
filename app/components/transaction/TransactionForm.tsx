@@ -10,6 +10,9 @@ import React, { useEffect, useRef, useState } from "react";
 import DropmenuCategoria from "./DropmenuCategoria";
 import DropmenuData from "./DropmenuData";
 import FloatingMenu from "../ui/FloatingMenu";
+import EntryModeTabs from "./EntryModeTabs";
+import TransactionTypeToggle from "./TransactionTypeToggle";
+import ReceiptComposer from "app/components/receipt/ReceiptComposer";
 import { useCategoryAction } from "../layout/CategoryActionProvider";
 import { useCategory } from "@/hooks/use-category";
 import {
@@ -51,6 +54,9 @@ export type TransactionFormValues = {
   time: string;
 };
 
+/** Forma de registar a despesa: à mão ou lendo um comprovativo. */
+type EntryMode = "manual" | "receipt";
+
 function toDateKey(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -68,7 +74,7 @@ function TransactionForm({
   const isEdit = Boolean(transaction);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [txType, setTxType] = useState<"expense" | "income">("income");
+  const [txType, setTxType] = useState<"expense" | "income">("expense");
   const [dateOpen, setDateOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [time, setTime] = useState(() => currentTimeLabel());
@@ -78,10 +84,13 @@ function TransactionForm({
   const [deleting, setDeleting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [entryMode, setEntryMode] = useState<EntryMode>("manual");
   const { openCategoryForm } = useCategoryAction();
   const { categories: apiCategories } = useCategory();
   const dateAnchorRef = useRef<HTMLButtonElement>(null);
   const categoryAnchorRef = useRef<HTMLButtonElement>(null);
+  /** A tab de comprovativos só existe a criar uma despesa (como no protótipo). */
+  const showEntryTabs = !isEdit && txType === "expense";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -91,6 +100,7 @@ function TransactionForm({
     setSaving(false);
     setDeleting(false);
     setFormError(null);
+    setEntryMode("manual");
     if (transaction) {
       setTxType(transaction.type === "expense" ? "expense" : "income");
       setSelectedCategory(transaction.category);
@@ -108,7 +118,7 @@ function TransactionForm({
           : "",
       );
     } else {
-      setTxType("income");
+      setTxType("expense");
       setSelectedCategory("");
       setSelectedDate(new Date());
       setTime(currentTimeLabel());
@@ -143,8 +153,11 @@ function TransactionForm({
       time,
     });
     setSaving(false);
-    if (ok) onClose();
-    else setFormError("Não foi possível guardar. Tente novamente.");
+    if (!ok) {
+      setFormError("Não foi possível guardar. Tente novamente.");
+      return;
+    }
+    onClose();
   }
 
   async function handleDelete() {
@@ -159,6 +172,8 @@ function TransactionForm({
   /** Troca o tipo e limpa a categoria se for do fluxo contrário. */
   function handleTypeChange(next: "expense" | "income") {
     setTxType(next);
+    // A leitura de comprovativos só existe para despesas (como no protótipo).
+    if (next === "income") setEntryMode("manual");
     setSelectedCategory((current) => {
       if (!current) return current;
       const expected = next === "income" ? "INCOME" : "EXPENSE";
@@ -174,8 +189,7 @@ function TransactionForm({
           c.name.trim().toLowerCase() ===
           selectedCategory.trim().toLowerCase(),
       )?.flow
-    : undefined;
-  const categoryConfig = selectedCategory
+    : undefined;  const categoryConfig = selectedCategory
     ? categoryVisual(selectedCategory, selectedApiFlow)
     : undefined;
   const CategoryIcon = categoryConfig?.icon ?? MoneyIcon;
@@ -257,7 +271,7 @@ function TransactionForm({
           </>
         ) : (
           <>
-            <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
+            <div className="flex min-h-0 flex-1 flex-col items-start self-stretch">
               <header className="flex p-6 justify-between items-center self-stretch border-b border-(--card-barras)">
                 <p className="font-manrope text-base font-bold leading-6 text-(--text-title) lg:text-lg">
                   {isEdit ? "Editar transação" : "Adicionar transação"}
@@ -295,42 +309,43 @@ function TransactionForm({
                   </button>
                 </span>
               </header>
+              {entryMode === "receipt" ? (
+                <>
+                  <div className="flex flex-col items-start gap-4 self-stretch px-6 pt-6 pb-4">
+                    <TransactionTypeToggle
+                      value={txType}
+                      onChange={handleTypeChange}
+                      className="bg-(--bg-body)"
+                    />
+                    {showEntryTabs ? (
+                      <EntryModeTabs
+                        value={entryMode}
+                        onChange={setEntryMode}
+                      />
+                    ) : null}
+                  </div>
+                  <ReceiptComposer onClose={onClose} />
+                </>
+              ) : (
+                <div className="flex min-h-0 flex-1 flex-col items-start self-stretch overflow-y-auto">
               <section className="flex flex-col items-start self-stretch">
                 <div className="flex py-2 px-6 flex-col justify-center items-center gap-5 self-stretch border border-(--card-barras)">
                   <div className="flex flex-col py-0 px-6 items-center gap-2.5 self-stretch">
                     <p className="text-(--text-description) font-manrope text-xs font-semibold leading-5 uppercase lg:text-sm">
                       Tipo de tansação
                     </p>
-                    <div className="relative flex p-1 items-start gap-1 rounded-xl border border-(--card-barras) bg-(--background) w-full">
-                      <span
-                        aria-hidden="true"
-                        className={`absolute top-1 bottom-1 left-1 w-[calc(50%-6px)] rounded-xl transition-transform duration-300 ease-out ${txType === "income" ? "translate-x-[calc(100%+4px)] bg-primary-300/20" : "translate-x-0 bg-danger-300/10"}`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleTypeChange("expense")}
-                        aria-pressed={txType === "expense"}
-                        className="relative flex py-2.5 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:py-3"
-                      >
-                        <p
-                          className={`${txType === "expense" ? "text-danger-300" : "text-(--text-title)"} font-manrope text-sm font-medium leading-6 transition-colors lg:text-base`}
-                        >
-                          Gastos
-                        </p>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleTypeChange("income")}
-                        aria-pressed={txType === "income"}
-                        className="relative flex py-2.5 px-4 justify-center items-center flex-1 self-stretch rounded-xl hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:py-3"
-                      >
-                        <p
-                          className={`${txType === "income" ? "text-primary-300" : "text-(--text-title)"} font-manrope text-sm font-medium leading-6 transition-colors lg:text-base`}
-                        >
-                          Receitas
-                        </p>
-                      </button>
-                    </div>
+                    <TransactionTypeToggle
+                      value={txType}
+                      onChange={handleTypeChange}
+                    />
+                    {showEntryTabs ? (
+                      <div className="w-full py-2">
+                        <EntryModeTabs
+                          value={entryMode}
+                          onChange={setEntryMode}
+                        />
+                      </div>
+                    ) : null}
                     <div className="flex flex-col justify-center items-center gap-1.5 shrink-0 self-stretch">
                       <p className="font-manrope text-xs font-semibold text-(--text-description) uppercase leading-5 lg:text-sm">
                         VALOR DA TRANSAÇÃO
@@ -515,30 +530,38 @@ function TransactionForm({
                   />
                 </div>
               </section>
+                </div>
+              )}
             </div>
-            <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras) lg:border">
-              <div className="flex items-start gap-4 self-stretch">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex flex-1 p-3 justify-center items-center gap-2.5 rounded-xl border border-(--card-barras) text-(--text-title) lg:p-4 hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:w-56 lg:flex-none"
-                >
-                  <p className="text-(--text-description) font-manrope text-sm font-bold leading-6 lg:text-base">
-                    Cancelar
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex w-56 p-3 justify-center items-center gap-2.5 rounded-xl border border-(--card-barras) bg-primary-300 lg:p-4 hover:opacity-90 active:opacity-80 active:scale-95 transition-all disabled:cursor-wait disabled:opacity-60 lg:w-56"
-                >
-                  <p className="text-base-white font-manrope text-sm not-italic font-bold leading-normal lg:text-base">
-                    {saving ? "A guardar…" : isEdit ? "Actualizar" : "Salvar"}
-                  </p>
-                </button>
+            {entryMode === "manual" ? (
+              <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-6 border-t border-(--card-barras) lg:border">
+                <div className="flex items-start gap-4 self-stretch">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex flex-1 p-3 justify-center items-center gap-2.5 rounded-xl border border-(--card-barras) text-(--text-title) lg:p-4 hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 transition-all lg:w-56 lg:flex-none"
+                  >
+                    <p className="text-(--text-description) font-manrope text-sm font-bold leading-6 lg:text-base">
+                      Cancelar
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex w-56 p-3 justify-center items-center gap-2.5 rounded-xl border border-(--card-barras) bg-primary-300 lg:p-4 hover:opacity-90 active:opacity-80 active:scale-95 transition-all disabled:cursor-wait disabled:opacity-60 lg:w-56"
+                  >
+                    <p className="text-base-white font-manrope text-sm not-italic font-bold leading-normal lg:text-base">
+                      {saving
+                        ? "A guardar…"
+                        : isEdit
+                          ? "Actualizar"
+                          : "Salvar"}
+                    </p>
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : null}
           </>
         )}
       </aside>

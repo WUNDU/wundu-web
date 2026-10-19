@@ -4,6 +4,7 @@ import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
 import { formatAOA } from "app/utils/format-AOA";
+import { useValuesVisibility } from "./values-visibility";
 
 type WeeklyCardProps = {
   transactions: ApiTransaction[];
@@ -22,6 +23,7 @@ function WeeklyCard({
   loading = false,
   error,
 }: WeeklyCardProps) {
+  const { mask } = useValuesVisibility();
   let currentWeekSpent = 0;
   let previousWeekSpent = 0;
 
@@ -90,7 +92,7 @@ function WeeklyCard({
                 Esta semana, até hoje
               </span>
               <strong className="mt-2 block font-manrope text-xl font-bold text-(--text-title)">
-                {formatAOA(currentWeekSpent)}
+                {mask(formatAOA(currentWeekSpent))}
               </strong>
             </div>
             <div className="rounded-xl bg-(--background-variant) p-4">
@@ -98,7 +100,7 @@ function WeeklyCard({
                 Semana anterior completa
               </span>
               <strong className="mt-2 block font-manrope text-xl font-bold text-(--text-title)">
-                {formatAOA(previousWeekSpent)}
+                {mask(formatAOA(previousWeekSpent))}
               </strong>
             </div>
           </div>

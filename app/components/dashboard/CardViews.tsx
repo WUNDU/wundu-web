@@ -5,6 +5,7 @@ import Chart from "chart.js/auto";
 import { ArrowDown, ArrowUp, Equal, Wallet } from "lucide-react";
 import { formatAOACompact } from "app/utils/format-AOA";
 import { useThemeStore } from "app/store/theme-store";
+import { useValuesVisibility } from "./values-visibility";
 
 export type CardTrend = "up" | "down" | "flat";
 export type TrendPolarity = "higher-is-better" | "lower-is-better";
@@ -573,6 +574,7 @@ export default function CardViews({
   chartLabel,
   chartLabels,
 }: CardViewsProps) {
+  const { mask } = useValuesVisibility();
   const effectiveTrendPolarity =
     trendPolarity ??
     (property1 === "Variant6" ||
@@ -599,7 +601,7 @@ export default function CardViews({
   const config = {
     ...base,
     ...(title !== undefined ? { title } : null),
-    ...(value !== undefined ? { value } : null),
+    ...(value !== undefined ? { value: mask(value) } : null),
     ...(change !== undefined ? { change } : null),
     ...(comparison !== undefined ? { comparison } : null),
     ...(color !== undefined ? { color } : null),

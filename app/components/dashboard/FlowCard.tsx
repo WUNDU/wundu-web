@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
 import { formatAOA } from "app/utils/format-AOA";
+import { useValuesVisibility } from "./values-visibility";
 
 type FlowCardProps = {
   transactions: ApiTransaction[];
@@ -43,6 +44,7 @@ function bucketize(transactions: ApiTransaction[], year: number, month: number):
 }
 
 function FlowCard({ transactions, year, month, loading = false }: FlowCardProps) {
+  const { mask } = useValuesVisibility();
   const buckets = useMemo(
     () => bucketize(transactions, year, month),
     [transactions, year, month],
@@ -103,7 +105,7 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
           aria-label={buckets
             .map(
               (b) =>
-                `${b.label}: entradas ${formatAOA(b.income)}, gastos ${formatAOA(b.expense)}`,
+                `${b.label}: entradas ${mask(formatAOA(b.income))}, gastos ${mask(formatAOA(b.expense))}`,
             )
             .join(". ")}
         >
@@ -128,7 +130,7 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
                 key={bucket.label}
                 tabIndex={0}
                 role="img"
-                aria-label={`${bucket.label}: entradas ${formatAOA(bucket.income)}, gastos ${formatAOA(bucket.expense)}`}
+                aria-label={`${bucket.label}: entradas ${mask(formatAOA(bucket.income))}, gastos ${mask(formatAOA(bucket.expense))}`}
                 onMouseEnter={() => {
                   if (canHover()) setHovered(i);
                 }}
@@ -153,11 +155,11 @@ function FlowCard({ transactions, year, month, loading = false }: FlowCardProps)
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
                       <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-success" />
-                      {formatAOA(bucket.income)}
+                      {mask(formatAOA(bucket.income))}
                     </p>
                     <p className="mt-0.5 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
                       <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-danger-300" />
-                      {formatAOA(bucket.expense)}
+                      {mask(formatAOA(bucket.expense))}
                     </p>
                     <span
                       aria-hidden="true"

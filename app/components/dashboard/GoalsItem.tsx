@@ -1,14 +1,18 @@
+"use client";
+
 import { GoalsIcon } from "@/constants/icons";
 import React from "react";
 import type { GoalDTO } from "../../types/dto/goal.dto";
 import { formatAOA } from "app/utils/format-AOA";
 import { goalPercent, statusFor } from "../goal/goal-status";
+import { useValuesVisibility } from "./values-visibility";
 
 interface GoalsItemProps {
   goal: GoalDTO;
 }
 
 function GoalsItem({ goal }: GoalsItemProps) {
+  const { mask } = useValuesVisibility();
   const percent = goalPercent(goal);
   const status = statusFor(percent);
   const isComplete = percent >= 100;
@@ -38,14 +42,14 @@ function GoalsItem({ goal }: GoalsItemProps) {
           </div>
           <div className="flex justify-between items-center self-stretch">
             <p className="font-inter text-sm font-medium leading-6 text-(--text-description)">
-              {formatAOA(goal.currentAmount)}
+              {mask(formatAOA(goal.currentAmount))}
             </p>
             <p
               className={`font-inter text-sm leading-6 ${isComplete ? `${status.color} font-bold` : "text-(--text-description) font-medium"} text-right`}
             >
               {isComplete
                 ? "Concluído"
-                : `Falta ${formatAOA(goal.targetAmount - goal.currentAmount)}`}
+                : `Falta ${mask(formatAOA(goal.targetAmount - goal.currentAmount))}`}
             </p>
           </div>
         </div>

@@ -1,10 +1,14 @@
+"use client";
+
 import React from "react";
 import type { TransactionItemProps } from "../../types/transaction";
 import { transactionTypeConfig } from "../config/transaction-config";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
+import { useValuesVisibility } from "./values-visibility";
 
 function Transaction({ transaction }: TransactionItemProps) {
+  const { mask } = useValuesVisibility();
   const typeConfig = transactionTypeConfig[transaction.type];
   const TypeIcon = typeConfig.icon;
   const categoryConfig = transactionCategoryConfig[transaction.category];
@@ -42,7 +46,7 @@ function Transaction({ transaction }: TransactionItemProps) {
         <p
           className={`font-inter text-sm font-bold leading-5 ${typeConfig.color}`}
         >
-          {formatAOA(transaction.amount)}
+          {mask(formatAOA(transaction.amount))}
         </p>
       </div>
     </article>

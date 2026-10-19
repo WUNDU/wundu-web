@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { ArrowDown, ArrowUp, Equal, Eye, EyeOff } from "lucide-react";
 import type { CardTrend } from "./CardViews";
+import { useValuesVisibility } from "./values-visibility";
 
 type BalanceHeroProps = {
   value: string;
@@ -21,7 +21,7 @@ export default function BalanceHero({
   loading,
   className,
 }: BalanceHeroProps) {
-  const [masked, setMasked] = useState(false);
+  const { hidden: masked, toggle } = useValuesVisibility();
   const TrendIcon =
     trend === "down" ? ArrowDown : trend === "flat" ? Equal : ArrowUp;
 
@@ -41,7 +41,7 @@ export default function BalanceHero({
         </p>
         <button
           type="button"
-          onClick={() => setMasked((value) => !value)}
+          onClick={toggle}
           aria-label={masked ? "Mostrar saldo" : "Ocultar saldo"}
           aria-pressed={masked}
           className="flex size-4 items-center justify-center text-white"

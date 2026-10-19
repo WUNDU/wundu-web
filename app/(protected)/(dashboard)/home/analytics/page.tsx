@@ -6,8 +6,6 @@ import {
   Check,
   ChevronDown,
   Download,
-  Eye,
-  EyeOff,
   FileSpreadsheet,
   FileText,
   LoaderCircle,
@@ -358,7 +356,6 @@ function page() {
     : "translate-y-0 opacity-100";
 
   const [period, setPeriod] = useState<AnalysisPeriod>("all");
-  const [hidden, setHidden] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportReady, setExportReady] = useState<{
@@ -460,11 +457,11 @@ function page() {
     transactions.length === 0 && appGoals.length === 0
       ? (transactionsError ?? goalsError)
       : null;
-  const fmt = (value: number) => (hidden ? "••••••" : formatAOA(value));
+  const fmt = (value: number) => formatAOA(value);
 
-  /* Exportação (diálogo como na wundu; bloqueada com valores ocultos) */
+  /* Exportação (diálogo como na wundu) */
   const [exportFormat, setExportFormat] = useState<"csv" | "xlsx">("csv");
-  const exportDisabled = hidden || filtered.length === 0;
+  const exportDisabled = filtered.length === 0;
 
   /** Analítica em cêntimos para o relatório/CSV/Excel, tal como na wundu. */
   const toCents = (value: number) => Math.round(value * 100);
@@ -616,19 +613,6 @@ function page() {
     <div className="flex h-full flex-col bg-(--bg-card)">
         <div className="hidden shrink-0 lg:block">
           <PageHeader title="Análises">
-            <button
-              type="button"
-              onClick={() => setHidden((value) => !value)}
-              aria-label={hidden ? "Mostrar valores" : "Ocultar valores"}
-              title={hidden ? "Mostrar valores" : "Ocultar valores"}
-              className="flex size-12 items-center justify-center rounded-xl border border-(--border-button) bg-(--background) transition-colors hover:border-primary-300"
-            >
-              {hidden ? (
-                <EyeOff className="size-5 text-(--icon)" aria-hidden="true" />
-              ) : (
-                <Eye className="size-5 text-(--icon)" aria-hidden="true" />
-              )}
-            </button>
             <PeriodControl
               period={period}
               onSelect={setPeriod}
@@ -645,11 +629,7 @@ function page() {
                 setExportOpen(true);
               }}
               disabled={exportDisabled}
-              title={
-                hidden
-                  ? "Mostra os valores para exportar o relatório."
-                  : "Configurar exportação"
-              }
+              title="Configurar exportação"
               className="flex h-12 w-32 items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors hover:border-primary-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download
@@ -703,19 +683,6 @@ function page() {
         <div className="shrink-0 lg:hidden">
           <div className="flex items-center justify-between gap-2 px-6 pb-3 pt-3">
             <div className="flex min-w-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setHidden((value) => !value)}
-                aria-label={hidden ? "Mostrar valores" : "Ocultar valores"}
-                title={hidden ? "Mostrar valores" : "Ocultar valores"}
-                className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-(--border-button) bg-(--background)"
-              >
-                {hidden ? (
-                  <EyeOff width={20} height={20} className="shrink-0 text-(--icon)" aria-hidden="true" />
-                ) : (
-                  <Eye width={20} height={20} className="shrink-0 text-(--icon)" aria-hidden="true" />
-                )}
-              </button>
               <PeriodControl
                 period={period}
                 onSelect={setPeriod}
@@ -734,11 +701,7 @@ function page() {
                 setExportOpen(true);
               }}
               disabled={exportDisabled}
-              title={
-                hidden
-                  ? "Mostra os valores para exportar o relatório."
-                  : "Configurar exportação"
-              }
+              title="Configurar exportação"
               className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-4 transition-colors hover:border-primary-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download
@@ -869,7 +832,7 @@ function page() {
           />
           <AnalysisSummaryCard
             title="Património Total"
-            value={hidden ? "••••••" : "—"}
+            value="—"
             color="blue"
             icon="wallet"
             chartData={[]}
@@ -882,64 +845,24 @@ function page() {
             aria-label="Gráficos"
             className={`grid grid-cols-1 content-start items-stretch gap-4 transition-all duration-200 ease-out xl:grid-cols-2 ${fadeCls}`}
           >
-            {hidden ? (
-              <AnalysisEmpty
-                title="Fluxo financeiro"
-                description="Gastos, entradas e saldo ao longo do tempo."
-                message="Os valores estão ocultos."
-              />
-            ) : (
-              <CashFlowChart
-                months={monthly.months}
-                income={monthly.income}
-                expenses={monthly.expenses}
-              />
-            )}
+            <CashFlowChart
+              months={monthly.months}
+              income={monthly.income}
+              expenses={monthly.expenses}
+            />
             <AnalysisEmpty
               title="Evolução do património"
               description="Património ao longo do tempo."
-              message={
-                hidden
-                  ? "Os valores estão ocultos."
-                  : "Sem histórico de património. Os saldos das contas ainda não estão ligados."
-              }
+              message="Sem histórico de património. Os saldos das contas ainda não estão ligados."
             />
-              {hidden ? (
-                <AnalysisEmpty
-                  title="Gastos por categoria"
-                  description="Onde o teu dinheiro foi gasto."
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <CategoryDonut data={categories} />
-              )}
-              <AnalysisEmpty
-                title="Distribuição das contas"
-                description="De onde vem o teu dinheiro."
-                message={
-                  hidden
-                    ? "Os valores estão ocultos."
-                    : "Nenhuma conta ligada. Liga uma conta para veres a distribuição."
-                }
-              />
-              {hidden ? (
-                <AnalysisEmpty
-                  title="Mapeamento de gastos"
-                  description="Em que dia da semana gastas mais?"
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <SpendingHeatmap heat={heat.heat} values={heat.values} />
-              )}
-              {hidden ? (
-                <AnalysisEmpty
-                  title="Comparativo de metas"
-                  description="Comparação entre metas."
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <GoalsComparison shares={goalShares} />
-              )}
+            <CategoryDonut data={categories} />
+            <AnalysisEmpty
+              title="Distribuição das contas"
+              description="De onde vem o teu dinheiro."
+              message="Nenhuma conta ligada. Liga uma conta para veres a distribuição."
+            />
+            <SpendingHeatmap heat={heat.heat} values={heat.values} />
+            <GoalsComparison shares={goalShares} />
           </section>
           ) : (
           <section
@@ -947,75 +870,31 @@ function page() {
             className={`grid grid-cols-1 content-start items-stretch gap-4 transition-all duration-200 ease-out ${fadeCls}`}
           >
             {shownTab === "Fluxo Financeiro" && (
-              hidden ? (
-                <AnalysisEmpty
-                  title="Fluxo financeiro"
-                  description="Gastos, entradas e saldo ao longo do tempo."
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <CashFlowChart
-                  months={monthly.months}
-                  income={monthly.income}
-                  expenses={monthly.expenses}
-                />
-              )
+              <CashFlowChart
+                months={monthly.months}
+                income={monthly.income}
+                expenses={monthly.expenses}
+              />
             )}
             {shownTab === "Património" && (
               <AnalysisEmpty
                 title="Evolução do património"
                 description="Património ao longo do tempo."
-                message={
-                  hidden
-                    ? "Os valores estão ocultos."
-                    : "Sem histórico de património. Os saldos das contas ainda não estão ligados."
-                }
+                message="Sem histórico de património. Os saldos das contas ainda não estão ligados."
               />
             )}
-            {shownTab === "Categorias" && (
-              hidden ? (
-                <AnalysisEmpty
-                  title="Gastos por categoria"
-                  description="Onde o teu dinheiro foi gasto."
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <CategoryDonut data={categories} />
-              )
-            )}
+            {shownTab === "Categorias" && <CategoryDonut data={categories} />}
             {shownTab === "Contas" && (
               <AnalysisEmpty
                 title="Distribuição das contas"
                 description="De onde vem o teu dinheiro."
-                message={
-                  hidden
-                    ? "Os valores estão ocultos."
-                    : "Nenhuma conta ligada. Liga uma conta para veres a distribuição."
-                }
+                message="Nenhuma conta ligada. Liga uma conta para veres a distribuição."
               />
             )}
             {shownTab === "Mapa" && (
-              hidden ? (
-                <AnalysisEmpty
-                  title="Mapeamento de gastos"
-                  description="Em que dia da semana gastas mais?"
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <SpendingHeatmap heat={heat.heat} values={heat.values} />
-              )
+              <SpendingHeatmap heat={heat.heat} values={heat.values} />
             )}
-            {shownTab === "Metas" && (
-              hidden ? (
-                <AnalysisEmpty
-                  title="Comparativo de metas"
-                  description="Comparação entre metas."
-                  message="Os valores estão ocultos."
-                />
-              ) : (
-                <GoalsComparison shares={goalShares} />
-              )
-            )}
+            {shownTab === "Metas" && <GoalsComparison shares={goalShares} />}
           </section>
           )}
           </>
