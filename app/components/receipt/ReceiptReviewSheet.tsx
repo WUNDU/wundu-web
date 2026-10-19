@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowRight, Eye, FileText, Sparkles, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, ChevronRight, Eye, FileText, Sparkles, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useReceipt } from "app/components/layout/ReceiptProvider";
 import { useTransaction } from "@/hooks/use-transaction";
-import { useCategory } from "@/hooks/use-category";
-import type { ReceiptItem } from "@/hooks/use-receipt-attachment";
-import { transactionCategoryConfig } from "app/components/config/transaction-category-config";
+import DropmenuCategoria from "app/components/transaction/DropmenuCategoria";
+import FloatingMenu from "app/components/ui/FloatingMenu";
+import { categoryVisual } from "app/utils/category-visual";
+import { MoneyIcon } from "@/constants/icons";
 import {
   formatAmountInput,
   formatAmountValue,
@@ -45,7 +46,6 @@ export default function ReceiptReviewSheet({
   const receipt = useReceipt();
   const { updateTransaction, createTransaction, transactions, notPaginated } =
     useTransaction();
-  const { categories: apiCategories } = useCategory();
 
   const job = useMemo(
     () => receipt.items.find((item) => item.id === receipt.reviewId) ?? null,
@@ -61,6 +61,8 @@ export default function ReceiptReviewSheet({
   const [error, setError] = useState("");
   const [preview, setPreview] = useState(false);
   const [url, setUrl] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const categoryAnchorRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!job) return;
@@ -70,6 +72,7 @@ export default function ReceiptReviewSheet({
     setDate(job.draft?.date ?? todayKey());
     setChecked(false);
     setError("");
+    setCategoryOpen(false);
   }, [job]);
 
   useEffect(() => {
@@ -78,18 +81,12 @@ export default function ReceiptReviewSheet({
     };
   }, [url]);
 
-  const options = useMemo(
-    () => [
-      ...Object.keys(transactionCategoryConfig),
-      ...(apiCategories ?? []).map((item) => item.name),
-    ].filter(
-      (name, index, list) =>
-        list.findIndex(
-          (other) => other.trim().toLowerCase() === name.trim().toLowerCase(),
-        ) === index,
-    ),
-    [apiCategories],
+  // Visual da categoria (ícone e cor) — como no formulário de transação.
+  const categoryConfig = useMemo(
+    () => (category ? categoryVisual(category, "EXPENSE") : undefined),
+    [category],
   );
+  const CategoryIcon = categoryConfig?.icon ?? MoneyIcon;
 
   // Mesmo valor e data — como no protótipo (`possibleReceiptDuplicates`).
   const duplicates = useMemo(() => {
@@ -228,7 +225,7 @@ export default function ReceiptReviewSheet({
                 <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
                   Valor da transação
                 </span>
-                <div className="flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-2">
                   <input
                     aria-label="Valor da despesa em Kz"
                     required
@@ -239,11 +236,12 @@ export default function ReceiptReviewSheet({
                       setAmount(formatAmountInput(event.target.value))
                     }
                     placeholder="0,00"
-                    className="w-auto min-w-0 max-w-[75%] bg-transparent text-right font-manrope text-2xl font-bold leading-8 text-danger-300 outline-none placeholder:text-(--text-description)/40"
+                    size={Math.max(amount.length, 4)}
+                    className="w-auto max-w-full min-w-0 bg-transparent text-center font-manrope text-2xl font-bold leading-8 text-danger-300 outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
                   />
-                  <b className="font-manrope text-2xl font-bold leading-8 text-danger-300">
+                  <span className="font-manrope text-sm font-bold text-(--text-description) lg:text-base">
                     Kz
-                  </b>
+                  </span>
                 </div>
               </label>
 
@@ -261,8 +259,8 @@ export default function ReceiptReviewSheet({
                 />
               </label>
 
-              <div className="mt-5 grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-                <label className="flex flex-col items-start gap-2">
+              <div className="mt-5 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex flex-col items-start gap-2">
                   <span className="flex w-full items-center gap-2 font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
                     Categoria
                     <em className="ml-auto flex items-center gap-1 rounded-full bg-primary-300/10 px-2 py-0.5 text-[9px] font-semibold not-italic normal-case text-primary-300">
@@ -270,20 +268,58 @@ export default function ReceiptReviewSheet({
                       Sugerida
                     </em>
                   </span>
-                  <select
-                    aria-label="Categoria da despesa"
-                    value={category}
-                    onChange={(event) => setCategory(event.target.value)}
-                    className="w-full rounded-xl border border-(--border-button) bg-(--background) px-3 py-2.5 font-manrope text-sm font-medium leading-6 text-(--text) outline-none focus:border-(--border)"
-                  >
-                    <option value="">Seleccionar</option>
-                    {options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <div className="relative w-full">
+                    <button
+                      type="button"
+                      ref={categoryAnchorRef}
+                      onClick={() => setCategoryOpen((value) => !value)}
+                      aria-expanded={categoryOpen}
+                      aria-label="Categoria da despesa"
+                      className="flex w-full items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 py-2.5 text-left transition-colors hover:bg-neutrals-300/10 active:scale-[0.99]"
+                    >
+                      {category && categoryConfig ? (
+                        <span
+                          className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
+                        >
+                          <CategoryIcon
+                            className={`size-4 ${
+                              categoryConfig.iconColor ?? categoryConfig.color
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-semibold ${categoryConfig.color}`}
+                          >
+                            {category}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="font-manrope text-sm font-medium leading-6 text-(--text-description)">
+                          Selecionar categoria
+                        </span>
+                      )}
+                      <ChevronRight
+                        width={16}
+                        className={`shrink-0 text-(--icon) transition-transform duration-200 ${
+                          categoryOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                    </button>
+                    <FloatingMenu
+                      isOpen={categoryOpen}
+                      anchorRef={categoryAnchorRef}
+                      onClose={() => setCategoryOpen(false)}
+                    >
+                      <DropmenuCategoria
+                        isOpen={categoryOpen}
+                        flow="EXPENSE"
+                        onSelect={(value) => {
+                          setCategory(value);
+                          setCategoryOpen(false);
+                        }}
+                      />
+                    </FloatingMenu>
+                  </div>
+                </div>
                 <label className="flex flex-col items-start gap-2">
                   <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
                     Data
@@ -317,7 +353,7 @@ export default function ReceiptReviewSheet({
               </div>
 
               {job.note ? (
-                <div className="mt-4 w-full">
+                <div className="mt-3 w-full">
                   <p className="font-manrope text-[11px] font-medium leading-5 text-(--text-description)">
                     {job.note}
                   </p>
@@ -327,7 +363,7 @@ export default function ReceiptReviewSheet({
               {duplicates.length ? (
                 <p
                   role="alert"
-                  className="mt-4 w-full font-manrope text-[11px] font-medium leading-5 text-warning"
+                  className="mt-3 w-full font-manrope text-[11px] font-medium leading-5 text-warning"
                 >
                   Possível duplicado:{" "}
                   {duplicates
@@ -337,7 +373,7 @@ export default function ReceiptReviewSheet({
                 </p>
               ) : null}
 
-              <label className="mt-4 flex w-full items-start gap-2">
+              <label className="mt-3 flex w-full items-start gap-2">
                 <input
                   type="checkbox"
                   checked={checked}
