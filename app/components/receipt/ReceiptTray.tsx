@@ -6,14 +6,16 @@ import { useReceipt } from "app/components/layout/ReceiptProvider";
 
 const statusText = (status: string, progress: string) => {
   switch (status) {
-    case "processing":
+    case "reading":
       return progress || "A extrair dados…";
-    case "queued":
+    case "staged":
       return "Na fila";
     case "ready":
       return "Pronto para revisão";
     case "error":
       return "Falha na leitura";
+    case "saved":
+      return "Despesa já confirmada";
     default:
       return "Na fila";
   }
@@ -100,7 +102,10 @@ export default function ReceiptTray() {
                   {item.fileName}
                 </strong>
                 <small className="mt-1 font-manrope text-[10px] font-medium leading-4 text-(--text-description)">
-                  {statusText(item.status, "")}
+                  {statusText(
+                    item.status,
+                    item.status === "reading" ? receipt.progress : "",
+                  )}
                 </small>
               </span>
               {item.status === "ready" ? (

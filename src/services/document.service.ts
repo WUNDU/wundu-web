@@ -68,8 +68,10 @@ class DocumentService {
    * estruturado fica disponível em `getResult`.
    */
   async confirm(id: string): Promise<DocumentConfirmResponse> {
+    // O corpo é ignorado pelo backend, mas tem de ser enviado (JSON válido).
     const { data } = await apiClient.post<DocumentConfirmResponse>(
       `/documents/${id}/confirm`,
+      {},
     );
     return data;
   }

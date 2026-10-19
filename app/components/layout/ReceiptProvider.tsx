@@ -22,6 +22,8 @@ type ReceiptContextValue = {
   /** Comprovativo em leitura. */
   reading: ReceiptItem | null;
   isReading: boolean;
+  /** Mensagem de progresso da leitura ("A extrair dados…"). */
+  progress: string;
   error: string;
   stage: (files: File[]) => void;
   read: () => Promise<void>;
@@ -74,6 +76,7 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     ready,
     reading,
     isReading: queue.isReading,
+    progress: queue.progress,
     error: queue.error,
     stage: queue.stage,
     read: queue.read,

@@ -100,6 +100,8 @@ export function useReceiptAttachment({
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  /** Mensagem de progresso da leitura (como o `queue.progress` do protótipo). */
+  const [progress, setProgress] = useState("");
 
   const itemsRef = useRef<ReceiptItem[]>([]);
   const cancelled = useRef(false);
@@ -177,6 +179,9 @@ export function useReceiptAttachment({
           throw new Error("cancelado");
         }
         const status = (document.status ?? "").toUpperCase();
+        setProgress(
+          status === "PENDING" ? "A aguardar o servidor…" : "A extrair dados…",
+        );
 
         if (status === "AWAITING_CONFIRMATION") {
           const confirmed = await documentService.confirm(id);
@@ -244,12 +249,14 @@ export function useReceiptAttachment({
       const item = itemsRef.current.find((entry) => entry.id === id);
       if (!item?.file) return;
       patch(id, { status: "reading", error: "" });
+      setProgress("A enviar o documento…");
       try {
         const formData = new FormData();
         formData.append("file", item.file);
         const upload = await documentService.upload(formData);
         if (cancelled.current || runId.current !== run) return;
         patch(id, { documentId: upload.documentId });
+        setProgress("A ler o documento…");
 
         const outcome = await readDocument(upload.documentId, run, id);
         if (cancelled.current || runId.current !== run) return;
@@ -298,6 +305,7 @@ export function useReceiptAttachment({
         }
       } catch (uploadError) {
         if (isAbort(uploadError)) return;
+        setProgress("");
         patch(id, {
           status: "error",
           error: errorMessage(
@@ -324,6 +332,7 @@ export function useReceiptAttachment({
       }
     } finally {
       processing.current = false;
+      setProgress("");
     }
     const failed = itemsRef.current.filter((item) => item.status === "error");
     if (failed.length) {
@@ -460,6 +469,7 @@ export function useReceiptAttachment({
     activeItem,
     activeId,
     error,
+    progress,
     stagedCount,
     isReading: items.some((item) => item.status === "reading"),
     stage,
