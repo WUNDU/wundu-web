@@ -23,28 +23,29 @@ function Transaction({ transaction }: TransactionItemProps) {
         />
       </div>
 
-      <div className="flex flex-col items-start gap-1 flex-1 min-w-0">
+      <div className="flex flex-1 min-w-0 flex-col items-start gap-1 overflow-hidden">
         <p className="w-full truncate font-manrope text-sm font-semibold leading-6 text-(--text-title)">
           {transaction.title}
         </p>
         <div
-          className={`flex px-2 py-1 justify-center items-center gap-2 rounded-md ${categoryConfig.background}`}
+          className={`flex min-w-0 max-w-full px-2 py-1 justify-center items-center gap-2 rounded-md ${categoryConfig.background}`}
         >
           <CategoryIcon
-            className={`flex size-4 flex-col items-center ${categoryConfig.iconColor ?? categoryConfig.color}`}
+            className={`flex size-4 shrink-0 flex-col items-center ${categoryConfig.iconColor ?? categoryConfig.color}`}
           />
           <p
-            className={`font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
+            title={transaction.category}
+            className={`min-w-0 truncate font-manrope text-sm font-semibold leading-5 ${categoryConfig.color}`}
           >
             {transaction.category}
           </p>
         </div>
       </div>
       <div
-        className={`flex p-2 flex-col items-end gap-1 rounded-xl ${typeConfig.background}`}
+        className={`flex shrink-0 p-2 flex-col items-end gap-1 rounded-xl ${typeConfig.background}`}
       >
         <p
-          className={`font-inter text-sm font-bold leading-5 ${typeConfig.color}`}
+          className={`whitespace-nowrap font-inter text-sm font-bold leading-5 ${typeConfig.color}`}
         >
           {mask(formatAOA(transaction.amount))}
         </p>
