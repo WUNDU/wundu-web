@@ -19,6 +19,12 @@ const POLL_TIMEOUT_MS = 5 * 60 * 1000;
 const UPLOAD_ATTEMPTS = 3;
 /** Espera entre tentativas de upload (crescente: 1s, 2s, 3s…). */
 const UPLOAD_RETRY_DELAY_MS = 1_000;
+/**
+ * Sem avanço do servidor (documento em `PENDING` ou inexistente): o envio
+ * anterior provavelmente morreu com o refresh/aba — passados estes milissegundos
+ * deixamos de esperar e marcamos para reenviar.
+ */
+const UPLOAD_STALL_MS = 60_000;
 
 const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
@@ -159,6 +165,13 @@ function persistQueue(key: string, items: ReceiptItem[]) {
 const isAbort = (error: unknown) =>
   error instanceof Error &&
   (error.name === "AbortError" || error.message === "cancelado");
+
+/** Erro que diz "o envio não chegou ao servidor: volta a enviar o ficheiro". */
+const reuploadError = (message: string) =>
+  Object.assign(new Error(message), { retryUpload: true });
+
+const wantsReupload = (error: unknown) =>
+  Boolean((error as (Error & { retryUpload?: boolean }) | null)?.retryUpload);
 
 /** Erros do `apiClient` (que já aplaina a resposta em `Error` + `status`). */
 type QueueError = Error & { status?: number; errorCode?: string };
@@ -321,6 +334,14 @@ export function useReceiptAttachment({
   const readDocument = useCallback(
     async (id: string, run: number, ownerId: string) => {
       const startedAt = Date.now();
+      /**
+       * O envio já tinha morrido (refresh/aba fechada a meio): o backend
+       * responde, mas o documento nunca avança. Depois de `UPLOAD_STALL_MS`
+       * sem progresso deixamos de esperar e pedimos reenvio — o `documentId`
+       * é esquecido e a repetição volta a subir o ficheiro.
+       */
+      let pendingSince: number | null = null;
+      let missingSince: number | null = null;
       /** `getResult` com falhas transitórias a repetir (devolve null). */
       const fetchResult = () =>
         documentService.getResult(id).catch((resultError) => {
@@ -336,8 +357,13 @@ export function useReceiptAttachment({
           throw new Error("cancelado");
         }
         if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
-          throw new Error(
-            "A leitura do comprovativo demorou demasiado. Tenta novamente com um documento mais pequeno.",
+          throw Object.assign(
+            new Error(
+              "A leitura do comprovativo demorou demasiado. Tenta novamente com um documento mais pequeno.",
+            ),
+            // Nunca avançou do servidor: reenviar resolve mais depressa do que
+            // voltar a esperar 5 minutos pelo mesmo documento.
+            { retryUpload: pendingSince !== null || missingSince !== null },
           );
         }
         // Logo após o upload o backend ainda pode não conhecer o documento (ou
@@ -355,13 +381,35 @@ export function useReceiptAttachment({
           throw new Error("cancelado");
         }
         if (!document) {
+          // Logo após o upload o backend ainda pode não conhecer o documento
+          // (ou a rede falhou). Se passar muito tempo assim, o envio anterior
+          // é que morreu — compensa subir o ficheiro outra vez.
+          missingSince ??= Date.now();
+          if (Date.now() - missingSince > UPLOAD_STALL_MS) {
+            throw reuploadError(
+              "O envio deste comprovativo não chegou ao servidor. Tenta outra vez.",
+            );
+          }
           await wait(POLL_INTERVAL_MS);
           continue;
         }
+        missingSince = null;
         const status = (document.status ?? "").toUpperCase();
         setProgress(
           status === "PENDING" ? "A aguardar o servidor…" : "A extrair dados…",
         );
+        // `PENDING` é normal durante uns segundos; passado esse tempo é sinal
+        // de que o backend nunca pegou no documento (upload interrompido).
+        if (status === "PENDING") {
+          pendingSince ??= Date.now();
+          if (Date.now() - pendingSince > UPLOAD_STALL_MS) {
+            throw reuploadError(
+              "O servidor não chegou a processar este comprovativo. Tenta outra vez.",
+            );
+          }
+        } else {
+          pendingSince = null;
+        }
 
         if (status === "AWAITING_CONFIRMATION") {
           const confirmed = await documentService.confirm(id).catch((confirmError) => {
@@ -583,7 +631,14 @@ export function useReceiptAttachment({
           uploadError,
           "Não foi possível ler o comprovativo. Tenta novamente.",
         );
-        patch(id, { status: "error", error: message });
+        patch(id, {
+          status: "error",
+          error: message,
+          // O envio anterior morreu (refresh/aba fechada a meio): esquece o
+          // documento para a "Repetir" voltar a subir o ficheiro, em vez de
+          // voltar a esperar por um documento que nunca avança.
+          ...(wantsReupload(uploadError) ? { documentId: null } : {}),
+        });
         // Recusa de sessão/e-mail não se resolve a repetir: para a fila (os
         // restantes ficam na fila, não falham um a um) e explica o motivo.
         if (isPolicyError(uploadError)) {
