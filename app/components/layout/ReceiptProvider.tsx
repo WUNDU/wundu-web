@@ -3,7 +3,9 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -76,6 +78,31 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     () => queue.items.find((item) => item.status === "reading") ?? null,
     [queue.items],
   );
+  /** Ainda há ficheiros na fila de leitura. */
+  const busy = useMemo(
+    () =>
+      queue.items.some(
+        (item) => item.status === "reading" || item.status === "staged",
+      ),
+    [queue.items],
+  );
+  /** Documentos prontos para revisão (ou falhados) — coisas que pedem acção. */
+  const needsAttention = useMemo(
+    () =>
+      queue.items.filter(
+        (item) => item.status === "ready" || item.status === "error",
+      ).length,
+    [queue.items],
+  );
+  /** Quanto havia para rever quando o utilizador fechou a barra. */
+  const attentionAtDismiss = useRef(0);
+
+  // Fechada a meio da leitura? Assim que a fila parar e surgir algo novo que
+  // pede acção (pronto para rever ou falhado), a barra volta sozinha.
+  useEffect(() => {
+    if (!trayDismissed || busy) return;
+    if (needsAttention > attentionAtDismiss.current) setTrayDismissed(false);
+  }, [busy, needsAttention, trayDismissed]);
 
   const value: ReceiptContextValue = {
     items: queue.items,
@@ -99,7 +126,10 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     closeReview: () => setReviewId(null),
     reviewId,
     trayDismissed,
-    dismissTray: () => setTrayDismissed(true),
+    dismissTray: () => {
+      attentionAtDismiss.current = needsAttention;
+      setTrayDismissed(true);
+    },
   };
 
   return (

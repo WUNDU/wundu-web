@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { documentService } from "@/services/document.service";
 import { transactionService } from "@/services/transaction.service";
 import { useUiStore } from "@/store/ui-store";
+import { useUserStore } from "@/store/user-store";
 
 /** Limites iguais aos do protótipo `wundu`: até 10 comprovativos, 10 MB cada. */
 export const MAX_RECEIPT_FILES = 10;
@@ -68,6 +69,97 @@ type UseReceiptAttachmentOptions = {
   mode?: "create" | "edit";
 };
 
+/** Prefixo da fila guardada no `localStorage` (sobrevive a refresh). */
+const STORAGE_PREFIX = "wundu:receipt-queue:v1";
+
+/** Estados que a fila guarda/retoma (os "saved" já vivem nas transações). */
+const PERSISTED_STATUSES: ReceiptItemStatus[] = [
+  "staged",
+  "reading",
+  "ready",
+  "error",
+];
+
+/** Mensagem quando não há como retomar o comprovativo (perdeu-se o `File`). */
+const NO_FILE_ERROR = "Ficheiro indisponível. Escolhe o comprovativo outra vez.";
+
+/** Registo guardado — sem o `File`, que não é serializável. */
+type PersistedReceiptItem = {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  status: ReceiptItemStatus;
+  error: string;
+  note: string;
+  draft: ReceiptDraft | null;
+  documentId: string | null;
+  linkedTransactionId: string | null;
+};
+
+/**
+ * Chave própria de cada conta/modo: a fila (com valores e nomes de
+ * estabelecimentos) nunca passa de um utilizador para outro no mesmo browser.
+ * Sem conta identificada não se lê nem se grava nada.
+ */
+const storageKeyFor = (mode: string, userId: string | null) =>
+  userId ? `${STORAGE_PREFIX}:${mode}:${userId}` : null;
+
+/** Lê a fila guardada. Quem estava a ser extraído volta para a fila e retoma. */
+function loadPersistedQueue(key: string): ReceiptItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (entry): entry is PersistedReceiptItem =>
+          Boolean(entry?.id) &&
+          PERSISTED_STATUSES.includes(entry?.status as ReceiptItemStatus),
+      )
+      .map((entry) => ({
+        ...entry,
+        file: null,
+        // Estava em leitura: volta a `staged` e o runner continua a partir do
+        // documentId já enviado (sem repetir o upload).
+        status: entry.status === "reading" ? "staged" : entry.status,
+      }))
+      .filter((entry) => entry.status !== "staged" || Boolean(entry.documentId));
+  } catch {
+    return [];
+  }
+}
+
+/** Grava a fila (os "saved" ficam de fora: já vivem nas transações). */
+function persistQueue(key: string, items: ReceiptItem[]) {
+  if (typeof window === "undefined") return;
+  try {
+    const queue = items
+      .filter(
+        (item) =>
+          PERSISTED_STATUSES.includes(item.status) &&
+          // `staged` sem documento não há como retomar (o `File` não sobrevive).
+          (item.status !== "staged" || Boolean(item.documentId)),
+      )
+      .map<PersistedReceiptItem>((item) => ({
+        id: item.id,
+        fileName: item.fileName,
+        fileSize: item.fileSize,
+        status: item.status,
+        error: item.error,
+        note: item.note,
+        draft: item.draft,
+        documentId: item.documentId,
+        linkedTransactionId: item.linkedTransactionId,
+      }));
+    if (!queue.length) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, JSON.stringify(queue));
+  } catch {
+    // modo privado / quota: a fila apenas não sobrevive ao refresh
+  }
+}
+
 const isAbort = (error: unknown) =>
   error instanceof Error &&
   (error.name === "AbortError" || error.message === "cancelado");
@@ -127,6 +219,16 @@ const readableError = (error: unknown, fallback: string) => {
 
 const fileKey = (file: File) => `${file.name}:${file.size}:${file.lastModified}`;
 
+/**
+ * O mesmo documento já está na fila? Os itens restaurados do `localStorage`
+ * (sem `File`) são comparados por nome+tamanho, para não voltar a enviar o
+ * mesmo comprovativo depois de um refresh.
+ */
+const isSameDocument = (item: ReceiptItem, file: File, key: string) =>
+  item.file
+    ? fileKey(item.file) === key
+    : item.fileName === file.name && item.fileSize === file.size;
+
 /** "2026-10-12T00:00:00" → "2026-10-12" */
 function toDateKey(raw?: string | null): string | null {
   if (!raw) return null;
@@ -156,6 +258,11 @@ export function useReceiptAttachment({
   const [error, setError] = useState("");
   /** Mensagem de progresso da leitura (como o `queue.progress` do protótipo). */
   const [progress, setProgress] = useState("");
+
+  /** Conta actual — a fila guardada é própria de cada utilizador. */
+  const userId = useUserStore((state) => state.user?.id ?? null);
+  /** `null` enquanto não sabemos a conta: nesse caso não se lê nem se grava. */
+  const storageKey = storageKeyFor(mode, userId);
 
   const itemsRef = useRef<ReceiptItem[]>([]);
   const cancelled = useRef(false);
@@ -192,20 +299,17 @@ export function useReceiptAttachment({
     }
   }, []);
 
+  /**
+   * Só cancela a leitura em curso. Os comprovativos NÃO são apagados aqui:
+   * a fila é persistida no `localStorage` e sobrevive a refresh/navigation
+   * (é o `discard()` — descarte explícito do utilizador — que apaga os
+   * rascunhos de transação).
+   */
   useEffect(() => {
     return () => {
       cancelled.current = true;
       runId.current += 1;
       if (timer.current) clearTimeout(timer.current);
-      // Comprovativos por confirmar não sobrevivem ao formulário: sem revisão
-      // do utilizador, nada é registado.
-      for (const item of itemsRef.current) {
-        if (item.status !== "saved" && item.linkedTransactionId) {
-          void transactionService
-            .delete(item.linkedTransactionId)
-            .catch(() => undefined);
-        }
-      }
     };
   }, []);
 
@@ -396,28 +500,29 @@ export function useReceiptAttachment({
     async (id: string, run: number) => {
       const item = itemsRef.current.find((entry) => entry.id === id);
       if (!item) return;
-      if (!item.file) {
-        // Sem ficheiro não há envio: marca o item para o loop não ficar preso.
-        patch(id, {
-          status: "error",
-          error: "Ficheiro indisponível. Escolhe o comprovativo outra vez.",
-        });
+      // Sem ficheiro, só dá para retomar um documento que já foi enviado
+      // (após um refresh o `File` perde-se mas o `documentId` fica guardado).
+      if (!item.file && !item.documentId) {
+        patch(id, { status: "error", error: NO_FILE_ERROR });
         return;
       }
       patch(id, { status: "reading", error: "" });
       try {
         let documentId = item.documentId;
         if (documentId) {
-          // O envio já tinha resultado (retry depois de uma falha a seguir):
-          // reutiliza o documento — repetir o upload daria DUPLICATE.
+          // O envio já tinha resultado (retry depois de uma falha a seguir, ou
+          // retoma depois de um refresh): reutiliza o documento — repetir o
+          // upload daria DUPLICATE.
           setProgress("A ler o documento…");
-        } else {
+        } else if (item.file) {
           setProgress("A enviar o documento…");
           const upload = await uploadFile(item.file);
           if (cancelled.current || runId.current !== run) return;
           documentId = upload.documentId;
           patch(id, { documentId });
           setProgress("A ler o documento…");
+        } else {
+          return;
         }
 
         const outcome = await readDocument(documentId, run, id);
@@ -491,6 +596,13 @@ export function useReceiptAttachment({
     const run = ++runId.current;
     cancelled.current = false;
     blocked.current = false;
+    // Erros que já estavam antes desta leitura (ex.: restaurados de um
+    // refresh) não voltam a notificar — o utilizador já os viu.
+    const failedBefore = new Set(
+      itemsRef.current
+        .filter((item) => item.status === "error")
+        .map((item) => item.id),
+    );
     try {
       for (;;) {
         if (blocked.current) break;
@@ -502,7 +614,9 @@ export function useReceiptAttachment({
       processing.current = false;
       setProgress("");
     }
-    const failed = itemsRef.current.filter((item) => item.status === "error");
+    const failed = itemsRef.current.filter(
+      (item) => item.status === "error" && !failedBefore.has(item.id),
+    );
     if (failed.length) {
       useUiStore
         .getState()
@@ -513,6 +627,32 @@ export function useReceiptAttachment({
         );
     }
   }, [processItem]);
+
+  /** `true` depois de a fila ter sido restaurada do `localStorage`. */
+  const hydrated = useRef(false);
+
+  // Restaura a fila guardada: quem estava a ser extraído volta para a fila
+  // (com o `documentId` já enviado) e a leitura retoma onde parou. Sempre que
+  // a conta muda, a fila passa a ser a dessa conta — nunca a de outra.
+  useEffect(() => {
+    if (!storageKey) {
+      // Sem conta não há fila — nunca deixamos a fila de um utilizador na
+      // mão de outro (logout, sessão expirada, página pública).
+      update(() => []);
+      return;
+    }
+    const restored = loadPersistedQueue(storageKey);
+    hydrated.current = true;
+    update(() => restored);
+    if (restored.some((item) => item.status === "staged")) void read();
+  }, [read, storageKey, update]);
+
+  // Mantém a fila guardada — sobrevive a refresh da página. Corre depois do
+  // restore (declaração acima), para nunca apagar o que se acabou de ler.
+  useEffect(() => {
+    if (!storageKey || !hydrated.current) return;
+    persistQueue(storageKey, items);
+  }, [items, storageKey]);
 
   /** Junta ficheiros à fila (até 10, como no protótipo). */
   const stage = useCallback(
@@ -545,10 +685,8 @@ export function useReceiptAttachment({
       for (const file of incoming) {
         if (next.length >= room) break;
         const key = fileKey(file);
-        if (current.some((item) => item.file && fileKey(item.file) === key)) {
-          continue;
-        }
-        if (next.some((item) => item.file && fileKey(item.file) === key)) continue;
+        if (current.some((item) => isSameDocument(item, file, key))) continue;
+        if (next.some((item) => isSameDocument(item, file, key))) continue;
         next.push({
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           file,
@@ -595,7 +733,14 @@ export function useReceiptAttachment({
   const retry = useCallback(
     (id: string) => {
       const item = itemsRef.current.find((entry) => entry.id === id);
-      if (!item?.file) return;
+      if (!item) return;
+      // Só dá para repetir quem tem ficheiro ou documento já enviado; sem
+      // nenhum dos dois (ex.: fila restaurada sem ficheiro), explica porquê.
+      if (!item.file && !item.documentId) {
+        patch(id, { status: "error", error: NO_FILE_ERROR });
+        setError(NO_FILE_ERROR);
+        return;
+      }
       blocked.current = false;
       setError("");
       patch(id, { status: "staged", error: "" });
@@ -608,9 +753,18 @@ export function useReceiptAttachment({
   const retryAll = useCallback(() => {
     blocked.current = false;
     setError("");
+    // Só quem ainda tem ficheiro ou documento enviado consegue ser relido.
+    const retriable = itemsRef.current.filter(
+      (item) => item.status === "error" && Boolean(item.file || item.documentId),
+    );
+    if (!retriable.length) {
+      setError("Não há comprovativos para repetir. Escolhe os ficheiros outra vez.");
+      return;
+    }
+    const ids = new Set(retriable.map((item) => item.id));
     update((prev) =>
       prev.map((item) =>
-        item.status === "error" ? { ...item, status: "staged", error: "" } : item,
+        ids.has(item.id) ? { ...item, status: "staged", error: "" } : item,
       ),
     );
     void read();

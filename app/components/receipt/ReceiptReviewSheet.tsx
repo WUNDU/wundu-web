@@ -59,6 +59,12 @@ export default function ReceiptReviewSheet({
   const [checked, setChecked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  /** Campos por assinalar na última tentativa de guardar. */
+  const [invalid, setInvalid] = useState<{
+    amount?: boolean;
+    category?: boolean;
+    confirm?: boolean;
+  }>({});
   const [preview, setPreview] = useState(false);
   const [url, setUrl] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -72,6 +78,7 @@ export default function ReceiptReviewSheet({
     setDate(job.draft?.date ?? todayKey());
     setChecked(false);
     setError("");
+    setInvalid({});
     setCategoryOpen(false);
   }, [job]);
 
@@ -116,19 +123,30 @@ export default function ReceiptReviewSheet({
 
   async function save() {
     if (!job || busy) return;
-    if (!checked) {
-      setError("Revê os dados do comprovativo e assinala a confirmação.");
-      return;
-    }
+    // Valida tudo de uma vez e assinala cada campo que falta, para o
+    // utilizador ver exactamente o que tem de corrigir.
     const parsed = parseAmountPt(amount);
-    if (parsed === null) {
-      setError("Indica um valor válido superior a 0 Kz.");
+    const problems: {
+      amount?: boolean;
+      category?: boolean;
+      confirm?: boolean;
+    } = {};
+    if (!checked) problems.confirm = true;
+    if (parsed === null) problems.amount = true;
+    if (!category) problems.category = true;
+    if (problems.confirm || problems.amount || problems.category) {
+      setInvalid(problems);
+      setError(
+        problems.confirm
+          ? "Revê os dados do comprovativo e assinala a confirmação."
+          : problems.amount
+            ? "Indica um valor válido superior a 0 Kz."
+            : "Escolhe uma categoria.",
+      );
       return;
     }
-    if (!category) {
-      setError("Escolhe uma categoria.");
-      return;
-    }
+    if (parsed === null) return; // já acima (parsing)
+    setInvalid({});
     setBusy(true);
     setError("");
     const payload = {
@@ -212,32 +230,55 @@ export default function ReceiptReviewSheet({
               <button
                 type="button"
                 onClick={openPreview}
-                className="flex h-11 w-full items-center gap-2 rounded-xl bg-(--bg-body) px-3 text-left"
+                disabled={!current.file}
+                title={
+                  current.file
+                    ? "Ver comprovativo"
+                    : "O comprovativo original já não está disponível neste dispositivo."
+                }
+                className="flex h-11 w-full items-center gap-2 rounded-xl bg-(--bg-body) px-3 text-left disabled:cursor-default disabled:opacity-70"
               >
                 <FileText size={18} className="shrink-0 text-(--icon)" />
                 <span className="min-w-0 flex-1 truncate font-manrope text-xs font-medium leading-5 text-(--text-title)">
                   {job.fileName}
                 </span>
-                <Eye size={17} className="shrink-0 text-(--icon)" />
-                <small className="font-manrope text-[11px] font-semibold leading-4 text-primary-300">
-                  Ver documento
-                </small>
+                {current.file ? (
+                  <>
+                    <Eye size={17} className="shrink-0 text-(--icon)" />
+                    <small className="font-manrope text-[11px] font-semibold leading-4 text-primary-300">
+                      Ver documento
+                    </small>
+                  </>
+                ) : (
+                  <small className="font-manrope text-[11px] font-semibold leading-4 text-(--text-description)">
+                    Sem original
+                  </small>
+                )}
               </button>
 
               <label className="mt-5 flex w-full flex-col items-start gap-2">
-                <span className="font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
+                <span
+                  className={`font-manrope text-[10px] font-semibold uppercase leading-5 ${
+                    invalid.amount ? "text-danger-300" : "text-(--text-description)"
+                  }`}
+                >
                   Valor da transação
                 </span>
-                <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-2">
+                <div
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-2 transition-colors ${
+                    invalid.amount ? "bg-danger-300/5" : ""
+                  }`}
+                >
                   <input
                     aria-label="Valor da despesa em Kz"
                     required
                     type="text"
                     inputMode="decimal"
                     value={amount}
-                    onChange={(event) =>
-                      setAmount(formatAmountInput(event.target.value))
-                    }
+                    onChange={(event) => {
+                      setAmount(formatAmountInput(event.target.value));
+                      if (invalid.amount) setInvalid((v) => ({ ...v, amount: false }));
+                    }}
                     placeholder="0,00"
                     size={Math.max(amount.length, 4)}
                     className="w-auto max-w-full min-w-0 bg-transparent text-center font-manrope text-2xl font-bold leading-8 text-danger-300 outline-none placeholder:text-(--text-description)/40 lg:text-3xl"
@@ -264,7 +305,11 @@ export default function ReceiptReviewSheet({
 
               <div className="mt-5 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex min-w-0 flex-col items-start gap-2">
-                  <span className="flex h-5 w-full items-center gap-2 font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
+                  <span
+                    className={`flex h-5 w-full items-center gap-2 font-manrope text-[10px] font-semibold uppercase leading-5 ${
+                      invalid.category ? "text-danger-300" : "text-(--text-description)"
+                    }`}
+                  >
                     Categoria
                     <em className="ml-auto flex items-center gap-1 rounded-full bg-primary-300/10 px-2 py-0.5 text-[9px] font-semibold leading-4 not-italic normal-case text-primary-300">
                       <Sparkles size={11} />
@@ -278,7 +323,12 @@ export default function ReceiptReviewSheet({
                       onClick={() => setCategoryOpen((value) => !value)}
                       aria-expanded={categoryOpen}
                       aria-label="Categoria da despesa"
-                      className="flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 text-left transition-colors hover:bg-neutrals-300/10 active:scale-[0.99]"
+                      aria-invalid={invalid.category || undefined}
+                      className={`flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border px-3 text-left transition-colors active:scale-[0.99] ${
+                        invalid.category
+                          ? "border-danger-300 bg-danger-300/5"
+                          : "border-(--border-button) bg-(--background) hover:bg-neutrals-300/10"
+                      }`}
                     >
                       {category && categoryConfig ? (
                         <span
@@ -318,6 +368,9 @@ export default function ReceiptReviewSheet({
                         onSelect={(value) => {
                           setCategory(value);
                           setCategoryOpen(false);
+                          if (invalid.category) {
+                            setInvalid((v) => ({ ...v, category: false }));
+                          }
                         }}
                       />
                     </FloatingMenu>
@@ -376,14 +429,29 @@ export default function ReceiptReviewSheet({
                 </p>
               ) : null}
 
-              <label className="mt-3 flex w-full items-start gap-2">
+              <label
+                className={`mt-3 flex w-full items-start gap-2 rounded-lg transition-colors ${
+                  invalid.confirm ? "-mx-2 -my-1 bg-danger-300/5 px-2 py-1" : ""
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={(event) => setChecked(event.target.checked)}
-                  className="mt-0.5 size-4 shrink-0 accent-primary-300"
+                  onChange={(event) => {
+                    setChecked(event.target.checked);
+                    if (invalid.confirm) {
+                      setInvalid((v) => ({ ...v, confirm: false }));
+                    }
+                  }}
+                  className={`mt-0.5 size-4 shrink-0 accent-danger-300 ${
+                    invalid.confirm ? "ring-2 ring-danger-300/50" : ""
+                  }`}
                 />
-                <span className="font-manrope text-[11px] font-medium leading-5 text-(--text-description)">
+                <span
+                  className={`font-manrope text-[11px] font-medium leading-5 ${
+                    invalid.confirm ? "font-semibold text-danger-300" : "text-(--text-description)"
+                  }`}
+                >
                   Conferi os dados e o valor em Kz.
                   {duplicates.length ? " Esta é uma despesa diferente." : ""}
                 </span>

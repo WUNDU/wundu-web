@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, FileText, ScanLine, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useReceipt } from "app/components/layout/ReceiptProvider";
 
 const statusText = (status: string, progress: string) => {
@@ -42,8 +42,19 @@ const statusClass = (status: string) => {
 export default function ReceiptTray() {
   const receipt = useReceipt();
   const [collapsed, setCollapsed] = useState(false);
+  /** O utilizador já mexeu no chevron: a partir daí não colapsamos sozinhos. */
+  const [touched, setTouched] = useState(false);
   const pending = receipt.pending;
-  if (!pending.length || receipt.trayDismissed) return null;
+  const pendingCount = pending.length;
+
+  // Com vários documentos na fila a lista nasce colapsada (não tapa o ecrã);
+  // vê-se tudo pelo chevron. Com um só, fica aberta.
+  useEffect(() => {
+    if (touched) return;
+    setCollapsed(pendingCount > 1);
+  }, [pendingCount, touched]);
+
+  if (!pendingCount || receipt.trayDismissed) return null;
 
   const ready = receipt.ready;
   const reading = pending.filter(
@@ -54,6 +65,11 @@ export default function ReceiptTray() {
   function reviewFirst() {
     const first = receipt.ready[0];
     if (first) receipt.openReview(first.id);
+  }
+
+  function toggleCollapsed() {
+    setTouched(true);
+    setCollapsed((value) => !value);
   }
 
   return (
@@ -111,7 +127,7 @@ export default function ReceiptTray() {
         <button
           type="button"
           aria-label={collapsed ? "Expandir leituras" : "Recolher leituras"}
-          onClick={() => setCollapsed((value) => !value)}
+          onClick={toggleCollapsed}
           className={`rounded-lg p-1.5 text-(--icon) transition-transform hover:bg-neutrals-300/10 active:scale-90 ${
             collapsed ? "rotate-180" : ""
           }`}
@@ -173,6 +189,17 @@ export default function ReceiptTray() {
                   className="shrink-0 rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-[11px] font-semibold leading-4 text-primary-300 transition-colors hover:bg-primary-300/20 lg:text-xs lg:leading-5"
                 >
                   Repetir
+                </button>
+              ) : null}
+              {item.status === "ready" || item.status === "error" ? (
+                <button
+                  type="button"
+                  onClick={() => receipt.remove(item.id)}
+                  aria-label={`Remover ${item.fileName}`}
+                  title="Remover comprovativo"
+                  className="shrink-0 rounded-lg p-1.5 text-(--icon) transition-colors hover:bg-neutrals-300/10 hover:text-danger-300 active:scale-90"
+                >
+                  <X size={15} />
                 </button>
               ) : null}
             </div>
