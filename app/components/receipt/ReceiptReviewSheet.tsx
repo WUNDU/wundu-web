@@ -205,11 +205,14 @@ export default function ReceiptReviewSheet({
           </header>
 
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-5">
-            <fieldset disabled={busy} className="flex min-w-0 flex-col items-start">
+            <fieldset
+              disabled={busy}
+              className="flex w-full min-w-0 flex-col items-start"
+            >
               <button
                 type="button"
                 onClick={openPreview}
-                className="flex w-full items-center gap-2 rounded-xl bg-(--bg-body) px-3 py-2.5 text-left"
+                className="flex h-11 w-full items-center gap-2 rounded-xl bg-(--bg-body) px-3 text-left"
               >
                 <FileText size={18} className="shrink-0 text-(--icon)" />
                 <span className="min-w-0 flex-1 truncate font-manrope text-xs font-medium leading-5 text-(--text-title)">
@@ -221,11 +224,11 @@ export default function ReceiptReviewSheet({
                 </small>
               </button>
 
-              <label className="mt-5 flex w-full flex-col items-center gap-2">
-                <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
+              <label className="mt-5 flex w-full flex-col items-start gap-2">
+                <span className="font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                   Valor da transação
                 </span>
-                <div className="flex items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-2">
+                <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3">
                   <input
                     aria-label="Valor da despesa em Kz"
                     required
@@ -245,8 +248,8 @@ export default function ReceiptReviewSheet({
                 </div>
               </label>
 
-              <label className="mt-5 flex w-full flex-col items-start gap-2">
-                <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
+              <label className="mt-5 flex w-full min-w-0 flex-col items-start gap-2">
+                <span className="font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                   Descrição
                 </span>
                 <input
@@ -255,15 +258,15 @@ export default function ReceiptReviewSheet({
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Fornecedor ou descrição"
-                  className="w-full rounded-xl border border-(--border-button) bg-(--background) px-3 py-2.5 font-manrope text-sm font-medium leading-6 text-(--text) outline-none focus:border-(--border)"
+                  className="h-11 w-full min-w-0 rounded-xl border border-(--border-button) bg-(--background) px-3 font-manrope text-sm font-medium leading-6 text-(--text) outline-none focus:border-(--border)"
                 />
               </label>
 
               <div className="mt-5 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="flex flex-col items-start gap-2">
-                  <span className="flex w-full items-center gap-2 font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
+                <div className="flex min-w-0 flex-col items-start gap-2">
+                  <span className="flex h-5 w-full items-center gap-2 font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                     Categoria
-                    <em className="ml-auto flex items-center gap-1 rounded-full bg-primary-300/10 px-2 py-0.5 text-[9px] font-semibold not-italic normal-case text-primary-300">
+                    <em className="ml-auto flex items-center gap-1 rounded-full bg-primary-300/10 px-2 py-0.5 text-[9px] font-semibold leading-4 not-italic normal-case text-primary-300">
                       <Sparkles size={11} />
                       Sugerida
                     </em>
@@ -275,19 +278,19 @@ export default function ReceiptReviewSheet({
                       onClick={() => setCategoryOpen((value) => !value)}
                       aria-expanded={categoryOpen}
                       aria-label="Categoria da despesa"
-                      className="flex w-full items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 py-2.5 text-left transition-colors hover:bg-neutrals-300/10 active:scale-[0.99]"
+                      className="flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3 text-left transition-colors hover:bg-neutrals-300/10 active:scale-[0.99]"
                     >
                       {category && categoryConfig ? (
                         <span
-                          className={`flex items-center gap-2 rounded-md px-2 py-1 ${categoryConfig.background}`}
+                          className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-0.5 ${categoryConfig.background}`}
                         >
                           <CategoryIcon
-                            className={`size-4 ${
+                            className={`size-4 shrink-0 ${
                               categoryConfig.iconColor ?? categoryConfig.color
                             }`}
                           />
                           <span
-                            className={`text-sm font-semibold ${categoryConfig.color}`}
+                            className={`min-w-0 truncate text-sm font-semibold ${categoryConfig.color}`}
                           >
                             {category}
                           </span>
@@ -320,8 +323,8 @@ export default function ReceiptReviewSheet({
                     </FloatingMenu>
                   </div>
                 </div>
-                <label className="flex flex-col items-start gap-2">
-                  <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
+                <label className="flex min-w-0 flex-col items-start gap-2">
+                  <span className="flex h-5 w-full items-center font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                     Data
                   </span>
                   <input
@@ -331,21 +334,21 @@ export default function ReceiptReviewSheet({
                     max={todayKey()}
                     value={date}
                     onChange={(event) => setDate(event.target.value)}
-                    className="w-full rounded-xl border border-(--border-button) bg-(--background) px-3 py-2.5 font-manrope text-sm font-medium leading-6 text-(--text) outline-none focus:border-(--border)"
+                    className="h-11 w-full min-w-0 rounded-xl border border-(--border-button) bg-(--background) px-3 font-manrope text-sm font-medium leading-6 text-(--text) outline-none focus:border-(--border)"
                   />
                 </label>
               </div>
 
-              <div className="mt-5 flex w-full flex-col items-start gap-1.5">
-                <div className="flex w-full items-center gap-2">
-                  <span className="font-manrope text-[10px] font-semibold uppercase leading-4 text-(--text-description)">
+              <div className="mt-5 flex w-full flex-col items-start gap-2">
+                <div className="flex h-5 w-full items-center gap-2">
+                  <span className="font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                     Conta
                   </span>
                   <span className="rounded-md bg-primary-300/10 px-2 py-0.5 font-manrope text-xs font-bold leading-4 text-primary-300">
                     Brevemente
                   </span>
                 </div>
-                <div className="flex w-full min-w-0 cursor-not-allowed items-center gap-2.5 rounded-xl border border-(--border-button) bg-(--bg-body) px-4 py-3 opacity-60">
+                <div className="flex h-11 w-full min-w-0 cursor-not-allowed items-center gap-2.5 rounded-xl border border-(--border-button) bg-(--bg-body) px-3 opacity-60">
                   <p className="truncate font-manrope text-sm font-medium leading-5 text-(--text-description-60)">
                     Conta padrão
                   </p>
