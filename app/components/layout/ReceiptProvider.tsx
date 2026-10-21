@@ -29,10 +29,12 @@ type ReceiptContextValue = {
   read: () => Promise<void>;
   remove: (id: string) => void;
   retry: (id: string) => void;
+  /** Repete todos os comprovativos que falharam. */
+  retryAll: () => void;
   markSaved: (id: string) => void;
-  /** Barra de progresso visível (há comprovativos por rever e não foi fechada). */
-  trayVisible: boolean;
-  /** Fecha a barra de progresso (a leitura continua; volta ao aparecer noutra leitura). */
+  /** A barra de progresso foi fechada pelo utilizador (volta numa nova leitura). */
+  trayDismissed: boolean;
+  /** Fecha a barra de progresso (a leitura continua; volta a aparecer noutra leitura). */
   dismissTray: () => void;
   /** Abre a folha de revisão de um comprovativo. */
   openReview: (id: string) => void;
@@ -91,11 +93,12 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     read: queue.read,
     remove: queue.remove,
     retry: queue.retry,
+    retryAll: queue.retryAll,
     markSaved: queue.markSaved,
     openReview: setReviewId,
     closeReview: () => setReviewId(null),
     reviewId,
-    trayVisible: pending.length > 0 && !trayDismissed,
+    trayDismissed,
     dismissTray: () => setTrayDismissed(true),
   };
 

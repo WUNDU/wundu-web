@@ -78,7 +78,7 @@ export default function ReceiptComposer({ onClose }: ReceiptComposerProps) {
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col items-start gap-4 self-stretch overflow-y-auto px-6 pb-5">
+      <div className="flex min-h-0 flex-1 flex-col items-start gap-3 self-stretch overflow-y-auto px-6 pb-5 lg:gap-4">
         <input
           ref={all}
           hidden
@@ -139,7 +139,7 @@ export default function ReceiptComposer({ onClose }: ReceiptComposerProps) {
             setDragging(false);
             add(Array.from(event.dataTransfer.files));
           }}
-          className={`hidden w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-6 text-center transition-colors lg:flex ${
+          className={`hidden w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-5 text-center transition-colors lg:flex lg:py-6 ${
             dragging
               ? "border-primary-300 bg-primary-300/10"
               : "border-(--border-button) bg-(--bg-body)"
@@ -200,45 +200,60 @@ export default function ReceiptComposer({ onClose }: ReceiptComposerProps) {
         </div>
 
         {files.length ? (
-          <ul className="flex w-full flex-col items-start overflow-hidden rounded-xl border border-(--card-barras)">
-            {files.map((file) => (
-              <li
-                key={fileKey(file)}
-                className="flex w-full items-center gap-3 border-b border-(--card-barras) px-4 py-3 last:border-0"
+          <div className="flex w-full flex-col items-stretch gap-2">
+            <div className="flex w-full items-center justify-between gap-3">
+              <span className="font-manrope text-[11px] font-semibold uppercase leading-4 text-(--text-description)">
+                {files.length} de {MAX_RECEIPT_FILES} ficheiros
+              </span>
+              <button
+                type="button"
+                onClick={() => setFiles([])}
+                className="rounded-lg px-2 py-1 font-manrope text-[11px] font-semibold leading-4 text-danger-300 transition-colors hover:bg-danger-300/10 active:scale-95"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-(--bg-body) text-(--icon)">
-                  <FileText size={19} />
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col items-start">
-                  <strong className="w-full truncate font-manrope text-sm font-medium leading-5 text-(--text-title)">
-                    {file.name}
-                  </strong>
-                  <small className="font-manrope text-xs font-medium leading-5 text-(--text-description)">
-                    {file.name.split(".").pop()?.toUpperCase()} ·{" "}
-                    {sizeLabel(file.size)}
-                  </small>
-                </div>
-                <button
-                  type="button"
-                  aria-label={`Retirar ${file.name}`}
-                  onClick={() =>
-                    setFiles((items) => items.filter((item) => item !== file))
-                  }
-                  className="rounded-lg p-1 text-(--icon) transition-colors hover:bg-neutrals-300/10 active:scale-90"
+                Limpar
+              </button>
+            </div>
+            <ul className="flex w-full flex-col items-stretch overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-body)">
+              {files.map((file) => (
+                <li
+                  key={fileKey(file)}
+                  className="flex w-full items-center gap-2.5 border-b border-(--card-barras) px-3 py-2.5 last:border-0 lg:gap-3 lg:px-4 lg:py-3"
                 >
-                  <X size={18} />
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-(--background) text-(--icon) lg:size-9 lg:rounded-xl">
+                    <FileText size={17} />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col items-start">
+                    <strong className="w-full truncate font-manrope text-[13px] font-medium leading-5 text-(--text-title) lg:text-sm">
+                      {file.name}
+                    </strong>
+                    <small className="w-full truncate font-manrope text-[11px] font-medium leading-4 text-(--text-description) lg:text-xs lg:leading-5">
+                      {file.name.includes(".")
+                        ? `${file.name.split(".").pop()?.toUpperCase()} · `
+                        : ""}
+                      {sizeLabel(file.size)}
+                    </small>
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={`Retirar ${file.name}`}
+                    onClick={() =>
+                      setFiles((items) => items.filter((item) => item !== file))
+                    }
+                    className="flex size-9 shrink-0 items-center justify-center rounded-lg text-(--icon) transition-colors hover:bg-neutrals-300/10 active:scale-90"
+                  >
+                    <X size={17} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
-        <p className="flex items-start gap-2.5 font-manrope text-xs font-medium leading-5 text-(--text-description)">
-          <Sparkles width={18} className="mt-0.5 shrink-0 text-primary-300" />
+        <p className="flex w-full items-start gap-2 font-manrope text-[11px] font-medium leading-4 text-(--text-description) lg:gap-2.5 lg:text-xs lg:leading-5">
+          <Sparkles width={14} className="mt-0.5 shrink-0 text-primary-300" />
           <span>
-            A Wundu extrai fornecedor, valor e data, e sugere conta e categoria
-            quando identificadas. A leitura continua se fechares esta janela.
-            Revês cada transação antes de ser salva.
+            A Wundu lê fornecedor, valor e data. Podes fechar esta janela — a
+            leitura continua e revês tudo antes de guardar.
           </span>
         </p>
 
@@ -249,7 +264,7 @@ export default function ReceiptComposer({ onClose }: ReceiptComposerProps) {
         ) : null}
       </div>
 
-      <footer className="flex shrink-0 items-start gap-4 self-stretch border-t border-(--card-barras) p-6">
+      <footer className="flex shrink-0 items-start gap-4 self-stretch border-t border-(--card-barras) p-5 lg:p-6">
         <button
           type="button"
           onClick={onClose}

@@ -21,6 +21,19 @@ const statusText = (status: string, progress: string) => {
   }
 };
 
+/** Cor da linha de estado (o erro tem de saltar à vista). */
+const statusClass = (status: string) => {
+  switch (status) {
+    case "error":
+      return "text-danger-300";
+    case "reading":
+    case "ready":
+      return "text-primary-300";
+    default:
+      return "text-(--text-description)";
+  }
+};
+
 /**
  * Barra de progresso dos comprovativos — portada do protótipo `wundu`
  * (`ReceiptTray`): fica no canto, mostra a leitura em curso e permite abrir a
@@ -30,7 +43,7 @@ export default function ReceiptTray() {
   const receipt = useReceipt();
   const [collapsed, setCollapsed] = useState(false);
   const pending = receipt.pending;
-  if (!pending.length || !receipt.trayVisible) return null;
+  if (!pending.length || receipt.trayDismissed) return null;
 
   const ready = receipt.ready;
   const reading = pending.filter(
@@ -45,8 +58,7 @@ export default function ReceiptTray() {
 
   return (
     <aside
-      className="fixed left-4 right-4 z-40 overflow-hidden rounded-2xl border border-(--card-barras) bg-(--background) shadow-[0_8px_30px_rgba(15,23,42,0.12)] lg:bottom-5 lg:left-auto lg:right-6 lg:w-[350px] lg:max-w-[calc(100vw-2rem)]"
-      style={{ bottom: "calc(88px + env(safe-area-inset-bottom))" }}
+      className="fixed left-4 right-4 z-40 overflow-hidden rounded-2xl border border-(--card-barras) bg-(--background) shadow-[0_8px_30px_rgba(15,23,42,0.12)] bottom-[calc(162px_+_env(safe-area-inset-bottom))] lg:bottom-5 lg:left-auto lg:right-6 lg:w-[350px] lg:max-w-[calc(100vw-2rem)]"
       aria-label="Progresso dos comprovativos"
     >
       <header className="flex items-center gap-2 px-3 py-3">
@@ -100,7 +112,7 @@ export default function ReceiptTray() {
           type="button"
           aria-label={collapsed ? "Expandir leituras" : "Recolher leituras"}
           onClick={() => setCollapsed((value) => !value)}
-          className={`hidden rounded-lg p-1 text-(--icon) transition-transform hover:bg-neutrals-300/10 lg:block ${
+          className={`rounded-lg p-1.5 text-(--icon) transition-transform hover:bg-neutrals-300/10 active:scale-90 ${
             collapsed ? "rotate-180" : ""
           }`}
         >
@@ -109,29 +121,47 @@ export default function ReceiptTray() {
       </header>
 
       {!collapsed ? (
-        <div className="hidden max-h-[260px] overflow-auto lg:block">
+        <div className="max-h-[40dvh] overflow-auto border-t border-(--card-barras) lg:max-h-[260px]">
+          {receipt.error ? (
+            <div className="flex items-center gap-2 px-3 py-2.5 lg:px-4">
+              <p className="min-w-0 flex-1 font-manrope text-[11px] font-medium leading-4 text-danger-300">
+                {receipt.error}
+              </p>
+              <button
+                type="button"
+                onClick={receipt.retryAll}
+                className="shrink-0 rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-[11px] font-semibold leading-4 text-primary-300 transition-colors hover:bg-primary-300/20"
+              >
+                Tentar
+              </button>
+            </div>
+          ) : null}
           {pending.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-2 border-t border-(--card-barras) px-4 py-2.5"
+              className="flex items-center gap-2 border-t border-(--card-barras) px-3 py-2 lg:px-4 lg:py-2.5"
             >
               <FileText size={17} className="shrink-0 text-(--icon)" />
               <span className="flex min-w-0 flex-1 flex-col items-start">
-                <strong className="w-full truncate font-manrope text-xs font-semibold leading-5 text-(--text-title)">
+                <strong className="w-full truncate font-manrope text-xs font-semibold leading-4 text-(--text-title) lg:leading-5">
                   {item.fileName}
                 </strong>
-                <small className="mt-1 font-manrope text-[10px] font-medium leading-4 text-(--text-description)">
-                  {statusText(
-                    item.status,
-                    item.status === "reading" ? receipt.progress : "",
-                  )}
+                <small
+                  className={`w-full truncate font-manrope text-[10px] font-medium leading-4 ${statusClass(item.status)}`}
+                >
+                  {item.status === "error" && item.error
+                    ? item.error
+                    : statusText(
+                        item.status,
+                        item.status === "reading" ? receipt.progress : "",
+                      )}
                 </small>
               </span>
               {item.status === "ready" ? (
                 <button
                   type="button"
                   onClick={() => receipt.openReview(item.id)}
-                  className="rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-xs font-semibold leading-5 text-primary-300 transition-colors hover:bg-primary-300/20"
+                  className="shrink-0 rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-[11px] font-semibold leading-4 text-primary-300 transition-colors hover:bg-primary-300/20 lg:text-xs lg:leading-5"
                 >
                   Rever
                 </button>
@@ -140,14 +170,14 @@ export default function ReceiptTray() {
                 <button
                   type="button"
                   onClick={() => receipt.retry(item.id)}
-                  className="rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-xs font-semibold leading-5 text-primary-300 transition-colors hover:bg-primary-300/20"
+                  className="shrink-0 rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-[11px] font-semibold leading-4 text-primary-300 transition-colors hover:bg-primary-300/20 lg:text-xs lg:leading-5"
                 >
-                  Ver
+                  Repetir
                 </button>
               ) : null}
             </div>
           ))}
-          <p className="px-4 py-2.5 font-manrope text-[10px] font-medium leading-4 text-(--text-description)">
+          <p className="border-t border-(--card-barras) px-3 py-2 font-manrope text-[10px] font-medium leading-4 text-(--text-description) lg:px-4 lg:py-2.5">
             A leitura continua enquanto navegas na Wundu.
           </p>
         </div>

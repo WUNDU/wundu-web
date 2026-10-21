@@ -13,6 +13,10 @@ export const MAX_RECEIPT_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const POLL_INTERVAL_MS = 4_000;
 /** Tempo máximo de espera pela leitura antes de desistir. */
 const POLL_TIMEOUT_MS = 5 * 60 * 1000;
+/** Tentativas de upload por ficheiro antes de marcar o item como erro. */
+const UPLOAD_ATTEMPTS = 3;
+/** Espera entre tentativas de upload (crescente: 1s, 2s, 3s…). */
+const UPLOAD_RETRY_DELAY_MS = 1_000;
 
 const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
@@ -64,12 +68,62 @@ type UseReceiptAttachmentOptions = {
   mode?: "create" | "edit";
 };
 
-const errorMessage = (error: unknown, fallback: string) =>
-  error instanceof Error && error.message ? error.message : fallback;
-
 const isAbort = (error: unknown) =>
   error instanceof Error &&
   (error.name === "AbortError" || error.message === "cancelado");
+
+/** Erros do `apiClient` (que já aplaina a resposta em `Error` + `status`). */
+type QueueError = Error & { status?: number; errorCode?: string };
+
+const asQueueError = (error: unknown) => error as QueueError | null;
+
+/**
+ * Erro transitório: vale a pena repetir (rede em baixo, timeout, 5xx, 429 ou
+ * documento que o backend ainda não indexou logo após o upload).
+ * Os restantes (400/403/409…) não se resolvem a repetir.
+ */
+const isTransient = (error: unknown) => {
+  const status = asQueueError(error)?.status;
+  if (typeof status !== "number") return true; // sem resposta do servidor
+  return (
+    status === 404 || status === 408 || status === 409 || status === 429 || status >= 500
+  );
+};
+
+/** Recusa do backend que não se resolve repetindo (sessão/e-mail). */
+const isPolicyError = (error: unknown) => {
+  const info = asQueueError(error);
+  return (
+    info?.status === 401 ||
+    info?.status === 403 ||
+    info?.errorCode === "EMAIL_NOT_VERIFIED"
+  );
+};
+
+/** Mensagem legível para o utilizador (a do backend quando existe). */
+const readableError = (error: unknown, fallback: string) => {
+  const info = asQueueError(error);
+  const raw = error instanceof Error ? error.message.trim() : "";
+  const generic =
+    !raw ||
+    /^(request failed|internal server error|timeout of|network error|failed with status)/i.test(
+      raw,
+    );
+  // O backend diz o motivo → usa a mensagem dele.
+  if (!generic) return raw;
+  if (info?.errorCode === "EMAIL_NOT_VERIFIED" || info?.status === 403) {
+    return "Confirma o teu e-mail na Wundu antes de enviar vários comprovativos de cada vez.";
+  }
+  if (info?.status === 401) {
+    return "A sessão expirou. Entra outra vez para continuar a leitura.";
+  }
+  if (info?.status === 429) {
+    return "Demasiados pedidos. Aguarda um momento e tenta outra vez.";
+  }
+  if (info?.status === 413) return "O ficheiro é demasiado grande (máx. 10 MB).";
+  if (typeof info?.status === "number") return `${fallback} (erro ${info.status})`;
+  return fallback;
+};
 
 const fileKey = (file: File) => `${file.name}:${file.size}:${file.lastModified}`;
 
@@ -108,6 +162,8 @@ export function useReceiptAttachment({
   const runId = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const processing = useRef(false);
+  /** Fila parada por um erro que não se resolve a repetir (sessão/e-mail). */
+  const blocked = useRef(false);
 
   const update = useCallback(
     (updater: (prev: ReceiptItem[]) => ReceiptItem[]) => {
@@ -165,6 +221,16 @@ export function useReceiptAttachment({
   const readDocument = useCallback(
     async (id: string, run: number, ownerId: string) => {
       const startedAt = Date.now();
+      /** `getResult` com falhas transitórias a repetir (devolve null). */
+      const fetchResult = () =>
+        documentService.getResult(id).catch((resultError) => {
+          if (!isTransient(resultError)) {
+            throw new Error(
+              readableError(resultError, "Não foi possível ler os dados extraídos."),
+            );
+          }
+          return null;
+        });
       for (;;) {
         if (cancelled.current || runId.current !== run) {
           throw new Error("cancelado");
@@ -174,9 +240,23 @@ export function useReceiptAttachment({
             "A leitura do comprovativo demorou demasiado. Tenta novamente com um documento mais pequeno.",
           );
         }
-        const document = await documentService.getById(id);
+        // Logo após o upload o backend ainda pode não conhecer o documento (ou
+        // a rede falhou): nesse caso consultamos de novo em vez de travar o
+        // item — o timeout do polling continua a ser o limite.
+        const document = await documentService.getById(id).catch((statusError) => {
+          if (!isTransient(statusError)) {
+            throw new Error(
+              readableError(statusError, "Não foi possível consultar o estado da leitura."),
+            );
+          }
+          return null;
+        });
         if (cancelled.current || runId.current !== run) {
           throw new Error("cancelado");
+        }
+        if (!document) {
+          await wait(POLL_INTERVAL_MS);
+          continue;
         }
         const status = (document.status ?? "").toUpperCase();
         setProgress(
@@ -184,7 +264,20 @@ export function useReceiptAttachment({
         );
 
         if (status === "AWAITING_CONFIRMATION") {
-          const confirmed = await documentService.confirm(id);
+          const confirmed = await documentService.confirm(id).catch((confirmError) => {
+            // Uma confirmação que ainda não pegou (ou uma rede instável) não
+            // deve matar o item: volta a consultar o documento.
+            if (!isTransient(confirmError)) {
+              throw new Error(
+                readableError(confirmError, "Não foi possível confirmar a leitura."),
+              );
+            }
+            return null;
+          });
+          if (!confirmed) {
+            await wait(POLL_INTERVAL_MS);
+            continue;
+          }
           // A confirmação cria a transação: se entretanto o comprovativo foi
           // descartado, o rascunho é eliminado — não fica nada por reviews.
           const stillThere = itemsRef.current.some((item) => item.id === ownerId);
@@ -198,15 +291,37 @@ export function useReceiptAttachment({
               .catch(() => undefined);
             throw new Error("cancelado");
           }
-          const transaction = await transactionService.getById(
-            confirmed.transactionId,
-          );
+          const transaction = await (async () => {
+            let found = await transactionService
+              .getById(confirmed.transactionId)
+              .catch(() => null);
+            // A transação acabou de ser criada: dá-lhe uns segundos (3
+            // tentativas) em vez de marcar o comprovativo como falhado.
+            for (let attempt = 0; !found && attempt < 3; attempt++) {
+              await wait(POLL_INTERVAL_MS);
+              if (cancelled.current || runId.current !== run) return null;
+              found = await transactionService
+                .getById(confirmed.transactionId)
+                .catch(() => null);
+            }
+            return found;
+          })();
+          if (!transaction) {
+            if (cancelled.current || runId.current !== run) {
+              throw new Error("cancelado");
+            }
+            throw new Error("A despesa criada não respondeu. Tenta novamente.");
+          }
           return { kind: "transaction", transaction } as const;
         }
         if (status === "NEEDS_MANUAL_CATEGORY") {
           // O OCR leu os valores mas não percebeu a categoria: os dados
           // continuam disponíveis, a categoria é escolhida no formulário.
-          const result = await documentService.getResult(id);
+          const result = await fetchResult();
+          if (!result) {
+            await wait(POLL_INTERVAL_MS);
+            continue;
+          }
           return {
             kind: "result",
             result,
@@ -216,7 +331,11 @@ export function useReceiptAttachment({
         if (status === "PROCESSED") {
           // O documento já estava confirmado (ex.: sessão anterior): os dados
           // estruturados continuam disponíveis, mas não há transação nova.
-          const result = await documentService.getResult(id);
+          const result = await fetchResult();
+          if (!result) {
+            await wait(POLL_INTERVAL_MS);
+            continue;
+          }
           return {
             kind: "result",
             result,
@@ -244,21 +363,64 @@ export function useReceiptAttachment({
     [wait],
   );
 
+  /**
+   * Upload de um ficheiro com tentativas: falhas de rede, 5xx ou 429 voltam a
+   * ser tentadas (1s, 2s, 3s) antes de o item ficar como erro.
+   */
+  const uploadFile = useCallback(
+    async (file: File) => {
+      let lastError: unknown = null;
+      for (let attempt = 0; attempt < UPLOAD_ATTEMPTS; attempt++) {
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          return await documentService.upload(formData);
+        } catch (error) {
+          lastError = error;
+          if (
+            isPolicyError(error) ||
+            !isTransient(error) ||
+            attempt === UPLOAD_ATTEMPTS - 1
+          ) {
+            throw error;
+          }
+          await wait(UPLOAD_RETRY_DELAY_MS * (attempt + 1));
+        }
+      }
+      throw lastError;
+    },
+    [wait],
+  );
+
   const processItem = useCallback(
     async (id: string, run: number) => {
       const item = itemsRef.current.find((entry) => entry.id === id);
-      if (!item?.file) return;
+      if (!item) return;
+      if (!item.file) {
+        // Sem ficheiro não há envio: marca o item para o loop não ficar preso.
+        patch(id, {
+          status: "error",
+          error: "Ficheiro indisponível. Escolhe o comprovativo outra vez.",
+        });
+        return;
+      }
       patch(id, { status: "reading", error: "" });
-      setProgress("A enviar o documento…");
       try {
-        const formData = new FormData();
-        formData.append("file", item.file);
-        const upload = await documentService.upload(formData);
-        if (cancelled.current || runId.current !== run) return;
-        patch(id, { documentId: upload.documentId });
-        setProgress("A ler o documento…");
+        let documentId = item.documentId;
+        if (documentId) {
+          // O envio já tinha resultado (retry depois de uma falha a seguir):
+          // reutiliza o documento — repetir o upload daria DUPLICATE.
+          setProgress("A ler o documento…");
+        } else {
+          setProgress("A enviar o documento…");
+          const upload = await uploadFile(item.file);
+          if (cancelled.current || runId.current !== run) return;
+          documentId = upload.documentId;
+          patch(id, { documentId });
+          setProgress("A ler o documento…");
+        }
 
-        const outcome = await readDocument(upload.documentId, run, id);
+        const outcome = await readDocument(documentId, run, id);
         if (cancelled.current || runId.current !== run) return;
 
         if (outcome.kind === "transaction" && outcome.transaction) {
@@ -306,16 +468,20 @@ export function useReceiptAttachment({
       } catch (uploadError) {
         if (isAbort(uploadError)) return;
         setProgress("");
-        patch(id, {
-          status: "error",
-          error: errorMessage(
-            uploadError,
-            "Não foi possível ler o comprovativo. Tenta novamente.",
-          ),
-        });
+        const message = readableError(
+          uploadError,
+          "Não foi possível ler o comprovativo. Tenta novamente.",
+        );
+        patch(id, { status: "error", error: message });
+        // Recusa de sessão/e-mail não se resolve a repetir: para a fila (os
+        // restantes ficam na fila, não falham um a um) e explica o motivo.
+        if (isPolicyError(uploadError)) {
+          blocked.current = true;
+          setError(message);
+        }
       }
     },
-    [mode, patch, readDocument],
+    [mode, patch, readDocument, uploadFile],
   );
 
   /** Lê os comprovativos escolhidos, um a um. */
@@ -324,8 +490,10 @@ export function useReceiptAttachment({
     processing.current = true;
     const run = ++runId.current;
     cancelled.current = false;
+    blocked.current = false;
     try {
       for (;;) {
+        if (blocked.current) break;
         const next = itemsRef.current.find((item) => item.status === "staged");
         if (!next) break;
         await processItem(next.id, run);
@@ -402,8 +570,11 @@ export function useReceiptAttachment({
         setError("Podes ler até 10 ficheiros de cada vez.");
       }
       update((prev) => [...prev, ...next]);
+      // A fila arranca sozinha — quem apenas junta ficheiros não tem de se
+      // lembrar de chamar `read()` (o compositor continua a poder chamar).
+      void read();
     },
-    [update],
+    [read, update],
   );
 
   /** Remove um comprovativo da lista (e o rascunho que ele criou). */
@@ -425,11 +596,25 @@ export function useReceiptAttachment({
     (id: string) => {
       const item = itemsRef.current.find((entry) => entry.id === id);
       if (!item?.file) return;
+      blocked.current = false;
+      setError("");
       patch(id, { status: "staged", error: "" });
       void read();
     },
     [patch, read],
   );
+
+  /** Volta a ler todos os que falharam (usado pelo "Tentar" da barra). */
+  const retryAll = useCallback(() => {
+    blocked.current = false;
+    setError("");
+    update((prev) =>
+      prev.map((item) =>
+        item.status === "error" ? { ...item, status: "staged", error: "" } : item,
+      ),
+    );
+    void read();
+  }, [read, update]);
 
   /** Marca um comprovativo como revisto e guardado. */
   const markSaved = useCallback(
@@ -476,6 +661,7 @@ export function useReceiptAttachment({
     read,
     remove,
     retry,
+    retryAll,
     select,
     markSaved,
     discard,
