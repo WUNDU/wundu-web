@@ -30,6 +30,10 @@ type ReceiptContextValue = {
   remove: (id: string) => void;
   retry: (id: string) => void;
   markSaved: (id: string) => void;
+  /** Barra de progresso visível (há comprovativos por rever e não foi fechada). */
+  trayVisible: boolean;
+  /** Fecha a barra de progresso (a leitura continua; volta ao aparecer noutra leitura). */
+  dismissTray: () => void;
   /** Abre a folha de revisão de um comprovativo. */
   openReview: (id: string) => void;
   closeReview: () => void;
@@ -56,6 +60,7 @@ export function useReceipt() {
 export default function ReceiptProvider({ children }: { children: ReactNode }) {
   const queue = useReceiptAttachment();
   const [reviewId, setReviewId] = useState<string | null>(null);
+  const [trayDismissed, setTrayDismissed] = useState(false);
 
   const pending = useMemo(
     () => queue.items.filter((item) => item.status !== "saved"),
@@ -78,7 +83,11 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     isReading: queue.isReading,
     progress: queue.progress,
     error: queue.error,
-    stage: queue.stage,
+    stage: (files: File[]) => {
+      // Uma nova leitura volta a mostrar a barra de progresso.
+      setTrayDismissed(false);
+      queue.stage(files);
+    },
     read: queue.read,
     remove: queue.remove,
     retry: queue.retry,
@@ -86,6 +95,8 @@ export default function ReceiptProvider({ children }: { children: ReactNode }) {
     openReview: setReviewId,
     closeReview: () => setReviewId(null),
     reviewId,
+    trayVisible: pending.length > 0 && !trayDismissed,
+    dismissTray: () => setTrayDismissed(true),
   };
 
   return (

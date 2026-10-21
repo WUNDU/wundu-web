@@ -12,6 +12,7 @@ import TransactionForm, {
   type TransactionFormValues,
 } from "../transaction/TransactionForm";
 import { useTransaction } from "@/hooks/use-transaction";
+import { useReceipt } from "./ReceiptProvider";
 import { toTransactionDateTimeISO } from "app/utils/transaction-date";
 
 type TransactionActionContextValue = {
@@ -39,6 +40,9 @@ export default function TransactionActionProvider({
   const pathname = usePathname() ?? "";
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { createTransaction } = useTransaction({ autoFetch: false });
+  // A barra de progresso dos comprovativos ocupa o fundo do ecrã: quando está
+  // visível o FAB sobe por cima dela em vez de ficar escondido por baixo.
+  const { trayVisible } = useReceipt();
   const isSupportedPage =
     pathname === "/home" ||
     pathname.startsWith("/home/transactions");
@@ -66,8 +70,10 @@ export default function TransactionActionProvider({
           onClick={() => setIsFormOpen(true)}
           aria-label="Nova transação"
           title="Nova transação"
-          className="fixed right-6 z-40 flex size-[58px] items-center justify-center rounded-full bg-(--button-bg) text-white shadow-[0_8px_24px_rgba(5,61,196,0.1)] transition-transform active:scale-95 lg:hidden"
-          style={{ bottom: "calc(92px + env(safe-area-inset-bottom))" }}
+          className="fixed right-6 z-40 flex size-[58px] items-center justify-center rounded-full bg-(--button-bg) text-white shadow-[0_8px_24px_rgba(5,61,196,0.1)] transition-[bottom,transform] duration-300 ease-out active:scale-95 lg:hidden"
+          style={{
+            bottom: `calc(${trayVisible ? 162 : 92}px + env(safe-area-inset-bottom))`,
+          }}
         >
           <Plus className="size-6" strokeWidth={2.5} aria-hidden="true" />
         </button>

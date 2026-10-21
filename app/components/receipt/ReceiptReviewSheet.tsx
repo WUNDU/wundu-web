@@ -228,7 +228,7 @@ export default function ReceiptReviewSheet({
                 <span className="font-manrope text-[10px] font-semibold uppercase leading-5 text-(--text-description)">
                   Valor da transação
                 </span>
-                <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-(--border-button) bg-(--background) px-3">
+                <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-2">
                   <input
                     aria-label="Valor da despesa em Kz"
                     required

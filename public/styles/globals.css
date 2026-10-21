@@ -791,6 +791,14 @@ html {
 }
 
 /* ============================================================
+   COMPROVATIVOS — barra de leitura indeterminada (ReceiptTray)
+   ============================================================ */
+@keyframes receipt-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* ============================================================
    ACESSIBILIDADE
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {

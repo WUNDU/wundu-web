@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, FileText, ScanLine } from "lucide-react";
+import { ChevronDown, FileText, ScanLine, X } from "lucide-react";
 import { useState } from "react";
 import { useReceipt } from "app/components/layout/ReceiptProvider";
 
@@ -30,7 +30,7 @@ export default function ReceiptTray() {
   const receipt = useReceipt();
   const [collapsed, setCollapsed] = useState(false);
   const pending = receipt.pending;
-  if (!pending.length) return null;
+  if (!pending.length || !receipt.trayVisible) return null;
 
   const ready = receipt.ready;
   const reading = pending.filter(
@@ -64,18 +64,37 @@ export default function ReceiptTray() {
             {pending.length === 1 ? "comprovativo" : "comprovativos"} ·{" "}
             {ready.length} {ready.length === 1 ? "pronto" : "prontos"}
           </strong>
-          <progress
-            max={pending.length}
-            value={finished}
-            className="mt-1 h-1 w-full accent-primary-300"
-          />
+          {reading.length ? (
+            // Leitura em curso: barra indeterminada a “varrer” o documento
+            // para comunicar que está a ser lido (o valor real varia pouco).
+            <span className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-(--card-barras)">
+              <span className="block h-full w-1/3 rounded-full bg-primary-300 animate-[receipt-scan_1.2s_ease-in-out_infinite]" />
+            </span>
+          ) : (
+            <progress
+              max={pending.length}
+              value={finished}
+              className="mt-1 h-1 w-full accent-primary-300"
+            />
+          )}
         </button>
+        {ready.length ? (
+          <button
+            type="button"
+            onClick={reviewFirst}
+            className="rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-xs font-semibold leading-5 text-primary-300 transition-colors hover:bg-primary-300/20"
+          >
+            Rever
+          </button>
+        ) : null}
         <button
           type="button"
-          onClick={reviewFirst}
-          className="rounded-lg bg-primary-300/10 px-2.5 py-1.5 font-manrope text-xs font-semibold leading-5 text-primary-300 transition-colors hover:bg-primary-300/20"
+          onClick={receipt.dismissTray}
+          aria-label="Fechar progresso da leitura"
+          title="Fechar"
+          className="rounded-lg p-1.5 text-(--icon) transition-colors hover:bg-neutrals-300/10 active:scale-90"
         >
-          {ready.length ? "Rever" : "Ver"}
+          <X size={16} />
         </button>
         <button
           type="button"
