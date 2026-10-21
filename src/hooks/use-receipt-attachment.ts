@@ -5,6 +5,7 @@ import { documentService } from "@/services/document.service";
 import { transactionService } from "@/services/transaction.service";
 import { useUiStore } from "@/store/ui-store";
 import { useUserStore } from "@/store/user-store";
+import { deleteReceiptFile, loadReceiptFile, saveReceiptFile } from "@/utils/receipt-file-store";
 
 /** Limites iguais aos do protótipo `wundu`: até 10 comprovativos, 10 MB cada. */
 export const MAX_RECEIPT_FILES = 10;
@@ -122,10 +123,10 @@ function loadPersistedQueue(key: string): ReceiptItem[] {
         ...entry,
         file: null,
         // Estava em leitura: volta a `staged` e o runner continua a partir do
-        // documentId já enviado (sem repetir o upload).
+        // documentId já enviado (sem repetir o upload). Os `staged` também
+        // ficam: o original está no `IndexedDB` e volta a ser enviado.
         status: entry.status === "reading" ? "staged" : entry.status,
-      }))
-      .filter((entry) => entry.status !== "staged" || Boolean(entry.documentId));
+      }));
   } catch {
     return [];
   }
@@ -136,12 +137,7 @@ function persistQueue(key: string, items: ReceiptItem[]) {
   if (typeof window === "undefined") return;
   try {
     const queue = items
-      .filter(
-        (item) =>
-          PERSISTED_STATUSES.includes(item.status) &&
-          // `staged` sem documento não há como retomar (o `File` não sobrevive).
-          (item.status !== "staged" || Boolean(item.documentId)),
-      )
+      .filter((item) => PERSISTED_STATUSES.includes(item.status))
       .map<PersistedReceiptItem>((item) => ({
         id: item.id,
         fileName: item.fileName,
@@ -498,10 +494,20 @@ export function useReceiptAttachment({
 
   const processItem = useCallback(
     async (id: string, run: number) => {
-      const item = itemsRef.current.find((entry) => entry.id === id);
+      let item = itemsRef.current.find((entry) => entry.id === id);
       if (!item) return;
-      // Sem ficheiro, só dá para retomar um documento que já foi enviado
-      // (após um refresh o `File` perde-se mas o `documentId` fica guardado).
+      // Sem `File` em memória (depois de um refresh), vai buscar o original
+      // ao `IndexedDB`: é isso que permite retomar mesmo os por enviar.
+      if (!item.file && !item.documentId && storageKey) {
+        const stored = await loadReceiptFile(`${storageKey}:${id}`);
+        if (cancelled.current || runId.current !== run) return;
+        if (stored) {
+          patch(id, { file: stored });
+          item = itemsRef.current.find((entry) => entry.id === id) ?? item;
+        }
+      }
+      // Nem ficheiro nem documento: não há como retomar — marca o item para o
+      // loop não ficar preso.
       if (!item.file && !item.documentId) {
         patch(id, { status: "error", error: NO_FILE_ERROR });
         return;
@@ -586,7 +592,7 @@ export function useReceiptAttachment({
         }
       }
     },
-    [mode, patch, readDocument, uploadFile],
+    [mode, patch, readDocument, storageKey, uploadFile],
   );
 
   /** Lê os comprovativos escolhidos, um a um. */
@@ -708,11 +714,20 @@ export function useReceiptAttachment({
         setError("Podes ler até 10 ficheiros de cada vez.");
       }
       update((prev) => [...prev, ...next]);
+      // Guarda os originais no `IndexedDB`: é o que faz a fila inteira
+      // sobreviver a um refresh (mesmo os que ainda estão por enviar).
+      if (storageKey) {
+        for (const item of next) {
+          if (item.file) {
+            void saveReceiptFile(`${storageKey}:${item.id}`, item.file);
+          }
+        }
+      }
       // A fila arranca sozinha — quem apenas junta ficheiros não tem de se
       // lembrar de chamar `read()` (o compositor continua a poder chamar).
       void read();
     },
-    [read, update],
+    [read, storageKey, update],
   );
 
   /** Remove um comprovativo da lista (e o rascunho que ele criou). */
@@ -724,9 +739,10 @@ export function useReceiptAttachment({
           .delete(item.linkedTransactionId)
           .catch(() => undefined);
       }
+      if (storageKey) void deleteReceiptFile(`${storageKey}:${id}`);
       update((prev) => prev.filter((entry) => entry.id !== id));
     },
-    [update],
+    [storageKey, update],
   );
 
   /** Volta a ler um comprovativo que falhou. */
@@ -734,15 +750,10 @@ export function useReceiptAttachment({
     (id: string) => {
       const item = itemsRef.current.find((entry) => entry.id === id);
       if (!item) return;
-      // Só dá para repetir quem tem ficheiro ou documento já enviado; sem
-      // nenhum dos dois (ex.: fila restaurada sem ficheiro), explica porquê.
-      if (!item.file && !item.documentId) {
-        patch(id, { status: "error", error: NO_FILE_ERROR });
-        setError(NO_FILE_ERROR);
-        return;
-      }
       blocked.current = false;
       setError("");
+      // Quem é que decide se dá para retomar (ficheiro em memória, documento
+      // já enviado ou original no `IndexedDB`) é o `processItem`.
       patch(id, { status: "staged", error: "" });
       void read();
     },
@@ -753,18 +764,9 @@ export function useReceiptAttachment({
   const retryAll = useCallback(() => {
     blocked.current = false;
     setError("");
-    // Só quem ainda tem ficheiro ou documento enviado consegue ser relido.
-    const retriable = itemsRef.current.filter(
-      (item) => item.status === "error" && Boolean(item.file || item.documentId),
-    );
-    if (!retriable.length) {
-      setError("Não há comprovativos para repetir. Escolhe os ficheiros outra vez.");
-      return;
-    }
-    const ids = new Set(retriable.map((item) => item.id));
     update((prev) =>
       prev.map((item) =>
-        ids.has(item.id) ? { ...item, status: "staged", error: "" } : item,
+        item.status === "error" ? { ...item, status: "staged", error: "" } : item,
       ),
     );
     void read();
@@ -774,8 +776,10 @@ export function useReceiptAttachment({
   const markSaved = useCallback(
     (id: string) => {
       patch(id, { status: "saved" });
+      // Revisto: o original já não faz falta (o item também sai da fila).
+      if (storageKey) void deleteReceiptFile(`${storageKey}:${id}`);
     },
-    [patch],
+    [patch, storageKey],
   );
 
   /** Descarta tudo o que ainda não foi revisto. */
@@ -789,11 +793,12 @@ export function useReceiptAttachment({
           .delete(item.linkedTransactionId)
           .catch(() => undefined);
       }
+      if (storageKey) void deleteReceiptFile(`${storageKey}:${item.id}`);
     }
     update(() => []);
     setActiveId(null);
     setError("");
-  }, [clearTimer, update]);
+  }, [clearTimer, storageKey, update]);
 
   /** Selecciona o comprovativo em revisão. */
   const select = useCallback((id: string) => {

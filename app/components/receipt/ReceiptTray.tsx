@@ -191,7 +191,7 @@ export default function ReceiptTray() {
                   Repetir
                 </button>
               ) : null}
-              {item.status === "ready" || item.status === "error" ? (
+              {item.status !== "reading" ? (
                 <button
                   type="button"
                   onClick={() => receipt.remove(item.id)}
