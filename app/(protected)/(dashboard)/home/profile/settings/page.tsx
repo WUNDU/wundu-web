@@ -7,6 +7,7 @@ import DangerZone from "app/components/settings/DangerZone";
 import DeleteAccountDialog from "app/components/settings/DeleteAccountDialog";
 import NotificationsCard from "app/components/settings/NotificationsCard";
 import PasswordForm from "app/components/settings/PasswordForm";
+import PlansCard from "app/components/settings/PlansCard";
 import PrivacyCard from "app/components/settings/PrivacyCard";
 import ProfileCard from "app/components/settings/ProfileCard";
 import ProfileEdit, {
@@ -31,6 +32,7 @@ type SettingsTab =
   | "Segurança"
   | "Privacidade"
   | "Notificações"
+  | "Planos"
   | "Aparência"
   | "Sessões";
 
@@ -39,6 +41,7 @@ const TABS: SettingsTab[] = [
   "Segurança",
   "Privacidade",
   "Notificações",
+  "Planos",
   "Aparência",
   "Sessões",
 ];
@@ -138,13 +141,35 @@ function page() {
       if (Object.keys(changed).length > 0) {
         await userService.updateProfile(changed);
       }
-      if (values.photoFile) await userService.uploadPhoto(values.photoFile);
-      else if (values.photoRemoved) await userService.deletePhoto();
       await refreshUser();
       notify.success("Perfil atualizado com sucesso!");
       return true;
     } catch {
       notify.error("Não foi possível guardar as alterações.");
+      return false;
+    }
+  }
+
+  async function handleUploadProfilePhoto(file: File): Promise<string | null> {
+    try {
+      const { profilePhotoUrl } = await userService.uploadPhoto(file);
+      await refreshUser();
+      notify.success("Foto atualizada com sucesso!");
+      return profilePhotoUrl;
+    } catch {
+      notify.error("Não foi possível enviar a foto.");
+      return null;
+    }
+  }
+
+  async function handleRemoveProfilePhoto(): Promise<boolean> {
+    try {
+      await userService.deletePhoto();
+      await refreshUser();
+      notify.success("Foto removida com sucesso!");
+      return true;
+    } catch {
+      notify.error("Não foi possível remover a foto.");
       return false;
     }
   }
@@ -297,6 +322,7 @@ function page() {
               <NotificationsCard />
             </div>
           ) : null}
+          {activeTab === "Planos" ? <PlansCard /> : null}
           {activeTab === "Aparência" ? (
             <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <AppearanceCard />
@@ -314,6 +340,8 @@ function page() {
             onClose={() => setIsEditOpen(false)}
             profile={profile}
             onSave={handleSaveProfile}
+            onUploadPhoto={handleUploadProfilePhoto}
+            onRemovePhoto={handleRemoveProfilePhoto}
           />
         ) : null}
         <DeleteAccountDialog

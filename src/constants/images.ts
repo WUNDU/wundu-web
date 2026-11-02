@@ -7,6 +7,11 @@ export { default as backgroundPanel } from "../../public/assets/backgroundPanel.
 export { default as logotype } from "../../public/assets/logotype.svg";
 export { default as logoLogin } from "../../public/assets/logo-login.svg";
 
+// Settings — Planos (cópia ASCII do asset original "Ilustração do plano.svg",
+// necessária para o Turbopack resolver o import).
+export { default as planIllustration } from "../../public/assets/plan-illustration.svg";
+export { default as planIllustrationPremium } from "../../public/assets/plan-illustration-premium.svg";
+
 // About Page Images
 export { default as imgFounders } from "../../public/assets/images/founders.png";
 export { default as imgWundu } from "../../public/assets/images/wundu.png";

@@ -26,6 +26,7 @@ export { default as ClockIcon } from "../icons/clock";
 export { default as CloseIcon } from "../icons/close";
 export { default as CoinIcon } from "../icons/coin";
 export { default as ComputerPhoneSyncIcon } from "../icons/computer-phone-sync";
+export { default as CrownIcon } from "../icons/crown";
 export { default as DocumentIcon } from "../icons/document";
 export { default as DocumentLibraryIcon } from "../icons/document-library";
 export { default as DoneAllIcon } from "../icons/done-all";

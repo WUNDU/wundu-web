@@ -26,10 +26,6 @@ export type ProfileEditValues = {
   province: string;
   /** Nome do município em texto. */
   municipality: string;
-  /** Ficheiro novo para carregar (aplicado ao guardar). */
-  photoFile: File | null;
-  /** Remover a foto atual (aplicado ao guardar). */
-  photoRemoved: boolean;
 };
 
 type ProfileEditProps = {
@@ -37,6 +33,10 @@ type ProfileEditProps = {
   onClose: () => void;
   profile: ProfileDTO;
   onSave?: (values: ProfileEditValues) => Promise<boolean>;
+  /** Envia a foto imediatamente e devolve o URL final (ou null em erro). */
+  onUploadPhoto?: (file: File) => Promise<string | null>;
+  /** Remove a foto imediatamente. */
+  onRemovePhoto?: () => Promise<boolean>;
 };
 
 const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
@@ -66,9 +66,19 @@ function toDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
+function ProfileEdit({
+  isOpen,
+  onClose,
+  profile,
+  onSave,
+  onUploadPhoto,
+  onRemovePhoto,
+}: ProfileEditProps) {
   const [name, setName] = useState(profile.name);
   const [birth, setBirth] = useState<Date>(() => parseDMY(profile.birthDate));
+  const [birthChosen, setBirthChosen] = useState(
+    profile.birthDate !== "—" && Boolean(profile.birthDate),
+  );
   const [birthOpen, setBirthOpen] = useState(false);
   const [phone, setPhone] = useState(profile.phone);
   const [provinceSlug, setProvinceSlug] = useState("");
@@ -76,9 +86,8 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
   const [municipality, setMunicipality] = useState(profile.municipality ?? "");
   const [municipalityOpen, setMunicipalityOpen] = useState(false);
   const [photo, setPhoto] = useState<string | null>(profile.photo ?? null);
-  const [initialPhoto, setInitialPhoto] = useState<string | null>(null);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const birthAnchorRef = useRef<HTMLButtonElement>(null);
@@ -131,6 +140,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
     if (!isOpen) return;
     setName(profile.name);
     setBirth(parseDMY(profile.birthDate));
+    setBirthChosen(profile.birthDate !== "—" && Boolean(profile.birthDate));
     setBirthOpen(false);
     setPhone(profile.phone);
     setProvinceSlug(
@@ -140,19 +150,28 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
     setMunicipality(profile.municipality ?? "");
     setMunicipalityOpen(false);
     setPhoto(profile.photo ?? null);
-    setInitialPhoto(profile.photo ?? null);
-    setPhotoFile(null);
     setSaving(false);
+    setUploadingPhoto(false);
     setFormError(null);
-  }, [isOpen, profile]);
+    // Só ao abrir: o perfil é actualizado após o upload da foto e não deve
+    // apagar alterações ainda não guardadas no formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const fieldLabel =
     "font-manrope text-sm font-medium leading-5 text-(--text-description)";
   const fieldBox =
     "rounded-xl border border-(--card-barras) bg-(--background) focus:border-(--border) focus:outline-none";
 
-  function handlePickPhoto(file: File | undefined) {
-    if (!file) return;
+  function updatePhoto(next: string | null) {
+    setPhoto((previous) => {
+      if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
+      return next;
+    });
+  }
+
+  async function handlePickPhoto(file: File | undefined) {
+    if (!file || uploadingPhoto) return;
     if (!/^image\/(jpeg|png)$/.test(file.type)) {
       setFormError("A foto tem de ser JPEG ou PNG.");
       return;
@@ -162,25 +181,74 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
       return;
     }
     setFormError(null);
-    setPhoto((previous) => {
-      if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
-      return URL.createObjectURL(file);
-    });
-    setPhotoFile(file);
+
+    if (!onUploadPhoto) return;
+
+    const previousPhoto = photo;
+    updatePhoto(URL.createObjectURL(file));
+    setUploadingPhoto(true);
+    try {
+      const uploadedUrl = await onUploadPhoto(file);
+      if (uploadedUrl) {
+        updatePhoto(uploadedUrl);
+      } else {
+        updatePhoto(previousPhoto);
+        setFormError("Não foi possível enviar a foto.");
+      }
+    } finally {
+      setUploadingPhoto(false);
+    }
   }
 
-  function handleRemovePhoto() {
-    setPhoto((previous) => {
-      if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
-      return null;
-    });
-    setPhotoFile(null);
+  async function handleRemovePhoto() {
+    if (uploadingPhoto || !photo) return;
+    setFormError(null);
+
+    // Foto ainda só em pré-visualização: basta descartá-la.
+    if (photo.startsWith("blob:")) {
+      updatePhoto(null);
+      return;
+    }
+
+    if (!onRemovePhoto) return;
+
+    setUploadingPhoto(true);
+    try {
+      if (await onRemovePhoto()) {
+        updatePhoto(null);
+      } else {
+        setFormError("Não foi possível remover a foto.");
+      }
+    } finally {
+      setUploadingPhoto(false);
+    }
   }
 
   async function handleSave() {
     if (saving) return;
     if (name.trim().length < 2) {
       setFormError("Indique o nome completo.");
+      return;
+    }
+    const phoneDigits = phone.replace(/\D/g, "");
+    const localPhone =
+      phoneDigits.length > 9 && phoneDigits.startsWith("244")
+        ? phoneDigits.slice(3)
+        : phoneDigits;
+    if (!/^[29]\d{8}$/.test(localPhone)) {
+      setFormError("Indique um número de telefone válido.");
+      return;
+    }
+    if (!birthChosen) {
+      setFormError("Selecione a data de nascimento.");
+      return;
+    }
+    if (!provinceSlug) {
+      setFormError("Selecione a província.");
+      return;
+    }
+    if (!municipality.trim()) {
+      setFormError("Selecione o município.");
       return;
     }
     setSaving(true);
@@ -191,8 +259,6 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
       birthDate: toDateKey(birth),
       province: provinceSlug ? provinceSlugToEnum(provinceSlug) : "",
       municipality: municipality.trim(),
-      photoFile,
-      photoRemoved: Boolean(initialPhoto) && !photoFile && photo === null,
     });
     setSaving(false);
     if (ok) onClose();
@@ -213,7 +279,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
           aria-hidden="true"
           className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
         />
-        <header className="flex h-24 shrink-0 items-center justify-between self-stretch border-b border-(--card-barras) p-6">
+        <header className="flex h-20 shrink-0 items-center justify-between self-stretch border-b border-(--card-barras) p-4 sm:h-24 sm:p-6">
           <div className="flex items-center justify-start gap-2">
             <span
               aria-hidden="true"
@@ -235,19 +301,19 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
           </button>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col items-start justify-start self-stretch overflow-y-auto py-6">
-            <div className="flex flex-col items-start justify-start gap-6 self-stretch px-6 pt-6 pb-3">
-              <div className="flex flex-col items-start justify-start gap-10 self-stretch rounded-xl border border-(--card-barras) bg-(--background) p-6">
-              <div className="flex flex-col items-start justify-start gap-4 self-stretch sm:flex-row sm:items-center sm:gap-6">
+        <div className="flex min-h-0 flex-1 flex-col items-start justify-start self-stretch overflow-y-auto py-4 sm:py-6">
+            <div className="flex flex-col items-start justify-start gap-6 self-stretch px-4 pb-2 pt-0 sm:px-6 sm:pb-3 sm:pt-2">
+              <div className="flex flex-col items-start justify-start gap-8 self-stretch rounded-xl border border-(--card-barras) bg-(--background) p-4 sm:gap-10 sm:p-6">
+              <div className="flex flex-row items-center justify-start gap-3 self-stretch sm:gap-6">
                 <Image
                   src={photo ?? avatar}
                   alt="Foto de perfil"
                   width={180}
                   height={180}
                   unoptimized={Boolean(photo)}
-                  className="size-44 shrink-0 rounded-3xl object-cover outline-2 outline-(--border-blue)"
+                  className="size-24 shrink-0 rounded-3xl object-cover outline-2 outline-(--border-blue) sm:size-44"
                 />
-                <div className="flex w-40 flex-col items-start justify-start gap-2.5">
+                <div className="flex min-w-0 flex-1 flex-col items-stretch justify-start gap-2.5 sm:w-40 sm:flex-none">
                   <input
                     ref={fileRef}
                     type="file"
@@ -255,14 +321,15 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                     aria-label="Carregar foto"
                     className="sr-only"
                     onChange={(event) => {
-                      handlePickPhoto(event.target.files?.[0]);
+                      void handlePickPhoto(event.target.files?.[0]);
                       event.target.value = "";
                     }}
                   />
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl border border-(--border-hover) bg-transparent px-3 transition-colors hover:bg-neutrals-300/10 active:scale-95"
+                    disabled={uploadingPhoto}
+                    className="flex h-11 items-center justify-center gap-2 self-stretch rounded-xl border border-(--border-hover) bg-transparent px-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 disabled:cursor-wait disabled:opacity-60 sm:h-10"
                   >
                     <ImageUploadIcon
                       width={24}
@@ -271,13 +338,14 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                       className="size-6 shrink-0 text-(--text-description-button)"
                     />
                     <span className="shrink-0 whitespace-nowrap text-center font-manrope text-xs font-bold text-(--text-description-button)">
-                      Carregar Foto
+                      {uploadingPhoto ? "A carregar…" : "Carregar Foto"}
                     </span>
                   </button>
                   <button
                     type="button"
-                    onClick={handleRemovePhoto}
-                    className="flex h-10 items-center justify-center gap-2 self-stretch rounded-xl bg-(--button-bg-danger) px-3 transition-opacity hover:opacity-90 active:scale-95"
+                    onClick={() => void handleRemovePhoto()}
+                    disabled={!photo || uploadingPhoto}
+                    className="flex h-11 items-center justify-center gap-2 self-stretch rounded-xl bg-(--button-bg-danger) px-3 transition-opacity hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-10"
                   >
                     <Trash2
                       width={20}
@@ -293,20 +361,23 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
               </div>
 
               <div className="flex flex-col items-start justify-start gap-6 self-stretch">
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch md:flex-row">
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <label htmlFor="profile-name" className={fieldLabel}>
                       Nome completo
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
                     </label>
                     <input
                       id="profile-name"
                       type="text"
+                      required
+                      autoComplete="name"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
                       className={`w-full px-4 py-3 font-manrope text-base font-normal text-(--text-title) ${fieldBox}`}
                     />
                   </div>
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <label htmlFor="profile-email" className={fieldLabel}>
                       Email
                     </label>
@@ -321,10 +392,11 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch md:flex-row">
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <span id="profile-birth-label" className={fieldLabel}>
                       Data de Nascimento
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
                     </span>
                     <div className="relative self-stretch">
                       <button
@@ -332,6 +404,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                         ref={birthAnchorRef}
                         onClick={() => setBirthOpen((value) => !value)}
                         aria-expanded={birthOpen}
+                        aria-required="true"
                         aria-labelledby="profile-birth-label"
                         className={`flex w-full items-center justify-start gap-2.5 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                       >
@@ -341,8 +414,14 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                           aria-hidden="true"
                           className="shrink-0 text-primary-300"
                         />
-                        <span className="font-manrope text-base font-normal text-(--text-title)">
-                          {formatDMY(birth)}
+                        <span
+                          className={`font-manrope text-base font-normal ${
+                            birthChosen
+                              ? "text-(--text-title)"
+                              : "text-(--text-description-60)"
+                          }`}
+                        >
+                          {birthChosen ? formatDMY(birth) : "Selecionar data"}
                         </span>
                       </button>
                       <FloatingMenu
@@ -355,19 +434,24 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                           selected={birth}
                           onSelect={(date) => {
                             setBirth(date);
+                            setBirthChosen(true);
                             setBirthOpen(false);
                           }}
                         />
                       </FloatingMenu>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <label htmlFor="profile-phone" className={fieldLabel}>
                       Telefone
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
                     </label>
                     <input
                       id="profile-phone"
                       type="tel"
+                      required
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={phone}
                       onChange={(event) =>
                         setPhone(formatPhoneInput(event.target.value))
@@ -378,10 +462,11 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch md:flex-row">
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <span id="profile-province-label" className={fieldLabel}>
                       Província
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
                     </span>
                     <div className="relative self-stretch">
                       <button
@@ -389,6 +474,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                         ref={provinceAnchorRef}
                         onClick={() => setProvinceOpen((value) => !value)}
                         aria-expanded={provinceOpen}
+                        aria-required="true"
                         aria-labelledby="profile-province-label"
                         className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                       >
@@ -431,9 +517,10 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                       </FloatingMenu>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col items-start justify-start gap-2">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
                     <span id="profile-municipality-label" className={fieldLabel}>
                       Município
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
                     </span>
                     {hasMunicipalityData ? (
                       <div className="relative self-stretch">
@@ -442,6 +529,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                           ref={municipalityAnchorRef}
                           onClick={() => setMunicipalityOpen((value) => !value)}
                           aria-expanded={municipalityOpen}
+                          aria-required="true"
                           aria-labelledby="profile-municipality-label"
                           className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
                         >
@@ -505,17 +593,21 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
                   </div>
                 </div>
 
-                {formError ? (
-                  <p role="alert" className="font-manrope text-sm font-semibold text-danger-300">
-                    {formError}
-                  </p>
-                ) : null}
               </div>
             </div>
           </div>
         </div>
 
-        <footer className="flex shrink-0 items-center justify-end gap-6 self-stretch border-t border-(--card-barras) p-6">
+        {formError ? (
+          <p
+            role="alert"
+            className="shrink-0 self-stretch px-4 pt-3 font-manrope text-sm font-semibold text-danger-300 sm:px-6"
+          >
+            {formError}
+          </p>
+        ) : null}
+
+        <footer className="flex shrink-0 items-center justify-end gap-3 self-stretch border-t border-(--card-barras) p-4 sm:gap-6 sm:p-6">
           <button
             type="button"
             onClick={onClose}
@@ -529,7 +621,7 @@ function ProfileEdit({ isOpen, onClose, profile, onSave }: ProfileEditProps) {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex w-56 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 disabled:cursor-wait disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 disabled:cursor-wait disabled:opacity-60 lg:w-56 lg:flex-none"
           >
             <span className="text-center font-manrope text-base font-bold leading-6">
               {saving ? "A guardar…" : "Salvar alterações"}

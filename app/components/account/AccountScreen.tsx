@@ -443,7 +443,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
             <PlusIcon
               width={16}
               height={16}
-              className="shrink-0 text-(--button-icon-yellow)"
+              className="shrink-0 text-base-white"
               aria-hidden="true"
             />
             <span className="font-manrope text-xs font-medium text-(--button-fg)">
@@ -459,7 +459,7 @@ function AccountScreen({ initialTab = "Contas" }: AccountScreenProps) {
             <PlusIcon
               width={16}
               height={16}
-              className="shrink-0 text-(--button-icon-yellow)"
+              className="shrink-0 text-base-white"
               aria-hidden="true"
             />
             <span className="font-manrope text-xs font-medium text-(--button-fg)">
