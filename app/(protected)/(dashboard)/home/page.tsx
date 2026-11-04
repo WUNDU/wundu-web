@@ -389,7 +389,7 @@ function DashboardContent() {
             {errorMessages.join(" ")} Atualize a página para tentar novamente.
           </div>
         )}
-        <div className="hidden grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid xl:grid-cols-4">
+        <div className="hidden grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid xl:grid-cols-5">
           <CardViews
             property1="Default"
             title="Entradas"
@@ -439,6 +439,27 @@ function DashboardContent() {
             }
             className="min-w-0! max-w-none!"
           />
+          <BalanceHero
+            amount={balance?.balance ?? 0}
+            value={
+              isCardsLoading
+                ? "A carregar…"
+                : balance
+                  ? formatAOA(balance.balance)
+                  : "—"
+            }
+            change={
+              isCardsLoading || balancePct === null
+                ? ""
+                : formatPct(balancePct)
+            }
+            trend={
+              balancePct === null ? undefined : trendOf(balancePct)
+            }
+            comparison={comparisonLabel}
+            loading={isCardsLoading}
+            className="h-full min-w-0! max-w-none!"
+          />
           <CardViews
             property1="Variant7"
             title="Património"
@@ -453,6 +474,7 @@ function DashboardContent() {
         <div className="grid grid-cols-2 items-stretch gap-4 lg:hidden">
           <BalanceHero
             className="col-span-2"
+            amount={balance?.balance ?? 0}
             value={
               isCardsLoading
                 ? "A carregar…"

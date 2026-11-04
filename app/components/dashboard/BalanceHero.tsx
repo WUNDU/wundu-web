@@ -5,6 +5,7 @@ import type { CardTrend } from "./CardViews";
 import { useValuesVisibility } from "./values-visibility";
 
 type BalanceHeroProps = {
+  amount: number;
   value: string;
   change: string;
   trend?: CardTrend;
@@ -14,6 +15,7 @@ type BalanceHeroProps = {
 };
 
 export default function BalanceHero({
+  amount,
   value,
   change,
   trend,
@@ -24,12 +26,15 @@ export default function BalanceHero({
   const { hidden: masked, toggle } = useValuesVisibility();
   const TrendIcon =
     trend === "down" ? ArrowDown : trend === "flat" ? Equal : ArrowUp;
+  const negative = !loading && amount < 0;
 
   return (
     <section
       aria-label="Saldo disponível"
       className={[
-        "flex w-full min-w-0 flex-col items-start gap-1 rounded-xl bg-(--button-bg) p-6",
+        negative
+          ? "flex w-full min-w-0 flex-col items-start gap-1 rounded-xl bg-[linear-gradient(90deg,var(--color-danger-500)_20%,var(--color-danger-300)_100%)] p-6"
+          : "flex w-full min-w-0 flex-col items-start gap-1 rounded-xl bg-(--button-bg) p-6",
         className,
       ]
         .filter(Boolean)
@@ -53,6 +58,11 @@ export default function BalanceHero({
           )}
         </button>
       </div>
+      {negative ? (
+        <span className="font-manrope text-[11px] font-bold leading-4 text-white/85">
+          Saldo negativo
+        </span>
+      ) : null}
       <p className="self-stretch pb-1.5 font-manrope text-3xl font-bold leading-9 text-white">
         {loading ? "A carregar…" : masked ? "••••••" : value}
       </p>
