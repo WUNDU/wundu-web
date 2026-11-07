@@ -293,7 +293,7 @@ const RegisterPage = () => {
         setRegisterData({ password: securityForm.password });
         const user = useUserStore.getState().user;
         if (user) {
-          identifyUser(user.id, { email: user.email, name: user.name });
+          identifyUser(user.id);
         }
         captureEvent("user_registered", {
           name: data.name,

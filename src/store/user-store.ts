@@ -34,6 +34,49 @@ function clearUserStores() {
   queryClient.removeQueries({ queryKey: ["sessions"] });
 }
 
+/**
+ * Subconjunto do `User` que pode viver no localStorage.
+ *
+ * Tudo o resto — telefone, data de nascimento, localização, estado civil,
+ * dependentes, situação laboral e rendimento previsto — é PII/dado financeiro
+ * e fica APENAS em memória até o `/users/me` devolver o perfil completo.
+ * O token de acesso nunca entra aqui (ver `partialize`).
+ */
+type CachedUser = Pick<
+  User,
+  | "id"
+  | "name"
+  | "email"
+  | "profilePhotoUrl"
+  | "planType"
+  | "role"
+  | "analyticsConsent"
+  | "createdAt"
+  | "isActive"
+>;
+
+/**
+ * Projecta o user em memória para o cache mínimo do localStorage.
+ *
+ * O cast para `User` é intencional: o objecto persistido é um subconjunto e
+ * os campos em falta são repostos por `checkAuthStatus()` pouco depois do
+ * refresh — todos os leitores no UI tratam esses campos como opcionais.
+ */
+function toCachedUser(user: User): User {
+  const cached: CachedUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    profilePhotoUrl: user.profilePhotoUrl ?? null,
+    planType: user.planType,
+    role: user.role,
+    analyticsConsent: user.analyticsConsent,
+    createdAt: user.createdAt,
+    isActive: user.isActive,
+  };
+  return cached as User;
+}
+
 interface AuthState {
   // Auth state
   token: string | null;
@@ -411,10 +454,12 @@ export const useUserStore = create<AuthState>()(
       name: "wundu-user-cache",
       storage: createJSONStorage(() => localStorage),
       // O token NÃO é persistido — vive apenas em memória (segurança contra XSS).
-      // O user é persistido para exibição imediata enquanto o refresh silencioso decorre.
+      // Do user só se persiste o mínimo para a UI renderizar de imediato (ver
+      // toCachedUser): PII demográfico/financeiro fica só em memória até o
+      // /users/me devolver o perfil completo.
       // O estado de registo (currentStep, data) é intencionalmente efémero.
       partialize: (state) => ({
-        user: state.user,
+        user: state.user ? toCachedUser(state.user) : null,
       }),
       onRehydrateStorage: () => (state) => {
         // Sanitise any stale registration state left by older versions of the store

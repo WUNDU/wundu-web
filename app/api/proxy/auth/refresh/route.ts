@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clearSessionCookies, setRefreshToken } from "@/server/auth-cookie";
 
 const BACKEND = process.env.BACKEND_API_BASE_URL ?? "";
 const COOKIE_NAME = "refresh_token";
-const COOKIE_PATH = "/";
 
 function parseCookieValue(header: string, name: string): string | null {
   const match = header.match(new RegExp(`(?:^|,)\\s*${name}=([^;,]+)`));
@@ -34,8 +34,7 @@ export async function POST(req: NextRequest) {
 
     // If session is invalid at backend, clear it on frontend too
     if (backendRes.status === 401 || backendRes.status === 403) {
-      res.cookies.set(COOKIE_NAME, "", { path: COOKIE_PATH, maxAge: 0 });
-      res.cookies.set("wundu_session", "", { path: "/", maxAge: 0 });
+      clearSessionCookies(res, req);
     }
 
     return res;
@@ -50,21 +49,8 @@ export async function POST(req: NextRequest) {
     const value = parseCookieValue(setCookie, COOKIE_NAME);
     const maxAge = parseCookieMaxAge(setCookie);
     if (value) {
-      nextRes.cookies.set(COOKIE_NAME, value, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: COOKIE_PATH,
-        maxAge: maxAge ?? 30 * 24 * 60 * 60,
-      });
-      // Rotate session indicator too
-      nextRes.cookies.set("wundu_session", "1", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: maxAge ?? 30 * 24 * 60 * 60,
-      });
+      // Última operação de cookies da resposta (inclui limpar o path legado "/").
+      setRefreshToken(nextRes, req, value, maxAge);
     }
   }
 

@@ -53,7 +53,7 @@ export default function GoogleRegisterPage() {
       await registerWithGoogle(idToken);
       const user = useUserStore.getState().user;
       if (user) {
-        identifyUser(user.id, { email: user.email, name: user.name });
+        identifyUser(user.id);
       }
       captureEvent("user_registered", { method: "google", email: session?.user?.email });
       wunduToast.success("Conta criada com sucesso!", {

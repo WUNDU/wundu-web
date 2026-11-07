@@ -43,7 +43,7 @@ export default function GoogleCallbackPage() {
         await loginWithGoogle(idToken);
         const user = useUserStore.getState().user;
         if (user) {
-          identifyUser(user.id, { email: user.email, name: user.name });
+          identifyUser(user.id);
         }
         captureEvent("user_signed_in", { method: "google" });
         router.replace(ROUTES.HOME);

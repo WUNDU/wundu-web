@@ -30,9 +30,19 @@ export function initAnalytics(recordingConsent: boolean): void {
   }
 }
 
+/**
+ * Associa os eventos ao utilizador autenticado.
+ *
+ * Sem `properties` de propósito: o SDK cacheia `$set` em
+ * `$stored_person_properties` (localStorage), por isso passar email/name aqui
+ * seria PII em claro no browser. Quando não há props, limpa-se também o cache
+ * deixado por versões antigas — só mexe no localStorage do PostHog, não toca
+ * nas props já registadas no servidor.
+ */
 export function identifyUser(userId: string, properties?: Record<string, unknown>): void {
   if (!isClient()) return;
   posthog.identify(userId, properties);
+  if (!properties) posthog.resetPersonPropertiesForFlags();
 }
 
 export function resetIdentification(): void {

@@ -217,7 +217,7 @@ const LoginPage: React.FC = () => {
             SAVED_USER_KEY,
             JSON.stringify({ name: user.name, email: user.email }),
           );
-          identifyUser(user.id, { email: user.email, name: user.name });
+          identifyUser(user.id);
         }
         captureEvent("user_signed_in", { method: "email" });
       } else if (errorCodeRef.current === "EMAIL_NOT_VERIFIED") {

@@ -76,12 +76,12 @@ Base `/api/v1` (via proxy):
 ```http
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer <accessToken>  # injetado via interceptor se window + token
-Cookie: refreshToken=<httpOnly>       # enviado automático withCredentials
+Authorization: Bearer <accessToken>  # injetado via interceptor se window + token (em memória, nunca persistido)
+Cookie: refresh_token=<httpOnly; Path=/api/proxy/auth>   # enviado automático byCredentials, só nas rotas /api/proxy/auth/*
 ```
 
 ## 6. Authentication
-Login → `{accessToken, expiresIn}` + `Set-Cookie: refreshToken` (rotativo, uso único, httpOnly). Google: valida `idToken` audience `GOOGLE_CLIENT_ID`. Refresh deduplicado (`refreshPromise` em `user-store.ts` + `isRefreshing`+`failedQueue` em `api.ts`). Logout: `POST /auth/logout` + `clearUserStores()` + `removeQueries`.
+Login → `{accessToken, expiresIn}` no **corpo** (fica só em memória) + `Set-Cookie: refresh_token` (rotativo, uso único, `HttpOnly`, `SameSite=Lax`, `Secure` em prod, `Path=/api/proxy/auth`; a entrada legada em `Path=/` é apagada na mesma resposta — ver `src/server/auth-cookie.ts`). Mais um `wundu_session=1` (flag sem segredo, `Path=/`, só para o `middleware.ts`). Google: valida `idToken` audience `GOOGLE_CLIENT_ID`. Refresh deduplicado (`refreshPromise` em `user-store.ts` + `isRefreshing`+`failedQueue` em `api.ts`). Logout: `POST /auth/logout` + `clearUserStores()` + `removeQueries` + cookies limpos.
 
 ## 7. Request
 ```ts
