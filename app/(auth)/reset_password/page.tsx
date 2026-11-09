@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Button, Input, LogoType, TextInput } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { loginIllustration } from "@/constants/images";
 import { PasswordResetData } from "@/types/ui";
 import { validatePasswordDetailed } from "@/utils/validation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,19 +54,21 @@ const CodeInput: React.FC<CodeInputProps> = ({
       inputRefs.current[index - 1]?.focus();
   };
   const borderColorClass = isError
-    ? "border-red-500"
+    ? "border-danger-300 bg-danger-300/5"
     : isSuccess
-      ? "border-green-500"
-      : "border-gray-300";
+      ? "border-success bg-success/10"
+      : "border-(--card-barras) bg-(--background)";
   return (
     <div className="flex flex-row gap-2.5 justify-center">
       {[...Array(length)].map((_, index) => (
-        <TextInput
-          label=""
+        <input
           key={index}
           id={`code-input-${index}`}
           type="tel"
-          className={`text-center rounded-lg w-12 h-12 text-3xl shadow-sm border ${borderColorClass}`}
+          inputMode="numeric"
+          maxLength={1}
+          aria-label={`Dígito ${index + 1} do código`}
+          className={`h-12 w-12 rounded-lg border text-center font-manrope text-xl font-bold text-(--text-title) transition-all focus:border-primary-300 focus:outline-none focus:ring-4 focus:ring-primary-300/10 ${borderColorClass}`}
           value={value[index] || ""}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
@@ -73,94 +76,44 @@ const CodeInput: React.FC<CodeInputProps> = ({
           ref={(el) => {
             inputRefs.current[index] = el;
           }}
-          maxLength={1}
-          inputMode="numeric"
         />
       ))}
     </div>
   );
 };
 import { ROUTES } from "@/constants/routes";
-import { logo } from "@/constants/images";
-import { ClockIcon, CheckmarkIcon } from "@/constants/icons";
+import {
+  ArrowLeftIcon,
+  CheckmarkIcon,
+  ClockIcon,
+  EmailFilledIcon,
+} from "@/constants/icons";
 import { usePasswordRecovery } from "@/hooks/use-password-recovery";
 
-type CTAVariant = "landing" | "login" | "default";
-
-interface CTAProps {
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  buttonText?: string;
-  onButtonClick?: () => void;
-  showButton?: boolean;
-  variant?: CTAVariant;
-  className?: string;
+function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <header>
+      <h1 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
+        {title}
+      </h1>
+      <p className="mt-2 font-manrope text-sm font-medium text-(--text-description)">
+        {subtitle}
+      </p>
+    </header>
+  );
 }
 
-const CTA: React.FC<CTAProps> = ({
-  title,
-  subtitle,
-  buttonText = "Continuar",
-  onButtonClick,
-  showButton = false,
-  variant = "default",
-  className,
-}) => {
-  const containerClasses = [
-    "flex flex-col items-center text-center",
-    variant === "landing" ? "gap-6" : "gap-4",
-    className || "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const titleClasses = [
-    "font-bold text-gray-900",
-    variant === "landing" ? "text-3xl md:text-4xl" : "text-xl md:text-2xl",
-  ].join(" ");
-  const subtitleClasses = [
-    "text-gray-600",
-    variant === "landing" ? "text-base md:text-lg" : "text-sm md:text-base",
-  ].join(" ");
-  const buttonVariant = variant === "landing" ? "landing" : "primary";
-  return (
-    <div className={containerClasses}>
-      <h2 className={titleClasses}>{title}</h2>
-      {subtitle && <p className={subtitleClasses}>{subtitle}</p>}
-      {showButton && (
-        <div className="mt-2">
-          <Button variant={buttonVariant as any} onClick={onButtonClick}>
-            {buttonText}
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({
-  prev,
-  color,
-}) => {
+const NavigationBack: React.FC<{ prev?: () => void }> = ({ prev }) => {
   const router = useRouter();
   return (
     <button
+      type="button"
       onClick={prev ?? (() => router.back())}
-      className={`p-2 -ml-2 ${color ?? "text-gray-700"} hover:bg-gray-100 rounded-full transition-colors`}
+      className="group flex items-center gap-2 self-start font-manrope text-[10px] font-black uppercase tracking-[0.2em] text-(--text-description-60) transition-colors hover:text-(--text-title)"
       aria-label="Voltar"
     >
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
+      <ArrowLeftIcon className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+      Voltar
     </button>
   );
 };
@@ -206,44 +159,42 @@ function StepEmailPhone({
   };
 
   return (
-    <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
+    <div className="flex w-full flex-col gap-6">
       <NavigationBack />
-      <div className="w-full text-left md:text-center">
-        <CTA
-          title="Perdeu a sua senha?"
-          subtitle="Se existir uma conta associada a este email, vais receber um código para redefinir a senha."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6"
-      >
-        <TextInput
+      <StepHeader
+        title="Perdeu a sua senha?"
+        subtitle="Se existir uma conta associada a este email, vais receber um código para redefinir a senha."
+      />
+      <form onSubmit={submit} className="flex w-full flex-col gap-4">
+        <Input
           id="email"
           label="Email"
           type="email"
+          leftIcon={<EmailFilledIcon className="h-5 w-5" />}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Digite seu email"
+          placeholder="exemplo@email.com"
           isError={isError}
           required
+          autoFocus
+          className="h-12 transition-all"
         />
         {isError && (
-          <p className="text-sm text-red-500 -mt-4 md:text-center">
+          <p className="-mt-2 px-1 font-manrope text-[11px] font-bold text-danger-300">
             Por favor, insira um endereço de email válido.
           </p>
         )}
         <Button
-          onClick={() => {}}
+          variant="warning"
           type="submit"
+          fullWidth
           loading={isLoading}
           disabled={rateLimitSeconds > 0}
+          className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
         >
           {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
         </Button>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
     </div>
   );
 }
@@ -311,19 +262,13 @@ function StepVerification({
   };
 
   return (
-    <div className="flex h-full flex-col gap-y-8 justify-between p-6 md:gap-y-6 md:justify-start md:p-0">
+    <div className="flex w-full flex-col gap-6">
       <NavigationBack prev={prevStep} />
-      <div className="w-full mt-10 md:mt-0 md:text-center">
-        <CTA
-          title="Verificação do Código"
-          subtitle="Insira o código que foi enviado para o seu email nos campos abaixo."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6"
-      >
+      <StepHeader
+        title="Verificação do código"
+        subtitle="Insira o código que foi enviado para o seu email nos campos abaixo."
+      />
+      <form onSubmit={submit} className="flex w-full flex-col gap-4">
         <CodeInput
           length={6}
           value={code}
@@ -332,7 +277,7 @@ function StepVerification({
           isSuccess={isCodeCorrect}
         />
         {isCodeIncorrect && (
-          <p className="text-sm text-red-500 text-center">
+          <p className="px-1 text-center font-manrope text-[11px] font-bold text-danger-300">
             Código incorreto. Tente novamente.
           </p>
         )}
@@ -348,28 +293,29 @@ function StepVerification({
               if (result.success) resetTimer();
               else if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
             }}
-            className="text-sm text-gray-600 disabled:opacity-50"
+            className="font-manrope text-sm font-bold text-(--text-description) transition-colors hover:text-(--text-title) disabled:opacity-50"
           >
             {isResending ? "A reenviar..." : "Não recebi o código"}
           </button>
           <div
-            className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}
+            className={`flex items-center font-manrope text-sm font-bold ${isRed ? "text-danger-300" : "text-(--text-description)"}`}
           >
-            <ClockIcon className="mr-1" />
+            <ClockIcon className="mr-1 size-4" />
             {minutes.toString().padStart(2, "0")}:
             {seconds.toString().padStart(2, "0")}
           </div>
         </div>
         <Button
-          onClick={() => {}}
+          variant="warning"
           type="submit"
+          fullWidth
           loading={isLoading}
           disabled={rateLimitSeconds > 0}
+          className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
         >
           {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Confirmar"}
         </Button>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
     </div>
   );
 }
@@ -448,19 +394,14 @@ function StepNewPassword({
   };
 
   return (
-    <div className="flex h-full md:max-w-xl flex-col gap-2.5 justify-between md:gap-6 md:justify-start md:p-0">
+    <div className="flex w-full flex-col gap-6">
       <NavigationBack prev={prevStep} />
-      <div className="w-full text-left md:text-center">
-        <CTA
-          title="Criar uma nova senha"
-          subtitle="Crie uma senha e mantenha seus dados seguros."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6"
-      >
+      <StepHeader
+        title="Criar uma nova senha"
+        subtitle="Crie uma senha e mantenha seus dados seguros."
+      />
+      <form onSubmit={submit} className="flex w-full flex-col gap-4">
+
         <div className="flex flex-col gap-2">
           <Input
             id="password"
@@ -484,12 +425,12 @@ function StepNewPassword({
                 className="flex flex-col gap-2 mt-2"
               >
                 <div className="flex items-center gap-2">
-                  <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-1 w-20 bg-(--card-barras) rounded-full overflow-hidden">
                     <motion.div
                       className={`h-full transition-colors duration-500 ${
                         passwordValidation.isValid
-                          ? "bg-green-500"
-                          : "bg-yellow-400"
+                          ? "bg-success"
+                          : "bg-secondary-300"
                       }`}
                       initial={{ width: 0 }}
                       animate={{
@@ -499,27 +440,27 @@ function StepNewPassword({
                     />
                   </div>
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider ${
-                      passwordValidation.isValid ? "text-green-600" : "text-slate-400"
+                    className={`font-manrope text-[10px] font-bold uppercase tracking-wider ${
+                      passwordValidation.isValid ? "text-success-text" : "text-(--text-description-60)"
                     }`}
                   >
                     {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2 text-[10px]">
-                  <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
+                <div className="flex flex-wrap gap-2 font-manrope text-[10px]">
+                  <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-success-text" : "text-(--text-description-60)"}`}>
                     {form.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
                   </span>
-                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-success-text" : "text-(--text-description-60)"}`}>
                     {/[a-z]/.test(form.password) ? "✓" : "○"} Minúscula
                   </span>
-                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-success-text" : "text-(--text-description-60)"}`}>
                     {/[A-Z]/.test(form.password) ? "✓" : "○"} Maiúscula
                   </span>
-                  <span className={`flex items-center gap-1 ${/\d/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                  <span className={`flex items-center gap-1 ${/\d/.test(form.password) ? "text-success-text" : "text-(--text-description-60)"}`}>
                     {/\d/.test(form.password) ? "✓" : "○"} Número
                   </span>
-                  <span className={`flex items-center gap-1 ${/[^da-zA-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
+                  <span className={`flex items-center gap-1 ${/[^da-zA-Z]/.test(form.password) ? "text-success-text" : "text-(--text-description-60)"}`}>
                     {/[^da-zA-Z]/.test(form.password) ? "✓" : "○"} Símbolo
                   </span>
                 </div>
@@ -538,25 +479,26 @@ function StepNewPassword({
           isError={form.confirmPassword.length > 0 && form.password !== form.confirmPassword}
         />
         {form.confirmPassword.length > 0 && form.password !== form.confirmPassword && (
-          <p className="text-sm text-red-500 text-center -mt-6">
+          <p className="-mt-2 px-1 font-manrope text-[11px] font-bold text-danger-300">
             As senhas não correspondem.
           </p>
         )}
         {(isError || rateLimitSeconds > 0) && (
-          <p className="text-sm text-red-500 text-center">
+          <p className="px-1 text-center font-manrope text-[11px] font-bold text-danger-300">
             {errorMessage || "Não foi possível redefinir a senha. Tente novamente."}
           </p>
         )}
         <Button
-          onClick={() => {}}
+          variant="warning"
           type="submit"
+          fullWidth
           loading={isLoading}
           disabled={!passwordValidation.isValid || form.password !== form.confirmPassword || rateLimitSeconds > 0}
+          className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
         >
           {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
         </Button>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
     </div>
   );
 }
@@ -566,21 +508,27 @@ function StepSuccess() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col h-full justify-center items-center text-center p-8 md:p-0 md:gap-6">
-      <div className="w-24 h-24 mb-8 md:mb-4 flex items-center justify-center rounded-full bg-green-100">
-        <CheckmarkIcon className="w-16 h-16 text-green-500" />
+    <div className="flex w-full flex-col items-center gap-6 py-4 text-center">
+      <div className="flex size-24 items-center justify-center rounded-full bg-success/10">
+        <CheckmarkIcon className="size-12 text-success" />
       </div>
-      <h1 className="text-3xl md:text-2xl font-bold text-gray-800">
-        SENHA REDEFINIDA COM SUCESSO!
-      </h1>
-      <p className="mt-2 text-gray-600 max-w-sm mx-auto">
-        Tudo certo! agora podes aceder a sua conta com a tua nova senha.
-      </p>
-      <div className="fixed bottom-0 left-0 right-0 p-4 md:static md:p-0 md:w-full md:max-w-sm">
-        <Button onClick={() => router.push(ROUTES.LOGIN)} type="button">
-          Continuar
-        </Button>
+      <div>
+        <h1 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title)">
+          Senha redefinida com sucesso!
+        </h1>
+        <p className="mx-auto mt-2 max-w-sm font-manrope text-sm font-medium text-(--text-description)">
+          Tudo certo! Agora podes aceder à tua conta com a tua nova senha.
+        </p>
       </div>
+      <Button
+        variant="warning"
+        type="button"
+        fullWidth
+        onClick={() => router.push(ROUTES.LOGIN)}
+        className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+      >
+        Continuar
+      </Button>
     </div>
   );
 }
@@ -658,18 +606,15 @@ export default function PasswordReset() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-white md:bg-gray-100">
-      <div className="block md:hidden h-screen">{renderStep()}</div>
-      <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">
-        <div className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="w-30">
-            <LogoType />
-          </div>
-        </div>
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
-          {renderStep()}
-        </div>
-      </div>
-    </div>
+    <AuthShell
+      visual={{
+        title: "Acesso seguro, sempre.",
+        description: "Recupera o acesso à tua conta em poucos passos.",
+        illustration: loginIllustration,
+        illustrationAlt: "Recuperar senha",
+      }}
+    >
+      {renderStep()}
+    </AuthShell>
   );
 }

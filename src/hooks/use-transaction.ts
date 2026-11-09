@@ -116,11 +116,22 @@ export function useTransaction({
     [queryClient],
   );
 
+  // After any write, every transaction-derived query must refresh: ranges
+  // (charts/sections), balances (dashboard cards/hero), goals (progress) and
+  // limits (consumption). Without this, the 5min staleTime + no focus refetch
+  // keeps those screens frozen until a manual reload.
+  const invalidateDerived = useCallback(() => {
+    invalidateRanges();
+    queryClient.invalidateQueries({ queryKey: ["transactions", "balance"] });
+    queryClient.invalidateQueries({ queryKey: ["goals"] });
+    queryClient.invalidateQueries({ queryKey: ["limits"] });
+  }, [queryClient, invalidateRanges]);
+
   const createMutation = useMutation({
     mutationFn: (payload: TransactionRequest) => transactionService.create(payload),
     onSuccess: (created) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => prependToList(old, created));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação registrada", "Transação registrada com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao salvar transação")),
@@ -136,7 +147,7 @@ export function useTransaction({
       queryClient.setQueryData<ListData>(LIST_KEY, (old) =>
         prependToList(old, created as unknown as TransactionResponse),
       );
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação adicionada", "O movimento foi registado com sucesso.");
     },
     onError: () => notify("error", "Erro ao adicionar", "Não foi possível concluir o registo."),
@@ -147,7 +158,7 @@ export function useTransaction({
       transactionService.complete(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação atualizada", "Transação atualizada com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao atualizar transação")),
@@ -158,7 +169,7 @@ export function useTransaction({
       transactionService.update(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação actualizada", "Alterações guardadas com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao actualizar transação")),
@@ -169,7 +180,7 @@ export function useTransaction({
       transactionService.defineCategory(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Categoria definida", "Categoria definida com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao categorizar transação")),
@@ -179,7 +190,7 @@ export function useTransaction({
     mutationFn: (id: string) => transactionService.delete(id),
     onSuccess: (_void, id) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => removeFromList(old, id));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação removida", "Transação removida com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao remover transação")),

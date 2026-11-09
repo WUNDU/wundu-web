@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { wunduToast } from "@/utils/toast";
 import { ROUTES } from "@/constants/routes";
-import { Button, Input, LogoType } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { loginIllustration } from "@/constants/images";
 import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
 import { GoogleButton } from "@/components/auth/google-button";
@@ -353,30 +355,35 @@ const RegisterPage = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--bg-card) md:bg-(--bg-body)">
-      {/* Brand Header */}
-      <header className="flex h-16 shrink-0 items-center justify-center px-8 md:justify-start md:px-12">
-        <Link
-          href={ROUTES.LANDINGPAGE}
-          className="transition-opacity hover:opacity-80"
-        >
-          <div className="w-32">
-            <LogoType />
-          </div>
-        </Link>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center p-0 md:p-8">
-        <div className="w-full max-w-120">
-          {/*
-           * Surface Container
-           * FIX: Removed fixed md:h-165 — height is now driven by content.
-           * The card grows naturally, preventing overflow on the success step
-           * while keeping a consistent appearance on steps 1 & 2.
-           * FIX: overflow-hidden on all breakpoints to prevent shadow clipping.
-           */}
-          <div className="flex w-full flex-col bg-(--bg-card) md:rounded-3xl md:border md:border-(--card-barras) md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)]">
-            <div className="flex flex-1 flex-col justify-center px-8 py-6 sm:px-12 md:px-14">
+    <AuthShell
+      visual={{
+        title: "Crie a sua conta",
+        description: "Inicie sua jornada para a liberdade financeira.",
+        illustration: loginIllustration,
+        illustrationAlt: "Criar conta na Wundu",
+      }}
+      footer={
+        <footer className="mt-6 px-8 text-center">
+          <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
+            Ao cadastrar, você aceita nossos{" "}
+            <Link
+              href={ROUTES.LEGAL}
+              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+            >
+              Termos
+            </Link>{" "}
+            e{" "}
+            <Link
+              href={ROUTES.LEGAL}
+              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+            >
+              Privacidade
+            </Link>
+            .
+          </p>
+        </footer>
+      }
+    >
               {/* Progress System — steps 1 & 2 only */}
               {currentStep < 3 && (
                 <div className="flex justify-center gap-2 mb-6">
@@ -418,7 +425,7 @@ const RegisterPage = () => {
                     noValidate
                   >
                     {/* Name */}
-                    <div className="space-y-1.5">
+                    <div>
                       <Input
                         id="name"
                         label="Nome completo"
@@ -434,23 +441,27 @@ const RegisterPage = () => {
                         autoFocus // FIX: only the first field in the step receives autoFocus
                         className="h-12 transition-all"
                       />
-                      <AnimatePresence>
-                        {personalErrors.name && (
-                          <motion.p
-                            key="name-error"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
-                          >
-                            {personalErrors.name}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
+                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
+                      <div className="mt-1 min-h-[18px] px-1">
+                        <AnimatePresence initial={false}>
+                          {personalErrors.name && (
+                            <motion.p
+                              key="name-error"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
+                            >
+                              {personalErrors.name}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
 
                     {/* Email */}
-                    <div className="space-y-1.5">
+                    <div>
                       <Input
                         id="email"
                         label="Email"
@@ -466,23 +477,27 @@ const RegisterPage = () => {
                         // FIX: removed duplicate autoFocus
                         className="h-12 transition-all"
                       />
-                      <AnimatePresence>
-                        {personalErrors.email && (
-                          <motion.p
-                            key="email-error"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
-                          >
-                            {personalErrors.email}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
+                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
+                      <div className="mt-1 min-h-[18px] px-1">
+                        <AnimatePresence initial={false}>
+                          {personalErrors.email && (
+                            <motion.p
+                              key="email-error"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
+                            >
+                              {personalErrors.email}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
 
                     {/* Phone */}
-                    <div className="space-y-1.5">
+                    <div>
                       <PhoneInput
                         id="phone"
                         label="Nº de telefone"
@@ -493,19 +508,23 @@ const RegisterPage = () => {
                         isError={!!personalErrors.phone}
                         // FIX: removed duplicate autoFocus
                       />
-                      <AnimatePresence>
-                        {personalErrors.phone && (
-                          <motion.p
-                            key="phone-error"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
-                          >
-                            {personalErrors.phone}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
+                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
+                      <div className="mt-1 min-h-[18px] px-1">
+                        <AnimatePresence initial={false}>
+                          {personalErrors.phone && (
+                            <motion.p
+                              key="phone-error"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
+                            >
+                              {personalErrors.phone}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
 
                     <Button
@@ -648,7 +667,7 @@ const RegisterPage = () => {
                     </div>
 
                     {/* Confirm password */}
-                    <div className="space-y-1.5">
+                    <div>
                       <Input
                         id="confirmPassword"
                         label="Confirme a senha"
@@ -663,19 +682,23 @@ const RegisterPage = () => {
                         isError={!!passwordError || !!contextError}
                         className="h-12 transition-all"
                       />
-                      <AnimatePresence>
-                        {(passwordError || contextError) && (
-                          <motion.p
-                            key="password-error"
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="font-manrope text-[11px] font-bold text-danger-300 px-1"
-                          >
-                            {passwordError || contextError}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
+                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
+                      <div className="mt-1 min-h-[18px] px-1">
+                        <AnimatePresence initial={false}>
+                          {(passwordError || contextError) && (
+                            <motion.p
+                              key="password-error"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.15 }}
+                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
+                            >
+                              {passwordError || contextError}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
 
                     <Button
@@ -693,32 +716,7 @@ const RegisterPage = () => {
                 </motion.div>
               )}
 
-            </div>
-          </div>
-
-          {/* Legal Footer */}
-          <footer className="mt-6 px-8 text-center">
-            <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
-              Ao cadastrar, você aceita nossos{" "}
-              <Link
-                href={ROUTES.LEGAL}
-                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-              >
-                Termos
-              </Link>{" "}
-              e{" "}
-              <Link
-                href={ROUTES.LEGAL}
-                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-              >
-                Privacidade
-              </Link>
-              .
-            </p>
-          </footer>
-        </div>
-      </main>
-    </div>
+    </AuthShell>
   );
 };
 

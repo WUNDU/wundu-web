@@ -1,9 +1,8 @@
 "use client";
 
-import { Input, Button, LogoType } from "@/components/ui";
+import { Input, Button } from "@/components/ui";
 import { loginIllustration, errorIllustration } from "@/constants/images";
 import { EmailFilledIcon, KeyIcon } from "@/constants/icons";
-import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { useState, useEffect, useRef } from "react";
@@ -13,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
 import { GoogleButton } from "@/components/auth/google-button";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { buildVerifyPendingUrl } from "@/utils/pending-verification";
 import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 
@@ -257,52 +257,35 @@ const LoginPage: React.FC = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--bg-card) md:bg-(--bg-body)">
-      {/* Brand Header */}
-      <header className="flex h-16 shrink-0 items-center justify-start px-8 md:px-12">
-        <Link
-          href={ROUTES.LANDINGPAGE}
-          className="transition-opacity hover:opacity-80"
-        >
-          {/* FIX: w-30 is not a standard Tailwind class → aligned to w-32 (same as RegisterPage) */}
-          <div className="w-32">
-            <LogoType />
-          </div>
-        </Link>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-255">
-          {/*
-           * Surface Container
-           * FIX: removed fixed md:h-130 — height is content-driven to prevent
-           * overflow when error banners expand or content is taller than expected.
-           * overflow-hidden is retained only on the card itself (not per-breakpoint)
-           * so the shadow renders correctly everywhere.
-           */}
-          <div className="flex w-full flex-col bg-(--bg-card) md:flex-row md:rounded-3xl md:border md:border-(--card-barras) md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)] overflow-hidden">
-            {/* Visual Column */}
-            <div className="hidden flex-1 items-center justify-center border-r border-(--card-barras)/80 bg-(--bg-filter) p-12 lg:flex">
-              {/*
-               * FIX: added explicit width/height to next/image to prevent CLS.
-               * Using fill + a sized container is the alternative, but explicit
-               * dimensions are simpler for a fixed illustration.
-               */}
-              <Image
-                src={hasError ? errorIllustration : loginIllustration}
-                alt={hasError ? "Erro de autenticação" : "Entrar na conta"}
-                width={256}
-                height={256}
-                className="transition-opacity duration-300"
-                priority
-              />
-            </div>
-
-            {/* Form Side
-             * FIX: unified horizontal padding to px-8 (mobile) matching RegisterPage.
-             * Previously px-6 on mobile caused misaligned content between the two auth pages.
-             */}
-            <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:px-12 md:px-14 lg:px-16">
+    <AuthShell
+      visual={{
+        title: "Bem-vindo de volta",
+        description: "Gestão financeira de alta precisão.",
+        illustration: hasError ? errorIllustration : loginIllustration,
+        illustrationAlt: hasError ? "Erro de autenticação" : "Entrar na conta",
+      }}
+      footer={
+        <footer className="mt-8 px-8 text-center">
+          <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
+            Ao acessar, você aceita nossos{" "}
+            <Link
+              href={ROUTES.LEGAL}
+              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+            >
+              Termos
+            </Link>{" "}
+            e{" "}
+            <Link
+              href={ROUTES.LEGAL}
+              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+            >
+              Privacidade
+            </Link>
+            .
+          </p>
+        </footer>
+      }
+    >
               {mode === "quick" && savedUser ? (
                 /* ── Quick Login ── */
                 <motion.form
@@ -492,32 +475,7 @@ const LoginPage: React.FC = () => {
                   </form>
                 </motion.div>
               )}
-            </div>
-          </div>
-
-          {/* Legal Footer */}
-          <footer className="mt-8 px-8 text-center">
-            <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
-              Ao acessar, você aceita nossos{" "}
-              <Link
-                href={ROUTES.LEGAL}
-                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-              >
-                Termos
-              </Link>{" "}
-              e{" "}
-              <Link
-                href={ROUTES.LEGAL}
-                className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-              >
-                Privacidade
-              </Link>
-              .
-            </p>
-          </footer>
-        </div>
-      </main>
-    </div>
+    </AuthShell>
   );
 };
 
