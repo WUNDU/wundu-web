@@ -1,155 +1,92 @@
 "use client";
 
-import React, { useState, useEffect, forwardRef } from "react";
-import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { wunduToast } from "@/utils/toast";
+import { useEffect, useState } from "react";
+import { AuthBrandPanel } from "@/components/auth/auth-brand-panel";
+import {
+  AuthFormShell,
+  AuthRoot,
+} from "@/components/auth/auth-form-shell";
+import {
+  DsButton,
+  DsDivider,
+  DsFieldLabel,
+  DsIcon,
+  DsInput,
+  DsLink,
+  GoogleLogo,
+} from "@/components/auth/ds";
 import { ROUTES } from "@/constants/routes";
-import { Button, Input } from "@/components/ui";
-import { AuthShell } from "@/components/auth/auth-shell";
-import { loginIllustration } from "@/constants/images";
-import { useUserStore } from "@/store/user-store";
 import { useAuth } from "@/hooks/use-auth";
-import { GoogleButton } from "@/components/auth/google-button";
+import { useUserStore } from "@/store/user-store";
+import { wunduToast } from "@/utils/toast";
 import { getApiErrorMessage, getRegisterErrorField } from "@/utils/api-error";
 import {
   buildVerifyPendingUrl,
   setPendingVerificationEmail,
 } from "@/utils/pending-verification";
-import { validateEmail, validatePhoneNumber, validatePasswordDetailed, validateName } from "@/utils/validation";
-import { formatPhoneInput } from "app/utils/phone-mask";
-import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 import {
-  ProfileIcon,
-  EmailFilledIcon,
-  KeyIcon,
-  ArrowLeftIcon,
-} from "@/constants/icons";
+  validateEmail,
+  validateName,
+  validatePasswordDetailed,
+  validatePhoneNumber,
+} from "@/utils/validation";
+import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 
-// ─── PhoneInput ───────────────────────────────────────────────────────────────
+const PREFILL_EMAIL_KEY = "wundu-prefill-email";
+const PENDING_BIRTHDATE_KEY = "wundu-pending-birthdate";
 
-interface PhoneInputProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "onChange"
-> {
-  label?: string;
-  isError?: boolean;
-  onChange?: (value: string) => void;
+const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
+const maskDate = (v: string) => {
+  const d = digits(v, 8);
+  return [d.slice(0, 2), d.slice(2, 4), d.slice(4)].filter(Boolean).join("/");
+};
+const maskPhone = (v: string) => {
+  const d = digits(v, 9);
+  return [d.slice(0, 3), d.slice(3, 6), d.slice(6)].filter(Boolean).join(" ");
+};
+const dobToISO = (dob: string): string | null => {
+  const m = dob.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+};
+
+type StrengthRule = { text: string; ok: boolean };
+
+function strength(pw: string): {
+  score: number;
+  label: string;
+  color: string;
+  segs: string[];
+  rules: (StrengthRule & { color: string })[];
+} {
+  const rules: StrengthRule[] = [
+    { text: "Pelo menos 8 caracteres", ok: pw.length >= 8 },
+    { text: "Uma letra maiúscula", ok: /[A-Z]/.test(pw) },
+    { text: "Um número", ok: /\d/.test(pw) },
+    { text: "Um símbolo", ok: /[^A-Za-z0-9]/.test(pw) },
+  ];
+  const score = pw ? rules.filter((r) => r.ok).length : 0;
+  const lv = [
+    null,
+    { label: "Fraca", color: "var(--danger)" },
+    { label: "Razoável", color: "var(--warning)" },
+    { label: "Boa", color: "var(--info)" },
+    { label: "Forte", color: "var(--success)" },
+  ][score] as { label: string; color: string } | null;
+  return {
+    score,
+    label: lv ? lv.label : "",
+    color: lv ? lv.color : "var(--text-tertiary)",
+    segs: [0, 1, 2, 3].map((i) =>
+      i < score && lv ? lv.color : "var(--surface-track)",
+    ),
+    rules: rules.map((r) => ({
+      ...r,
+      color: r.ok ? "var(--success)" : "var(--text-tertiary)",
+    })),
+  };
 }
-
-const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  (
-    {
-      label,
-      placeholder = "Digite seu número de telefone",
-      value = "",
-      onChange,
-      isError = false,
-      required = false,
-      ...props
-    },
-    ref,
-  ) => {
-    const [selectedCountry, setSelectedCountry] = useState("+244");
-    const [isFocused, setIsFocused] = useState(false);
-    const countries = [{ code: "+244", name: "Angola", flag: "🇦🇴" }];
-
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.(`${selectedCountry} ${formatPhoneInput(e.target.value)}`);
-    };
-
-    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newCountryCode = e.target.value;
-      setSelectedCountry(newCountryCode);
-      const phoneOnly =
-        typeof value === "string" ? value.replace(/^\+\d+\s*/, "") : "";
-      onChange?.(`${newCountryCode} ${phoneOnly}`);
-    };
-
-    const phoneOnly =
-      typeof value === "string"
-        ? formatPhoneInput(value.replace(/^\+\d+\s*/, ""))
-        : "";
-
-    const stateClasses = isError
-      ? "border-danger-300 bg-danger-300/5"
-      : isFocused
-        ? "border-primary-300 bg-(--bg-card) ring-4 ring-primary-300/10"
-        : "border-(--border-button) bg-(--background)";
-
-    return (
-      <div className="flex w-full flex-col gap-2">
-        {label && (
-          <label
-          className={`font-manrope text-sm font-semibold transition-colors duration-150 ${
-            isError
-              ? "text-danger-300"
-              : isFocused
-                ? "text-primary-300"
-                : "text-(--text-description)"
-          }`}
-          >
-            {label}
-          </label>
-        )}
-        <div
-          className={`flex h-12 rounded-lg border transition-all duration-150 overflow-hidden ${stateClasses}`}
-        >
-          <div className="relative border-r border-(--card-barras) bg-(--background)">
-            <select
-              value={selectedCountry}
-              onChange={handleCountryChange}
-              className="h-full appearance-none bg-transparent px-3 font-manrope text-sm font-bold text-(--text-title) focus:outline-none cursor-pointer pr-8"
-            >
-              {countries.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.flag} {country.code}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-(--text-description-60)">
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </div>
-            <input
-              ref={ref}
-              type="tel"
-              placeholder={placeholder}
-              value={phoneOnly}
-              onChange={handlePhoneChange}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              required={required}
-              className="w-full bg-transparent px-4 font-manrope text-[15px] text-(--text-title) placeholder:text-(--text-description)/60 focus:outline-none"
-              {...props}
-            />
-        </div>
-      </div>
-    );
-  },
-);
-PhoneInput.displayName = "PhoneInput";
-
-// ─── Shared animation config ──────────────────────────────────────────────────
-
-const stepTransition = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
-const stepInitial = { opacity: 0, x: 20 };
-const stepAnimate = { opacity: 1, x: 0 };
-
-// ─── RegisterPage ─────────────────────────────────────────────────────────────
 
 const RegisterPage = () => {
   const { currentStep, prevStep, nextStep, data, setRegisterData } =
@@ -161,185 +98,122 @@ const RegisterPage = () => {
     clearError();
   }, [clearError]);
 
-  // ── Step 1: Personal Data ──────────────────────────────────────────────────
-
   const [personalForm, setPersonalFormState] = useState({
     name: data.name || "",
     email: data.email || "",
-    phone: data.phone || "",
+    phone: data.phone ? maskPhone(data.phone.replace(/^\+244\s?/, "")) : "",
+    dob: "",
   });
-  const [personalErrors, setPersonalErrors] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
-
-  const setPersonalField = (
-    field: "name" | "email" | "phone",
-    value: string,
-  ) => {
-    const normalized = field === "email" ? value.toLowerCase() : value;
-    setPersonalFormState((prev) => ({ ...prev, [field]: normalized }));
-    if (personalErrors[field]) {
-      setPersonalErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-    if (submitError) setSubmitError("");
-    clearError();
-  };
-
-  const submitPersonal = (e: React.FormEvent) => {
-    e.preventDefault();
-    let valid = true;
-    const nextErrors = { name: "", email: "", phone: "" };
-
-    if (!personalForm.name.trim()) {
-      nextErrors.name = "Por favor, insira o seu nome completo";
-      valid = false;
-    } else if (!validateName(personalForm.name)) {
-      nextErrors.name =
-        "Nome deve ter pelo menos 4 letras e não pode conter números";
-      valid = false;
-    }
-
-    if (!personalForm.email.trim()) {
-      nextErrors.email = "Por favor, insira o seu e-mail";
-      valid = false;
-    } else if (!validateEmail(personalForm.email)) {
-      nextErrors.email = "Por favor, insira um email válido";
-      valid = false;
-    }
-
-    const phoneDigits = personalForm.phone.replace(/\D/g, "");
-    if (!personalForm.phone.trim() || phoneDigits.length <= 3) {
-      nextErrors.phone = "Por favor, insira o seu número de telefone";
-      valid = false;
-    } else if (!validatePhoneNumber(personalForm.phone)) {
-      nextErrors.phone =
-        "Número inválido. Use formato angolano: +244 9XX XXX XXX";
-      valid = false;
-    }
-
-    setPersonalErrors(nextErrors);
-    if (!valid) return;
-
-    setRegisterData(personalForm);
-    captureEvent("user_registration_step_completed", { step: 1 });
-    nextStep();
-  };
-
-  // ── Step 2: Security ───────────────────────────────────────────────────────
+  const [fieldError, setFieldError] = useState({ name: false, email: false, phone: false, dob: false });
+  const [existsErr, setExistsErr] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const [securityForm, setSecurityFormState] = useState({
     password: data.password || "",
     confirmPassword: "",
   });
-  const [passwordError, setPasswordError] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const [showNewPw, setShowNewPw] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordValidation, setPasswordValidation] = useState(() =>
-    validatePasswordDetailed(data.password || ""),
-  );
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [mismatchTouched, setMismatchTouched] = useState(false);
 
-  const contextError = submitError || error;
+  const st = strength(securityForm.password);
+  const mismatch =
+    mismatchTouched && securityForm.confirmPassword
+      ? securityForm.confirmPassword !== securityForm.password
+      : false;
 
-  const setSecurityField = (
-    field: "password" | "confirmPassword",
-    value: string,
-  ) => {
-    setSecurityFormState((prev) => ({ ...prev, [field]: value }));
-    if (field === "password") {
-      setPasswordValidation(validatePasswordDetailed(value));
-      if (passwordError) setPasswordError("");
-      if (submitError) setSubmitError("");
-      if (error) clearError();
-    }
-    if (field === "confirmPassword" && passwordError) {
-      setPasswordError("");
-      if (submitError) setSubmitError("");
-      if (error) clearError();
-    }
+  const disSignup1 =
+    !personalForm.name.trim() ||
+    !validateEmail(personalForm.email) ||
+    digits(personalForm.phone, 9).length < 9 ||
+    personalForm.dob.length < 10 ||
+    existsErr;
+
+  const setPersonalField = (field: "name" | "email" | "phone" | "dob", value: string) => {
+    const normalized =
+      field === "email" ? value.toLowerCase()
+      : field === "phone" ? maskPhone(value)
+      : field === "dob" ? maskDate(value)
+      : value;
+    setPersonalFormState((prev) => ({ ...prev, [field]: normalized }));
+    setFieldError((prev) => ({ ...prev, [field]: false }));
+    if (field === "email") setExistsErr(false);
+    if (error) clearError();
   };
 
-  const submitSecurity = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-    clearError();
-    setSubmitError("");
-    setPersonalErrors({ name: "", email: "", phone: "" });
-
-    const validation = validatePasswordDetailed(securityForm.password);
-    if (!validation.isValid) {
-      setPasswordError("A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-    if (securityForm.password !== securityForm.confirmPassword) {
-      setPasswordError(
-        !securityForm.confirmPassword
-          ? "Por favor, confirme a sua senha."
-          : "As senhas digitadas não são iguais.",
-      );
-      return;
-    }
-
-    setPasswordError("");
-    setIsSubmitting(true);
-
-    try {
-      const ok = await registerUser({
-        ...data,
-        password: securityForm.password,
+  const submitPersonal = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (existsErr) return;
+    const next = {
+      name: !personalForm.name.trim() || !validateName(personalForm.name),
+      email: !validateEmail(personalForm.email),
+      phone: !validatePhoneNumber(`+244 ${personalForm.phone}`),
+      dob: personalForm.dob.length < 10,
+    };
+    setFieldError(next);
+    if (next.name || next.email || next.phone || next.dob) {
+      wunduToast.error("Verifica os teus dados", {
+        description: "Há campos por corrigir antes de continuar.",
       });
+      return;
+    }
+    setRegisterData({
+      name: personalForm.name,
+      email: personalForm.email,
+      phone: `+244 ${personalForm.phone}`,
+    });
+    captureEvent("user_registration_step_completed", { step: 1 });
+    nextStep();
+  };
 
+  const setSecurityField = (field: "password" | "confirmPassword", value: string) => {
+    setSecurityFormState((prev) => ({ ...prev, [field]: value }));
+    if (field === "confirmPassword") setMismatchTouched(true);
+    if (error) clearError();
+  };
+
+  const submitSecurity = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (isSubmitting) return;
+    if (st.score < 3 || securityForm.password !== securityForm.confirmPassword) return;
+    const detailed = validatePasswordDetailed(securityForm.password);
+    if (!detailed.isValid) {
+      wunduToast.error("Senha fraca", { description: detailed.messages.join(" ") });
+      return;
+    }
+    clearError();
+    setIsSubmitting(true);
+    try {
+      const ok = await registerUser({ ...data, password: securityForm.password });
       if (ok) {
         setRegisterData({ password: securityForm.password });
         const user = useUserStore.getState().user;
-        if (user) {
-          identifyUser(user.id);
+        if (user) identifyUser(user.id);
+        captureEvent("user_registered", { name: data.name, email: data.email });
+        const iso = dobToISO(personalForm.dob);
+        if (iso) {
+          try {
+            localStorage.setItem(PENDING_BIRTHDATE_KEY, iso);
+          } catch {}
         }
-        captureEvent("user_registered", {
-          name: data.name,
-          email: data.email,
-        });
         setPendingVerificationEmail(data.email!);
         wunduToast.success("Cadastro concluído!", {
           description: "Enviámos um link de verificação para o teu email.",
         });
         router.push(buildVerifyPendingUrl(data.email));
       } else {
-        const message =
-          useUserStore.getState().error || "Falha ao concluir o cadastro.";
+        const message = useUserStore.getState().error || "Falha ao concluir o cadastro.";
         const field = getRegisterErrorField(message);
-
-        if (field) {
-          setPersonalErrors({
-            name: "",
-            email: "",
-            phone: "",
-            [field]: message,
-          });
-          setSubmitError("");
+        if (field === "email") {
+          setExistsErr(true);
           clearError();
-          prevStep();
         } else {
-          setSubmitError(message);
+          wunduToast.error("Erro no cadastro", { description: message });
         }
-
-        wunduToast.error("Erro no cadastro", { description: message });
+        captureEvent("user_registration_failed", { reason: message });
       }
     } catch (err) {
       const message = getApiErrorMessage(err, "Falha ao concluir o cadastro.");
-      const field = getRegisterErrorField(message);
-
-      if (field) {
-        setPersonalErrors({ name: "", email: "", phone: "", [field]: message });
-        setSubmitError("");
-        clearError();
-        prevStep();
-      } else {
-        setSubmitError(message);
-      }
-
       wunduToast.error("Erro no cadastro", { description: message });
       captureException(err);
     } finally {
@@ -347,376 +221,215 @@ const RegisterPage = () => {
     }
   };
 
-  // ── Password strength hint visibility ─────────────────────────────────────
+  const handleGoogle = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: ROUTES.GOOGLE_CALLBACK });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
-  const showPasswordHint =
-    isPasswordFocused || securityForm.password.length > 0;
-
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const prefillAndGo = (path: string) => {
+    try {
+      localStorage.setItem(PREFILL_EMAIL_KEY, personalForm.email.trim());
+    } catch {}
+    setExistsErr(false);
+    router.push(path);
+  };
 
   return (
-    <AuthShell
-      visual={{
-        title: "Crie a sua conta",
-        description: "Inicie sua jornada para a liberdade financeira.",
-        illustration: loginIllustration,
-        illustrationAlt: "Criar conta na Wundu",
-      }}
-      footer={
-        <footer className="mt-6 px-8 text-center">
-          <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
-            Ao cadastrar, você aceita nossos{" "}
-            <Link
-              href={ROUTES.LEGAL}
-              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-            >
-              Termos
-            </Link>{" "}
-            e{" "}
-            <Link
-              href={ROUTES.LEGAL}
-              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
-            >
-              Privacidade
-            </Link>
-            .
-          </p>
-        </footer>
-      }
-    >
-              {/* Progress System — steps 1 & 2 only */}
-              {currentStep < 3 && (
-                <div className="flex justify-center gap-2 mb-6">
-                  {[1, 2].map((s) => (
-                    <div
-                      key={s}
-                      className={`h-1 rounded-full transition-all duration-300 ${
-                        s === currentStep
-                          ? "w-12 bg-secondary-300" // active
-                          : s < currentStep
-                            ? "w-6 bg-(--text-title)" // completed
-                            : "w-6 bg-(--card-barras)" // upcoming
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
+    <AuthRoot>
+      <AuthFormShell
+        onBack={currentStep === 2 ? prevStep : undefined}
+        backTo={currentStep === 1 ? ROUTES.LOGIN : undefined}
+        stepLabel={currentStep === 1 ? "Passo 1 de 2" : "Passo 2 de 2"}
+      >
+        {currentStep === 1 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                Criar conta
+              </h1>
+              <p style={{ margin: 0, fontSize: 15, color: "var(--text-secondary)" }}>
+                Começa pelos teus dados pessoais.
+              </p>
+            </div>
 
-              {/* ── Step 1: Personal Data ────────────────────────────────── */}
-              {currentStep === 1 && (
-                <motion.div
-                  initial={stepInitial}
-                  animate={stepAnimate}
-                  transition={stepTransition}
-                >
-                  <header className="mb-6">
-                    <h2 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
-                      Criar conta
-                    </h2>
-                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description) leading-relaxed">
-                      Inicie sua jornada para a liberdade financeira com gestão
-                      de alta precisão.
-                    </p>
-                  </header>
-
-                  <form
-                    onSubmit={submitPersonal}
-                    className="flex flex-col gap-4"
-                    noValidate
-                  >
-                    {/* Name */}
-                    <div>
-                      <Input
-                        id="name"
-                        label="Nome completo"
-                        type="text"
-                        leftIcon={<ProfileIcon className="w-5 h-5" />}
-                        value={personalForm.name}
-                        onChange={(e) =>
-                          setPersonalField("name", e.target.value)
-                        }
-                        placeholder="Seu nome"
-                        required
-                        isError={!!personalErrors.name}
-                        autoFocus // FIX: only the first field in the step receives autoFocus
-                        className="h-12 transition-all"
-                      />
-                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
-                      <div className="mt-1 min-h-[18px] px-1">
-                        <AnimatePresence initial={false}>
-                          {personalErrors.name && (
-                            <motion.p
-                              key="name-error"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
-                            >
-                              {personalErrors.name}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <Input
-                        id="email"
-                        label="Email"
-                        type="email"
-                        leftIcon={<EmailFilledIcon className="w-5 h-5" />}
-                        value={personalForm.email}
-                        onChange={(e) =>
-                          setPersonalField("email", e.target.value)
-                        }
-                        placeholder="exemplo@email.com"
-                        required
-                        isError={!!personalErrors.email}
-                        // FIX: removed duplicate autoFocus
-                        className="h-12 transition-all"
-                      />
-                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
-                      <div className="mt-1 min-h-[18px] px-1">
-                        <AnimatePresence initial={false}>
-                          {personalErrors.email && (
-                            <motion.p
-                              key="email-error"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
-                            >
-                              {personalErrors.email}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                      <PhoneInput
-                        id="phone"
-                        label="Nº de telefone"
-                        value={personalForm.phone}
-                        onChange={(value) => setPersonalField("phone", value)}
-                        placeholder="9XX XXX XXX"
-                        required
-                        isError={!!personalErrors.phone}
-                        // FIX: removed duplicate autoFocus
-                      />
-                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
-                      <div className="mt-1 min-h-[18px] px-1">
-                        <AnimatePresence initial={false}>
-                          {personalErrors.phone && (
-                            <motion.p
-                              key="phone-error"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
-                            >
-                              {personalErrors.phone}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      variant="warning"
-                      className="h-12 mt-4 rounded-xl font-manrope font-extrabold shadow-sm active:scale-[0.98] transition-all"
-                    >
-                      Próximo passo
-                    </Button>
-                  </form>
-
-                  {/* Separador + registo com Google */}
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-(--card-barras)" />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-(--bg-card) px-3 font-manrope text-[11px] font-bold uppercase tracking-wider text-(--text-description-60)">
-                        ou
-                      </span>
+            <form onSubmit={submitPersonal} noValidate style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Nome completo</DsFieldLabel>
+                <DsInput
+                  icon="circle-user"
+                  autoComplete="name"
+                  placeholder="Ex.: Domkandembe Ferreira"
+                  value={personalForm.name}
+                  onChange={(e) => setPersonalField("name", e.target.value)}
+                  invalid={fieldError.name}
+                  autoFocus
+                />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Email</DsFieldLabel>
+                <DsInput
+                  icon="mail"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="nome@exemplo.com"
+                  value={personalForm.email}
+                  onChange={(e) => setPersonalField("email", e.target.value)}
+                  invalid={fieldError.email || existsErr}
+                  error={existsErr ? "Já existe uma conta com este email." : false}
+                />
+                {existsErr ? (
+                  <div style={{ background: "var(--surface-muted)", borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+                    <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
+                      Entra com este email ou define uma nova palavra-passe.
+                    </span>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <DsButton variant="secondary" size="sm" onClick={() => prefillAndGo(ROUTES.LOGIN)}>
+                        Entrar com este email
+                      </DsButton>
+                      <DsButton variant="ghost" size="sm" onClick={() => prefillAndGo("/reset_password")}>
+                        Recuperar palavra-passe
+                      </DsButton>
                     </div>
                   </div>
+                ) : null}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Telefone</DsFieldLabel>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ height: 48, padding: "0 14px", display: "flex", alignItems: "center", gap: 8, background: "var(--surface-field)", borderRadius: 12, fontSize: 15, fontWeight: 600, color: "var(--text-primary)", flex: "0 0 auto" }}>
+                    +244
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <DsInput
+                      icon="phone"
+                      type="tel"
+                      autoComplete="tel-national"
+                      placeholder="923 000 000"
+                      value={personalForm.phone}
+                      onChange={(e) => setPersonalField("phone", e.target.value)}
+                      invalid={fieldError.phone}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Nascimento</DsFieldLabel>
+                <DsInput
+                  icon="calendar"
+                  inputMode="numeric"
+                  placeholder="DD/MM/AAAA"
+                  value={personalForm.dob}
+                  onChange={(e) => setPersonalField("dob", e.target.value)}
+                  invalid={fieldError.dob}
+                />
+              </div>
+            </form>
 
-                  <GoogleButton label="Registar com Google" />
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <DsButton
+                variant="primary"
+                size="lg"
+                block
+                disabled={disSignup1}
+                onClick={() => void submitPersonal}
+              >
+                Continuar
+              </DsButton>
+              <DsDivider />
+              <DsButton
+                variant="outline"
+                size="lg"
+                block
+                loading={isGoogleLoading}
+                iconLeft={<GoogleLogo size={20} />}
+                onClick={() => void handleGoogle()}
+              >
+                Continuar com Google
+              </DsButton>
+            </div>
 
-                  {/* FIX: consistent footer spacing with Step 2 — mt-8 pt-6 */}
-                  <footer className="mt-6 border-t border-(--card-barras) pt-4 text-center">
-                    <p className="font-manrope text-sm font-medium text-(--text-description)">
-                      Já possui uma conta?{" "}
-                      <Link
-                        href={ROUTES.LOGIN}
-                        className="font-manrope font-bold text-(--text-title) hover:underline decoration-secondary-300 decoration-2 underline-offset-4"
-                      >
-                        Fazer login
-                      </Link>
-                    </p>
-                  </footer>
-                </motion.div>
-              )}
+            <p style={{ margin: 0, textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
+              Já tens conta?{" "}
+              <DsLink onClick={() => router.push(ROUTES.LOGIN)}>Entrar</DsLink>
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                Cria a tua palavra-passe
+              </h1>
+              <p style={{ margin: 0, fontSize: 15, color: "var(--text-secondary)" }}>
+                É com ela e com o teu email que entras na Wundu.
+              </p>
+            </div>
 
-              {/* ── Step 2: Security ─────────────────────────────────────── */}
-              {currentStep === 2 && (
-                <motion.div
-                  initial={stepInitial}
-                  animate={stepAnimate}
-                  transition={stepTransition}
-                >
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    disabled={isSubmitting}
-                    className="group mb-6 flex items-center gap-2 font-manrope text-[10px] font-black uppercase tracking-[0.2em] text-(--text-description-60) hover:text-(--text-title) transition-colors disabled:opacity-50"
-                  >
-                    <ArrowLeftIcon className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-                    Voltar
-                  </button>
-
-                  <header className="mb-6">
-                    <h2 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
-                      Segurança
-                    </h2>
-                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description) leading-relaxed">
-                      Proteja sua conta com uma senha forte para garantir a
-                      segurança dos seus dados financeiros.
-                    </p>
-                  </header>
-
-                  {/*
-                   * FIX: unified gap-5 across both steps' form fields.
-                   * FIX: removed empty className="" from password Input.
-                   */}
-                  <form
-                    onSubmit={submitSecurity}
-                    className="flex flex-col gap-4"
-                    noValidate
-                  >
-                    {/* Password */}
-                    <div className="space-y-2.5">
-                      <Input
-                        id="password"
-                        label="Crie uma senha"
-                        type="password"
-                        leftIcon={<KeyIcon className="w-5 h-5" />}
-                        value={securityForm.password}
-                        onChange={(e) =>
-                          setSecurityField("password", e.target.value)
-                        }
-                        onFocus={() => setIsPasswordFocused(true)}
-                        onBlur={() => setIsPasswordFocused(false)}
-                        placeholder="Sua senha"
-                        required
-                        isError={!!passwordError || !!contextError}
-                        autoFocus // FIX: first field of step gets autoFocus
-                        className="h-12 transition-all"
-                      />
-
-                      {/* Strength bar */}
-                      <div className="px-1">
-                        <AnimatePresence initial={false} mode="wait">
-                          {showPasswordHint && (
-                            <motion.div
-                              key="hint"
-                              initial={{ opacity: 0, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -4 }}
-                              className="flex flex-col gap-2 mt-2"
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="h-1 w-20 bg-(--card-barras) rounded-full overflow-hidden">
-                                  <motion.div
-                                    className={`h-full transition-colors duration-500 ${
-                                      passwordValidation.isValid
-                                        ? "bg-success"
-                                        : "bg-secondary-300"
-                                    }`}
-                                    initial={{ width: 0 }}
-                                    animate={{
-                                      width: passwordValidation.isValid ? "100%" : "40%",
-                                    }}
-                                    transition={{ duration: 0.4 }}
-                                  />
-                                </div>
-                                <span
-                                  className={`font-manrope text-[10px] font-bold uppercase tracking-wider ${
-                                    passwordValidation.isValid ? "text-success" : "text-(--text-description-60)"
-                                  }`}
-                                >
-                                  {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap gap-2 text-[10px]">
-                                <span className={`flex items-center gap-1 font-manrope ${securityForm.password.length >= 6 ? "text-success" : "text-(--text-description-60)"}`}>
-                                  {securityForm.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
-                                </span>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+            <form onSubmit={submitSecurity} noValidate style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Palavra-passe</DsFieldLabel>
+                <DsInput
+                  icon="lock"
+                  type={showNewPw ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Mínimo 8 caracteres"
+                  value={securityForm.password}
+                  onChange={(e) => setSecurityField("password", e.target.value)}
+                  trailingIcon={showNewPw ? "eye-off" : "eye"}
+                  onTrailingClick={() => setShowNewPw((v) => !v)}
+                  autoFocus
+                />
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+                  <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
+                    {st.segs.map((bg, i) => (
+                      <div key={i} style={{ height: 6, borderRadius: 999, background: bg }} />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, minWidth: 64, textAlign: "right", color: st.color }}>
+                    {st.label}
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: "8px 12px", marginTop: 4 }}>
+                  {st.rules.map((r) => (
+                    <div key={r.text} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: r.color }}>
+                      <DsIcon name={r.ok ? "circle-check" : "circle"} size={16} />
+                      {r.text}
                     </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <DsFieldLabel>Confirmar palavra-passe</DsFieldLabel>
+                <DsInput
+                  icon="lock"
+                  type={showNewPw ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Repete a palavra-passe"
+                  value={securityForm.confirmPassword}
+                  onChange={(e) => setSecurityField("confirmPassword", e.target.value)}
+                  error={mismatch ? "As palavras-passe não coincidem." : false}
+                />
+              </div>
+            </form>
 
-                    {/* Confirm password */}
-                    <div>
-                      <Input
-                        id="confirmPassword"
-                        label="Confirme a senha"
-                        type="password"
-                        leftIcon={<KeyIcon className="w-5 h-5" />}
-                        value={securityForm.confirmPassword}
-                        onChange={(e) =>
-                          setSecurityField("confirmPassword", e.target.value)
-                        }
-                        placeholder="Repita sua senha"
-                        required
-                        isError={!!passwordError || !!contextError}
-                        className="h-12 transition-all"
-                      />
-                      {/* Slot de altura fixa: a mensagem entra sem empurrar o formulário */}
-                      <div className="mt-1 min-h-[18px] px-1">
-                        <AnimatePresence initial={false}>
-                          {(passwordError || contextError) && (
-                            <motion.p
-                              key="password-error"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="font-manrope text-[11px] font-bold leading-[18px] text-danger-300"
-                            >
-                              {passwordError || contextError}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      variant="warning"
-                      loading={isSubmitting}
-                      disabled={isSubmitting}
-                      className="h-12 mt-4 rounded-xl font-manrope font-extrabold shadow-sm active:scale-[0.98] transition-all"
-                    >
-                      {/* FIX: removed redundant manual <LoadingSpinner> — Button's
-                          loading prop already handles the spinner internally */}
-                      {isSubmitting ? "A processar..." : "Finalizar cadastro"}
-                    </Button>
-                  </form>
-                </motion.div>
-              )}
-
-    </AuthShell>
+            <DsButton
+              variant="primary"
+              size="lg"
+              block
+              loading={isSubmitting}
+              disabled={st.score < 3 || securityForm.password !== securityForm.confirmPassword}
+              onClick={() => void submitSecurity}
+            >
+              Criar conta
+            </DsButton>
+          </div>
+        )}
+      </AuthFormShell>
+      <AuthBrandPanel />
+    </AuthRoot>
   );
 };
 

@@ -1,42 +1,33 @@
 "use client";
 
-import { Input, Button } from "@/components/ui";
-import { loginIllustration, errorIllustration } from "@/constants/images";
-import { EmailFilledIcon, KeyIcon } from "@/constants/icons";
-import Link from "next/link";
-import { ROUTES } from "@/constants/routes";
-import { useState, useEffect, useRef } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AuthBrandPanel } from "@/components/auth/auth-brand-panel";
+import {
+  AuthFormShell,
+  AuthRoot,
+} from "@/components/auth/auth-form-shell";
+import {
+  DsButton,
+  DsCheckbox,
+  DsDivider,
+  DsFieldLabel,
+  DsInput,
+  DsLink,
+  GoogleLogo,
+} from "@/components/auth/ds";
+import { ROUTES } from "@/constants/routes";
 import { useAuth } from "@/hooks/use-auth";
-import { validateEmail } from "@/utils/validation";
 import { useUserStore } from "@/store/user-store";
-import { GoogleButton } from "@/components/auth/google-button";
-import { AuthShell } from "@/components/auth/auth-shell";
+import { userService } from "@/services/user.service";
 import { buildVerifyPendingUrl } from "@/utils/pending-verification";
+import { validateEmail } from "@/utils/validation";
 import { identifyUser, captureEvent, captureException } from "@/lib/analytics";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const SAVED_USER_KEY = "wundu-saved-user";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface SavedUser {
-  name: string;
-  email: string;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join("");
-}
+const PREFILL_EMAIL_KEY = "wundu-prefill-email";
+const PENDING_BIRTHDATE_KEY = "wundu-pending-birthdate";
+const REMEMBER_KEY = "wundu-remember-session";
 
 function formatCountdown(secs: number): string {
   const m = Math.floor(secs / 60);
@@ -44,94 +35,38 @@ function formatCountdown(secs: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-// ─── Shared animation config ──────────────────────────────────────────────────
-
-const panelTransition = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
-const panelInitial = { opacity: 0, x: 10 };
-const panelAnimate = { opacity: 1, x: 0 };
-
-// ─── Shared error/blocked banner ──────────────────────────────────────────────
-// FIX: extracted duplicated error banner JSX into a single component so both
-// modes stay in sync and future changes only need to happen in one place.
-
-interface StatusBannerProps {
-  isBlocked: boolean;
-  countdown: number | null;
-  errorMessage: string | null;
-}
-
-function StatusBanner({
-  isBlocked,
-  countdown,
-  errorMessage,
-}: StatusBannerProps) {
-  const showBanner = isBlocked || !!errorMessage;
-
-  return (
-    // FIX: replaced non-standard min-h-17 with an explicit min-h-[68px]
-    <div className="min-h-17 py-4 flex items-center">
-      <AnimatePresence mode="wait">
-        {isBlocked ? (
-          <motion.div
-            key="blocked"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="flex w-full items-center gap-3 rounded-xl border border-warning/30 bg-warning/10 p-3.5"
-          >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-warning animate-pulse" />
-            <p className="font-manrope text-xs font-bold text-warning">
-              Demasiadas tentativas. Tente novamente em{" "}
-              {formatCountdown(countdown!)}
-            </p>
-          </motion.div>
-        ) : errorMessage ? (
-          <motion.div
-            key="error"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="flex w-full items-center gap-3 rounded-xl border border-danger-300/30 bg-danger-300/5 p-3.5"
-          >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-danger-300" />
-            <p className="font-manrope text-xs font-bold text-danger-300">{errorMessage}</p>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── LoginPage ────────────────────────────────────────────────────────────────
-
 const LoginPage: React.FC = () => {
   const router = useRouter();
   const { isAuthenticated, login, error, errorCode, retryAfterSeconds } = useAuth();
 
-  const errorRef = useRef<string | null>(null);
-  errorRef.current = error ?? null;
-  const errorCodeRef = useRef<string | null>(null);
-  errorCodeRef.current = errorCode ?? null;
-
-  const [savedUser, setSavedUser] = useState<SavedUser | null>(null);
-  const [mode, setMode] = useState<"quick" | "full">("full");
   const [form, setFormState] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [showPw, setShowPw] = useState(false);
+  const [remember, setRemember] = useState(true);
 
-  const hasError = !!(errors.email || errors.password || loginError);
   const isBlocked = countdown !== null && countdown > 0;
 
-  // Populate countdown from hook
+  useEffect(() => {
+    try {
+      const prefill = localStorage.getItem(PREFILL_EMAIL_KEY);
+      if (prefill) {
+        setFormState((prev) => ({ ...prev, email: prefill }));
+        localStorage.removeItem(PREFILL_EMAIL_KEY);
+      }
+      setRemember(localStorage.getItem(REMEMBER_KEY) !== "0");
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (retryAfterSeconds && retryAfterSeconds > 0) {
       setCountdown(retryAfterSeconds);
     }
   }, [retryAfterSeconds]);
 
-  // Countdown ticker
   useEffect(() => {
     if (!countdown || countdown <= 0) return;
     const timer = setInterval(() => {
@@ -146,27 +81,9 @@ const LoginPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [countdown]);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) router.push(ROUTES.HOME);
   }, [isAuthenticated, router]);
-
-  // Load saved user from localStorage
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SAVED_USER_KEY);
-      if (raw) {
-        const parsed: SavedUser = JSON.parse(raw);
-        if (parsed?.email) {
-          setSavedUser(parsed);
-          setFormState((prev) => ({ ...prev, email: parsed.email }));
-          setMode("quick");
-        }
-      }
-    } catch {}
-  }, []);
-
-  // ── Field helpers ──────────────────────────────────────────────────────────
 
   const setField = (field: "email" | "password", value: string) => {
     const normalized = field === "email" ? value.toLowerCase() : value;
@@ -174,8 +91,6 @@ const LoginPage: React.FC = () => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
     setLoginError(null);
   };
-
-  // ── Submit ─────────────────────────────────────────────────────────────────
 
   const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -187,21 +102,17 @@ const LoginPage: React.FC = () => {
     let valid = true;
     const nextErrors = { email: "", password: "" };
 
-    if (mode === "full") {
-      if (!form.email.trim()) {
-        nextErrors.email = "Por favor, insira o seu e-mail";
-        valid = false;
-      } else if (!validateEmail(form.email)) {
-        nextErrors.email = "Por favor, insira um email válido";
-        valid = false;
-      }
-    }
-
-    if (!form.password) {
-      nextErrors.password = "Por favor, insira a sua palavra-passe";
+    if (!form.email.trim()) {
+      nextErrors.email = "Indica o teu email.";
+      valid = false;
+    } else if (!validateEmail(form.email)) {
+      nextErrors.email = "Indica um email válido.";
       valid = false;
     }
-
+    if (!form.password) {
+      nextErrors.password = "Indica a tua palavra-passe.";
+      valid = false;
+    }
     if (!valid) {
       setErrors(nextErrors);
       return;
@@ -212,26 +123,29 @@ const LoginPage: React.FC = () => {
       const success = await login(form.email, form.password);
       if (success) {
         const user = useUserStore.getState().user;
-        if (user) {
-          localStorage.setItem(
-            SAVED_USER_KEY,
-            JSON.stringify({ name: user.name, email: user.email }),
-          );
-          identifyUser(user.id);
-        }
+        if (user) identifyUser(user.id);
+        try {
+          localStorage.setItem(REMEMBER_KEY, remember ? "1" : "0");
+          const pendingBirthdate = localStorage.getItem(PENDING_BIRTHDATE_KEY);
+          if (pendingBirthdate) {
+            try {
+              await userService.updateProfile({ birthDate: pendingBirthdate });
+            } catch {}
+            localStorage.removeItem(PENDING_BIRTHDATE_KEY);
+          }
+        } catch {}
         captureEvent("user_signed_in", { method: "email" });
-      } else if (errorCodeRef.current === "EMAIL_NOT_VERIFIED") {
+      } else if (errorCode === "EMAIL_NOT_VERIFIED") {
         captureEvent("user_sign_in_failed", { reason: "EMAIL_NOT_VERIFIED" });
         router.push(buildVerifyPendingUrl(form.email));
         return;
       } else {
-        const errMsg =
-          errorRef.current || "Credenciais incorretas. Tente novamente.";
+        const errMsg = error || "Credenciais erradas. Tenta novamente.";
         setLoginError(errMsg);
         captureEvent("user_sign_in_failed", { reason: errMsg });
       }
     } catch (err) {
-      const errMsg = "Ocorreu um erro inesperado. Tente novamente.";
+      const errMsg = "Ocorreu um erro inesperado. Tenta novamente.";
       setLoginError(errMsg);
       captureEvent("user_sign_in_failed", { reason: errMsg });
       captureException(err);
@@ -240,242 +154,106 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleSwitchAccount = () => {
-    localStorage.removeItem(SAVED_USER_KEY);
-    setSavedUser(null);
-    setMode("full");
-    setFormState({ email: "", password: "" });
-    setErrors({ email: "", password: "" });
-    setLoginError(null);
+  const handleGoogle = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: ROUTES.GOOGLE_CALLBACK });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
-  // ── Derived error message for StatusBanner ─────────────────────────────────
+  const goForgot = () => {
+    try {
+      if (form.email.trim()) localStorage.setItem(PREFILL_EMAIL_KEY, form.email.trim());
+    } catch {}
+    router.push("/reset_password");
+  };
 
-  const quickErrorMessage = errors.password || loginError;
-  const fullErrorMessage = errors.email || errors.password || loginError;
-
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const passwordHint = errors.password || loginError || undefined;
 
   return (
-    <AuthShell
-      visual={{
-        title: "Bem-vindo de volta",
-        description: "Gestão financeira de alta precisão.",
-        illustration: hasError ? errorIllustration : loginIllustration,
-        illustrationAlt: hasError ? "Erro de autenticação" : "Entrar na conta",
-      }}
-      footer={
-        <footer className="mt-8 px-8 text-center">
-          <p className="mx-auto max-w-sm font-manrope text-[10px] font-medium leading-relaxed text-(--text-description-60)">
-            Ao acessar, você aceita nossos{" "}
-            <Link
-              href={ROUTES.LEGAL}
-              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+    <AuthRoot>
+      <AuthFormShell>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+              Entrar na Wundu
+            </h1>
+            <p style={{ margin: 0, fontSize: 15, color: "var(--text-secondary)" }}>
+              Acompanha as tuas contas, metas e gastos num só lugar.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <DsFieldLabel>Email</DsFieldLabel>
+              <DsInput
+                icon="mail"
+                type="email"
+                autoComplete="email"
+                placeholder="nome@exemplo.com"
+                value={form.email}
+                onChange={(e) => setField("email", e.target.value)}
+                error={errors.email || undefined}
+                disabled={isSubmitting}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <DsFieldLabel>Palavra-passe</DsFieldLabel>
+              <DsInput
+                icon="lock"
+                type={showPw ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="A tua palavra-passe"
+                value={form.password}
+                onChange={(e) => setField("password", e.target.value)}
+                trailingIcon={showPw ? "eye-off" : "eye"}
+                onTrailingClick={() => setShowPw((v) => !v)}
+                error={passwordHint || undefined}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <DsCheckbox checked={remember} onChange={setRemember} label="Manter sessão iniciada" />
+              <DsLink onClick={goForgot}>Esqueceste-te da palavra-passe?</DsLink>
+            </div>
+          </form>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <DsButton
+              variant="primary"
+              size="lg"
+              block
+              loading={isSubmitting}
+              disabled={isBlocked || !validateEmail(form.email) || !form.password}
+              onClick={() => void handleLogin()}
             >
-              Termos
-            </Link>{" "}
-            e{" "}
-            <Link
-              href={ROUTES.LEGAL}
-              className="text-(--text-description) hover:text-(--text-title) transition-colors underline underline-offset-2"
+              {isBlocked ? `Aguarde ${formatCountdown(countdown!)}` : "Entrar"}
+            </DsButton>
+            <DsDivider />
+            <DsButton
+              variant="outline"
+              size="lg"
+              block
+              loading={isGoogleLoading}
+              disabled={isSubmitting || isBlocked}
+              iconLeft={<GoogleLogo size={20} />}
+              onClick={() => void handleGoogle()}
             >
-              Privacidade
-            </Link>
-            .
+              Continuar com Google
+            </DsButton>
+          </div>
+
+          <p style={{ margin: 0, textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
+            Ainda não tens conta?{" "}
+            <DsLink onClick={() => router.push(ROUTES.REGISTER)}>Criar conta</DsLink>
           </p>
-        </footer>
-      }
-    >
-              {mode === "quick" && savedUser ? (
-                /* ── Quick Login ── */
-                <motion.form
-                  initial={panelInitial}
-                  animate={panelAnimate}
-                  transition={panelTransition}
-                  onSubmit={handleLogin}
-                  className="flex w-full flex-col"
-                >
-                  {/* Avatar + user info */}
-                  <div className="mb-10 flex flex-col items-center gap-4">
-                    <div className="relative group cursor-default">
-                      <div className="absolute inset-0 bg-secondary-300 blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-                      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-secondary-300 shadow-lg border-4 border-(--background)">
-                        <span className="text-2xl font-black tracking-tight text-base-black">
-                          {getInitials(savedUser.name)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-manrope text-xl font-bold tracking-tight text-(--text-title)">
-                        {savedUser.name.split(" ")[0]}
-                      </p>
-                      <p className="font-manrope text-sm font-semibold text-(--text-description-60) tracking-tight">
-                        {savedUser.email}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Password field — Quick mode only needs this */}
-                  <Input
-                    id="password-quick"
-                    label="Palavra-passe"
-                    type="password"
-                    leftIcon={<KeyIcon className="w-5 h-5" />}
-                    value={form.password}
-                    onChange={(e) => setField("password", e.target.value)}
-                    placeholder="A tua senha"
-                    isError={!!errors.password || !!loginError}
-                    disabled={isSubmitting}
-                    autoFocus
-                    className="h-12 transition-all"
-                  />
-
-                  <StatusBanner
-                    isBlocked={isBlocked}
-                    countdown={countdown}
-                    errorMessage={quickErrorMessage}
-                  />
-
-                  <Button
-                    variant="warning"
-                    type="submit"
-                    fullWidth
-                    loading={isSubmitting}
-                    disabled={isBlocked}
-                    className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
-                  >
-                    {isBlocked
-                      ? `Aguarde ${formatCountdown(countdown!)}`
-                      : "Entrar no Wundu"}
-                  </Button>
-
-                  {/* FIX: aligned footer spacing to mt-8 pt-6 (same as RegisterPage footer) */}
-                  <div className="mt-8 border-t border-(--card-barras) pt-6 text-center">
-                      <button
-                        type="button"
-                        onClick={handleSwitchAccount}
-                        className="font-manrope text-sm font-bold text-(--text-description-60) transition-colors hover:text-(--text-title)"
-                      >
-                      Usar outra conta
-                    </button>
-                  </div>
-                </motion.form>
-              ) : (
-                /* ── Full Login ── */
-                <motion.div
-                  initial={panelInitial}
-                  animate={panelAnimate}
-                  transition={panelTransition}
-                >
-                  {/*
-                   * FIX: removed text-center from the header — only the heading
-                   * text is centered while inputs/buttons are left-aligned, which
-                   * created visual misalignment. Header now inherits the form's
-                   * left alignment for a consistent reading axis.
-                   */}
-                  <header className="mb-8">
-                    <h1 className="font-manrope text-2xl font-bold tracking-tighter text-(--text-title) md:text-3xl">
-                      Acesse sua conta
-                    </h1>
-                    <p className="mt-2 font-manrope text-sm font-medium text-(--text-description)">
-                      Gestão financeira de alta precisão.
-                    </p>
-                  </header>
-
-                  <form onSubmit={handleLogin} className="flex w-full flex-col">
-                    {/* FIX: removed unnecessary <div className="space-y-2"> wrapper
-                        around the password Input — the parent gap-4 already handles
-                        spacing and the wrapper added no visual benefit */}
-                    <div className="flex flex-col gap-4">
-                      <Input
-                        id="email"
-                        label="E-mail"
-                        type="email"
-                        leftIcon={<EmailFilledIcon className="w-5 h-5" />}
-                        value={form.email}
-                        onChange={(e) => setField("email", e.target.value)}
-                        placeholder="exemplo@email.com"
-                        disabled={isSubmitting}
-                        isError={!!errors.email || !!loginError}
-                        autoFocus
-                        // FIX: email is the first field → it gets autoFocus,
-                        // not the password field which came after it in the original
-                        className="h-12 transition-all"
-                      />
-                      <Input
-                        id="password"
-                        label="Palavra-passe"
-                        type="password"
-                        leftIcon={<KeyIcon className="w-5 h-5" />}
-                        value={form.password}
-                        onChange={(e) => setField("password", e.target.value)}
-                        placeholder="A tua senha"
-                        isError={!!errors.password || !!loginError}
-                        disabled={isSubmitting}
-                        // FIX: removed autoFocus — only one field per form should have it
-                        className="h-12 transition-all"
-                      />
-                      <div className="flex justify-end">
-                      <Link
-                          href="/reset_password"
-                          className="font-manrope text-xs text-(--text-description) hover:text-(--text-title) transition-colors"
-                        >
-                          Esqueceu a senha?
-                        </Link>
-                      </div>
-                    </div>
-
-                    <StatusBanner
-                      isBlocked={isBlocked}
-                      countdown={countdown}
-                      errorMessage={fullErrorMessage}
-                    />
-
-                    <Button
-                      variant="warning"
-                      type="submit"
-                      fullWidth
-                      loading={isSubmitting}
-                      disabled={isBlocked}
-                      className="h-12 rounded-xl font-manrope text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
-                    >
-                      {isBlocked
-                        ? `Aguarde ${formatCountdown(countdown!)}`
-                        : "Entrar no Wundu"}
-                    </Button>
-
-                    {/* Separador + entrada com Google */}
-                    <div className="relative my-5">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-(--card-barras)" />
-                      </div>
-                      <div className="relative flex justify-center">
-                        <span className="bg-(--bg-card) px-3 font-manrope text-[11px] font-bold uppercase tracking-wider text-(--text-description-60)">
-                          ou
-                        </span>
-                      </div>
-                    </div>
-
-                    <GoogleButton disabled={isSubmitting || isBlocked} />
-
-                    {/* FIX: aligned footer spacing to mt-8 pt-6 — original had pt-8
-                        which was inconsistent with the Quick mode footer (pt-6)
-                        and with the RegisterPage footer pattern */}
-                    <footer className="mt-8 border-t border-(--card-barras) pt-6 text-center">
-                      <p className="font-manrope text-sm font-medium text-(--text-description)">
-                        Novo por aqui?{" "}
-                        <Link
-                          href={ROUTES.REGISTER}
-                          className="font-manrope font-bold text-(--text-title) decoration-secondary-300 decoration-2 underline-offset-4 hover:underline transition-all"
-                        >
-                          Crie uma conta
-                        </Link>
-                      </p>
-                    </footer>
-                  </form>
-                </motion.div>
-              )}
-    </AuthShell>
+        </div>
+      </AuthFormShell>
+      <AuthBrandPanel />
+    </AuthRoot>
   );
 };
 
