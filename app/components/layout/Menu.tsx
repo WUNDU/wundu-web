@@ -28,7 +28,7 @@ type MenuProps = {
   onToggle?: () => void;
 };
 
-type MenuItem = {
+export type MenuItem = {
   key: MenuItemKey;
   label: string;
   description?: string;
@@ -37,7 +37,7 @@ type MenuItem = {
   chevron?: boolean;
 };
 
-const menuItems: MenuItem[] = [
+export const menuItems: MenuItem[] = [
   { key: "Default", label: "Dashboard", href: "/home", icon: "dashboard" },
   {
     key: "transacoes",

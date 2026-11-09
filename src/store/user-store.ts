@@ -402,7 +402,7 @@ export const useUserStore = create<AuthState>()(
 
       logout: async () => {
         // Await cookie clearing so wundu_session is gone before the browser
-        // makes the next request — prevents middleware from redirecting /login back to /home
+        // makes the next request — prevents the proxy from redirecting /login back to /home
         await userService.logoutApi().catch(() => {});
         clearUserStores();
         set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });

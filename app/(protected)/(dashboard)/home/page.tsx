@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import CardViews, { type CardTrend } from "app/components/dashboard/CardViews";
 import BalanceHero from "app/components/dashboard/BalanceHero";
+import NegativeBalanceAlert from "app/components/dashboard/NegativeBalanceAlert";
 import MiniStatCard from "app/components/dashboard/MiniStatCard";
 import AiNotify from "app/components/dashboard/AiNotify";
 import GoalsSection from "app/components/dashboard/GoalsSection";
@@ -13,6 +14,7 @@ import WeeklyCard from "app/components/dashboard/WeeklyCard";
 import PageHeader from "app/components/layout/PageHeader";
 import { ArrowDown, ArrowUp, Calendar, ChevronLeft, ChevronRight, Equal, Eye, EyeOff, Plus, Wallet } from "lucide-react";
 import { useBalance } from "@/hooks/use-balance";
+import { useUserStore } from "@/store/user-store";
 import { useGoal } from "@/hooks/use-goal";
 import { useTransaction } from "@/hooks/use-transaction";
 import { useTransactionAction } from "app/components/layout/TransactionActionProvider";
@@ -172,6 +174,7 @@ function getDailySeries(
 function DashboardContent() {
   const { openTransactionForm } = useTransactionAction();
   const { hidden, toggle } = useValuesVisibility();
+  const userName = useUserStore((s) => s.user?.name?.trim() ?? "");
   const now = new Date();
   const currentKey = now.getFullYear() * 12 + now.getMonth();
   // Mês selecionado no filtro do cabeçalho (por omissão, o mês atual).
@@ -646,6 +649,12 @@ function DashboardContent() {
           <AiNotify className="col-span-2" />
         </div>
       </main>
+      <NegativeBalanceAlert
+        amount={balance?.balance ?? null}
+        loading={isCardsLoading}
+        name={userName}
+        scope={JSON.stringify([monthStart, monthEnd])}
+      />
     </div>
   );
 }

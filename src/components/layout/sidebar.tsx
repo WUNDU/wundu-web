@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
               >
-                <Image src={logotype} alt="Wundu" height={28} className="h-7 w-auto object-contain" priority />
+                <Image src={logotype} alt="Wundu" width={85} height={28} className="h-7 w-auto object-contain" priority />
               </motion.div>
             </AnimatePresence>
           ) : (

@@ -112,9 +112,9 @@ function SessionsCard() {
                   >
                     <Monitor width={20} height={20} className="text-(--icon)" />
                   </span>
-                  <div className="flex w-64 min-w-0 flex-col items-start justify-start gap-1.5">
-                    <p className="flex items-center justify-start gap-2">
-                      <span className="truncate font-manrope text-base font-semibold text-(--text)">
+                  <div className="flex min-w-0 flex-1 flex-col items-start justify-start gap-1.5">
+                    <p className="flex min-w-0 items-center justify-start gap-2 self-stretch">
+                      <span className="min-w-0 truncate font-manrope text-base font-semibold text-(--text)">
                         {prettyDevice(session.userAgent)}
                       </span>
                       <span
@@ -122,8 +122,8 @@ function SessionsCard() {
                         className="size-1.5 shrink-0 rounded-full bg-primary-300"
                       />
                     </p>
-                    <p className="flex items-center justify-start gap-2.5 self-stretch">
-                      <span className="truncate font-manrope text-sm font-normal leading-5 text-(--text-description)">
+                    <p className="flex min-w-0 flex-wrap items-center justify-start gap-x-2.5 gap-y-0.5 self-stretch">
+                      <span className="min-w-0 truncate font-manrope text-sm font-normal leading-5 text-(--text-description)">
                         {session.ipAddress}
                       </span>
                       <span

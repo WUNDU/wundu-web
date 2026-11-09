@@ -24,8 +24,10 @@ import { useUser } from "@/hooks/use-user";
 import { userService } from "@/services/user.service";
 import { provinceEnumToLabel } from "@/constants/angola-provinces-fallback";
 import { stripPhoneSpaces, formatPhoneInput } from "app/utils/phone-mask";
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { tabFromSlug, toTabSlug } from "app/utils/tab-slug";
 
 type SettingsTab =
   | "Perfil"
@@ -63,11 +65,43 @@ function formatLongDate(iso?: string | null): string {
   }).format(date);
 }
 
-function page() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("Perfil");
+function SettingsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState<SettingsTab>(
+    () => tabFromSlug(TABS, searchParams.get("tab")) ?? "Perfil",
+  );
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+
+  const goTab = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    const slug = toTabSlug(tab);
+    if (searchParams.get("tab") !== slug) {
+      router.replace(`${pathname}?tab=${slug}`, { scroll: false });
+    }
+  };
+
+  // Pesquisa rápida / partilha de links: `?tab=` muda a aba e
+  // `?acao=palavra-passe` abre o formulário da palavra-passe.
+  useEffect(() => {
+    const next = tabFromSlug(TABS, searchParams.get("tab"));
+    if (next) setActiveTab((prev) => (prev === next ? prev : next));
+    if (searchParams.get("acao") === "palavra-passe") {
+      setActiveTab("Segurança");
+      setIsPasswordOpen(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("acao");
+      if (!params.get("tab")) params.set("tab", toTabSlug("Segurança"));
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const { user, refreshUser } = useUser();
   const { goals: apiGoals } = useGoal();
@@ -186,7 +220,7 @@ function page() {
             <button
               key={tab}
               type="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => goTab(tab)}
               aria-current={isActive ? "page" : undefined}
               className="flex shrink-0 flex-col items-center justify-center"
             >
@@ -231,7 +265,7 @@ function page() {
                   <li key={tab} className="flex">
                     <button
                       type="button"
-                      onClick={() => setActiveTab(tab)}
+                      onClick={() => goTab(tab)}
                       aria-current={isActive ? "page" : undefined}
                       className="flex flex-col items-center justify-center"
                     >
@@ -308,7 +342,7 @@ function page() {
             <div className="flex flex-col items-start justify-start gap-4 self-stretch lg:gap-8">
               <SecurityCard
                 onChangePassword={() => setIsPasswordOpen(true)}
-                onViewSessions={() => setActiveTab("Sessões")}
+                onViewSessions={() => goTab("Sessões")}
               />
             </div>
           ) : null}
@@ -357,4 +391,10 @@ function page() {
   );
 }
 
-export default page;
+export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
+  );
+}

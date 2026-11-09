@@ -175,7 +175,7 @@ export default function FloatingMenu({
         maxWidth: "calc(100vw - 16px)",
         visibility: style ? "visible" : "hidden",
       }}
-      className={`transition-all duration-150 ease-out ${
+      className={`transition-[opacity,transform] duration-150 ease-out ${
         shown && style
           ? "scale-100 opacity-100"
           : "scale-95 opacity-0"

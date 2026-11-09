@@ -4,7 +4,7 @@ import type { NextRequest, NextResponse } from "next/server";
  * Cookies de sessão emitidos pelas rotas de auth do proxy Next.
  *
  * `refresh_token` — segredo (rotativo, uso único), HttpOnly para o JS não o
- * poder ler. `wundu_session` — flag sem segredo, só para o `middleware.ts`
+ * poder ler. `wundu_session` — flag sem segredo, só para o `proxy.ts`
  * redirecionar; nunca dá acesso a nada por si só.
  *
  * O accessToken NUNCA passa por aqui: vem no corpo JSON do login/refresh e
@@ -25,7 +25,7 @@ const SESSION_COOKIE_NAME = "wundu_session";
  */
 const REFRESH_COOKIE_PATH = "/api/proxy/auth";
 
-/** O middleware lê `wundu_session` em `/home/*`, `/login`, `/register`, … */
+/** O proxy lê `wundu_session` em `/home/*`, `/login`, `/register`, … */
 const SESSION_COOKIE_PATH = "/";
 
 /** 30 dias — usado quando o backend não envia `Max-Age`. */

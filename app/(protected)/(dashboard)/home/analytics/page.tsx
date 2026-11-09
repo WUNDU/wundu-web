@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { tabFromSlug, toTabSlug } from "app/utils/tab-slug";
 import {
   Calendar,
   Check,
@@ -324,10 +326,15 @@ function PeriodControl({
   );
 }
 
-function page() {
-  const [activeTab, setActiveTab] = useState<AnalysisTab>("Visão geral");
+function AnalyticsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const initialTab =
+    tabFromSlug(TABS, searchParams.get("tab")) ?? "Visão geral";
+  const [activeTab, setActiveTab] = useState<AnalysisTab>(initialTab);
   /* Conteúdo visível (atrasado 160ms para o fade-out antes da troca) */
-  const [shownTab, setShownTab] = useState<AnalysisTab>("Visão geral");
+  const [shownTab, setShownTab] = useState<AnalysisTab>(initialTab);
   const [switching, setSwitching] = useState(false);
   const switchTimer = useRef<number | null>(null);
 
@@ -341,6 +348,10 @@ function page() {
 
   const selectTab = (tab: AnalysisTab) => {
     setActiveTab(tab);
+    const slug = toTabSlug(tab);
+    if (searchParams.get("tab") !== slug) {
+      router.replace(`${pathname}?tab=${slug}`, { scroll: false });
+    }
     if (tab === shownTab) return;
     if (switchTimer.current !== null)
       window.clearTimeout(switchTimer.current);
@@ -350,6 +361,13 @@ function page() {
       setSwitching(false);
     }, 160);
   };
+
+  // Pesquisa rápida / partilha de links: `?tab=` muda a secção visível.
+  useEffect(() => {
+    const next = tabFromSlug(TABS, searchParams.get("tab"));
+    if (next && next !== activeTab) selectTab(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const fadeCls = switching
     ? "pointer-events-none -translate-y-1 opacity-0"
@@ -1064,4 +1082,10 @@ function page() {
   );
 }
 
-export default page;
+export default function AnalyticsPage() {
+  return (
+    <Suspense>
+      <AnalyticsContent />
+    </Suspense>
+  );
+}
