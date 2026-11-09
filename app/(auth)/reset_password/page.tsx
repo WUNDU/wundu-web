@@ -174,6 +174,20 @@ function StepCode({
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const fillFrom = (start: number, text: string) => {
+    const chars = text.replace(/\D/g, "").slice(0, 6 - start).split("");
+    if (!chars.length) return;
+    setCode((prev) => {
+      let next = prev;
+      chars.forEach((c, k) => {
+        next = next.slice(0, start + k) + c + next.slice(start + k + 1);
+      });
+      return next.slice(0, 6);
+    });
+    setIncorrect(false);
+    inputRefs.current[Math.min(5, start + chars.length)]?.focus();
+  };
+
   const setCell = (index: number, val: string) => {
     const clean = val.replace(/\D/g, "");
     let next = code;
@@ -191,6 +205,10 @@ function StepCode({
     if (nextIndex !== index && inputRefs.current[nextIndex]) {
       inputRefs.current[nextIndex]?.focus();
     }
+  };
+
+  const pasteCode = (index: number, text: string) => {
+    fillFrom(index, text);
   };
 
   const submit = async (e?: React.FormEvent) => {
@@ -228,7 +246,7 @@ function StepCode({
             <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
               {data.phoneOrEmail}
             </strong>
-            . Expira em 10 minutos.
+            . Expira em 2 minutos.
           </>
         }
       />
@@ -243,6 +261,10 @@ function StepCode({
               }}
               value={code[i] || ""}
               onChange={(e) => setCell(i, e.target.value)}
+              onPaste={(e) => {
+                e.preventDefault();
+                pasteCode(i, e.clipboardData.getData("text"));
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Backspace" && !code[i] && i > 0) {
                   inputRefs.current[i - 1]?.focus();
