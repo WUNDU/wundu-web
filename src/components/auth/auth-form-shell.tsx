@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { DsIconButton } from "./ds";
@@ -34,14 +35,16 @@ export function AuthFormShell({
         {goBack ? (
           <DsIconButton onClick={goBack} label="Voltar" />
         ) : (
-          <Image
-            src="/assets/logotype.svg"
-            alt="Wundu"
-            width={103}
-            height={34}
-            style={{ height: 34, width: "auto" }}
-            priority
-          />
+          <Link href="/" aria-label="Voltar à página inicial">
+            <Image
+              src="/assets/logotype.svg"
+              alt="Wundu"
+              width={103}
+              height={34}
+              style={{ height: 34, width: "auto" }}
+              priority
+            />
+          </Link>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span

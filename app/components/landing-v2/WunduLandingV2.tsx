@@ -19,8 +19,10 @@ import {
   Car,
   Clock,
   Gamepad2,
+  Menu,
   Monitor,
   Moon,
+  X,
   PiggyBank,
   Plus,
   Repeat,
@@ -860,6 +862,7 @@ export default function WunduLandingV2() {
   const [seen, setSeen] = useState<Record<string, number>>({});
   const [open, setOpen] = useState(0);
   const [hero, setHero] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
@@ -873,6 +876,11 @@ export default function WunduLandingV2() {
   /* antes de montar, força light (== servidor) para não divergir na hidratação */
   const isDark = mounted && theme === "dark";
   const isLight = !isDark;
+
+  /* fecha o menu mobile ao voltar para desktop */
+  useEffect(() => {
+    if (w >= 1040) setMenuOpen(false);
+  }, [w]);
 
   /* largura do bloco (== breakpoints wide/xl do original) */
   useEffect(() => {
@@ -1155,15 +1163,102 @@ export default function WunduLandingV2() {
               )}
             </button>
             {wide ? (
-              <WdButton href="/login" variant="ghost" size="md">
-                Entrar
-              </WdButton>
+              <>
+                <WdButton href="/login" variant="ghost" size="md">
+                  Entrar
+                </WdButton>
+                <WdButton href="/register" variant="primary" size="md">
+                  Criar conta
+                </WdButton>
+              </>
             ) : null}
-            <WdButton href="/register" variant="primary" size="md">
-              Criar conta
-            </WdButton>
+            {!wide ? (
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+                aria-expanded={menuOpen}
+                className="flex size-10 items-center justify-center rounded-xl text-(--menu-icon) transition-colors hover:bg-(--background-variant) hover:text-(--menu-hover)"
+              >
+                {menuOpen ? (
+                  <X size={20} aria-hidden="true" />
+                ) : (
+                  <Menu size={20} aria-hidden="true" />
+                )}
+              </button>
+            ) : null}
           </div>
         </div>
+        {!wide && menuOpen ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 8px)",
+              left: 16,
+              right: 16,
+              zIndex: 30,
+              background: "var(--surface-card)",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: 14,
+              boxShadow: "var(--shadow-lg)",
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {NAV_LINKS.map(([href, label]) => (
+                <HV
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    height: 44,
+                    padding: "0 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 500,
+                    color: "var(--text-secondary)",
+                  }}
+                  hover={{
+                    background: "var(--surface-hover)",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {label}
+                </HV>
+              ))}
+            </nav>
+            <div
+              style={{
+                height: 1,
+                background: "var(--border-subtle)",
+                margin: "8px 4px",
+              }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <WdButton
+                href="/login"
+                variant="ghost"
+                size="md"
+                style={{ width: "100%" }}
+              >
+                Entrar
+              </WdButton>
+              <WdButton
+                href="/register"
+                variant="primary"
+                size="md"
+                style={{ width: "100%" }}
+              >
+                Criar conta
+              </WdButton>
+            </div>
+          </div>
+        ) : null}
       </header>
 
       <section id="inicio" data-screen-label="Hero" style={{ position: "relative" }}>
@@ -1240,6 +1335,16 @@ export default function WunduLandingV2() {
             style={{ fontSize: 14, color: "var(--text-tertiary)" }}
           >
             Disponível na Web e Android · iOS em breve
+          </span>
+          <span
+            data-reveal="up"
+            data-delay="800"
+            style={{ fontSize: 14, color: "var(--text-tertiary)" }}
+          >
+            Já tens conta?{" "}
+            <a href="/login" style={{ fontWeight: 600 }}>
+              Entrar
+            </a>
           </span>
         </div>
 
@@ -2427,6 +2532,16 @@ export default function WunduLandingV2() {
           >
             Criar conta
           </WdButton>
+          <span
+            data-reveal="up"
+            data-delay="320"
+            style={{ fontSize: 15, color: "var(--text-secondary)" }}
+          >
+            Já tens conta?{" "}
+            <a href="/login" style={{ fontWeight: 600 }}>
+              Entrar
+            </a>
+          </span>
         </div>
       </section>
 
