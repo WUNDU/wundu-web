@@ -10,6 +10,7 @@ import { LoadingProvider } from "@/contexts/loading-context";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
+import { redirectUnverifiedToPending } from "@/utils/verification-gate";
 import Layout from "app/components/layout/Layout";
 
 // ── Sub-providers ─────────────────────────────────────────────────────────────
@@ -103,15 +104,25 @@ export default function ProtectedLayout({
   }, [initializeAuth]);
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        router.push(ROUTES.LOGIN);
-      }
+    if (isLoading) return;
+    if (!isAuthenticated) {
+      router.push(ROUTES.LOGIN);
       setChecked(true);
+      return;
     }
-  }, [isAuthenticated, isLoading, router]);
+    if (checked) return;
+    (async () => {
+      // Sessão válida mas conta por verificar (o isActive do /users/me não
+      // reflete a verificação) fica na verificação — nunca entra na dashboard.
+      // O skeleton continua visível até aqui, sem flash do conteúdo.
+      await redirectUnverifiedToPending(user?.email, (url) => router.push(url));
+      setChecked(true);
+    })();
+  }, [isAuthenticated, isLoading, checked, router, user?.email]);
 
-  // Prefetch all stores in parallel — only after auth is confirmed (token is valid in memory)
+  // Prefetch all stores in parallel — only after auth is confirmed (token is valid in memory).
+  // Contas por verificar são desviadas para a verificação antes do checked,
+  // por isso aqui só chegam sessões verificadas.
   useEffect(() => {
     if (!isAuthenticated || !checked) return;
     prefetchCategories();

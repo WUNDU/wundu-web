@@ -82,7 +82,18 @@ const LoginPage: React.FC = () => {
   }, [countdown]);
 
   useEffect(() => {
-    if (isAuthenticated) router.push(ROUTES.HOME);
+    if (!isAuthenticated) return;
+    // Se o proxy nos devolveu ao login (?next=...), o cookie de sessão pode
+    // não estar a ser enviado: recarrega a página inteira para o proxy
+    // reavaliar com cookies, em vez de entrar em loop client-side (ecrã branco).
+    try {
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//")) {
+        window.location.href = next;
+        return;
+      }
+    } catch {}
+    router.push(ROUTES.HOME);
   }, [isAuthenticated, router]);
 
   const setField = (field: "email" | "password", value: string) => {
@@ -195,7 +206,7 @@ const LoginPage: React.FC = () => {
                 placeholder="nome@exemplo.com"
                 value={form.email}
                 onChange={(e) => setField("email", e.target.value)}
-                error={errors.email || undefined}
+                error={errors.email || loginError || undefined}
                 disabled={isSubmitting}
                 autoFocus
               />

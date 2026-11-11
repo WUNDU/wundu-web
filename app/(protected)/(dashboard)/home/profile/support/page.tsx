@@ -114,6 +114,14 @@ const MY_TICKETS = [
 const outlineButton =
   "flex h-10 items-center justify-center gap-2 rounded-lg border-[1.5px] border-(--border-button) px-5 transition-colors hover:bg-(--card-bg-hover) active:scale-[0.98]";
 
+const soonOverlay = (
+  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-(--background)/55 backdrop-blur-[3px]">
+    <span className="rounded-full bg-(--bg-button) px-4 py-1.5 font-manrope text-sm font-semibold text-(--button-fg)">
+      Brevemente
+    </span>
+  </div>
+);
+
 export default function Support() {
   const [drawer, setDrawer] = useState<Drawer | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -162,9 +170,9 @@ export default function Support() {
               Envie a sua dúvida com todos os detalhes.
             </p>
             <p className="self-stretch font-manrope text-base font-bold text-(--text-title)">
-              suporte@wundu.tech
+              support@wundu.tech
             </p>
-            <a href="mailto:suporte@wundu.tech" className={outlineButton}>
+            <a href="mailto:support@wundu.tech" className={outlineButton}>
               <span className="text-center font-manrope text-sm font-medium leading-5 text-(--text-link)">
                 Escrever email
               </span>
@@ -187,16 +195,16 @@ export default function Support() {
               Prefere falar? Consulte o contacto de atendimento.
             </p>
             <p className="self-stretch font-manrope text-base font-bold text-(--text-title)">
-              +244 999 999 999
+              +244 972 205 855
             </p>
-            <a href="tel:+244999999999" className={outlineButton}>
+            <a href="tel:+244972205855" className={outlineButton}>
               <span className="text-center font-manrope text-sm font-medium leading-5 text-(--text-link)">
                 Consultar atendimento
               </span>
             </a>
           </article>
 
-          <article className="flex flex-col items-start justify-start gap-3 rounded-xl border border-(--card-barras) bg-(--bg-card) p-6">
+          <article className="relative flex flex-col items-start justify-start gap-3 overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card) p-6">
             <div className="flex items-center justify-start gap-3 self-stretch">
               <span
                 aria-hidden="true"
@@ -220,6 +228,7 @@ export default function Support() {
             </p>
             <button
               type="button"
+              disabled
               onClick={() => openDrawer({ kind: "form" })}
               className="flex h-10 items-center justify-center gap-2 rounded-lg bg-(--bg-button) px-5 transition-all hover:opacity-90 active:scale-[0.98]"
             >
@@ -227,6 +236,7 @@ export default function Support() {
                 Iniciar conversa
               </span>
             </button>
+            {soonOverlay}
           </article>
         </section>
 
@@ -234,7 +244,7 @@ export default function Support() {
           aria-label="Chamados e perguntas frequentes"
           className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-2"
         >
-          <article className="flex flex-col items-start justify-start gap-4 rounded-xl border border-(--card-barras) bg-(--bg-card) p-6">
+          <article className="relative flex flex-col items-start justify-start gap-4 overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card) p-6">
             <header className="flex items-center justify-start gap-2.5 self-stretch">
               <FileText
                 width={20}
@@ -252,6 +262,7 @@ export default function Support() {
                 <li key={ticket.reference} className="w-full">
                   <button
                     type="button"
+                    disabled
                     onClick={() => openDrawer({ kind: "chat" })}
                     className="flex w-full flex-col items-start justify-start gap-2.5 rounded-lg bg-(--settings-bg-config) p-4 text-left transition-colors hover:opacity-90"
                   >
@@ -283,6 +294,7 @@ export default function Support() {
 
             <button
               type="button"
+              disabled
               onClick={() => openDrawer({ kind: "chat" })}
               className={`${outlineButton} w-full`}
             >
@@ -290,6 +302,7 @@ export default function Support() {
                 Ver os meus chamados
               </span>
             </button>
+            {soonOverlay}
           </article>
 
           <article className="flex flex-col items-start justify-start gap-3 rounded-xl border border-(--card-barras) bg-(--bg-card) p-6">
@@ -339,7 +352,7 @@ export default function Support() {
         role="dialog"
         aria-modal="true"
         aria-label="Painel de suporte"
-        className={`fixed inset-x-0 bottom-0 top-auto z-50 flex max-h-dvh w-full max-w-full flex-col rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-[860px] lg:rounded-none lg:border-l lg:border-t-0 ${
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 flex max-h-[92dvh] w-full max-w-full flex-col rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-[860px] lg:rounded-none lg:border-l lg:border-t-0 ${
           isOpen
             ? "translate-x-0 translate-y-0 lg:translate-x-0"
             : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"
@@ -355,8 +368,8 @@ export default function Support() {
               title={activeFaq?.question ?? ""}
               onClose={closeDrawer}
             />
-            <div className="w-full min-h-0 flex-1 overflow-y-auto px-6 py-6">
-              <div className="flex w-full flex-col items-start justify-start gap-6 rounded-xl border border-(--card-barras) bg-(--menu-bg-aside) p-8">
+            <div className="w-full min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-6">
+              <div className="flex w-full flex-col items-start justify-start gap-6 rounded-xl border border-(--card-barras) bg-(--menu-bg-aside) p-5 sm:p-8">
                 <p className="self-stretch font-manrope text-sm font-normal leading-5 text-(--text-description)">
                   {activeFaq?.intro}
                 </p>
@@ -397,8 +410,8 @@ export default function Support() {
           <>
             <SupportHeader title="Suporte via Chamado" onClose={closeDrawer} />
             <div
-              className={`min-h-0 flex-1 overflow-y-auto ${
-                active.kind === "form" ? "px-6 py-6" : ""
+              className={`min-h-0 flex-1 overflow-y-auto overscroll-contain ${
+                active.kind === "form" ? "px-4 py-4 sm:px-6 sm:py-6" : ""
               }`}
             >
               {active.kind === "form" ? (

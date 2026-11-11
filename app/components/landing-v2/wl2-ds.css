@@ -1,0 +1,72 @@
+/* Wundu Landing v2 — exact DS component styles (extracted verbatim from
+   Landing Page/_ds/wundu-design-system bundle). Scoped under .wl2. */
+
+.wl2 a:not(.wd-btn){color:#053dc4;text-decoration:none}
+.wl2 a:not(.wd-btn):hover{color:#0537b0}
+
+.wd-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-core);font-weight:var(--fw-semibold);letter-spacing:var(--ls-snug);border:1px solid transparent;border-radius:var(--radius-control);cursor:pointer;transition:var(--transition-control);white-space:nowrap;text-decoration:none}
+.wd-btn:disabled{cursor:not-allowed;background:var(--neutral-light-active);border-color:transparent;color:#ffffff;opacity:.9}
+.wd-btn--sm{height:36px;padding:0 14px;font-size:var(--text-sm)}
+.wd-btn--md{height:44px;padding:0 20px;font-size:var(--text-md)}
+.wd-btn--lg{height:48px;padding:0 24px;font-size:var(--text-lg)}
+.wd-btn--block{width:100%}
+.wd-btn--primary{background:var(--primary);color:var(--button-fg)}
+.wd-btn--primary:hover:not(:disabled){background:var(--primary-hover)}
+.wd-btn--primary:active:not(:disabled){background:var(--primary-active)}
+.wd-btn--secondary{background:var(--primary-light);color:var(--on-soft-brand)}
+.wd-btn--secondary:hover:not(:disabled){background:var(--primary-light-hover)}
+.wd-btn--secondary:active:not(:disabled){background:var(--primary-light-active)}
+.wd-btn--outline{background:transparent;border-color:var(--brand-line);color:var(--on-soft-brand)}
+.wd-btn--outline:hover:not(:disabled){background:var(--primary-light)}
+.wd-btn--outline:active:not(:disabled){background:var(--primary-light-active)}
+.wd-btn--ghost{background:transparent;color:var(--on-soft-brand)}
+.wd-btn--ghost:hover:not(:disabled){background:var(--primary-light)}
+.wd-btn--ghost:active:not(:disabled){background:var(--primary-light-active)}
+.wd-btn--destructive{background:var(--danger);color:#fff}
+.wd-btn--destructive:hover:not(:disabled){background:var(--danger-hover)}
+.wd-btn--destructive:active:not(:disabled){background:var(--danger-active)}
+.wd-btn--destructive-soft{background:var(--danger-tint);color:var(--danger)}
+.wd-btn--destructive-soft:hover:not(:disabled){background:#ffdcdc}
+.wd-btn:focus-visible{box-shadow:var(--shadow-focus)}
+.wd-btn--destructive:focus-visible,.wd-btn--destructive-soft:focus-visible{box-shadow:var(--shadow-focus-danger)}
+
+.wd-tile{display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-tile);flex:0 0 auto}
+
+.wd-prog{width:100%;background:var(--surface-track);border-radius:var(--radius-full);overflow:hidden}
+.wd-prog__fill{height:100%;border-radius:var(--radius-full);transition:width var(--dur-slow) var(--ease-standard)}
+
+.wd-txn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--radius-xl);transition:background-color var(--dur-fast) var(--ease-standard)}
+.wd-txn:hover{background:var(--surface-hover)}
+.wd-txn--selected{background:var(--primary-light)}
+.wd-txn__main{flex:1 1 auto;min-width:0}
+.wd-txn__title{font-size:var(--text-md);font-weight:var(--fw-semibold);color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wd-txn__note{font-size:var(--text-sm);color:var(--text-tertiary)}
+.wd-txn__meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.wd-txn__amount{flex:0 0 auto;display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:var(--fw-bold);font-variant-numeric:tabular-nums}
+.wd-txn__amount--in{background:var(--money-in-tint);color:var(--money-in)}
+.wd-txn__amount--out{background:var(--money-out-tint);color:var(--money-out)}
+.wd-txn__date{flex:0 0 auto;font-size:var(--text-sm);color:var(--text-tertiary);min-width:96px;text-align:right}
+
+.wd-insight{display:flex;align-items:flex-start;gap:16px;padding:18px 0;border-bottom:1px solid var(--border-subtle)}
+.wd-insight:last-child{border-bottom:0}
+.wd-insight__text{flex:1 1 auto;min-width:0;font-size:var(--text-base);line-height:var(--lh-relaxed);color:var(--text-secondary)}
+.wd-insight__text b,.wd-insight__text strong{font-weight:var(--fw-bold);color:var(--text-primary)}
+.wd-insight__tag{flex:0 0 auto;font-size:var(--text-xs);font-weight:var(--fw-bold)}
+
+.wd-badge{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--radius-badge);font-family:var(--font-core);font-size:var(--text-xs);font-weight:var(--fw-semibold);letter-spacing:var(--ls-snug);white-space:nowrap}
+.wd-badge--sm{height:22px;padding:0 8px;font-size:var(--text-2xs)}
+.wd-badge--square{border-radius:var(--radius-sm)}
+.wd-badge--solid{color:#fff}
+.wd-badge--outline{background:transparent!important;border:1px solid currentColor}
+
+/* Telas pequenas: alivia os painéis internos e as linhas de transação
+   (o desktop mantém os valores inline originais) */
+@media (max-width: 560px) {
+  .wl2 .wl2-panel{margin:16px !important; padding:12px !important}
+  .wl2 .wd-txn{gap:10px; padding:12px 10px}
+  .wl2 .wd-txn__amount{font-size:13px; padding:0 10px; white-space:nowrap}
+}
+@media (max-width: 380px) {
+  .wl2 .wd-txn__title{font-size:14px}
+  .wl2 .wd-txn__meta span{font-size:12px}
+}

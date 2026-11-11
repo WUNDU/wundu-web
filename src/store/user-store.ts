@@ -310,6 +310,15 @@ export const useUserStore = create<AuthState>()(
         set({ isLoading: true, error: null, errorCode: null, retryAfterSeconds: null });
         try {
           const response = await userService.login(email, password);
+          // O backend permite login no período de graça (emailVerified: false
+          // + verificationDeadline), mas a conta só entra depois de activada:
+          // sem verificação vai para a verificação em vez da home.
+          if (response.emailVerified === false) {
+            const errMsg = "Confirma o teu email para entrar.";
+            setPendingVerificationEmail(email);
+            set({ token: null, isAuthenticated: false, isLoading: false, error: errMsg, errorCode: "EMAIL_NOT_VERIFIED" });
+            return false;
+          }
           clearUserStores();
           // accessToken guardado apenas em memória — nunca em localStorage
           set({ token: response.accessToken, isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
@@ -328,7 +337,7 @@ export const useUserStore = create<AuthState>()(
             errMsg = "A sua conta foi desactivada. Contacte o suporte.";
             set({ error: errMsg, errorCode, isLoading: false });
           } else if (errorCode === "EMAIL_NOT_VERIFIED") {
-            errMsg = "Por favor, verifique o seu email antes de entrar.";
+            errMsg = "Confirma o teu email para entrar.";
             setPendingVerificationEmail(email);
             set({ error: errMsg, errorCode, isLoading: false });
           } else {

@@ -5,6 +5,10 @@ import type { ProfileUpdateRequest, UserRequest } from "@/types/dtos/user.dto";
 interface LoginResponse {
   accessToken: string;
   expiresIn: number;
+  emailVerified?: boolean;
+  verificationDeadline?: string;
+  secondsUntilDeadline?: number;
+  deadlineExpired?: boolean;
 }
 
 interface RefreshResponse {
