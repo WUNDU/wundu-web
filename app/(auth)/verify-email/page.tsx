@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { LogoType, Button, LoadingSpinner } from "@/components/ui";
+import { DsButton } from "@/components/auth/ds";
 import { ROUTES } from "@/constants/routes";
 import { emailVerificationService } from "@/services/email-verification.service";
 import { useUserStore } from "@/store/user-store";
@@ -28,6 +29,7 @@ function VerifyEmailContent() {
   const token = searchParams.get("token");
 
   const [state, setState] = useState<VerifyState>({ status: "loading" });
+  const [verifiedEmail, setVerifiedEmail] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -38,6 +40,7 @@ function VerifyEmailContent() {
     emailVerificationService
       .verifyEmail(token)
       .then(async () => {
+        setVerifiedEmail(getPendingVerificationEmail());
         clearPendingVerificationContext();
         if (authToken) {
           await checkAuthStatus();
@@ -60,7 +63,7 @@ function VerifyEmailContent() {
   const requestNewUrl = pendingEmail ? buildVerifyPendingUrl(pendingEmail) : ROUTES.LOGIN;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
+    <div className="wundu-auth flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
       <header className="flex h-16 shrink-0 items-center justify-start px-8 md:px-12">
         <Link href={ROUTES.LANDINGPAGE} className="transition-opacity hover:opacity-80">
           <div className="w-30">
@@ -82,6 +85,7 @@ function VerifyEmailContent() {
             <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 md:px-14 lg:px-16">
               <StateContent
                 status={state.status}
+                verifiedEmail={verifiedEmail}
                 onLogin={() => router.push(ROUTES.LOGIN)}
                 onRequestNew={() => router.push(requestNewUrl)}
               />
@@ -203,10 +207,12 @@ function StateIllustration({ status }: { status: VerifyState["status"] }) {
 
 function StateContent({
   status,
+  verifiedEmail,
   onLogin,
   onRequestNew,
 }: {
   status: VerifyState["status"];
+  verifiedEmail: string;
   onLogin: () => void;
   onRequestNew: () => void;
 }) {
@@ -234,22 +240,27 @@ function StateContent({
         transition={{ duration: 0.3 }}
         className="flex flex-col gap-6"
       >
-        <header>
-          <h1 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
-            Email verificado com sucesso!
+        <header className="flex flex-col gap-2">
+          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Email confirmado
           </h1>
-          <p className="mt-2 text-sm font-medium text-slate-500">
-            A tua conta está agora activa. Podes entrar e começar a usar o Wundu.
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: "var(--text-secondary)" }}>
+            {verifiedEmail ? (
+              <>
+                A tua conta{" "}
+                <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+                  {verifiedEmail}
+                </strong>{" "}
+                está activa. Entra com o teu email e palavra-passe para configurar a Wundu.
+              </>
+            ) : (
+              "A tua conta está activa. Entra com o teu email e palavra-passe para configurar a Wundu."
+            )}
           </p>
         </header>
-        <Button
-          variant="warning"
-          fullWidth
-          onClick={onLogin}
-          className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
-        >
-          Ir para login
-        </Button>
+        <DsButton variant="primary" size="lg" block onClick={onLogin}>
+          Entrar
+        </DsButton>
       </motion.div>
     );
   }

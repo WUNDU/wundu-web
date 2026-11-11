@@ -335,7 +335,7 @@ const RegisterPage = () => {
                 size="lg"
                 block
                 disabled={disSignup1}
-                onClick={() => void submitPersonal}
+                onClick={() => void submitPersonal()}
               >
                 Continuar
               </DsButton>
@@ -421,7 +421,7 @@ const RegisterPage = () => {
               block
               loading={isSubmitting}
               disabled={st.score < 3 || securityForm.password !== securityForm.confirmPassword}
-              onClick={() => void submitSecurity}
+              onClick={() => void submitSecurity()}
             >
               Criar conta
             </DsButton>

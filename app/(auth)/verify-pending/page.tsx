@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogoType, Button, Input, LoadingSpinner } from "@/components/ui";
+import { DsButton, DsIconTile } from "@/components/auth/ds";
 import { ROUTES } from "@/constants/routes";
 import { emailVerificationService } from "@/services/email-verification.service";
 import { userService } from "@/services/user.service";
@@ -20,10 +21,11 @@ import {
 import { getEmailErrorMessage, validateEmail } from "@/utils/validation";
 
 const RESEND_COOLDOWN = 300;
+const PREFILL_EMAIL_KEY = "wundu-prefill-email";
 
 export default function VerifyPendingPage() {
   const router = useRouter();
-  const { user, setUser } = useUserStore();
+  const { user, setUser, token, prevStep } = useUserStore();
   const queryEmail =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("email") ?? ""
@@ -150,7 +152,30 @@ export default function VerifyPendingPage() {
     }
   };
 
+  const handleAlterEmail = () => {
+    if (!user) {
+      // Sem sessão (caso pós-signup): volta ao passo 1 do cadastro para
+      // corrigir o email, como no kit (changeEmail -> signup1).
+      prevStep();
+      router.push(ROUTES.REGISTER);
+      return;
+    }
+    setShowEmailChange((v) => !v);
+  };
+
   const handleAlreadyVerified = async () => {
+    if (!token) {
+      // Sem sessão (caso pós-signup): segue para o login com o email
+      // pré-preenchido, como no kit (toLoginFromCheck). O login bloqueia
+      // emails por verificar e devolve para cá até à activação.
+      try {
+        if (email.trim()) {
+          localStorage.setItem(PREFILL_EMAIL_KEY, email.trim());
+        }
+      } catch {}
+      router.push(ROUTES.LOGIN);
+      return;
+    }
     setIsChecking(true);
     try {
       const fresh = await userService.getUser();
@@ -169,8 +194,24 @@ export default function VerifyPendingPage() {
     }
   };
 
+  const steps = [
+    `Abre a caixa de entrada de ${email || "o teu email"}. Verifica também o spam.`,
+    "Abre o email da Wundu e toca em Activar conta. O link expira em 24 horas.",
+    "Volta aqui e entra com o teu email e palavra-passe.",
+  ];
+
+  const kitLinkButton: CSSProperties = {
+    border: 0,
+    background: "none",
+    padding: 0,
+    font: "inherit",
+    fontWeight: 600,
+    color: "var(--on-soft-brand)",
+    cursor: "pointer",
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
+    <div className="wundu-auth flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
       <header className="flex h-16 shrink-0 items-center justify-start px-8 md:px-12">
         <Link href={ROUTES.LANDINGPAGE} className="transition-opacity hover:opacity-80">
           <div className="w-30">
@@ -233,65 +274,111 @@ export default function VerifyPendingPage() {
             </div>
 
             {/* Content side */}
-            <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 md:px-14 lg:px-16">
-              <header className="mb-6">
-                <h1 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
-                  Verifica o teu email
+            <div className="flex flex-1 flex-col justify-center gap-6 px-6 py-10 sm:px-12 md:px-14 lg:px-16">
+              <DsIconTile icon="mail" tone="brand" size="lg" />
+              <header className="flex flex-col gap-2">
+                <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+                  Confirma o teu email
                 </h1>
-                <p className="mt-2 text-sm font-medium text-slate-500">
-                  Enviámos um link de verificação para{" "}
-                  <span className="font-bold text-slate-800">
+                <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: "var(--text-secondary)" }}>
+                  Enviámos um link de activação para{" "}
+                  <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
                     {email || "o teu email"}
-                  </span>
-                  . Clica no link para activar a tua conta.
+                  </strong>
+                  . A conta só fica activa depois de abrires esse link. Até lá não é possível entrar na Wundu.
                 </p>
               </header>
 
-              <div className="flex flex-col gap-4">
-                {/* Expiry note */}
-                <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-4 py-3">
-                  <svg
-                    className="h-4 w-4 shrink-0 text-slate-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+              <ol style={{ listStyle: "none", margin: 0, padding: 0, border: "1px solid var(--border-subtle)", borderRadius: 14, background: "var(--surface-card)" }}>
+                {steps.map((text, i) => (
+                  <li
+                    key={text}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      padding: "14px 16px",
+                      borderTop: i ? "1px solid var(--border-subtle)" : "0",
+                    }}
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <p className="text-xs font-medium text-slate-500">
-                    O link expira em 24 horas
-                  </p>
-                </div>
+                    <span
+                      style={{
+                        width: 28,
+                        height: 28,
+                        flex: "0 0 auto",
+                        borderRadius: 999,
+                        background: "var(--primary-light)",
+                        color: "var(--on-soft-brand)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span style={{ fontSize: 14, lineHeight: 1.45, color: "var(--text-primary)" }}>
+                      {text}
+                    </span>
+                  </li>
+                ))}
+              </ol>
 
-                {/* Resend button */}
-                <Button
-                  variant="warning"
-                  fullWidth
-                  loading={isResending}
-                  disabled={cooldown > 0 || isResending}
-                  onClick={handleResend}
-                  className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
+              <div className="flex flex-col gap-2.5">
+                <DsButton
+                  variant="primary"
+                  size="lg"
+                  block
+                  loading={isChecking}
+                  onClick={handleAlreadyVerified}
+                >
+                  Já confirmei, entrar
+                </DsButton>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    minHeight: 44,
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                  }}
                 >
                   {cooldown > 0 ? (
-                    `Reenviar em ${formatCountdown(cooldown)}`
+                    <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                      Reenviar email em {formatCountdown(cooldown)}
+                    </span>
                   ) : (
-                    "Reenviar email de verificação"
+                    <>
+                      Não recebeste?{" "}
+                      <button
+                        type="button"
+                        onClick={handleResend}
+                        disabled={isResending}
+                        style={{ ...kitLinkButton, opacity: isResending ? 0.6 : 1 }}
+                      >
+                        {isResending ? "A reenviar..." : "Reenviar email"}
+                      </button>
+                    </>
                   )}
-                </Button>
+                </div>
+              </div>
 
                 {/* Change email section */}
-                {canChangeEmail && (
-                  <div className="mt-1 text-center">
+                <div className="text-center">
+                  <p style={{ margin: 0, fontSize: 14, color: "var(--text-secondary)" }}>
+                    Email errado?{" "}
                     <button
-                      onClick={() => setShowEmailChange((v) => !v)}
-                      className="text-xs font-bold text-slate-600 transition-colors hover:text-slate-900"
+                      type="button"
+                      onClick={handleAlterEmail}
+                      style={kitLinkButton}
                     >
-                      Email errado?
+                      Alterar email
                     </button>
-
+                  </p>
+                  {canChangeEmail && (
                     <AnimatePresence>
                       {showEmailChange && (
                         <motion.div
@@ -332,29 +419,10 @@ export default function VerifyPendingPage() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </div>
-                )}
-              </div>
-
-              <footer className="mt-6 border-t border-slate-100 pt-5 text-center">
-                <p className="text-sm font-medium text-slate-500">
-                  Voltar para{" "}
-                  <Link
-                    href={ROUTES.LOGIN}
-                    className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline"
-                  >
-                    entrar na conta
-                  </Link>
-                </p>
-              </footer>
+                  )}
+                </div>
             </div>
           </div>
-
-          <footer className="mt-8 px-8 text-center">
-            <p className="text-[10px] leading-relaxed text-slate-400 font-medium max-w-sm mx-auto">
-              Verifica a pasta de spam se não encontrares o email de verificação.
-            </p>
-          </footer>
         </div>
       </main>
     </div>
