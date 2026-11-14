@@ -152,6 +152,7 @@ function DsLinkButton({ to, children }: { to: string; children: string }) {
 // ── Step 2: Code ──
 function StepCode({
   data,
+  setResetData,
   nextStep,
   prevStep,
   verifyOtp,
@@ -160,6 +161,7 @@ function StepCode({
   resendIn,
 }: {
   data: PasswordResetData;
+  setResetData: (d: PasswordResetData) => void;
   nextStep: () => void;
   prevStep: () => void;
   verifyOtp: (d: { email: string; otp: string }) => Promise<{ success: boolean; errorMessage?: string; retryAfter?: number }>;
@@ -220,6 +222,7 @@ function StepCode({
     if (result.success) {
       setIncorrect(false);
       setCorrect(true);
+      setResetData({ code });
       setTimeout(nextStep, 400);
     } else {
       setIncorrect(true);
@@ -506,6 +509,7 @@ export default function PasswordReset() {
         {currentStep === 2 ? (
           <StepCode
             data={data}
+            setResetData={setResetData}
             nextStep={() => setCurrentStep(3)}
             prevStep={() => setCurrentStep(1)}
             verifyOtp={verifyOtp}
