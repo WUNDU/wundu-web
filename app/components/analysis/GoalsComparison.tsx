@@ -104,7 +104,7 @@ export default function GoalsComparison({
         <ul className="flex w-full min-w-0 flex-1 flex-col gap-6">
           {goalShares.map((goal, index) => (
             <li
-              key={goal.name}
+              key={goal.id}
               className="flex cursor-default items-center gap-2"
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
@@ -135,7 +135,7 @@ export default function GoalsComparison({
               const isActive = hovered === index;
               return (
                 <g
-                  key={goal.name}
+                  key={goal.id}
                   tabIndex={0}
                   role="img"
                   aria-label={`${goal.name}: ${goal.progress}%`}

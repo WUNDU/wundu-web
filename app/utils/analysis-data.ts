@@ -87,6 +87,7 @@ export function getExpensesByCategory(
 /** Metas com progresso calculado (anéis). */
 export function getGoalShares(goals: GoalDTO[]): GoalShare[] {
   return goals.map((goal, index) => ({
+    id: goal.id,
     name: goal.title,
     progress:
       goal.targetAmount > 0

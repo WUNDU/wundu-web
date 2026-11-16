@@ -110,14 +110,16 @@ export const spendingHeatValues: number[][] = [
 ];
 
 export type GoalShare = {
+  /** `key` React — nunca o nome (metas diferentes podem partilhar título). */
+  id: string;
   name: string;
   progress: number;
   colorVar: string;
 };
 
 export const goalShares: GoalShare[] = [
-  { name: "Comprar Apartamento T2 - Kilamba", progress: 80, colorVar: "--color-success" },
-  { name: "Depósito à prazo", progress: 65, colorVar: "--color-info" },
-  { name: "Carro BMW X6", progress: 45, colorVar: "--color-secondary-300" },
-  { name: "Fundo para o mestrado", progress: 30, colorVar: "--color-danger-300" },
+  { id: "mock-1", name: "Comprar Apartamento T2 - Kilamba", progress: 80, colorVar: "--color-success" },
+  { id: "mock-2", name: "Depósito à prazo", progress: 65, colorVar: "--color-info" },
+  { id: "mock-3", name: "Carro BMW X6", progress: 45, colorVar: "--color-secondary-300" },
+  { id: "mock-4", name: "Fundo para o mestrado", progress: 30, colorVar: "--color-danger-300" },
 ];
