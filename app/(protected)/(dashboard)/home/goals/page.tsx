@@ -4,6 +4,7 @@ import PageHeader from "app/components/layout/PageHeader";
 import GoalItem from "app/components/goal/GoalItem";
 import MobileGoalCard from "app/components/goal/MobileGoalCard";
 import { formatGoalAmount } from "app/utils/format-goal-amount";
+import GoalCompleteCelebration from "app/components/goal/GoalCompleteCelebration";
 import GoalDetails from "app/components/goal/GoalDetails";
 import GoalForm, {
   type GoalFormMode,
@@ -94,6 +95,7 @@ function page() {
   } = useGoal();
   const [query, setQuery] = useState("");
   const [detailsGoal, setDetailsGoal] = useState<GoalDTO | null>(null);
+  const [completedGoal, setCompletedGoal] = useState<GoalDTO | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<GoalFormMode>("create");
   const [startDelete, setStartDelete] = useState(false);
@@ -175,7 +177,21 @@ function page() {
     values: GoalProgressValues,
   ): Promise<boolean> {
     if (!editingGoal) return false;
-    return addProgress(editingGoal.id, values.amount, values.date);
+    const completesGoal =
+      editingGoal.currentAmount < editingGoal.targetAmount &&
+      editingGoal.currentAmount + values.amount >= editingGoal.targetAmount;
+    const ok = await addProgress(
+      editingGoal.id,
+      values.amount,
+      values.date,
+    );
+    if (ok && completesGoal) {
+      setCompletedGoal({
+        ...editingGoal,
+        currentAmount: editingGoal.targetAmount,
+      });
+    }
+    return ok;
   }
 
   async function handleDeleteGoal(id: string): Promise<boolean> {
@@ -468,6 +484,15 @@ function page() {
             setDetailsGoal(null);
             openForm("edit", goal, true);
           }}
+        />
+        <GoalCompleteCelebration
+          goal={completedGoal}
+          onClose={() => setCompletedGoal(null)}
+          onNewGoal={() => {
+            setCompletedGoal(null);
+            openForm("create", null);
+          }}
+          onViewGoals={() => setCompletedGoal(null)}
         />
         <GoalForm
           isOpen={isFormOpen}
