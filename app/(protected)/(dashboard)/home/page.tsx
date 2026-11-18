@@ -5,7 +5,7 @@ import CardViews, { type CardTrend } from "app/components/dashboard/CardViews";
 import BalanceHero from "app/components/dashboard/BalanceHero";
 import NegativeBalanceAlert from "app/components/dashboard/NegativeBalanceAlert";
 import MiniStatCard from "app/components/dashboard/MiniStatCard";
-import AiNotify from "app/components/dashboard/AiNotify";
+// import AiNotify from "app/components/dashboard/AiNotify";
 import GoalsSection from "app/components/dashboard/GoalsSection";
 import TransactionSection from "app/components/dashboard/TransactionSection";
 import FlowCard from "app/components/dashboard/FlowCard";
@@ -616,7 +616,7 @@ function DashboardContent() {
               error={weeklyTransactionsError}
             />
           </div>
-          <AiNotify className="col-span-2" />
+          {/* <AiNotify className="col-span-2" /> */}
         </div>
         <div className="hidden items-stretch gap-5 lg:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <TransactionSection
@@ -646,7 +646,7 @@ function DashboardContent() {
               error={weeklyTransactionsError}
             />
           </div>
-          <AiNotify className="col-span-2" />
+          {/* <AiNotify className="col-span-2" /> */}
         </div>
       </main>
       <NegativeBalanceAlert

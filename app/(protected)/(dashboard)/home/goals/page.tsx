@@ -91,6 +91,7 @@ function page() {
     addGoal,
     updateGoal,
     addProgress,
+    deleteProgress,
     removeGoal: removeGoalApi,
   } = useGoal();
   const [query, setQuery] = useState("");
@@ -154,6 +155,7 @@ function page() {
         ),
       )
       .map((entry) => ({
+        id: entry.id,
         amount: entry.amount,
         date: formatHistoryDate(entry.progressDate ?? entry.createdAt),
       }));
@@ -196,6 +198,11 @@ function page() {
 
   async function handleDeleteGoal(id: string): Promise<boolean> {
     return removeGoalApi(id);
+  }
+
+  async function handleDeleteProgress(progressId: string): Promise<boolean> {
+    if (!detailsGoal) return false;
+    return deleteProgress(detailsGoal.id, progressId);
   }
 
   const openForm = (
@@ -484,6 +491,7 @@ function page() {
             setDetailsGoal(null);
             openForm("edit", goal, true);
           }}
+          onDeleteProgress={handleDeleteProgress}
         />
         <GoalCompleteCelebration
           goal={completedGoal}

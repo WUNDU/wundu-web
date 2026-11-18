@@ -64,14 +64,21 @@ export default function GoalCompleteCelebration({
     const cv = canvasRef.current;
     if (!cv) return;
 
-    const W = window.innerWidth;
-    const H = window.innerHeight;
+    let W = window.innerWidth;
+    let H = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
-    cv.width = W * dpr;
-    cv.height = H * dpr;
+    const fitCanvas = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      cv.width = W * dpr;
+      cv.height = H * dpr;
+      const ctx = cv.getContext("2d");
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    fitCanvas();
     const ctx = cv.getContext("2d");
     if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    window.addEventListener("resize", fitCanvas);
 
     const g = 0.32;
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
@@ -151,8 +158,20 @@ export default function GoalCompleteCelebration({
         p.y = rnd(0, H * 0.35);
         draw(p);
       });
-      return;
+      return () => {
+        window.removeEventListener("resize", fitCanvas);
+      };
     }
+
+    // Chuva contínua: cada peça que sai por baixo renasce no topo, por isso
+    // a animação só para quando o utilizador fecha (desmonta o canvas).
+    const respawn = (p: ConfettiPiece) => {
+      p.x = rnd(-20, W + 20);
+      p.y = rnd(-60, -10);
+      p.vx = rnd(-0.6, 0.6);
+      p.vy = rnd(0.5, 2);
+      p.delay = 0;
+    };
 
     let raf: number | null = null;
     let last = performance.now();
@@ -162,14 +181,11 @@ export default function GoalCompleteCelebration({
       last = now;
       const t = now - start;
       ctx.clearRect(0, 0, W, H);
-      let alive = 0;
       for (const p of pieces) {
         if (t < p.delay) {
-          alive++;
           continue;
         }
-        if (p.y > H + 40) continue;
-        alive++;
+        if (p.y > H + 40) respawn(p);
         p.vx *= Math.pow(0.975, f);
         p.vy += g * f;
         if (p.vy > p.term) p.vy = p.term + (p.vy - p.term) * Math.pow(0.85, f);
@@ -181,15 +197,11 @@ export default function GoalCompleteCelebration({
         p.y += p.vy * f;
         draw(p);
       }
-      if (alive > 0) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        ctx.clearRect(0, 0, W, H);
-        raf = null;
-      }
+      raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => {
+      window.removeEventListener("resize", fitCanvas);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [goal]);
@@ -197,7 +209,7 @@ export default function GoalCompleteCelebration({
   if (!goal) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col items-center overflow-hidden bg-(--background) px-5 pb-6 pt-24 sm:px-8 lg:pt-[150px] lg:pb-14">
+    <div className="fixed inset-0 z-[60] flex flex-col items-center overflow-y-auto bg-(--background) px-5 pb-6 pt-24 sm:px-8 lg:pt-[150px] lg:pb-14">
       <button
         type="button"
         onClick={onClose}
@@ -207,7 +219,7 @@ export default function GoalCompleteCelebration({
         <CloseIcon width={20} className="text-(--text-title)" />
       </button>
 
-      <div className="flex w-full max-w-[480px] flex-col items-center gap-6 text-center">
+      <div className="flex w-full max-w-[480px] shrink-0 flex-col items-center gap-6 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success text-white">
           <CheckIcon width={40} height={40} className="text-white" />
         </div>
@@ -224,7 +236,7 @@ export default function GoalCompleteCelebration({
 
       <div className="flex-1" />
 
-      <div className="flex w-full max-w-[480px] flex-col gap-4">
+      <div className="flex w-full max-w-[480px] shrink-0 flex-col gap-4">
         <div className="flex w-full flex-col gap-2.5 rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 text-left">
           <div className="flex items-center justify-between gap-3">
             <span className="truncate text-[15px] leading-[22px] font-semibold text-(--text-title)">
@@ -255,14 +267,14 @@ export default function GoalCompleteCelebration({
           <button
             type="button"
             onClick={onNewGoal}
-            className="flex h-12 flex-1 cursor-pointer items-center justify-center rounded-xl border border-(--border-button) bg-transparent text-[15px] leading-[22px] font-bold text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:scale-[0.98]"
+            className="flex h-12 w-full shrink-0 cursor-pointer items-center justify-center rounded-xl border border-(--border-button) bg-transparent px-4 text-[15px] leading-[22px] font-bold text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:scale-[0.98] sm:flex-1"
           >
             Criar nova meta
           </button>
           <button
             type="button"
             onClick={onViewGoals}
-            className="flex h-12 flex-1 cursor-pointer items-center justify-center rounded-xl bg-primary-300 text-[15px] leading-[22px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
+            className="flex h-12 w-full shrink-0 cursor-pointer items-center justify-center rounded-xl bg-primary-300 px-4 text-[15px] leading-[22px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98] sm:flex-1"
           >
             Ver as minhas metas
           </button>

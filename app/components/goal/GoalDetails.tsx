@@ -1,10 +1,13 @@
 import { CloseIcon, WalletProgressIcon } from "@/constants/icons";
-import React from "react";
+import { Loader2, Trash2 } from "lucide-react";
+import React, { useState } from "react";
 import type { GoalDTO } from "../../types/dto/goal.dto";
 import { formatAOA } from "../../utils/format-AOA";
 import { goalPercent, statusFor } from "./goal-status";
 
 export type SavingsEntry = {
+  /** Id do registo de progresso (sem id não é possível apagar). */
+  id?: string;
   amount: number;
   date: string;
 };
@@ -19,6 +22,8 @@ type GoalDetailsProps = {
   onAddSavings?: (goal: GoalDTO) => void;
   /** Elimina a meta. */
   onDelete?: (goal: GoalDTO) => void;
+  /** Apaga um registo de progresso do histórico. */
+  onDeleteProgress?: (progressId: string) => Promise<boolean>;
   /** Movimentos de poupança (por omissão usa mock local). */
   history?: SavingsEntry[];
 };
@@ -40,8 +45,20 @@ function GoalDetails({
   onEdit,
   onAddSavings,
   onDelete,
+  onDeleteProgress,
   history = defaultHistory,
 }: GoalDetailsProps) {
+  const [deletingProgressId, setDeletingProgressId] = useState<string | null>(null);
+
+  const handleDeleteProgress = async (progressId: string) => {
+    if (deletingProgressId || !onDeleteProgress) return;
+    setDeletingProgressId(progressId);
+    try {
+      await onDeleteProgress(progressId);
+    } finally {
+      setDeletingProgressId(null);
+    }
+  };
   const percent = goal ? goalPercent(goal) : 0;
   const status = statusFor(percent);
   const prazo = goal?.type === "LONG_TERM" ? "Longo prazo" : "Curto Prazo";
@@ -106,7 +123,7 @@ function GoalDetails({
                 <div className="flex flex-col items-start gap-3 p-3 rounded-xl bg-(--bg-filter) border border-(--card-barras) self-stretch overflow-hidden lg:gap-4 lg:p-4">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-(--background) border border-(--card-barras) self-stretch lg:gap-4 lg:p-4">
                     <span
-                      className={`flex size-14 shrink-0 justify-center items-center rounded-full border ${status.color} ${status.tint} lg:size-16`}
+                      className={`flex size-14 aspect-square shrink-0 justify-center items-center rounded-full border ${status.color} ${status.tint} lg:size-16`}
                     >
                       <p
                         className={`text-sm not-italic font-bold font-inter leading-6 ${status.color} lg:text-base`}
@@ -206,26 +223,50 @@ function GoalDetails({
                     </span>
                   </div>
                   <div className="flex flex-col self-stretch py-2.5">
-                    {history.map((entry, index) => (
-                      <div
-                        key={`entry-${entry.date}-${index}`}
-                        className="flex gap-4 self-stretch"
-                      >
-                        <div className="flex w-4 flex-col items-center self-stretch">
-                          <span className="w-0.5 min-h-3 flex-1 rounded-full bg-(--border-card-10)" />
-                          <span className="size-4 shrink-0 rounded-full bg-primary-300 border-2 border-(--background)" />
-                          <span className="w-0.5 min-h-3 flex-1 rounded-full bg-(--border-card-10)" />
+                    {history.map((entry, index) => {
+                      const canDeleteEntry =
+                        !isComplete && entry.id != null && onDeleteProgress != null;
+                      const isDeletingEntry =
+                        deletingProgressId === entry.id;
+                      return (
+                        <div
+                          key={`entry-${entry.id ?? entry.date}-${index}`}
+                          className="flex gap-4 self-stretch"
+                        >
+                          <div className="flex w-4 flex-col items-center self-stretch">
+                            <span className="w-0.5 min-h-3 flex-1 rounded-full bg-(--border-card-10)" />
+                            <span className="size-4 shrink-0 rounded-full bg-primary-300 border-2 border-(--background)" />
+                            <span className="w-0.5 min-h-3 flex-1 rounded-full bg-(--border-card-10)" />
+                          </div>
+                          <div className="flex flex-1 items-center justify-between gap-2 py-3">
+                            <div className="flex min-w-0 flex-col justify-center gap-1">
+                              <p className="text-sm not-italic font-bold font-inter text-(--text-title) lg:text-base">
+                                {formatAOA(entry.amount)}
+                              </p>
+                              <p className="text-xs not-italic font-normal font-inter leading-5 text-(--text-description-60) lg:text-sm">
+                                {entry.date}
+                              </p>
+                            </div>
+                            {canDeleteEntry && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteProgress(entry.id as string)}
+                                disabled={isDeletingEntry}
+                                aria-label={`Apagar poupança de ${formatAOA(entry.amount)}`}
+                                title="Apagar poupança"
+                                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-(--text-description-60) transition-colors hover:bg-danger-300/10 hover:text-danger-300 disabled:opacity-40"
+                              >
+                                {isDeletingEntry ? (
+                                  <Loader2 className="size-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="size-4" />
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex flex-1 flex-col justify-center gap-1 py-3">
-                          <p className="text-sm not-italic font-bold font-inter text-(--text-title) lg:text-base">
-                            {formatAOA(entry.amount)}
-                          </p>
-                          <p className="text-xs not-italic font-normal font-inter leading-5 text-(--text-description-60) lg:text-sm">
-                            {entry.date}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </section>
@@ -233,7 +274,7 @@ function GoalDetails({
           )}
         </div>
 
-        {!isComplete && (
+        {goal && !isComplete && (
           <div className="flex shrink-0 flex-col justify-end items-start gap-2.5 self-stretch p-4 border-t border-(--card-barras) lg:p-6">
             <div className="flex items-start gap-4 self-stretch">
                 <button

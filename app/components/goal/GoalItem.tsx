@@ -34,7 +34,7 @@ function GoalItem({ goal, onSelect }: GoalItemProps) {
       <div className="flex flex-1 self-stretch p-6 flex-col justify-center items-center gap-3 overflow-hidden rounded-xl border border-(--card-barras) bg-(--bg-card) transition-colors duration-200 hover:border-(--border-hover)">
         <div className="flex justify-start items-start gap-4 self-stretch">
           <span
-            className={`flex size-11 shrink-0 justify-center items-center rounded-xl ${status.tint}`}
+            className={`flex size-11 aspect-square shrink-0 justify-center items-center rounded-xl ${status.tint}`}
           >
             <GoalsIcon className={status.color} />
           </span>

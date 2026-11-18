@@ -23,9 +23,12 @@ export default function MobileGoalCard({
     >
       <span className="flex items-center gap-3 self-stretch overflow-hidden">
         <span
-          className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl ${status.tint}`}
+          className={`flex size-11 aspect-square shrink-0 items-center justify-center overflow-hidden rounded-xl ${status.tint}`}
         >
-          <GoalsIcon className={`size-5 ${status.color}`} aria-hidden="true" />
+          <GoalsIcon
+            className={`size-5 shrink-0 ${status.color}`}
+            aria-hidden="true"
+          />
         </span>
         <span className="flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden">
           <span className="line-clamp-1 self-stretch font-manrope text-sm font-bold text-(--text-title)">

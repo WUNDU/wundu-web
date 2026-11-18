@@ -61,10 +61,10 @@ export function GoalRow({ data, index, onEdit }: GoalRowProps) {
       <div className="flex items-center gap-3.5 relative z-10">
         {/* Icon */}
         <div
-          className="w-[52px] h-[52px] flex-shrink-0 rounded-[16px] flex items-center justify-center"
+          className="w-[52px] h-[52px] aspect-square flex-shrink-0 rounded-[16px] flex items-center justify-center"
           style={{ backgroundColor: accent.bg }}
         >
-          <ObjectiveIcon className="w-[26px] h-[26px]" style={{ color: accent.color }} />
+          <ObjectiveIcon className="w-[26px] h-[26px] shrink-0" style={{ color: accent.color }} />
         </div>
 
         {/* Content */}
