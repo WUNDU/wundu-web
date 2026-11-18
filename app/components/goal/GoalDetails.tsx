@@ -225,7 +225,7 @@ function GoalDetails({
                   <div className="flex flex-col self-stretch py-2.5">
                     {history.map((entry, index) => {
                       const canDeleteEntry =
-                        !isComplete && entry.id != null && onDeleteProgress != null;
+                        entry.id != null && onDeleteProgress != null;
                       const isDeletingEntry =
                         deletingProgressId === entry.id;
                       return (
