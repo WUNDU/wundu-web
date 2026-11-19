@@ -39,10 +39,14 @@ function compareTransactions(
 
 function page() {
   const {
-    notPaginated: apiTransactions,
-    isLoadingAll,
+    allTransactions: apiTransactions,
+    isLoading: isLoadingPage,
+    isLoadingMore,
+    isLastPage,
+    totalElements: serverTotal,
     error: transactionsError,
-    getAllNotPaginated,
+    refreshTransactions,
+    loadMore,
     createTransaction,
     updateTransaction,
     removeTransaction,
@@ -59,9 +63,10 @@ function page() {
   const remaining = MAX_SEARCH_LENGTH - query.length;
   const normalizedQuery = query.trim().toLowerCase();
 
-  useEffect(() => {
-    void getAllNotPaginated();
-  }, [getAllNotPaginated]);
+  // A listagem é paginada no servidor (`GET /transactions/me`, 20/pág.):
+  // o useTransaction com autoFetch traz a 1ª página sozinho; páginas
+  // seguintes só via loadMore (botão "ver mais" no rodapé). Nada de
+  // descarregar o histórico todo — era isso que matava a produção.
 
   const transactions = useMemo(
     () => (apiTransactions ?? []).map(toAppTransaction),
@@ -130,7 +135,7 @@ function page() {
     return removeTransaction(id);
   }
 
-  const isLoading = isLoadingAll && transactions.length === 0;
+  const isLoading = isLoadingPage && transactions.length === 0;
   const hasActiveFilters =
     filters.type !== "all" ||
     filters.category !== "" ||
@@ -353,7 +358,7 @@ function page() {
             </p>
             <button
               type="button"
-              onClick={() => void getAllNotPaginated()}
+              onClick={() => void refreshTransactions()}
               className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               Tentar novamente
@@ -405,13 +410,27 @@ function page() {
           </main>
         )}
         {filteredTransactions.length > 0 && (
-          <TransactionPagination
-            page={safePage}
-            pageCount={pageCount}
-            total={filteredTransactions.length}
-            pageSize={PAGE_SIZE}
-            onChange={setPage}
-          />
+          <div className="flex flex-col items-center gap-3 pb-4">
+            {!isLastPage && (
+              <button
+                type="button"
+                onClick={() => void loadMore()}
+                disabled={isLoadingMore}
+                className="rounded-xl border border-primary-300/40 bg-primary-300/10 px-4 py-2 font-manrope text-sm font-semibold text-primary-300 transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {isLoadingMore
+                  ? "A carregar…"
+                  : `Ver mais transações (${transactions.length} de ${serverTotal})`}
+              </button>
+            )}
+            <TransactionPagination
+              page={safePage}
+              pageCount={pageCount}
+              total={filteredTransactions.length}
+              pageSize={PAGE_SIZE}
+              onChange={setPage}
+            />
+          </div>
         )}
       </div>
       <TransactionForm

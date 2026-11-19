@@ -76,6 +76,55 @@ export interface NonPaginatedQueryOptions {
   endDate?: string;
 }
 
+export type TotalsGranularity = "day" | "week" | "month" | "year";
+
+export interface TotalsBucket {
+  bucketStart: string;
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  transactionCount: number;
+}
+
+export interface TotalsByPeriodResponse {
+  granularity: string;
+  periodStart: string;
+  periodEnd: string;
+  buckets: TotalsBucket[];
+}
+
+export interface SpendingBreakdownSlice {
+  categoryName: string;
+  total: number;
+  percentage: number;
+}
+
+// Concorrência máxima do fan-out de páginas — evita picos de dezenas de
+// pedidos simultâneos ao backend quando um intervalo tem muitas páginas.
+const PAGE_FANOUT_LIMIT = 4;
+
+async function mapWithLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T, signal?: AbortSignal) => Promise<R>,
+  signal?: AbortSignal,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (next < items.length) {
+        signal?.throwIfAborted();
+        const index = next++;
+        results[index] = await fn(items[index], signal);
+      }
+    },
+  );
+  await Promise.all(workers);
+  return results;
+}
+
 const normalizeTransactionsResponse = (payload: unknown): TransactionDTO[] => {
   if (Array.isArray(payload)) return payload as TransactionDTO[];
   if (payload && typeof payload === "object") {
@@ -308,20 +357,31 @@ class TransactionService {
 
   // ── Methods from mobile API ─────────────────────────────────────────────────
 
-  async getAll(page = 0, size = 20): Promise<Page<TransactionResponse>> {
-    const { data } = await apiClient.get<Page<TransactionResponse>>("/transactions", { params: { page, size } });
+  async getAll(page = 0, size = 20, signal?: AbortSignal): Promise<Page<TransactionResponse>> {
+    // Listagem paginada pelo servidor (`GET /transactions/me` — a spec só
+    // documenta `/me` e `/filters` para leitura; não existe listagem base
+    // em `GET /transactions`). A UI faz "ver mais" página a página em vez
+    // de descarregar o histórico todo.
+    const { data } = await apiClient.get<Page<TransactionResponse>>("/transactions/me", {
+      params: { page, size },
+      signal,
+    });
     return data as Page<TransactionResponse>;
   }
 
-  async getAllNotPaginated(options?: NonPaginatedQueryOptions): Promise<TransactionResponse[]> {
+  async getAllNotPaginated(options?: NonPaginatedQueryOptions, signal?: AbortSignal): Promise<TransactionResponse[]> {
     if (!options?.startDate && !options?.endDate) {
       // `GET /transactions/me` é paginado (máx. 100/pág.) e pode devolver
       // array puro ou Page — percorre todas as páginas em vez de assumir array.
+      // Só usar sem intervalo quando for mesmo preciso (exportações); as
+      // telas devem preferir paginação no servidor ou agregados do backend.
       const aggregated: TransactionResponse[] = [];
       let page = 0;
       for (;;) {
+        signal?.throwIfAborted();
         const { data } = await apiClient.get<unknown>("/transactions/me", {
           params: { page, size: 100 },
+          signal,
         });
         const items = normalizeTransactionsResponse(data);
         aggregated.push(...(items as TransactionResponse[]));
@@ -341,25 +401,29 @@ class TransactionService {
     const firstPage = await this.getFiltered(0, 100, {
       startDate: options.startDate,
       endDate: options.endDate,
-    });
+    }, signal);
 
     if (!firstPage.content.length || firstPage.last || firstPage.totalPages <= 1) {
       return firstPage.content;
     }
 
-    // 2. Fetch remaining pages in parallel
+    // 2. Fetch remaining pages com concorrência limitada (antes: Promise.all
+    // sem teto — N páginas simultâneas derrubavam o backend em contas
+    // antigas) e canceláveis via signal.
     const remainingPageNumbers = Array.from(
       { length: firstPage.totalPages - 1 },
       (_, i) => i + 1,
     );
 
-    const remainingPages = await Promise.all(
-      remainingPageNumbers.map((page) =>
+    const remainingPages = await mapWithLimit(
+      remainingPageNumbers,
+      PAGE_FANOUT_LIMIT,
+      (page, pageSignal) =>
         this.getFiltered(page, 100, {
           startDate: options.startDate,
           endDate: options.endDate,
-        }),
-      ),
+        }, pageSignal),
+      signal,
     );
 
     // 3. Aggregate all results
@@ -380,11 +444,46 @@ class TransactionService {
     page = 0,
     size = 20,
     filters?: Record<string, any>,
+    signal?: AbortSignal,
   ): Promise<Page<TransactionResponse>> {
     const { data } = await apiClient.get<Page<TransactionResponse>>("/transactions/filters", {
       params: { page, size, ...filters },
+      signal,
     });
     return data as Page<TransactionResponse>;
+  }
+
+  async getTotalsByPeriod(
+    granularity: TotalsGranularity = "month",
+    from?: string,
+    to?: string,
+    signal?: AbortSignal,
+  ): Promise<TotalsByPeriodResponse> {
+    // Agregado no servidor: sem from/to devolve os últimos 12 buckets
+    // completos — ideal para o gráfico de 12 meses sem descarregar nada.
+    const { data } = await apiClient.get<TotalsByPeriodResponse>(
+      "/transactions/totals-by-period",
+      { params: { granularity, ...(from ? { from } : {}), ...(to ? { to } : {}) }, signal },
+    );
+    const buckets = Array.isArray((data as TotalsByPeriodResponse)?.buckets)
+      ? (data as TotalsByPeriodResponse).buckets
+      : [];
+    return { ...(data as TotalsByPeriodResponse), buckets };
+  }
+
+  async getSpendingBreakdown(
+    period = "1M",
+    signal?: AbortSignal,
+  ): Promise<SpendingBreakdownSlice[]> {
+    const { data } = await apiClient.get<unknown>(
+      "/transactions/spending-breakdown",
+      { params: { period }, signal },
+    );
+    if (Array.isArray(data)) return data as SpendingBreakdownSlice[];
+    if (data && typeof data === "object" && Array.isArray((data as { data?: unknown }).data)) {
+      return (data as { data: SpendingBreakdownSlice[] }).data;
+    }
+    return [];
   }
 
   async getByCategory(categoryId: string): Promise<TransactionResponse[]> {

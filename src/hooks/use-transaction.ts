@@ -1,7 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { transactionService } from "@/services/transaction.service";
-import type { NonPaginatedQueryOptions } from "@/services/transaction.service";
+import type {
+  NonPaginatedQueryOptions,
+  SpendingBreakdownSlice,
+  TotalsByPeriodResponse,
+  TotalsGranularity,
+} from "@/services/transaction.service";
 import type { Page } from "@/types/dtos/common.dto";
 import type {
   DefineCategoryRequest,
@@ -89,7 +94,8 @@ export function useTransaction({
 
   const listQuery = useInfiniteQuery({
     queryKey: LIST_KEY,
-    queryFn: ({ pageParam }) => transactionService.getAll(pageParam as number, PAGE_SIZE),
+    queryFn: ({ pageParam, signal }) =>
+      transactionService.getAll(pageParam as number, PAGE_SIZE, signal),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => (lastPage.last ? undefined : lastPage.number + 1),
     enabled: autoFetch && authReady,
@@ -102,14 +108,23 @@ export function useTransaction({
 
   const rangeQuery = useQuery({
     queryKey: rangeKey(activeRange),
-    queryFn: () => transactionService.getAllNotPaginated(activeRange),
+    queryFn: ({ signal }) => transactionService.getAllNotPaginated(activeRange, signal),
     enabled: (rangeRequested || Boolean(range)) && authReady,
+    // NUNCA retentar o loop inteiro: a queryFn percorre N páginas e um erro
+    // perto do fim reiniciava tudo da página 0, duplicando a carga sobre um
+    // backend já em esforço (amplificador de 500s). Falhou → erro visível +
+    // "tentar novamente" manual.
+    retry: false,
   });
 
   const pages = listQuery.data?.pages ?? [];
   const lastPage = pages[pages.length - 1];
   const allTransactions = listQuery.data ? pages.flatMap((p) => p.content) : null;
-  const transactions = sortByDate(((allTransactions ?? pages[0]?.content ?? []) as unknown as TransactionDTO[]));
+  const transactions = useMemo(
+    () => sortByDate(((allTransactions ?? pages[0]?.content ?? []) as unknown as TransactionDTO[])),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [listQuery.data],
+  );
 
   const invalidateRanges = useCallback(
     () => queryClient.invalidateQueries({ queryKey: ["transactions", "range"] }),
@@ -252,7 +267,7 @@ export function useTransaction({
       setRangeRequested(true);
       return queryClient.ensureQueryData({
         queryKey: rangeKey(options),
-        queryFn: () => transactionService.getAllNotPaginated(options),
+        queryFn: ({ signal }) => transactionService.getAllNotPaginated(options, signal),
       });
     },
     [queryClient, authReady],
@@ -261,6 +276,8 @@ export function useTransaction({
   const loadPage = useCallback(
     (page: number, force = false) => {
       if (force) return queryClient.resetQueries({ queryKey: LIST_KEY });
+      // Página 0 = primeira do useInfiniteQuery: com autoFetch ela já corre
+      // sozinha; sem dados (autoFetch: false), dispara-a explicitamente.
       if (page === 0 && !listQuery.data) return listQuery.fetchNextPage();
       return Promise.resolve();
     },
@@ -312,4 +329,41 @@ export function useTransaction({
     loadMore,
     resetPagination,
   };
+}
+
+// ── Agregados calculados no servidor ───────────────────────────────────────
+// Evitam descarregar o histórico todo para desenhar gráficos: o backend
+// devolve buckets/totais prontos (isolados por utilizador do token).
+
+export function useTotalsByPeriod(
+  granularity: TotalsGranularity = "month",
+  from?: string,
+  to?: string,
+  options?: { enabled?: boolean },
+) {
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
+  return useQuery<TotalsByPeriodResponse>({
+    queryKey: ["transactions", "totals-by-period", granularity, from ?? null, to ?? null],
+    queryFn: ({ signal }) =>
+      transactionService.getTotalsByPeriod(granularity, from, to, signal),
+    enabled: authReady && (options?.enabled ?? true),
+  });
+}
+
+export function useSpendingBreakdown(
+  period = "1M",
+  options?: { enabled?: boolean },
+) {
+  const { isAuthenticated, isAuthLoading } = useUserStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
+  );
+  const authReady = isAuthenticated && !isAuthLoading;
+  return useQuery<SpendingBreakdownSlice[]>({
+    queryKey: ["transactions", "spending-breakdown", period],
+    queryFn: ({ signal }) => transactionService.getSpendingBreakdown(period, signal),
+    enabled: authReady && (options?.enabled ?? true),
+  });
 }

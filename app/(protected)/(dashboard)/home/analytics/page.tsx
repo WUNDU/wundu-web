@@ -23,18 +23,24 @@ import GoalsComparison from "app/components/analysis/GoalsComparison";
 import SpendingHeatmap from "app/components/analysis/SpendingHeatmap";
 import FloatingMenu from "app/components/ui/FloatingMenu";
 import {
+  CATEGORY_CHART_COLORS,
   getExpensesByCategory,
   getGoalShares,
   getSpendingHeat,
   getTransactionSummary,
 } from "app/utils/analysis-data";
+import type { NonPaginatedQueryOptions } from "@/services/transaction.service";
 import { formatAOA } from "app/utils/format-AOA";
 import { buildAnalysisReport } from "app/utils/analysis-report";
 import { analyticsCsv, flowPoints, wealthPoints, type CsvAnalytics } from "app/utils/analysis-csv";
 import type { WorkbookMovement } from "app/utils/analysis-workbook";
 import { getCategory, toAppTransaction } from "app/utils/transaction-map";
 import { useGoal } from "@/hooks/use-goal";
-import { useTransaction } from "@/hooks/use-transaction";
+import {
+  useSpendingBreakdown,
+  useTotalsByPeriod,
+  useTransaction,
+} from "@/hooks/use-transaction";
 import type { Goal } from "@/types/dtos/goal.dto";
 import type { GoalDTO } from "app/types/dto/goal.dto";
 import type { TransactionDTO } from "app/types/dto/transaction.dto";
@@ -404,9 +410,47 @@ function AnalyticsContent() {
     refreshGoals,
   } = useGoal();
 
+  // O servidor filtra por intervalo (`/filters` com startDate/endDate), por
+  // isso só se pede o período selecionado em vez do histórico todo. "Todo
+  // período" continua a precisar do dump completo (exportação/heatmap), mas
+  // agora cancelável, sem retry em cascata e com fan-out limitado.
+  const rangeHint = useMemo<NonPaginatedQueryOptions | undefined>(() => {
+    // Só depende de strings/booleanos estáveis — nunca de `new Date()`,
+    // para o efeito de fetch não redisparar a cada render.
+    if (period === "month") return { startDate: `${todayKey.slice(0, 7)}-01`, endDate: todayKey };
+    if (period === "last-month") {
+      const year = Number(todayKey.slice(0, 4));
+      const month = Number(todayKey.slice(5, 7));
+      const first = new Date(year, month - 2, 1);
+      const prevYear = first.getFullYear();
+      const prevMonth = String(first.getMonth() + 1).padStart(2, "0");
+      const lastDay = new Date(prevYear, first.getMonth() + 1, 0).getDate();
+      return {
+        startDate: `${prevYear}-${prevMonth}-01`,
+        endDate: `${prevYear}-${prevMonth}-${String(lastDay).padStart(2, "0")}`,
+      };
+    }
+    if (period === "year") return { startDate: `${todayKey.slice(0, 4)}-01-01`, endDate: todayKey };
+    if (period === "custom" && validCustom) return { startDate: custom.start, endDate: custom.end };
+    return undefined;
+  }, [period, custom, validCustom, todayKey]);
+
   useEffect(() => {
-    void getAllNotPaginated();
-  }, [getAllNotPaginated]);
+    void getAllNotPaginated(rangeHint);
+  }, [getAllNotPaginated, rangeHint]);
+
+  // Agregados calculados no servidor — zero payload de transações:
+  // - gráfico de 12 meses: `totals-by-period` (últimos 12 buckets por omissão)
+  // - donut de categorias do mês corrente: `spending-breakdown`
+  // Ambos com fallback para o cálculo local se o endpoint falhar.
+  const useServerTotals = period === "all";
+  const { data: serverTotals } = useTotalsByPeriod("month", undefined, undefined, {
+    enabled: useServerTotals,
+  });
+  const useServerBreakdown = period === "month";
+  const { data: serverBreakdown } = useSpendingBreakdown("1M", {
+    enabled: useServerBreakdown,
+  });
 
   const transactions = useMemo(
     () => (apiTransactions ?? []).map(toAppTransaction),
@@ -429,7 +473,7 @@ function AnalyticsContent() {
 
   /* Derivações do período selecionado */
   const summary = useMemo(() => getTransactionSummary(filtered), [filtered]);
-  const monthly = useMemo(() => {
+  const clientMonthly = useMemo(() => {
     const months: string[] = [];
     const keys: string[] = [];
     for (let k = 11; k >= 0; k--) {
@@ -455,14 +499,44 @@ function AnalyticsContent() {
     return { months, keys, income, expenses };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered]);
+  // Gráfico de 12 meses: prefere os buckets do servidor (baratos); se o
+  // endpoint falhar ou vier vazio, cai para o cálculo local.
+  const monthly = useMemo(() => {
+    if (useServerTotals && serverTotals && serverTotals.buckets.length > 0) {
+      const months: string[] = [];
+      const income: number[] = [];
+      const expenses: number[] = [];
+      for (const bucket of serverTotals.buckets) {
+        const parsed = new Date(`${bucket.bucketStart.slice(0, 10)}T12:00:00`);
+        months.push(
+          Number.isFinite(parsed.getTime())
+            ? MONTHS_SHORT[parsed.getMonth()]
+            : bucket.bucketStart.slice(0, 7),
+        );
+        income.push(bucket.totalIncome);
+        expenses.push(bucket.totalExpense);
+      }
+      return { months, keys: [] as string[], income, expenses };
+    }
+    return clientMonthly;
+  }, [useServerTotals, serverTotals, clientMonthly]);
   const monthlyNet = useMemo(
     () => monthly.income.map((value, i) => value - monthly.expenses[i]),
     [monthly],
   );
-  const categories = useMemo(
-    () => getExpensesByCategory(filtered),
-    [filtered],
-  );
+  // Donut do mês corrente: prefere o breakdown do servidor, com fallback local.
+  const categories = useMemo(() => {
+    if (useServerBreakdown && serverBreakdown && serverBreakdown.length > 0) {
+      return serverBreakdown.map((slice) => ({
+        name: slice.categoryName,
+        value: slice.total,
+        colorVar:
+          (CATEGORY_CHART_COLORS as Record<string, string>)[slice.categoryName] ??
+          "--color-primary-300",
+      }));
+    }
+    return getExpensesByCategory(filtered);
+  }, [useServerBreakdown, serverBreakdown, filtered]);
   const heat = useMemo(() => getSpendingHeat(filtered), [filtered]);
   const appGoals = useMemo(() => apiGoals.map(toAppGoal), [apiGoals]);
   const goalShares = useMemo(() => getGoalShares(appGoals), [appGoals]);
@@ -809,7 +883,7 @@ function AnalyticsContent() {
               <button
                 type="button"
                 onClick={() => {
-                  void getAllNotPaginated();
+                  void getAllNotPaginated(rangeHint);
                   refreshGoals();
                 }}
                 className="mt-1 rounded-xl bg-primary-300 px-4 py-2 font-manrope text-sm font-semibold text-base-white transition-opacity hover:opacity-90"

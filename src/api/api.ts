@@ -155,6 +155,27 @@ api.interceptors.response.use(
     // EMAIL_NOT_VERIFIED é apenas propagado para quem chamou; o aviso e a acção
     // de verificação vivem exclusivamente no perfil do utilizador.
 
+    // Diagnóstico de 5xx: regista contexto antes de mascarar a mensagem.
+    // O utilizador continua a ver texto genérico, mas o erro real (status,
+    // path, errorCode) fica nos logs/telemetria em vez de se perder.
+    const status = error.response?.status;
+    if (typeof window !== "undefined" && status != null && status >= 500) {
+      const diagnostic = {
+        path: error.config?.url,
+        method: error.config?.method,
+        status,
+        errorCode: error.response?.data?.errorCode,
+        backendMessage: error.response?.data?.message,
+      };
+      console.error("[api] server error", diagnostic);
+      try {
+        const { captureEvent } = await import("@/lib/analytics");
+        captureEvent("api_server_error", diagnostic);
+      } catch {
+        /* telemetria indisponível — não pode quebrar o fluxo de erro */
+      }
+    }
+
     const fallbackMessage =
       "Não foi possível conectar ao serviço agora. Tente novamente em instantes.";
     const rawMessage =
@@ -179,6 +200,7 @@ type ApiConfig = {
   skipAuth?: boolean;
   params?: Record<string, unknown>;
   withCredentials?: boolean;
+  signal?: AbortSignal;
 };
 
 // Wrapper para manter compatibilidade com código existente
