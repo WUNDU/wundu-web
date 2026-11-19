@@ -1,7 +1,8 @@
 "use client";
 
-/* Wundu Landing v2 — réplica exata de "Landing Page/Wundu Landing v2.dc.html".
-   Estrutura, textos, estilos inline, dados e interações portados 1:1 do original
+/* Wundu Landing v2 — réplica exata de
+   "Sistema de autenticação Wundu – Wundu Landing v2.html".
+   Estrutura, textos, estilos inline, dados e interações portados 1:1 do modelo
    (classe DCLogic + tokens/estilos do _ds bundle). Links "Wundu Auth.dc.html"
    apontam para as rotas reais da wundu-web (/login e /register). */
 
@@ -308,6 +309,37 @@ function WdInsightRow({
         {label}
       </span>
     </div>
+  );
+}
+
+/* Ícones das lojas — paths exatos do modelo (Apple + Google Play) */
+function StoreAppleIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+      style={{ flex: "0 0 auto" }}
+    >
+      <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
+    </svg>
+  );
+}
+
+function StorePlayIcon({ size = 21 }: { size?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+      style={{ flex: "0 0 auto" }}
+    >
+      <path d="M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973zm0 2.067l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z" />
+    </svg>
   );
 }
 
@@ -876,6 +908,12 @@ export default function WunduLandingV2() {
   /* antes de montar, força light (== servidor) para não divergir na hidratação */
   const isDark = mounted && theme === "dark";
   const isLight = !isDark;
+  /* fundo/cor/sombra dos botões das lojas — iguais ao modelo (renderVals) */
+  const storeBg = isDark ? "#ffffff" : "#040916";
+  const storeFg = isDark ? "#040916" : "#ffffff";
+  const storeRing = isDark
+    ? "0 0 0 1px rgba(255,255,255,.2)"
+    : "inset 0 0 0 1px rgba(255,255,255,.08), 0 1px 2px rgba(4,9,22,.24)";
 
   /* fecha o menu mobile ao voltar para desktop */
   useEffect(() => {
@@ -1314,38 +1352,203 @@ export default function WunduLandingV2() {
           </p>
           <div
             data-reveal="up"
-            data-delay="660"
+            data-delay="680"
             style={{
+              width: "100%",
+              maxWidth: 640,
+              marginTop: 4,
               display: "flex",
-              gap: 12,
               flexWrap: "wrap",
-              justifyContent: "center",
+              alignItems: "center",
+              gap: 8,
+              padding: 8,
+              borderRadius: 22,
+              background: "var(--surface-card)",
+              border: "1px solid var(--border-subtle)",
+              boxShadow: "var(--shadow-lg)",
+              textAlign: "left",
             }}
           >
-            <WdButton href="/register" variant="primary" size="lg" iconRight="arrow-right">
-              Começar grátis
-            </WdButton>
-            <WdButton href="#funcionalidades" variant="outline" size="lg">
-              Ver funcionalidades
-            </WdButton>
+            <div
+              style={{
+                flex: "1 1 200px",
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "4px 8px 4px 6px",
+              }}
+            >
+              <span
+                style={{
+                  width: 48,
+                  height: 48,
+                  flex: "0 0 auto",
+                  borderRadius: 13,
+                  background: "var(--surface-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src="/assets/logo.svg"
+                  alt=""
+                  style={{ width: 30, height: 30, objectFit: "contain" }}
+                />
+              </span>
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  minWidth: 0,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  Wundu
+                </span>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                  Grátis para iPhone e Android
+                </span>
+              </span>
+            </div>
+            <div
+              style={{
+                flex: "2 1 320px",
+                minWidth: 0,
+                display: "flex",
+                gap: 8,
+              }}
+            >
+              <HV
+                href="https://apps.apple.com/ao/app/wundu/id6829671590"
+                aria-label="Descarregar a Wundu na App Store"
+                data-reveal="up"
+                data-delay="680"
+                className="wd-store"
+                style={{
+                  flex: "1 1 0",
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  height: 56,
+                  padding: "0 16px",
+                  borderRadius: 14,
+                  background: storeBg,
+                  color: storeFg,
+                  boxShadow: storeRing,
+                  transition:
+                    "transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms cubic-bezier(.2,.8,.2,1)",
+                }}
+                hover={{
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 12px 28px -10px rgba(5,61,196,.6)",
+                }}
+              >
+                <StoreAppleIcon size={24} />
+                <span
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    lineHeight: 1.1,
+                    color: storeFg,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.75 }}>
+                    Descarregar na
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 600,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    App Store
+                  </span>
+                </span>
+              </HV>
+              <HV
+                href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
+                aria-label="Descarregar a Wundu no Google Play"
+                data-reveal="up"
+                data-delay="680"
+                className="wd-store"
+                style={{
+                  flex: "1 1 0",
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  height: 56,
+                  padding: "0 16px",
+                  borderRadius: 14,
+                  background: storeBg,
+                  color: storeFg,
+                  boxShadow: storeRing,
+                  transition:
+                    "transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms cubic-bezier(.2,.8,.2,1)",
+                }}
+                hover={{
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 12px 28px -10px rgba(5,61,196,.6)",
+                }}
+              >
+                <StorePlayIcon size={21} />
+                <span
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    lineHeight: 1.1,
+                    color: storeFg,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.75 }}>
+                    Disponível no
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 600,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    Google Play
+                  </span>
+                </span>
+              </HV>
+            </div>
           </div>
-          <span
+          <HV
+            href="#funcionalidades"
             data-reveal="up"
-            data-delay="740"
-            style={{ fontSize: 14, color: "var(--text-tertiary)" }}
+            data-delay="780"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 15,
+              fontWeight: 600,
+            }}
+            hover={{
+              background: "var(--surface-hover)",
+              color: "var(--text-primary)",
+            }}
           >
-            Disponível na Web, Android e iOS
-          </span>
-          <span
-            data-reveal="up"
-            data-delay="800"
-            style={{ fontSize: 14, color: "var(--text-tertiary)" }}
-          >
-            Já tens conta?{" "}
-            <a href="/login" style={{ fontWeight: 600 }}>
-              Entrar
-            </a>
-          </span>
+            Ver funcionalidades
+            <WdIcon name="arrow-down" size={16} />
+          </HV>
         </div>
 
         <div style={{ position: "relative", marginTop: 72 }}>
@@ -2275,13 +2478,13 @@ export default function WunduLandingV2() {
                   textWrap: "pretty",
                 }}
               >
-                Usa no navegador, no teu telemóvel Android ou no teu iPhone. Os dados
-                ficam sincronizados em todos.
+                Instala no teu iPhone ou Android. Os teus dados ficam
+                sincronizados em todos os dispositivos.
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <HV
-                href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
+                href="https://apps.apple.com/ao/app/wundu/id6829671590"
                 data-reveal="up"
                 data-delay="120"
                 style={{
@@ -2295,17 +2498,44 @@ export default function WunduLandingV2() {
                   transition:
                     "transform 280ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1)",
                 }}
-                hover={{ background: "#f4f4f5", transform: "translateX(6px)" }}
+                hover={{
+                  background: "#f4f4f5",
+                  color: "#3b4655",
+                  transform: "translateX(6px)",
+                }}
               >
-                <WdIconTile icon="smartphone" tone="brand" />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ fontSize: 13, color: "#62748e" }}>Disponível no</span>
-                  <span style={{ fontSize: 17, fontWeight: 700 }}>Google Play</span>
+                <span
+                  style={{
+                    width: 40,
+                    height: 40,
+                    flex: "0 0 auto",
+                    borderRadius: 10,
+                    background: "#040916",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <StoreAppleIcon size={22} />
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <span style={{ fontSize: 13, color: "#62748e" }}>
+                    Descarregar na
+                  </span>
+                  <span style={{ fontSize: 17, fontWeight: 700 }}>App Store</span>
                 </div>
                 <WdIcon name="arrow-up-right" size={20} />
               </HV>
               <HV
-                href="/login"
+                href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
                 data-reveal="up"
                 data-delay="200"
                 style={{
@@ -2319,38 +2549,41 @@ export default function WunduLandingV2() {
                   transition:
                     "transform 280ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1)",
                 }}
-                hover={{ background: "#f4f4f5", transform: "translateX(6px)" }}
-              >
-                <WdIconTile icon="monitor" tone="brand" />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ fontSize: 13, color: "#62748e" }}>Abrir no navegador</span>
-                  <span style={{ fontSize: 17, fontWeight: 700 }}>wundu.tech</span>
-                </div>
-                <WdIcon name="arrow-up-right" size={20} />
-              </HV>
-              <HV
-                href="https://apps.apple.com/ao/app/wundu/id6829671590"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-reveal="up"
-                data-delay="280"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                  padding: "18px 20px",
-                  borderRadius: 14,
-                  background: "#fff",
+                hover={{
+                  background: "#f4f4f5",
                   color: "#3b4655",
-                  transition:
-                    "transform 280ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1)",
+                  transform: "translateX(6px)",
                 }}
-                hover={{ background: "#f4f4f5", transform: "translateX(6px)" }}
               >
-                <WdIconTile icon="apple" tone="brand" />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ fontSize: 13, color: "#62748e" }}>Disponível na</span>
-                  <span style={{ fontSize: 17, fontWeight: 700 }}>App Store</span>
+                <span
+                  style={{
+                    width: 40,
+                    height: 40,
+                    flex: "0 0 auto",
+                    borderRadius: 10,
+                    background: "#040916",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <StorePlayIcon size={20} />
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <span style={{ fontSize: 13, color: "#62748e" }}>
+                    Disponível no
+                  </span>
+                  <span style={{ fontSize: 17, fontWeight: 700 }}>
+                    Google Play
+                  </span>
                 </div>
                 <WdIcon name="arrow-up-right" size={20} />
               </HV>
@@ -2528,29 +2761,119 @@ export default function WunduLandingV2() {
               textWrap: "pretty",
             }}
           >
-            Cria a tua conta, confirma o email e começa hoje a transformar a
-            tua relação com o dinheiro.
+            Instala a Wundu, junta as tuas contas e começa hoje a perceber para
+            onde vai o teu dinheiro.
           </p>
-          <WdButton
-            href="/register"
-            variant="primary"
-            size="lg"
-            iconRight="arrow-right"
+          <div
             data-reveal="up"
             data-delay="260"
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              display: "flex",
+              gap: 8,
+              marginTop: 8,
+            }}
           >
-            Criar conta
-          </WdButton>
-          <span
-            data-reveal="up"
-            data-delay="320"
-            style={{ fontSize: 15, color: "var(--text-secondary)" }}
-          >
-            Já tens conta?{" "}
-            <a href="/login" style={{ fontWeight: 600 }}>
-              Entrar
-            </a>
-          </span>
+            <HV
+              href="https://apps.apple.com/ao/app/wundu/id6829671590"
+              aria-label="Descarregar a Wundu na App Store"
+              className="wd-store"
+              style={{
+                flex: "1 1 0",
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                height: 56,
+                padding: "0 16px",
+                borderRadius: 14,
+                background: storeBg,
+                color: storeFg,
+                boxShadow: storeRing,
+                textAlign: "left",
+                transition:
+                  "transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms cubic-bezier(.2,.8,.2,1)",
+              }}
+              hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "0 12px 28px -10px rgba(5,61,196,.6)",
+              }}
+            >
+              <StoreAppleIcon size={24} />
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  lineHeight: 1.1,
+                  color: storeFg,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.75 }}>
+                  Descarregar na
+                </span>
+                <span
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 600,
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  App Store
+                </span>
+              </span>
+            </HV>
+            <HV
+              href="https://play.google.com/store/apps/details?id=com.wundu.mobile"
+              aria-label="Descarregar a Wundu no Google Play"
+              className="wd-store"
+              style={{
+                flex: "1 1 0",
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                height: 56,
+                padding: "0 16px",
+                borderRadius: 14,
+                background: storeBg,
+                color: storeFg,
+                boxShadow: storeRing,
+                textAlign: "left",
+                transition:
+                  "transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms cubic-bezier(.2,.8,.2,1)",
+              }}
+              hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "0 12px 28px -10px rgba(5,61,196,.6)",
+              }}
+            >
+              <StorePlayIcon size={21} />
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  lineHeight: 1.1,
+                  color: storeFg,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.75 }}>
+                  Disponível no
+                </span>
+                <span
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 600,
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Google Play
+                </span>
+              </span>
+            </HV>
+          </div>
         </div>
       </section>
 
