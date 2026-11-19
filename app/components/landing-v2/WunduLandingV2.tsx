@@ -1334,7 +1334,7 @@ export default function WunduLandingV2() {
             data-delay="740"
             style={{ fontSize: 14, color: "var(--text-tertiary)" }}
           >
-            Disponível na Web e Android · iOS em breve
+            Disponível na Web, Android e iOS
           </span>
           <span
             data-reveal="up"
@@ -2275,8 +2275,8 @@ export default function WunduLandingV2() {
                   textWrap: "pretty",
                 }}
               >
-                Usa no navegador ou no teu telemóvel Android. Os dados ficam
-                sincronizados entre os dois.
+                Usa no navegador, no teu telemóvel Android ou no teu iPhone. Os dados
+                ficam sincronizados em todos.
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -2328,7 +2328,10 @@ export default function WunduLandingV2() {
                 </div>
                 <WdIcon name="arrow-up-right" size={20} />
               </HV>
-              <div
+              <HV
+                href="https://apps.apple.com/ao/app/wundu/id6829671590"
+                target="_blank"
+                rel="noopener noreferrer"
                 data-reveal="up"
                 data-delay="280"
                 style={{
@@ -2337,14 +2340,20 @@ export default function WunduLandingV2() {
                   gap: 16,
                   padding: "18px 20px",
                   borderRadius: 14,
-                  background: "#07162b",
-                  border: "1px solid #223249",
-                  color: "#c2cbd8",
+                  background: "#fff",
+                  color: "#3b4655",
+                  transition:
+                    "transform 280ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1)",
                 }}
+                hover={{ background: "#f4f4f5", transform: "translateX(6px)" }}
               >
-                <WdIcon name="clock" size={20} />
-                <span style={{ fontSize: 15 }}>App Store · em breve</span>
-              </div>
+                <WdIconTile icon="apple" tone="brand" />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ fontSize: 13, color: "#62748e" }}>Disponível na</span>
+                  <span style={{ fontSize: 17, fontWeight: 700 }}>App Store</span>
+                </div>
+                <WdIcon name="arrow-up-right" size={20} />
+              </HV>
             </div>
           </div>
         </div>
