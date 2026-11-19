@@ -4,7 +4,7 @@ import { useState } from "react";
 import ChartCard from "./ChartCard";
 import ChartTooltip from "./ChartTooltip";
 import type { CategorySlice } from "../mock/analysis";
-import { formatAOACompact } from "../../utils/format-AOA";
+import { formatAOACompact, formatAOACenter } from "../../utils/format-AOA";
 
 const SIZE = 272;
 const CENTER = SIZE / 2;
@@ -146,9 +146,12 @@ export default function CategoryDonut({
               </g>
             )}
           </svg>
-          <p className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
-            <span className="font-inter text-2xl font-bold leading-9 text-(--text-title)">
-              {formatAOACompact(total)}
+          <p className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 px-6 text-center">
+            <span
+              title={formatAOACompact(total)}
+              className="font-inter block max-w-[180px] truncate text-2xl font-bold leading-9 text-(--text-title)"
+            >
+              {formatAOACenter(total)}
             </span>
             <span className="font-manrope text-base font-medium leading-6 text-(--text-description)">
               Total

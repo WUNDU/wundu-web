@@ -3,29 +3,25 @@ import type { GoalDTO } from "../types/dto/goal.dto";
 import type { TransactionDTO } from "../types/dto/transaction.dto";
 import type { TransactionCategory } from "../types/transaction";
 import type { CategorySlice, GoalShare } from "../components/mock/analysis";
+import { transactionCategoryConfig } from "../components/config/transaction-category-config";
 
-/** Cor do gráfico por categoria (tokens CSS lidos em runtime). */
-export const CATEGORY_CHART_COLORS: Record<TransactionCategory, string> = {
-  Freelance: "--color-success",
-  Lazer: "--color-danger-300",
-  Alimentação: "--color-orange",
-  Saúde: "--color-secondary-300",
-  Habitação: "--color-purple",
-  Educação: "--color-info",
-  Outros: "--color-primary-300",
-  Transporte: "--color-warning",
-  Levantamento: "--color-warning",
-  Salário: "--color-success",
-  Negócio: "--color-success",
-  Biscato: "--color-info",
-  Supermercado: "--color-orange",
-  Telecomunicações: "--color-info",
-  Transferências: "--color-primary-300",
-  Restaurante: "--color-warning",
-  Serviços: "--color-purple",
-  Kixikila: "--color-success",
-  Remessa: "--color-info",
-};
+/**
+ * Cor do gráfico por categoria (tokens CSS lidos em runtime).
+ * Derivada da config das transações (fonte única): a mesma cor do ícone
+ * da categoria nas listas (`iconColor ?? color`, `text-X` -> `--color-X`),
+ * para uma categoria ter sempre a mesma cor no gráfico e nas transações.
+ */
+function chartVarFor(name: TransactionCategory): string {
+  const { color, iconColor } = transactionCategoryConfig[name];
+  return `--color-${(iconColor ?? color).replace(/^text-/, "")}`;
+}
+
+export const CATEGORY_CHART_COLORS: Record<TransactionCategory, string> =
+  Object.fromEntries(
+    (Object.keys(transactionCategoryConfig) as TransactionCategory[]).map(
+      (name) => [name, chartVarFor(name)] as const,
+    ),
+  ) as Record<TransactionCategory, string>;
 
 const GOAL_CHART_COLORS = [
   "--color-success",

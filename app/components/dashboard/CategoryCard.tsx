@@ -5,7 +5,7 @@ import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.
 import type { TransactionCategory } from "app/types/transaction";
 import { getCategory } from "app/utils/transaction-map";
 import { CATEGORY_CHART_COLORS } from "app/utils/analysis-data";
-import { formatAOA, formatAOACompact } from "app/utils/format-AOA";
+import { formatAOA, formatAOACenter } from "app/utils/format-AOA";
 import { useValuesVisibility } from "./values-visibility";
 
 type CategoryCardProps = {
@@ -78,9 +78,9 @@ function CategoryCard({ transactions, loading = false }: CategoryCardProps) {
               </small>
               <strong
                 title={mask(formatAOA(spent))}
-                className="font-manrope text-sm font-bold text-(--text-title)"
+                className="font-manrope block max-w-full truncate px-1 text-center text-sm font-bold text-(--text-title)"
               >
-                {mask(formatAOACompact(spent))}
+                {mask(formatAOACenter(spent))}
               </strong>
             </div>
           </div>
