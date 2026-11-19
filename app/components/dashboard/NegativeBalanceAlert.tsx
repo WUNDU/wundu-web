@@ -76,10 +76,11 @@ export default function NegativeBalanceAlert({
 
   const displayName = name.trim() && name !== "O meu espaço" ? name.trim() : "";
   const close = () => setOpenFor(null);
-  const goToAi = () => {
-    setOpenFor(null);
-    router.push("/home/ai");
-  };
+  // Wundu IA desativada por uns instantes — botão comentado para fácil reactivação
+  // const goToAi = () => {
+  //   setOpenFor(null);
+  //   router.push("/home/ai");
+  // };
 
   return (
     <div
@@ -135,6 +136,7 @@ export default function NegativeBalanceAlert({
           </ul>
         </div>
 
+        {/* Wundu IA desativada por uns instantes — CTA comentado para fácil reactivação
         <div className="border-t border-(--card-barras) px-5 pb-[calc(20px+env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pb-5">
           <button
             type="button"
@@ -146,6 +148,7 @@ export default function NegativeBalanceAlert({
             <ArrowRight size={18} />
           </button>
         </div>
+        */}
       </div>
     </div>
   );

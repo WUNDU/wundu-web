@@ -60,13 +60,14 @@ export const menuItems: MenuItem[] = [
     href: "/home/analytics",
     icon: "analytics",
   },
-  {
-    key: "ai",
-    label: "Wundu IA",
-    description: "Pergunta sobre as tuas finanças",
-    href: "/home/ai",
-    icon: "ai",
-  },
+  // Wundu IA desativada por uns instantes — botão comentado para fácil reactivação
+  // {
+  //   key: "ai",
+  //   label: "Wundu IA",
+  //   description: "Pergunta sobre as tuas finanças",
+  //   href: "/home/ai",
+  //   icon: "ai",
+  // },
   {
     key: "Contas",
     label: "Contas",

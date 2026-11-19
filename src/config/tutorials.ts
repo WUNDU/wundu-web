@@ -197,14 +197,15 @@ export const tutorials: Tutorial[] = [
         placement: "right",
         icon: Tag,
       },
-      {
-        id: "nav-chat",
-        title: "Wundu AI",
-        text: "Use a inteligência artificial para tirar dúvidas e obter insights sobre suas finanças.",
-        targetSelector: "[data-tutorial='nav-chat']",
-        placement: "right",
-        icon: MessageSquare,
-      },
+      // Wundu AI desativada por uns instantes — tutorial comentado para fácil reactivação
+      // {
+      //   id: "nav-chat",
+      //   title: "Wundu AI",
+      //   text: "Use a inteligência artificial para tirar dúvidas e obter insights sobre suas finanças.",
+      //   targetSelector: "[data-tutorial='nav-chat']",
+      //   placement: "right",
+      //   icon: MessageSquare,
+      // },
     ],
   },
 ];
