@@ -7,6 +7,8 @@ export interface TransactionDTO {
   type: TransactionType;
   category: TransactionCategory;
   description?: string;
+  /** Origem na API: MANUAL | PDF | IMG | AUTOMATICO */
+  source?: string;
   date: string;
   transactionDate?: string;
   createdAt?: string;

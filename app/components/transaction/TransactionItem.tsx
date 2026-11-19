@@ -4,7 +4,7 @@ import type { TransactionItemProps } from "../../types/transaction";
 import { transactionTypeConfig } from "../config/transaction-config";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
-import { formatTransactionDate } from "app/utils/format-transaction-date";
+import { getSourceLabel } from "app/utils/transaction-map";
 
 function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
   const typeConfig = transactionTypeConfig[transaction.type];
@@ -54,7 +54,7 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
         </p>
 
         <p className="hidden text-sm font-semibold leading-6 text-(--text-description) lg:block">
-          {transaction.description ?? formatTransactionDate(transaction.date)}
+          {getSourceLabel(transaction.source)}
         </p>
 
         {/* Linha categoria + valor (mobile) */}
@@ -102,10 +102,10 @@ function TransactionItem({ transaction, onSelect }: TransactionItemProps) {
           </div>
         </div>
 
-        {/* Banco */}
+        {/* Origem */}
         <div className="flex w-14 items-center">
           <p className="text-sm font-medium leading-6 text-(--text-description)">
-            Manual
+            {getSourceLabel(transaction.source)}
           </p>
         </div>
 

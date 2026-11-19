@@ -24,6 +24,19 @@ export const TRANSACTION_CATEGORIES: readonly TransactionCategory[] = [
   "Remessa",
 ];
 
+const SOURCE_LABELS: Record<string, string> = {
+  MANUAL: "Manual",
+  PDF: "PDF",
+  IMG: "Imagem",
+  AUTOMATICO: "Automático",
+};
+
+/** Rótulo legível da origem da transação (ex.: "Manual", "PDF"). */
+export function getSourceLabel(source?: string | null): string {
+  if (!source) return "Manual";
+  return SOURCE_LABELS[source.toUpperCase()] ?? source;
+}
+
 export function getCategory(name?: string | null): TransactionCategory {
   return (
     TRANSACTION_CATEGORIES.find(
@@ -49,6 +62,7 @@ export function toAppTransaction(
     type: transaction.type === "INCOME" ? "income" : "expense",
     category: getCategory(categoryName),
     description: transaction.description ?? undefined,
+    source: transaction.source ?? undefined,
     date: transaction.transactionDate ?? transaction.createdAt ?? "",
     transactionDate: transaction.transactionDate,
     createdAt: transaction.createdAt,

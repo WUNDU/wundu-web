@@ -4,6 +4,7 @@ import { transactionTypeConfig } from "../config/transaction-config";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
 import { formatTransactionDate } from "app/utils/format-transaction-date";
+import { getSourceLabel } from "app/utils/transaction-map";
 
 interface TransactionCardProps extends TransactionItemProps {
   description?: string;
@@ -54,7 +55,7 @@ function TransactionCard({
         {transaction.title}
       </p>
       <p className="text-(--text-description) font-manrope text-sm font-normal leading-6">
-        {transaction.description ?? description}
+        {transaction.source ? getSourceLabel(transaction.source) : description}
       </p>
       <hr className="w-full border-0 border-t border-(--card-barras)" />
       <aside className="flex justify-between w-full items-center">

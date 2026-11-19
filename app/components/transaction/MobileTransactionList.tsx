@@ -6,9 +6,7 @@ import type { TransactionDTO } from "app/types/dto/transaction.dto";
 import { groupTransactionsByDate } from "app/utils/group-transactions";
 import { transactionCategoryConfig } from "../config/transaction-category-config";
 import { formatAOA } from "app/utils/format-AOA";
-
-/** Rótulo fixo — bancos serão implementados brevemente. */
-const BANK_LABEL = "Manual";
+import { getSourceLabel } from "app/utils/transaction-map";
 
 function transactionTime(transaction: TransactionDTO): string {
   const raw =
@@ -73,7 +71,7 @@ function MobileTransactionRow({
             </span>
           </span>
           <span className="shrink-0 font-manrope text-xs font-medium text-(--text-description)">
-            {BANK_LABEL}
+            {getSourceLabel(transaction.source)}
           </span>
         </span>
       </span>

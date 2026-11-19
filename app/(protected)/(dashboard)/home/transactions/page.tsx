@@ -43,7 +43,6 @@ function page() {
     isLoading: isLoadingPage,
     isLoadingMore,
     isLastPage,
-    totalElements: serverTotal,
     error: transactionsError,
     refreshTransactions,
     loadMore,
@@ -95,6 +94,13 @@ function page() {
   useEffect(() => {
     setPage(1);
   }, [normalizedQuery, filters]);
+
+  // Paginação progressiva invisível: ao chegar à última página carregada,
+  // busca a próxima página no servidor sem nenhum botão extra no visual.
+  function handlePageChange(next: number) {
+    setPage(next);
+    if (next >= pageCount && !isLastPage && !isLoadingMore) void loadMore();
+  }
   const pageCount = Math.max(
     1,
     Math.ceil(filteredTransactions.length / PAGE_SIZE),
@@ -410,27 +416,13 @@ function page() {
           </main>
         )}
         {filteredTransactions.length > 0 && (
-          <div className="flex flex-col items-center gap-3 pb-4">
-            {!isLastPage && (
-              <button
-                type="button"
-                onClick={() => void loadMore()}
-                disabled={isLoadingMore}
-                className="rounded-xl border border-primary-300/40 bg-primary-300/10 px-4 py-2 font-manrope text-sm font-semibold text-primary-300 transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {isLoadingMore
-                  ? "A carregar…"
-                  : `Ver mais transações (${transactions.length} de ${serverTotal})`}
-              </button>
-            )}
-            <TransactionPagination
-              page={safePage}
-              pageCount={pageCount}
-              total={filteredTransactions.length}
-              pageSize={PAGE_SIZE}
-              onChange={setPage}
-            />
-          </div>
+          <TransactionPagination
+            page={safePage}
+            pageCount={pageCount}
+            total={filteredTransactions.length}
+            pageSize={PAGE_SIZE}
+            onChange={handlePageChange}
+          />
         )}
       </div>
       <TransactionForm
