@@ -2,9 +2,8 @@
 import type { FC } from "react";
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { Menu, Bell, X, BarChart2, Calendar, ArrowRightLeft, AlertTriangle } from "lucide-react";
-import { user as avatar } from "@/constants/images";
+import UserAvatar from "@/components/ui/user-avatar";
 import { AnimatePresence, motion } from "framer-motion";
 import { HelpIcon } from "@/constants/icons";
 import { useUserStore } from "@/store/user-store";
@@ -302,16 +301,8 @@ const TopBar: FC<TopBarProps> = ({ onToggleSidebar, onOpenProfile }) => {
                   : <span className="inline-block h-3.5 w-14 rounded bg-slate-100 animate-pulse align-middle" />
                 }
               </span>
-              <div className="h-8 w-8 overflow-hidden rounded-[10px] shadow-sm ring-2 ring-primary/40">
-                <div className="h-full w-full overflow-hidden rounded-[6px]">
-                  <Image
-                    src={avatar}
-                    alt={user?.name || "Usuário"}
-                    width={36}
-                    height={36}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+              <div className="flex-shrink-0 ring-2 ring-primary/40 rounded-full">
+                <UserAvatar src={user?.profilePhotoUrl} name={user?.name} size="sm" />
               </div>
             </motion.button>
           </div>

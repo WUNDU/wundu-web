@@ -1,189 +1,93 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Button, Input, LogoType, TextInput } from "@/components/ui";
+import { AuthBrandPanel } from "@/components/auth/auth-brand-panel";
+import {
+  AuthFormShell,
+  AuthRoot,
+} from "@/components/auth/auth-form-shell";
+import {
+  DsButton,
+  DsFieldLabel,
+  DsIcon,
+  DsIconTile,
+  DsInput,
+} from "@/components/auth/ds";
+import { ROUTES } from "@/constants/routes";
 import { PasswordResetData } from "@/types/ui";
 import { validatePasswordDetailed } from "@/utils/validation";
-import { motion, AnimatePresence } from "framer-motion";
-
-interface CodeInputProps {
-  length: number;
-  value: string;
-  onChange: (value: string) => void;
-  isError?: boolean;
-  isSuccess?: boolean;
-}
-
-const CodeInput: React.FC<CodeInputProps> = ({
-  length,
-  value,
-  onChange,
-  isError = false,
-  isSuccess = false,
-}) => {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  useEffect(() => {
-    inputRefs.current = inputRefs.current.slice(0, length);
-  }, [length]);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const val = e.target.value;
-    if (/[^0-9]/.test(val)) return;
-    const newValue = value.slice(0, index) + val + value.slice(index + 1);
-    onChange(newValue);
-    if (val && index < length - 1) inputRefs.current[index + 1]?.focus();
-  };
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    if (e.key === "Backspace" && !e.currentTarget.value && index > 0)
-      inputRefs.current[index - 1]?.focus();
-  };
-  const borderColorClass = isError
-    ? "border-red-500"
-    : isSuccess
-      ? "border-green-500"
-      : "border-gray-300";
-  return (
-    <div className="flex flex-row gap-2.5 justify-center">
-      {[...Array(length)].map((_, index) => (
-        <TextInput
-          label=""
-          key={index}
-          id={`code-input-${index}`}
-          type="tel"
-          className={`text-center rounded-lg w-12 h-12 text-3xl shadow-sm border ${borderColorClass}`}
-          value={value[index] || ""}
-          onChange={(e) => handleChange(e, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          ref={(el) => {
-            inputRefs.current[index] = el;
-          }}
-          maxLength={1}
-          inputMode="numeric"
-        />
-      ))}
-    </div>
-  );
-};
-import { ROUTES } from "@/constants/routes";
-import { logo } from "@/constants/images";
-import { ClockIcon, CheckmarkIcon } from "@/constants/icons";
+import { wunduToast } from "@/utils/toast";
 import { usePasswordRecovery } from "@/hooks/use-password-recovery";
 
-type CTAVariant = "landing" | "login" | "default";
+const PREFILL_EMAIL_KEY = "wundu-prefill-email";
+const RESEND_COOLDOWN = 45;
 
-interface CTAProps {
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  buttonText?: string;
-  onButtonClick?: () => void;
-  showButton?: boolean;
-  variant?: CTAVariant;
-  className?: string;
+function strength(pw: string) {
+  const rules = [
+    { text: "Pelo menos 8 caracteres", ok: pw.length >= 8 },
+    { text: "Uma letra maiúscula", ok: /[A-Z]/.test(pw) },
+    { text: "Um número", ok: /\d/.test(pw) },
+    { text: "Um símbolo", ok: /[^A-Za-z0-9]/.test(pw) },
+  ];
+  const score = pw ? rules.filter((r) => r.ok).length : 0;
+  const lv = [
+    null,
+    { label: "Fraca", color: "var(--danger)" },
+    { label: "Razoável", color: "var(--warning)" },
+    { label: "Boa", color: "var(--info)" },
+    { label: "Forte", color: "var(--success)" },
+  ][score] as { label: string; color: string } | null;
+  return {
+    score,
+    label: lv ? lv.label : "",
+    color: lv ? lv.color : "var(--text-tertiary)",
+    segs: [0, 1, 2, 3].map((i) =>
+      i < score && lv ? lv.color : "var(--surface-track)",
+    ),
+    rules: rules.map((r) => ({
+      ...r,
+      color: r.ok ? "var(--success)" : "var(--text-tertiary)",
+    })),
+  };
 }
 
-const CTA: React.FC<CTAProps> = ({
-  title,
-  subtitle,
-  buttonText = "Continuar",
-  onButtonClick,
-  showButton = false,
-  variant = "default",
-  className,
-}) => {
-  const containerClasses = [
-    "flex flex-col items-center text-center",
-    variant === "landing" ? "gap-6" : "gap-4",
-    className || "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const titleClasses = [
-    "font-bold text-gray-900",
-    variant === "landing" ? "text-3xl md:text-4xl" : "text-xl md:text-2xl",
-  ].join(" ");
-  const subtitleClasses = [
-    "text-gray-600",
-    variant === "landing" ? "text-base md:text-lg" : "text-sm md:text-base",
-  ].join(" ");
-  const buttonVariant = variant === "landing" ? "landing" : "primary";
+function ScreenHeader({ title, subtitle }: { title: string; subtitle: React.ReactNode }) {
   return (
-    <div className={containerClasses}>
-      <h2 className={titleClasses}>{title}</h2>
-      {subtitle && <p className={subtitleClasses}>{subtitle}</p>}
-      {showButton && (
-        <div className="mt-2">
-          <Button variant={buttonVariant as any} onClick={onButtonClick}>
-            {buttonText}
-          </Button>
-        </div>
-      )}
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+        {title}
+      </h1>
+      <p style={{ margin: 0, fontSize: 15, color: "var(--text-secondary)" }}>
+        {subtitle}
+      </p>
     </div>
   );
-};
-
-const NavigationBack: React.FC<{ prev?: () => void; color?: string }> = ({
-  prev,
-  color,
-}) => {
-  const router = useRouter();
-  return (
-    <button
-      onClick={prev ?? (() => router.back())}
-      className={`p-2 -ml-2 ${color ?? "text-gray-700"} hover:bg-gray-100 rounded-full transition-colors`}
-      aria-label="Voltar"
-    >
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
-    </button>
-  );
-};
+}
 
 // ── Step 1: Email ──
-function StepEmailPhone({
-  setResetData,
+function StepEmail({
+  initialEmail,
   nextStep,
+  setResetData,
   sendRequestEmail,
 }: {
-  setResetData: (d: PasswordResetData) => void;
+  initialEmail: string;
   nextStep: () => void;
+  setResetData: (d: PasswordResetData) => void;
   sendRequestEmail: (email: string) => Promise<{ success: boolean; retryAfter?: number }>;
 }) {
-  const [email, setEmail] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [email, setEmail] = useState(initialEmail);
+  const [invalid, setInvalid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
 
-  useEffect(() => {
-    if (rateLimitSeconds <= 0) return;
-    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [rateLimitSeconds]);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!email.includes("@")) {
-      setIsError(true);
+      setInvalid(true);
       return;
     }
-    setIsError(false);
+    setInvalid(false);
     setIsLoading(true);
     const result = await sendRequestEmail(email);
     setIsLoading(false);
@@ -191,387 +95,364 @@ function StepEmailPhone({
       setResetData({ phoneOrEmail: email });
       nextStep();
     } else {
-      if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
-      setIsError(true);
+      setInvalid(true);
+      wunduToast.error("Não foi possível enviar o código", {
+        description: "Tenta novamente dentro de instantes.",
+      });
     }
   };
 
   return (
-    <div className="flex h-full flex-col gap-y-8 justify-between p-4 md:gap-y-6 md:justify-start md:p-0">
-      <NavigationBack />
-      <div className="w-full text-left md:text-center">
-        <CTA
-          title="Perdeu a sua senha?"
-          subtitle="Se existir uma conta associada a este email, vais receber um código para redefinir a senha."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-y-8 px-4 md:px-0 md:gap-y-6"
-      >
-        <TextInput
-          id="email"
-          label="Email"
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <DsIconTile icon="key-round" tone="brand" size="lg" />
+      <ScreenHeader
+        title="Recuperar palavra-passe"
+        subtitle="Indica o email da tua conta. Vais receber um código de 6 dígitos para definires uma nova palavra-passe."
+      />
+      <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <DsFieldLabel>Email</DsFieldLabel>
+        <DsInput
+          icon="mail"
           type="email"
+          autoComplete="email"
+          placeholder="nome@exemplo.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Digite seu email"
-          isError={isError}
-          required
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setInvalid(false);
+          }}
+          invalid={invalid}
+          autoFocus
         />
-        {isError && (
-          <p className="text-sm text-red-500 -mt-4 md:text-center">
-            Por favor, insira um endereço de email válido.
-          </p>
-        )}
-        <Button
-          onClick={() => {}}
-          type="submit"
-          loading={isLoading}
-          disabled={rateLimitSeconds > 0}
-        >
-          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
-        </Button>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
+      <DsButton variant="primary" size="lg" block loading={isLoading} onClick={() => void submit()}>
+        Enviar código
+      </DsButton>
+      <p style={{ margin: 0, textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
+        Lembraste-te?{" "}
+        <DsLinkButton to={ROUTES.LOGIN}>Voltar a entrar</DsLinkButton>
+      </p>
     </div>
   );
 }
 
-// ── Step 2: Verification ──
-function StepVerification({
-  prevStep,
-  nextStep,
-  timer,
-  resetTimer,
-  isCodeIncorrect,
-  setIsCodeIncorrect,
+function DsLinkButton({ to, children }: { to: string; children: string }) {
+  const router = useRouter();
+  return (
+    <button
+      type="button"
+      className="wa-link"
+      onClick={() => router.push(to)}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ── Step 2: Code ──
+function StepCode({
   data,
   setResetData,
+  nextStep,
+  prevStep,
   verifyOtp,
   sendRequestEmail,
+  onResend,
+  resendIn,
 }: {
-  prevStep: () => void;
-  nextStep: () => void;
-  timer: number;
-  resetTimer: () => void;
-  isCodeIncorrect: boolean;
-  setIsCodeIncorrect: (v: boolean) => void;
   data: PasswordResetData;
   setResetData: (d: PasswordResetData) => void;
-  verifyOtp: (d: {
-    email: string;
-    otp: string;
-  }) => Promise<{ success: boolean; errorMessage?: string; retryAfter?: number }>;
+  nextStep: () => void;
+  prevStep: () => void;
+  verifyOtp: (d: { email: string; otp: string }) => Promise<{ success: boolean; errorMessage?: string; retryAfter?: number }>;
   sendRequestEmail: (email: string) => Promise<{ success: boolean; retryAfter?: number }>;
+  onResend: () => void;
+  resendIn: number;
 }) {
   const [code, setCode] = useState("");
-  const [isCodeCorrect, setIsCodeCorrect] = useState(false);
+  const [incorrect, setIncorrect] = useState(false);
+  const [correct, setCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  useEffect(() => {
-    if (rateLimitSeconds <= 0) return;
-    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [rateLimitSeconds]);
+  const fillFrom = (start: number, text: string) => {
+    const chars = text.replace(/\D/g, "").slice(0, 6 - start).split("");
+    if (!chars.length) return;
+    setCode((prev) => {
+      let next = prev;
+      chars.forEach((c, k) => {
+        next = next.slice(0, start + k) + c + next.slice(start + k + 1);
+      });
+      return next.slice(0, 6);
+    });
+    setIncorrect(false);
+    inputRefs.current[Math.min(5, start + chars.length)]?.focus();
+  };
 
-  const minutes = Math.floor(timer / 60);
-  const seconds = timer % 60;
-  const isRed = timer <= 30;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const result = await verifyOtp({ email: data.phoneOrEmail!, otp: code });
-    setIsLoading(false);
-    if (result.success) {
-      setIsCodeIncorrect(false);
-      setIsCodeCorrect(true);
-      setResetData({ code });
-      setTimeout(() => {
-        nextStep();
-      }, 500);
+  const setCell = (index: number, val: string) => {
+    const clean = val.replace(/\D/g, "");
+    let next = code;
+    if (clean.length > 1) {
+      const chars = clean.slice(0, 6 - index).split("");
+      chars.forEach((c, k) => {
+        next = next.slice(0, index + k) + c + next.slice(index + k + 1);
+      });
     } else {
-      if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
-      setIsCodeIncorrect(true);
-      setIsCodeCorrect(false);
+      next = next.slice(0, index) + clean + next.slice(index + 1);
+    }
+    setCode(next.slice(0, 6));
+    setIncorrect(false);
+    const nextIndex = clean.length > 1 ? Math.min(5, index + clean.length) : clean ? index + 1 : index;
+    if (nextIndex !== index && inputRefs.current[nextIndex]) {
+      inputRefs.current[nextIndex]?.focus();
     }
   };
 
+  const pasteCode = (index: number, text: string) => {
+    fillFrom(index, text);
+  };
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (code.length !== 6 || !data.phoneOrEmail) return;
+    setIsLoading(true);
+    const result = await verifyOtp({ email: data.phoneOrEmail, otp: code });
+    setIsLoading(false);
+    if (result.success) {
+      setIncorrect(false);
+      setCorrect(true);
+      setResetData({ code });
+      setTimeout(nextStep, 400);
+    } else {
+      setIncorrect(true);
+      setCorrect(false);
+    }
+  };
+
+  const resend = async () => {
+    if (!data.phoneOrEmail || resendIn > 0) return;
+    setIsResending(true);
+    const result = await sendRequestEmail(data.phoneOrEmail);
+    setIsResending(false);
+    if (result.success) onResend();
+  };
+
   return (
-    <div className="flex h-full flex-col gap-y-8 justify-between p-6 md:gap-y-6 md:justify-start md:p-0">
-      <NavigationBack prev={prevStep} />
-      <div className="w-full mt-10 md:mt-0 md:text-center">
-        <CTA
-          title="Verificação do Código"
-          subtitle="Insira o código que foi enviado para o seu email nos campos abaixo."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-4 px-4 md:px-0 md:gap-6"
-      >
-        <CodeInput
-          length={6}
-          value={code}
-          onChange={setCode}
-          isError={isCodeIncorrect}
-          isSuccess={isCodeCorrect}
-        />
-        {isCodeIncorrect && (
-          <p className="text-sm text-red-500 text-center">
-            Código incorreto. Tente novamente.
-          </p>
-        )}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            disabled={isResending || timer > 0 || rateLimitSeconds > 0}
-            onClick={async () => {
-              if (!data.phoneOrEmail) return;
-              setIsResending(true);
-              const result = await sendRequestEmail(data.phoneOrEmail);
-              setIsResending(false);
-              if (result.success) resetTimer();
-              else if (result.retryAfter) setRateLimitSeconds(result.retryAfter);
-            }}
-            className="text-sm text-gray-600 disabled:opacity-50"
-          >
-            {isResending ? "A reenviar..." : "Não recebi o código"}
-          </button>
-          <div
-            className={`flex items-center text-sm ${isRed ? "text-red-500" : "text-gray-600"}`}
-          >
-            <ClockIcon className="mr-1" />
-            {minutes.toString().padStart(2, "0")}:
-            {seconds.toString().padStart(2, "0")}
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <DsIconTile icon="mail-check" tone="brand" size="lg" />
+      <ScreenHeader
+        title="Introduz o código"
+        subtitle={
+          <>
+            Enviámos um código de 6 dígitos para{" "}
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {data.phoneOrEmail}
+            </strong>
+            . Expira em 2 minutos.
+          </>
+        }
+      />
+      <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <DsFieldLabel>Código de verificação</DsFieldLabel>
+        <div style={{ display: "flex", gap: 8 }}>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <input
+              key={i}
+              ref={(el) => {
+                inputRefs.current[i] = el;
+              }}
+              value={code[i] || ""}
+              onChange={(e) => setCell(i, e.target.value)}
+              onPaste={(e) => {
+                e.preventDefault();
+                pasteCode(i, e.clipboardData.getData("text"));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Backspace" && !code[i] && i > 0) {
+                  inputRefs.current[i - 1]?.focus();
+                }
+              }}
+              onFocus={(e) => e.target.select()}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              aria-label={`Dígito ${i + 1}`}
+              maxLength={1}
+              className={`wa-code${incorrect ? " wa-code--error" : ""}${correct ? " wa-code--success" : ""}`}
+            />
+          ))}
         </div>
-        <Button
-          onClick={() => {}}
-          type="submit"
-          loading={isLoading}
-          disabled={rateLimitSeconds > 0}
-        >
-          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Confirmar"}
-        </Button>
+        {incorrect ? (
+          <p style={{ margin: 0, fontSize: 14, color: "var(--danger)" }}>
+            Código incorreto. Tenta novamente.
+          </p>
+        ) : null}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "var(--text-secondary)" }}>
+          {resendIn > 0 ? (
+            <span style={{ fontVariantNumeric: "tabular-nums" }}>
+              Reenviar código em {Math.floor(resendIn / 60)}:{String(resendIn % 60).padStart(2, "0")}
+            </span>
+          ) : (
+            <>
+              Não recebeste?{" "}
+              <button
+                type="button"
+                className="wa-link"
+                disabled={isResending}
+                onClick={() => void resend()}
+              >
+                {isResending ? "A reenviar..." : "Reenviar código"}
+              </button>
+            </>
+          )}
+        </div>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
+      <DsButton
+        variant="primary"
+        size="lg"
+        block
+        loading={isLoading}
+        disabled={code.length !== 6}
+        onClick={() => void submit()}
+      >
+        Confirmar
+      </DsButton>
+      <p style={{ margin: 0, textAlign: "center", fontSize: 14, color: "var(--text-secondary)" }}>
+        Email errado?{" "}
+        <button type="button" className="wa-link" onClick={prevStep}>
+          Alterar email
+        </button>
+      </p>
     </div>
   );
 }
 
-// ── Step 3: New Password ──
+// ── Step 3: New password ──
 function StepNewPassword({
-  prevStep,
-  nextStep,
-  setResetData,
   data,
+  nextStep,
   resetPassword,
 }: {
-  prevStep: () => void;
-  nextStep: () => void;
-  setResetData: (d: PasswordResetData) => void;
   data: PasswordResetData;
-  resetPassword: (d: {
-    email: string;
-    otp: string;
-    newPassword: string;
-    confirmPassword: string;
-  }) => Promise<{ success: boolean; retryAfter?: number }>;
+  nextStep: () => void;
+  resetPassword: (d: { email: string; otp: string; newPassword: string; confirmPassword: string }) => Promise<{ success: boolean; retryAfter?: number }>;
 }) {
-  const [form, setFormState] = useState({ password: "", confirmPassword: "" });
-  const [passwordValidation, setPasswordValidation] = useState(() =>
-    validatePasswordDetailed(""),
-  );
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [mismatchTouched, setMismatchTouched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
 
-  useEffect(() => {
-    if (rateLimitSeconds <= 0) return;
-    const id = setTimeout(() => setRateLimitSeconds((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [rateLimitSeconds]);
+  const st = strength(password);
+  const mismatch = mismatchTouched && confirm ? confirm !== password : false;
 
-  const setField = (field: "password" | "confirmPassword", value: string) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-    if (field === "password") {
-      setPasswordValidation(validatePasswordDetailed(value));
-    }
-  };
-
-  const showPasswordHint = isPasswordFocused || form.password.length > 0;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!passwordValidation.isValid || form.password !== form.confirmPassword) {
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (st.score < 3 || password !== confirm || !data.phoneOrEmail || !data.code) return;
+    const detailed = validatePasswordDetailed(password);
+    if (!detailed.isValid) {
+      wunduToast.error("Senha fraca", { description: detailed.messages.join(" ") });
       return;
     }
     setIsLoading(true);
-    setIsError(false);
-    setErrorMessage("");
     const result = await resetPassword({
-      email: data.phoneOrEmail!,
-      otp: data.code!,
-      newPassword: form.password,
-      confirmPassword: form.confirmPassword,
+      email: data.phoneOrEmail,
+      otp: data.code,
+      newPassword: password,
+      confirmPassword: confirm,
     });
     setIsLoading(false);
     if (result.success) {
-      setResetData({ newPassword: form.password });
       nextStep();
     } else {
-      setIsError(true);
-      if (result.retryAfter) {
-        setRateLimitSeconds(result.retryAfter);
-        setErrorMessage(`Demasiados pedidos. Aguarde ${result.retryAfter} segundos.`);
-      } else {
-        setErrorMessage("Não foi possível redefinir a senha. Tente novamente.");
-      }
+      wunduToast.error("Não foi possível actualizar", {
+        description: "Tenta novamente dentro de instantes.",
+      });
     }
   };
 
   return (
-    <div className="flex h-full md:max-w-xl flex-col gap-2.5 justify-between md:gap-6 md:justify-start md:p-0">
-      <NavigationBack prev={prevStep} />
-      <div className="w-full text-left md:text-center">
-        <CTA
-          title="Criar uma nova senha"
-          subtitle="Crie uma senha e mantenha seus dados seguros."
-          variant="default"
-        />
-      </div>
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col gap-8 px-4 md:px-0 md:gap-6"
-      >
-        <div className="flex flex-col gap-2">
-          <Input
-            id="password"
-            label="Crie uma senha"
-            type="password"
-            value={form.password}
-            onChange={(e) => setField("password", e.target.value)}
-            onFocus={() => setIsPasswordFocused(true)}
-            onBlur={() => setIsPasswordFocused(false)}
-            placeholder="************"
-            required
-            isError={!passwordValidation.isValid && form.password.length > 0}
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <ScreenHeader
+        title="Define uma nova palavra-passe"
+        subtitle="Escolhe uma palavra-passe que não tenhas usado antes nesta conta."
+      />
+      <form onSubmit={submit} noValidate style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <DsFieldLabel>Nova palavra-passe</DsFieldLabel>
+          <DsInput
+            icon="lock"
+            type={showNewPw ? "text" : "password"}
+            autoComplete="new-password"
+            placeholder="Mínimo 8 caracteres"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            trailingIcon={showNewPw ? "eye-off" : "eye"}
+            onTrailingClick={() => setShowNewPw((v) => !v)}
+            autoFocus
           />
-          <AnimatePresence initial={false} mode="wait">
-            {showPasswordHint && (
-              <motion.div
-                key="hint"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="flex flex-col gap-2 mt-2"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full transition-colors duration-500 ${
-                        passwordValidation.isValid
-                          ? "bg-green-500"
-                          : "bg-yellow-400"
-                      }`}
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: passwordValidation.isValid ? "100%" : "40%",
-                      }}
-                      transition={{ duration: 0.4 }}
-                    />
-                  </div>
-                  <span
-                    className={`text-[10px] font-bold uppercase tracking-wider ${
-                      passwordValidation.isValid ? "text-green-600" : "text-slate-400"
-                    }`}
-                  >
-                    {passwordValidation.isValid ? "Senha válida" : "Mínimo 6 caracteres"}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2 text-[10px]">
-                  <span className={`flex items-center gap-1 ${form.password.length >= 6 ? "text-green-600" : "text-slate-400"}`}>
-                    {form.password.length >= 6 ? "✓" : "○"} Pelo menos 6 caracteres
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[a-z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[a-z]/.test(form.password) ? "✓" : "○"} Minúscula
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[A-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[A-Z]/.test(form.password) ? "✓" : "○"} Maiúscula
-                  </span>
-                  <span className={`flex items-center gap-1 ${/\d/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/\d/.test(form.password) ? "✓" : "○"} Número
-                  </span>
-                  <span className={`flex items-center gap-1 ${/[^da-zA-Z]/.test(form.password) ? "text-green-600" : "text-slate-400"}`}>
-                    {/[^da-zA-Z]/.test(form.password) ? "✓" : "○"} Símbolo
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+            <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6 }}>
+              {st.segs.map((bg, i) => (
+                <div key={i} style={{ height: 6, borderRadius: 999, background: bg }} />
+              ))}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 600, minWidth: 64, textAlign: "right", color: st.color }}>
+              {st.label}
+            </span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: "8px 12px", marginTop: 4 }}>
+            {st.rules.map((r) => (
+              <div key={r.text} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: r.color }}>
+                <DsIcon name={r.ok ? "circle-check" : "circle"} size={16} />
+                {r.text}
+              </div>
+            ))}
+          </div>
         </div>
-        <Input
-          id="confirmPassword"
-          label="Repita a senha"
-          type="password"
-          value={form.confirmPassword}
-          onChange={(e) => setField("confirmPassword", e.target.value)}
-          placeholder="************"
-          required
-          isError={form.confirmPassword.length > 0 && form.password !== form.confirmPassword}
-        />
-        {form.confirmPassword.length > 0 && form.password !== form.confirmPassword && (
-          <p className="text-sm text-red-500 text-center -mt-6">
-            As senhas não correspondem.
-          </p>
-        )}
-        {(isError || rateLimitSeconds > 0) && (
-          <p className="text-sm text-red-500 text-center">
-            {errorMessage || "Não foi possível redefinir a senha. Tente novamente."}
-          </p>
-        )}
-        <Button
-          onClick={() => {}}
-          type="submit"
-          loading={isLoading}
-          disabled={!passwordValidation.isValid || form.password !== form.confirmPassword || rateLimitSeconds > 0}
-        >
-          {rateLimitSeconds > 0 ? `Aguarde ${rateLimitSeconds}s` : "Continuar"}
-        </Button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <DsFieldLabel>Confirmar palavra-passe</DsFieldLabel>
+          <DsInput
+            icon="lock"
+            type={showNewPw ? "text" : "password"}
+            autoComplete="new-password"
+            placeholder="Repete a palavra-passe"
+            value={confirm}
+            onChange={(e) => {
+              setConfirm(e.target.value);
+              setMismatchTouched(true);
+            }}
+            error={mismatch ? "As palavras-passe não coincidem." : false}
+          />
+        </div>
       </form>
-      <div className="mt-auto h-1/4 md:hidden"></div>
+      <DsButton
+        variant="primary"
+        size="lg"
+        block
+        loading={isLoading}
+        disabled={st.score < 3 || password !== confirm}
+        onClick={() => void submit()}
+      >
+        Actualizar palavra-passe
+      </DsButton>
     </div>
   );
 }
 
-// ── Step 4: Success ──
-function StepSuccess() {
+// ── Step 4: Done ──
+function StepDone() {
   const router = useRouter();
-
   return (
-    <div className="flex flex-col h-full justify-center items-center text-center p-8 md:p-0 md:gap-6">
-      <div className="w-24 h-24 mb-8 md:mb-4 flex items-center justify-center rounded-full bg-green-100">
-        <CheckmarkIcon className="w-16 h-16 text-green-500" />
-      </div>
-      <h1 className="text-3xl md:text-2xl font-bold text-gray-800">
-        SENHA REDEFINIDA COM SUCESSO!
-      </h1>
-      <p className="mt-2 text-gray-600 max-w-sm mx-auto">
-        Tudo certo! agora podes aceder a sua conta com a tua nova senha.
-      </p>
-      <div className="fixed bottom-0 left-0 right-0 p-4 md:static md:p-0 md:w-full md:max-w-sm">
-        <Button onClick={() => router.push(ROUTES.LOGIN)} type="button">
-          Continuar
-        </Button>
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <DsIconTile icon="shield-check" tone="in" size="lg" />
+      <ScreenHeader
+        title="Palavra-passe actualizada"
+        subtitle="Já podes entrar com a nova palavra-passe. As outras sessões activas foram terminadas."
+      />
+      <DsButton variant="primary" size="lg" block onClick={() => router.push(ROUTES.LOGIN)}>
+        Entrar
+      </DsButton>
     </div>
   );
 }
@@ -579,88 +460,74 @@ function StepSuccess() {
 export default function PasswordReset() {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<PasswordResetData>({});
-  const [timer, setTimer] = useState(600);
-  const [isCodeIncorrect, setIsCodeIncorrect] = useState(false);
-
+  const [prefill, setPrefill] = useState("");
+  const [resendIn, setResendIn] = useState(0);
   const { sendRequestEmail, verifyOtp, resetPassword } = usePasswordRecovery();
 
-  const setResetData = (newData: PasswordResetData) =>
-    setData((prev) => ({ ...prev, ...newData }));
-  const nextStep = () => setCurrentStep((prev) => prev + 1);
-  const prevStep = () => setCurrentStep((prev) => prev - 1);
-  const resetTimer = () => setTimer(600);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PREFILL_EMAIL_KEY);
+      if (saved) {
+        setPrefill(saved);
+        localStorage.removeItem(PREFILL_EMAIL_KEY);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
-    let countdown: NodeJS.Timeout | null = null;
-    if (currentStep === 2 && timer > 0) {
-      countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    }
-    return () => {
-      if (countdown) clearInterval(countdown);
-    };
-  }, [currentStep, timer]);
+    if (resendIn <= 0) return;
+    const id = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendIn]);
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <StepEmailPhone
-            setResetData={setResetData}
-            nextStep={nextStep}
-            sendRequestEmail={sendRequestEmail}
-          />
-        );
-      case 2:
-        return (
-          <StepVerification
-            prevStep={prevStep}
-            nextStep={nextStep}
-            timer={timer}
-            resetTimer={resetTimer}
-            isCodeIncorrect={isCodeIncorrect}
-            setIsCodeIncorrect={setIsCodeIncorrect}
-            data={data}
-            setResetData={setResetData}
-            verifyOtp={verifyOtp}
-            sendRequestEmail={sendRequestEmail}
-          />
-        );
-      case 3:
-        return (
-          <StepNewPassword
-            prevStep={prevStep}
-            nextStep={nextStep}
-            setResetData={setResetData}
-            data={data}
-            resetPassword={resetPassword}
-          />
-        );
-      case 4:
-        return <StepSuccess />;
-      default:
-        return (
-          <StepEmailPhone
-            setResetData={setResetData}
-            nextStep={nextStep}
-            sendRequestEmail={sendRequestEmail}
-          />
-        );
-    }
-  };
+  const setResetData = (d: PasswordResetData) => setData((prev) => ({ ...prev, ...d }));
+  const startResendCooldown = () => setResendIn(RESEND_COOLDOWN);
 
   return (
-    <div className="min-h-screen w-screen bg-white md:bg-gray-100">
-      <div className="block md:hidden h-screen">{renderStep()}</div>
-      <div className="hidden md:flex min-h-screen items-center justify-center p-8 relative">
-        <div className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="w-30">
-            <LogoType />
-          </div>
-        </div>
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl px-16 py-30 relative">
-          {renderStep()}
-        </div>
-      </div>
-    </div>
+    <AuthRoot>
+      <AuthFormShell
+        backTo={currentStep === 1 ? ROUTES.LOGIN : undefined}
+        onBack={
+          currentStep === 2
+            ? () => setCurrentStep(1)
+            : currentStep === 3
+              ? () => setCurrentStep(2)
+              : undefined
+        }
+      >
+        {currentStep === 1 ? (
+          <StepEmail
+            initialEmail={prefill}
+            nextStep={() => {
+              setCurrentStep(2);
+              startResendCooldown();
+            }}
+            setResetData={setResetData}
+            sendRequestEmail={sendRequestEmail}
+          />
+        ) : null}
+        {currentStep === 2 ? (
+          <StepCode
+            data={data}
+            setResetData={setResetData}
+            nextStep={() => setCurrentStep(3)}
+            prevStep={() => setCurrentStep(1)}
+            verifyOtp={verifyOtp}
+            sendRequestEmail={sendRequestEmail}
+            onResend={startResendCooldown}
+            resendIn={resendIn}
+          />
+        ) : null}
+        {currentStep === 3 ? (
+          <StepNewPassword
+            data={data}
+            nextStep={() => setCurrentStep(4)}
+            resetPassword={resetPassword}
+          />
+        ) : null}
+        {currentStep === 4 ? <StepDone /> : null}
+      </AuthFormShell>
+      <AuthBrandPanel />
+    </AuthRoot>
   );
 }

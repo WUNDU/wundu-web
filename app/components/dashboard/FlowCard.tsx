@@ -1,0 +1,192 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { TransactionDTO as ApiTransaction } from "@/types/dtos/transaction.dto";
+import { formatAOA } from "app/utils/format-AOA";
+import { useValuesVisibility } from "./values-visibility";
+
+type FlowCardProps = {
+  transactions: ApiTransaction[];
+  year: number;
+  month: number;
+  loading?: boolean;
+};
+
+type Bucket = { label: string; income: number; expense: number };
+
+/** 4 janelas do mês (01–07, 08–14, 15–21, 22–fim) como no protótipo. */
+function bucketize(transactions: ApiTransaction[], year: number, month: number): Bucket[] {
+  const days = new Date(year, month + 1, 0).getDate();
+  const buckets: Bucket[] = [
+    { label: "01–07", income: 0, expense: 0 },
+    { label: "08–14", income: 0, expense: 0 },
+    { label: "15–21", income: 0, expense: 0 },
+    { label: `22–${String(days).padStart(2, "0")}`, income: 0, expense: 0 },
+  ];
+  for (const tx of transactions) {
+    const raw = tx.transactionDate ?? tx.createdAt;
+    const date = raw?.slice(0, 10);
+    const day = Number(date?.slice(8, 10));
+    if (
+      !date?.startsWith(`${year}-${String(month + 1).padStart(2, "0")}-`) ||
+      !Number.isInteger(day) ||
+      day < 1 ||
+      day > days
+    ) {
+      continue;
+    }
+    if (!Number.isFinite(tx.amount)) continue;
+    const index = day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : 3;
+    if (tx.type === "INCOME") buckets[index].income += Math.abs(tx.amount);
+    else buckets[index].expense += Math.abs(tx.amount);
+  }
+  return buckets;
+}
+
+function FlowCard({ transactions, year, month, loading = false }: FlowCardProps) {
+  const { mask } = useValuesVisibility();
+  const buckets = useMemo(
+    () => bucketize(transactions, year, month),
+    [transactions, year, month],
+  );
+  const [hovered, setHovered] = useState<number | null>(null);
+  const peak = Math.max(
+    1,
+    ...buckets.flatMap((b) => [b.income, b.expense]),
+  );
+  const hasData = buckets.some((b) => b.income > 0 || b.expense > 0);
+
+  // No toque (sem hover) o 1º toque dispara mouseenter/focus + click em
+  // sequência — o toggle do click fecharia logo o que o hover abriu,
+  // obrigando a 2 toques. Por isso hover/focus só valem com rato/teclado.
+  const canHover = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(hover: hover)").matches;
+
+  return (
+    <section className="flex h-auto flex-col gap-3 self-stretch rounded-xl border border-(--card-barras) bg-(--bg-card) p-4 xl:gap-4 xl:p-6">
+      <header className="flex items-center justify-between gap-3 self-stretch">
+        <div className="min-w-0">
+          <h1 className="font-manrope text-base font-semibold leading-6 tracking-tight text-(--text-title) xl:text-lg">
+            Entradas e gastos
+          </h1>
+          <p className="font-manrope text-xs font-normal leading-5 text-(--text-description)">
+            Movimentos ao longo do mês.
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="size-2 rounded-full bg-success" />
+            <span className="font-manrope text-xs font-semibold text-(--text-description)">
+              Entradas
+            </span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="size-2 rounded-full bg-danger-300" />
+            <span className="font-manrope text-xs font-semibold text-(--text-description)">
+              Gastos
+            </span>
+          </span>
+        </div>
+      </header>
+      {loading ? (
+        <div aria-label="A carregar fluxo financeiro">
+          <div aria-hidden="true" className="h-48 animate-pulse rounded-xl bg-(--bg-filter)" />
+          <span className="sr-only">A carregar fluxo financeiro…</span>
+        </div>
+      ) : !hasData ? (
+        <p className="py-6 text-center font-manrope text-sm text-(--text-description)">
+          Sem movimentos neste mês.
+        </p>
+      ) : (
+        <div
+          className="flex items-stretch gap-2 self-stretch"
+          role="img"
+          aria-label={buckets
+            .map(
+              (b) =>
+                `${b.label}: entradas ${mask(formatAOA(b.income))}, gastos ${mask(formatAOA(b.expense))}`,
+            )
+            .join(". ")}
+        >
+          {buckets.map((bucket, i) => {
+            const isHovered = hovered === i;
+            // Evita o tooltip sair do card nas extremidades.
+            const align =
+              i === 0
+                ? "left-0 -translate-x-0"
+                : i === buckets.length - 1
+                  ? "right-0 translate-x-0"
+                  : "left-1/2 -translate-x-1/2";
+            // Pontinha alinhada ao centro das barras do grupo.
+            const arrowAlign =
+              i === 0
+                ? "left-6"
+                : i === buckets.length - 1
+                  ? "right-6"
+                  : "left-1/2 -translate-x-1/2";
+            return (
+              <div
+                key={bucket.label}
+                tabIndex={0}
+                role="img"
+                aria-label={`${bucket.label}: entradas ${mask(formatAOA(bucket.income))}, gastos ${mask(formatAOA(bucket.expense))}`}
+                onMouseEnter={() => {
+                  if (canHover()) setHovered(i);
+                }}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => {
+                  if (canHover()) setHovered(i);
+                }}
+                onBlur={() => setHovered(null)}
+                onClick={() => setHovered((prev) => (prev === i ? null : i))}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setHovered(null);
+                }}
+                className="relative flex min-w-0 flex-1 cursor-default flex-col items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
+              >
+                {isHovered && (
+                  <div
+                    role="tooltip"
+                    className={`pointer-events-none absolute -top-2 z-10 w-max max-w-[220px] -translate-y-full rounded-xl border border-(--card-barras) bg-(--background) px-3 py-2 shadow-[0px_8px_30px_rgba(2,21,69,0.12)] ${align}`}
+                  >
+                    <p className="font-manrope text-[11px] font-bold uppercase tracking-wide text-(--text-description)">
+                      {bucket.label}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
+                      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-success" />
+                      {mask(formatAOA(bucket.income))}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1.5 font-manrope text-xs font-semibold text-(--text-title)">
+                      <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-danger-300" />
+                      {mask(formatAOA(bucket.expense))}
+                    </p>
+                    <span
+                      aria-hidden="true"
+                      className={`absolute -bottom-[5px] size-2.5 rotate-45 border-b border-r border-(--card-barras) bg-(--background) ${arrowAlign}`}
+                    />
+                  </div>
+                )}
+                <div className="flex h-[170px] w-full items-end justify-center gap-1 sm:h-48 sm:gap-2">
+                  <span
+                    style={{ height: `${(bucket.income / peak) * 100}%` }}
+                    className="w-[22px] rounded-t-sm bg-success sm:w-7"
+                  />
+                  <span
+                    style={{ height: `${(bucket.expense / peak) * 100}%` }}
+                    className="w-[22px] rounded-t-sm bg-danger-300 sm:w-7"
+                  />
+                </div>
+                <small className="font-manrope text-xs font-medium text-(--text-description)">
+                  {bucket.label}
+                </small>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default FlowCard;

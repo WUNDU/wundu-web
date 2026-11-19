@@ -18,7 +18,7 @@ const buttonVariants = cva(
         destructive: "rounded-xl bg-red-500 text-white hover:bg-red-600 active:scale-[0.98]",
         success: "rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 active:scale-[0.98]",
         warning:
-          "rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white border border-transparent hover:brightness-110 hover:shadow-md active:scale-[0.98]",
+          "rounded-xl bg-primary-300 text-white border border-transparent hover:bg-primary-400 hover:shadow-md active:scale-[0.98]",
         fab:
           "rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-yellow-300 p-0",
         fabCircle:

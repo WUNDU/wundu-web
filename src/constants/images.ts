@@ -2,9 +2,15 @@ export { default as logo } from "../../public/assets/logo.svg";
 export { default as loginIllustration } from "../../public/assets/login-illustration.svg";
 export { default as errorIllustration } from "../../public/assets/error-illustration.svg";
 export { default as user } from "../../public/assets/user.png";
+export { default as avatar } from "../../public/assets/avatars/Avatar.svg";
 export { default as backgroundPanel } from "../../public/assets/backgroundPanel.svg";
 export { default as logotype } from "../../public/assets/logotype.svg";
 export { default as logoLogin } from "../../public/assets/logo-login.svg";
+
+// Settings — Planos (cópia ASCII do asset original "Ilustração do plano.svg",
+// necessária para o Turbopack resolver o import).
+export { default as planIllustration } from "../../public/assets/plan-illustration.svg";
+export { default as planIllustrationPremium } from "../../public/assets/plan-illustration-premium.svg";
 
 // About Page Images
 export { default as imgFounders } from "../../public/assets/images/founders.png";

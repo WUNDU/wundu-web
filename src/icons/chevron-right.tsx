@@ -2,9 +2,10 @@
 
 import React from "react";
 
-const ChevronRight: React.FC = () => (
+const ChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
-    className="w-4 h-4 text-gray-400"
+    {...props}
+    className={props.className ?? "h-4 w-4"}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -12,8 +13,8 @@ const ChevronRight: React.FC = () => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth="2"
-      d="M9 5l7 7-7 7"
+      strokeWidth="1.5"
+      d="m9 5 7 7-7 7"
     />
   </svg>
 );

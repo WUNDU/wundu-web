@@ -1,4 +1,5 @@
 import type { AngolaApiResponse, AngolaProvince } from "@/types/dtos/angola-location.dto";
+import { ANGOLA_MUNICIPALITIES } from "@/constants/angola-municipalities";
 
 const BASE_URL = "https://angolaprovinciasapi.ggwp.com.br/api/v1";
 
@@ -28,6 +29,22 @@ export const angolaLocationService = {
 
   getMunicipalities(provinces: AngolaProvince[], provinceSlug: string) {
     const found = provinces.find((p) => p.slug === provinceSlug);
-    return found?.municipios ?? [];
+    if (found?.municipios?.length) return found.municipios;
+    // Sem municípios na resposta (API em baixo ou lista offline):
+    // usa a cópia estática embutida.
+    return (ANGOLA_MUNICIPALITIES[provinceSlug] ?? []).map((nome) => ({
+      nome,
+      slug: slugify(nome),
+      distritos: [],
+      comunas: [],
+    }));
   },
 };
+
+const slugify = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");

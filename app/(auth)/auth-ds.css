@@ -1,0 +1,401 @@
+/* ─── Wundu Auth · tokens + componentes do kit (cópia 1:1 do protótipo) ───
+ * Âmbito estrito `.wundu-auth`: nenhum token global é alterado. */
+
+.wundu-auth {
+  --font-core: var(--font-manrope), -apple-system, "Segoe UI", sans-serif;
+
+  --surface-page: #ffffff;
+  --surface-muted: #f4f4f5;
+  --surface-card: #ffffff;
+  --surface-field: #f4f4f5;
+  --surface-hover: #f4f4f5;
+  --surface-track: #eff1f4;
+  --surface-sunken: #f0f2f4;
+
+  --border-subtle: #e4e4e4;
+  --border-default: #dadada;
+  --border-strong: #ced4dc;
+  --border-field: #dadada;
+
+  --text-primary: #3b4655;
+  --text-secondary: #62748e;
+  --text-tertiary: #a1acbb;
+
+  --primary-light: #e6ecf9;
+  --primary-light-hover: #dae2f6;
+  --primary-light-active: #b2c3ed;
+  --primary: #053dc4;
+  --primary-hover: #0537b0;
+  --primary-active: #04319d;
+  --on-soft-brand: var(--primary);
+  --brand-line: var(--primary);
+
+  --success: #06c270;
+  --warning: #eab308;
+  --danger: #ff3b3b;
+  --info: #0ea5e9;
+  --money-in: #06c270;
+  --tone-gold: #baa53b;
+  --logo-yellow: #FFD400;
+  --secondary-dark: #baa53b;
+  --cat-1: #06c270;
+  --cat-1-tint: #e7f9f1;
+  --money-in-tint: #e7f9f1;
+  --cat-3: #ff8800;
+  --cat-3-tint: #fff4e6;
+  --cat-4-tint: #fffbe6;
+  --cat-5: #b090f4;
+  --cat-5-tint: #f8f4fe;
+  --cat-7-tint: #e6ecf9;
+  --warning-tint: #fffbe6;
+  --neutral-light-active: #ced4dc;
+
+  --radius-control: 12px;
+  --radius-tile: 12px;
+  --radius-full: 999px;
+  --radius-sm: 6px;
+  --radius-lg: 10px;
+
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 16px;
+  --fw-semibold: 600;
+  --ls-snug: -0.01em;
+  --type-label-size: 12px;
+  --type-label-weight: 600;
+  --type-label-ls: 0.08em;
+
+  --shadow-focus: 0 0 0 3px rgba(5, 61, 196, 0.18);
+  --shadow-focus-danger: 0 0 0 3px rgba(255, 59, 59, 0.18);
+  --transition-control:
+    background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-theme="dark"] .wundu-auth {
+  --surface-page: #051020;
+  --surface-muted: #040d1a;
+  --surface-card: #07162b;
+  --surface-field: #223249;
+  --surface-hover: #0f2340;
+  --surface-track: #16243a;
+  --surface-sunken: #02080f;
+
+  --border-subtle: #16273e;
+  --border-default: #223249;
+  --border-strong: #314168;
+  --border-field: #223249;
+
+  --text-primary: #f3f6fa;
+  --text-secondary: #8ea0bb;
+  --text-tertiary: #5d6e88;
+
+  --primary-light: #132445;
+  --primary-light-hover: #18294c;
+  --primary-light-active: #20386a;
+  --on-soft-brand: #93aae8;
+  --brand-line: #4b74d4;
+  --tone-gold: #e7c948;
+  --secondary-dark: #e7c948;
+  --cat-1-tint: #072732;
+  --money-in-tint: #072732;
+  --cat-3-tint: #202127;
+  --cat-4-tint: #1f2a2f;
+  --cat-5-tint: #18223f;
+  --cat-7-tint: #071a3a;
+  --warning-tint: #1e2628;
+
+  --neutral-light-active: #223249;
+}
+
+.wundu-auth {
+  font-family: var(--font-core);
+  color: var(--text-primary);
+  background: var(--surface-page);
+}
+
+/* ─── Button ─── */
+.wundu-auth .wd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-core);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-snug);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: var(--transition-control);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.wundu-auth .wd-btn:disabled {
+  cursor: not-allowed;
+  background: var(--neutral-light-active);
+  border-color: transparent;
+  color: #ffffff;
+  opacity: 0.9;
+}
+.wundu-auth .wd-btn--sm { height: 36px; padding: 0 14px; font-size: var(--text-sm); }
+.wundu-auth .wd-btn--lg { height: 48px; padding: 0 24px; font-size: var(--text-lg); }
+.wundu-auth .wd-btn--block { width: 100%; }
+.wundu-auth .wd-btn--primary { background: var(--primary); color: #fff; }
+.wundu-auth .wd-btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.wundu-auth .wd-btn--primary:active:not(:disabled) { background: var(--primary-active); }
+.wundu-auth .wd-btn--secondary { background: var(--primary-light); color: var(--on-soft-brand); }
+.wundu-auth .wd-btn--secondary:hover:not(:disabled) { background: var(--primary-light-hover); }
+.wundu-auth .wd-btn--secondary:active:not(:disabled) { background: var(--primary-light-active); }
+.wundu-auth .wd-btn--outline {
+  background: transparent;
+  border-color: var(--brand-line);
+  color: var(--on-soft-brand);
+}
+.wundu-auth .wd-btn--outline:hover:not(:disabled) { background: var(--primary-light); }
+.wundu-auth .wd-btn--outline:active:not(:disabled) { background: var(--primary-light-active); }
+.wundu-auth .wd-btn--ghost { background: transparent; color: var(--on-soft-brand); }
+.wundu-auth .wd-btn--ghost:hover:not(:disabled) { background: var(--primary-light); }
+.wundu-auth .wd-btn--ghost:active:not(:disabled) { background: var(--primary-light-active); }
+.wundu-auth .wd-btn:focus-visible { box-shadow: var(--shadow-focus); outline: none; }
+.wundu-auth .wd-btn__spin {
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: wd-spin 0.7s linear infinite;
+}
+@keyframes wd-spin { to { transform: rotate(360deg); } }
+
+/* ─── Input ─── */
+.wundu-auth .wd-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-field);
+  border-radius: var(--radius-control);
+  transition: var(--transition-control);
+}
+.wundu-auth .wd-input:hover { border-color: var(--border-strong); }
+.wundu-auth .wd-input:focus-within { border-color: var(--primary); box-shadow: var(--shadow-focus); }
+.wundu-auth .wd-input--error { border-color: var(--danger); }
+.wundu-auth .wd-input--error:focus-within { box-shadow: var(--shadow-focus-danger); }
+.wundu-auth .wd-input__el {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: var(--font-core);
+  font-size: var(--text-md);
+  color: var(--text-primary);
+}
+.wundu-auth .wd-input__el::placeholder { color: var(--text-tertiary); }
+.wundu-auth .wd-input__icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  flex: 0 0 auto;
+}
+.wundu-auth .wd-input__trail {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.wundu-auth .wd-input__trail:hover { color: var(--text-secondary); }
+.wundu-auth .wd-input__hint { margin-top: 6px; font-size: var(--text-sm); color: var(--text-secondary); }
+.wundu-auth .wd-input__hint--error { color: var(--danger); }
+
+/* ─── FieldLabel ─── */
+.wundu-auth .wd-fieldlabel {
+  display: block;
+  font-family: var(--font-core);
+  font-size: var(--type-label-size);
+  font-weight: var(--type-label-weight);
+  letter-spacing: var(--type-label-ls);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+/* ─── Checkbox ─── */
+.wundu-auth .wd-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: var(--font-core);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.wundu-auth .wd-check__box {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  transition: var(--transition-control);
+}
+.wundu-auth .wd-check:hover .wd-check__box { border-color: var(--primary); }
+.wundu-auth .wd-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.wundu-auth .wd-check input:checked + .wd-check__box { background: var(--primary); border-color: var(--primary); }
+.wundu-auth .wd-check input:checked + .wd-check__box::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2.5px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.wundu-auth .wd-check input:focus-visible + .wd-check__box { box-shadow: var(--shadow-focus); outline: none; }
+
+/* ─── IconTile / IconButton ─── */
+.wundu-auth .wd-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-tile);
+  flex: 0 0 auto;
+}
+.wundu-auth .wd-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.wundu-auth .wd-iconbtn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.wundu-auth .wd-iconbtn:focus-visible { box-shadow: var(--shadow-focus); outline: none; }
+.wundu-auth .wd-iconbtn--lg { width: 44px; height: 44px; }
+.wundu-auth .wd-iconbtn--outline { border-color: var(--border-default); }
+
+/* ─── Text buttons (links do protótipo) ─── */
+.wundu-auth .wa-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-soft-brand);
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.wundu-auth .wa-link:hover { color: var(--primary-hover); }
+
+/* ─── Código de 6 dígitos ─── */
+.wundu-auth .wa-code {
+  flex: 1;
+  min-width: 0;
+  max-width: 56px;
+  height: 56px;
+  text-align: center;
+  font-family: var(--font-core);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--border-field);
+  border-radius: 12px;
+  outline: none;
+  transition:
+    border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.wundu-auth .wa-code:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(5, 61, 196, 0.18); }
+.wundu-auth .wa-code--error { border-color: var(--danger); }
+.wundu-auth .wa-code--error:focus { box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.18); }
+.wundu-auth .wa-code--success { border-color: var(--success); }
+
+/* ─── Shell responsivo ─── */
+.wundu-auth.wa-authroot {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+.wundu-auth .wa-formcol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 16px;
+}
+@media (max-width: 380px) {
+  .wundu-auth .wa-formcol { padding: 16px 16px 12px; }
+}
+.wundu-auth .wa-panel-bottom {
+  flex: 0 0 auto;
+  padding: 8px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.wundu-auth .wa-panel-title {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+@media (max-height: 820px) {
+  .wundu-auth .wa-panel-bottom { padding: 4px 32px 24px; gap: 18px; }
+  .wundu-auth .wa-panel-title { font-size: 25px; }
+  .wundu-auth .wa-panel-hero { max-width: 300px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wundu-auth .wa-dot,
+  .wundu-auth .wa-roundbtn,
+  .wundu-auth .wd-btn,
+  .wundu-auth .wd-input,
+  .wundu-auth .wd-check__box,
+  .wundu-auth .wd-iconbtn { transition: none; }
+}
+
+/* ─── Painel web (dots + setas redondas) ─── */
+.wundu-auth .wa-dot {
+  border: 0;
+  padding: 0;
+  height: 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: width 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.wundu-auth .wa-roundbtn {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-control);
+}
+.wundu-auth .wa-roundbtn:hover { background: var(--surface-hover); }
+.wundu-auth .wa-roundbtn--primary { border: 0; background: var(--primary); color: #fff; }
+.wundu-auth .wa-roundbtn--primary:hover { background: var(--primary-hover); }

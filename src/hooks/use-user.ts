@@ -1,7 +1,7 @@
 import { useUserStore } from "@/store/user-store";
 import { userService } from "@/services/user.service";
 import { notify } from "@/hooks/use-notification";
-import type { UserRequest } from "@/types/dtos/user.dto";
+import type { ProfileUpdateRequest, UserRequest } from "@/types/dtos/user.dto";
 
 export function useUser() {
   const {
@@ -29,6 +29,42 @@ export function useUser() {
     }
   };
 
+  const updateProfile = async (payload: ProfileUpdateRequest): Promise<boolean> => {
+    try {
+      await userService.updateProfile(payload);
+      await checkAuthStatus();
+      notify.success("Perfil atualizado com sucesso!");
+      return true;
+    } catch {
+      notify.error("Erro ao atualizar perfil");
+      return false;
+    }
+  };
+
+  const uploadPhoto = async (file: File): Promise<boolean> => {
+    try {
+      await userService.uploadPhoto(file);
+      await checkAuthStatus();
+      notify.success("Foto atualizada com sucesso!");
+      return true;
+    } catch {
+      notify.error("Não foi possível carregar a foto.");
+      return false;
+    }
+  };
+
+  const removePhoto = async (): Promise<boolean> => {
+    try {
+      await userService.deletePhoto();
+      await checkAuthStatus();
+      notify.success("Foto removida.");
+      return true;
+    } catch {
+      notify.error("Não foi possível remover a foto.");
+      return false;
+    }
+  };
+
   const getUserById = async (id: string) => {
     try {
       return await userService.getById(id);
@@ -48,6 +84,9 @@ export function useUser() {
     logout: logoutUser,
     clearError,
     updateUser,
+    updateProfile,
+    uploadPhoto,
+    removePhoto,
     getUserById,
     refreshUser: checkAuthStatus,
   };

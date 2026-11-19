@@ -1,0 +1,636 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Calendar, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { CloseIcon, ImageUploadIcon } from "@/constants/icons";
+import { avatar } from "@/constants/images";
+import DropmenuData from "../transaction/DropmenuData";
+import FloatingMenu from "../ui/FloatingMenu";
+import SearchableMenu from "../ui/SearchableMenu";
+import { formatPhoneInput } from "../../utils/phone-mask";
+import { useAngolaLocation } from "@/hooks/use-angola-location";
+import { angolaLocationService } from "@/services/angola-location.service";
+import {
+  provinceEnumToSlug,
+  provinceSlugToEnum,
+} from "@/types/dtos/angola-location.dto";
+import type { ProfileDTO } from "../mock/profile";
+
+export type ProfileEditValues = {
+  name: string;
+  phone: string;
+  /** Data de nascimento em YYYY-MM-DD. */
+  birthDate: string;
+  /** Enum do backend (ex. "BENGO"); vazio = sem alteração. */
+  province: string;
+  /** Nome do município em texto. */
+  municipality: string;
+};
+
+type ProfileEditProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  profile: ProfileDTO;
+  onSave?: (values: ProfileEditValues) => Promise<boolean>;
+  /** Envia a foto imediatamente e devolve o URL final (ou null em erro). */
+  onUploadPhoto?: (file: File) => Promise<string | null>;
+  /** Remove a foto imediatamente. */
+  onRemovePhoto?: () => Promise<boolean>;
+};
+
+const MAX_PHOTO_BYTES = 20 * 1024 * 1024;
+
+const parseDMY = (raw: string): Date => {
+  const match = raw.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return new Date();
+  const date = new Date(
+    Number(match[3]),
+    Number(match[2]) - 1,
+    Number(match[1]),
+  );
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+};
+
+const formatDMY = (date: Date): string =>
+  date.toLocaleDateString("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function ProfileEdit({
+  isOpen,
+  onClose,
+  profile,
+  onSave,
+  onUploadPhoto,
+  onRemovePhoto,
+}: ProfileEditProps) {
+  const [name, setName] = useState(profile.name);
+  const [birth, setBirth] = useState<Date>(() => parseDMY(profile.birthDate));
+  const [birthChosen, setBirthChosen] = useState(
+    profile.birthDate !== "—" && Boolean(profile.birthDate),
+  );
+  const [birthOpen, setBirthOpen] = useState(false);
+  const [phone, setPhone] = useState(profile.phone);
+  const [provinceSlug, setProvinceSlug] = useState("");
+  const [provinceOpen, setProvinceOpen] = useState(false);
+  const [municipality, setMunicipality] = useState(profile.municipality ?? "");
+  const [municipalityOpen, setMunicipalityOpen] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(profile.photo ?? null);
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const birthAnchorRef = useRef<HTMLButtonElement>(null);
+  const provinceAnchorRef = useRef<HTMLButtonElement>(null);
+  const municipalityAnchorRef = useRef<HTMLButtonElement>(null);
+  const { provinces, isLoading: isLocationLoading } = useAngolaLocation();
+  const municipalities = angolaLocationService.getMunicipalities(
+    provinces,
+    provinceSlug,
+  );
+  const allMunicipalities = useMemo(
+    () =>
+      provinces.flatMap((province) =>
+        angolaLocationService
+          .getMunicipalities(provinces, province.slug)
+          .map((municipality) => ({
+            ...municipality,
+            provinceSlug: province.slug,
+            provinceName: province.nome,
+          })),
+      ),
+    [provinces],
+  );
+  /** Com província: só os dela. Sem província: todos (escolher define-a). */
+  const municipalityOptions = useMemo(
+    () =>
+      provinceSlug
+        ? municipalities.map((item) => ({
+            id: item.slug,
+            label: item.nome,
+            provinceSlug,
+            nome: item.nome,
+          }))
+        : allMunicipalities.map((item) => ({
+            id: `${item.provinceSlug}:${item.slug}`,
+            label: `${item.nome} · ${item.provinceName}`,
+            provinceSlug: item.provinceSlug,
+            nome: item.nome,
+          })),
+    [provinceSlug, municipalities, allMunicipalities],
+  );
+  const hasMunicipalityData =
+    allMunicipalities.length > 0 || isLocationLoading;
+  const selectedMunicipalityId =
+    municipalityOptions.find((item) => item.nome === municipality)?.id ?? "";
+  const provinceName =
+    provinces.find((item) => item.slug === provinceSlug)?.nome ?? "";
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setName(profile.name);
+    setBirth(parseDMY(profile.birthDate));
+    setBirthChosen(profile.birthDate !== "—" && Boolean(profile.birthDate));
+    setBirthOpen(false);
+    setPhone(profile.phone);
+    setProvinceSlug(
+      profile.province ? provinceEnumToSlug(profile.province) : "",
+    );
+    setProvinceOpen(false);
+    setMunicipality(profile.municipality ?? "");
+    setMunicipalityOpen(false);
+    setPhoto(profile.photo ?? null);
+    setSaving(false);
+    setUploadingPhoto(false);
+    setFormError(null);
+    // Só ao abrir: o perfil é actualizado após o upload da foto e não deve
+    // apagar alterações ainda não guardadas no formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const fieldLabel =
+    "font-manrope text-sm font-medium leading-5 text-(--text-description)";
+  const fieldBox =
+    "rounded-xl border border-(--card-barras) bg-(--background) focus:border-(--border) focus:outline-none";
+
+  function updatePhoto(next: string | null) {
+    setPhoto((previous) => {
+      if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
+      return next;
+    });
+  }
+
+  async function handlePickPhoto(file: File | undefined) {
+    if (!file || uploadingPhoto) return;
+    if (!/^image\/(jpeg|png)$/.test(file.type)) {
+      setFormError("A foto tem de ser JPEG ou PNG.");
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      setFormError("A foto não pode exceder 20 MB.");
+      return;
+    }
+    setFormError(null);
+
+    if (!onUploadPhoto) return;
+
+    const previousPhoto = photo;
+    updatePhoto(URL.createObjectURL(file));
+    setUploadingPhoto(true);
+    try {
+      const uploadedUrl = await onUploadPhoto(file);
+      if (uploadedUrl) {
+        updatePhoto(uploadedUrl);
+      } else {
+        updatePhoto(previousPhoto);
+        setFormError("Não foi possível enviar a foto.");
+      }
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
+  async function handleRemovePhoto() {
+    if (uploadingPhoto || !photo) return;
+    setFormError(null);
+
+    // Foto ainda só em pré-visualização: basta descartá-la.
+    if (photo.startsWith("blob:")) {
+      updatePhoto(null);
+      return;
+    }
+
+    if (!onRemovePhoto) return;
+
+    setUploadingPhoto(true);
+    try {
+      if (await onRemovePhoto()) {
+        updatePhoto(null);
+      } else {
+        setFormError("Não foi possível remover a foto.");
+      }
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
+  async function handleSave() {
+    if (saving) return;
+    if (name.trim().length < 2) {
+      setFormError("Indique o nome completo.");
+      return;
+    }
+    const phoneDigits = phone.replace(/\D/g, "");
+    const localPhone =
+      phoneDigits.length > 9 && phoneDigits.startsWith("244")
+        ? phoneDigits.slice(3)
+        : phoneDigits;
+    if (!/^[29]\d{8}$/.test(localPhone)) {
+      setFormError("Indique um número de telefone válido.");
+      return;
+    }
+    if (!birthChosen) {
+      setFormError("Selecione a data de nascimento.");
+      return;
+    }
+    if (!provinceSlug) {
+      setFormError("Selecione a província.");
+      return;
+    }
+    if (!municipality.trim()) {
+      setFormError("Selecione o município.");
+      return;
+    }
+    setSaving(true);
+    setFormError(null);
+    const ok = await onSave?.({
+      name: name.trim(),
+      phone: phone.trim(),
+      birthDate: toDateKey(birth),
+      province: provinceSlug ? provinceSlugToEnum(provinceSlug) : "",
+      municipality: municipality.trim(),
+    });
+    setSaving(false);
+    if (ok) onClose();
+    else setFormError("Não foi possível guardar. Tente novamente.");
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 bg-base-black/40 backdrop-blur transition-opacity duration-300 lg:bg-transparent ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      onClick={onClose}
+    >
+      <aside
+        aria-label="Editar perfil"
+        onClick={(event) => event.stopPropagation()}
+        className={`fixed inset-x-0 bottom-0 top-auto z-50 max-h-dvh flex w-full max-w-full flex-col items-start justify-between rounded-t-3xl border-t border-(--card-barras) bg-(--background) transition-transform duration-300 ease-out lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-screen lg:max-h-dvh lg:w-224 lg:rounded-none lg:border-l lg:border-t-0 ${isOpen ? "translate-x-0 translate-y-0 lg:translate-x-0" : "translate-x-0 translate-y-full lg:translate-x-full lg:translate-y-0"}`}
+      >
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-xs bg-(--card-barras) lg:hidden"
+        />
+        <header className="flex h-20 shrink-0 items-center justify-between self-stretch border-b border-(--card-barras) p-4 sm:h-24 sm:p-6">
+          <div className="flex items-center justify-start gap-2">
+            <span
+              aria-hidden="true"
+              className="flex size-10 items-center justify-center rounded-xl bg-primary-300/10"
+            >
+              <Pencil width={20} height={20} className="text-(--icon-hover)" />
+            </span>
+            <h2 className="font-manrope text-lg font-bold leading-7 text-(--text)">
+              Editar Perfil
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar"
+            className="rounded-lg p-1 transition-all hover:bg-neutrals-300/10 active:scale-90"
+          >
+            <CloseIcon width={24} className="text-primary-900/50" />
+          </button>
+        </header>
+
+        <div className="flex min-h-0 flex-1 flex-col items-start justify-start self-stretch overflow-y-auto py-4 sm:py-6">
+            <div className="flex flex-col items-start justify-start gap-6 self-stretch px-4 pb-2 pt-0 sm:px-6 sm:pb-3 sm:pt-2">
+              <div className="flex flex-col items-start justify-start gap-8 self-stretch rounded-xl border border-(--card-barras) bg-(--background) p-4 sm:gap-10 sm:p-6">
+              <div className="flex flex-row items-center justify-start gap-3 self-stretch sm:gap-6">
+                <Image
+                  src={photo ?? avatar}
+                  alt="Foto de perfil"
+                  width={180}
+                  height={180}
+                  unoptimized={Boolean(photo)}
+                  className="size-24 shrink-0 rounded-3xl object-cover outline-2 outline-(--border-blue) sm:size-44"
+                />
+                <div className="flex min-w-0 flex-1 flex-col items-stretch justify-start gap-2.5 sm:w-40 sm:flex-none">
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    aria-label="Carregar foto"
+                    className="sr-only"
+                    onChange={(event) => {
+                      void handlePickPhoto(event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    className="flex h-11 items-center justify-center gap-2 self-stretch rounded-xl border border-(--border-hover) bg-transparent px-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 disabled:cursor-wait disabled:opacity-60 sm:h-10"
+                  >
+                    <ImageUploadIcon
+                      width={24}
+                      height={24}
+                      aria-hidden="true"
+                      className="size-6 shrink-0 text-(--text-description-button)"
+                    />
+                    <span className="shrink-0 whitespace-nowrap text-center font-manrope text-xs font-bold text-(--text-description-button)">
+                      {uploadingPhoto ? "A carregar…" : "Carregar Foto"}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleRemovePhoto()}
+                    disabled={!photo || uploadingPhoto}
+                    className="flex h-11 items-center justify-center gap-2 self-stretch rounded-xl bg-(--button-bg-danger) px-3 transition-opacity hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-10"
+                  >
+                    <Trash2
+                      width={20}
+                      height={20}
+                      aria-hidden="true"
+                      className="size-5 shrink-0 text-base-white"
+                    />
+                    <span className="shrink-0 whitespace-nowrap text-center font-manrope text-xs font-bold text-base-white">
+                      Eliminar foto
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-start justify-start gap-6 self-stretch">
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <label htmlFor="profile-name" className={fieldLabel}>
+                      Nome completo
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
+                    </label>
+                    <input
+                      id="profile-name"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      className={`w-full px-4 py-3 font-manrope text-base font-normal text-(--text-title) ${fieldBox}`}
+                    />
+                  </div>
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <label htmlFor="profile-email" className={fieldLabel}>
+                      Email
+                    </label>
+                    <input
+                      id="profile-email"
+                      type="email"
+                      value={profile.email}
+                      readOnly
+                      aria-readonly="true"
+                      className={`w-full bg-(--bg-notify-card-hover) px-4 py-3 font-manrope text-base font-normal text-(--text-description-60) ${fieldBox}`}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <span id="profile-birth-label" className={fieldLabel}>
+                      Data de Nascimento
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
+                    </span>
+                    <div className="relative self-stretch">
+                      <button
+                        type="button"
+                        ref={birthAnchorRef}
+                        onClick={() => setBirthOpen((value) => !value)}
+                        aria-expanded={birthOpen}
+                        aria-required="true"
+                        aria-labelledby="profile-birth-label"
+                        className={`flex w-full items-center justify-start gap-2.5 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
+                      >
+                        <Calendar
+                          width={16}
+                          height={16}
+                          aria-hidden="true"
+                          className="shrink-0 text-primary-300"
+                        />
+                        <span
+                          className={`font-manrope text-base font-normal ${
+                            birthChosen
+                              ? "text-(--text-title)"
+                              : "text-(--text-description-60)"
+                          }`}
+                        >
+                          {birthChosen ? formatDMY(birth) : "Selecionar data"}
+                        </span>
+                      </button>
+                      <FloatingMenu
+                        isOpen={birthOpen}
+                        anchorRef={birthAnchorRef}
+                        onClose={() => setBirthOpen(false)}
+                      >
+                        <DropmenuData
+                          isOpen={birthOpen}
+                          selected={birth}
+                          onSelect={(date) => {
+                            setBirth(date);
+                            setBirthChosen(true);
+                            setBirthOpen(false);
+                          }}
+                        />
+                      </FloatingMenu>
+                    </div>
+                  </div>
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <label htmlFor="profile-phone" className={fieldLabel}>
+                      Telefone
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
+                    </label>
+                    <input
+                      id="profile-phone"
+                      type="tel"
+                      required
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={phone}
+                      onChange={(event) =>
+                        setPhone(formatPhoneInput(event.target.value))
+                      }
+                      placeholder="914 939 238"
+                      className={`w-full px-4 py-3 font-manrope text-base font-normal text-(--text-title) ${fieldBox}`}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-stretch justify-start gap-4 self-stretch md:flex-row">
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <span id="profile-province-label" className={fieldLabel}>
+                      Província
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
+                    </span>
+                    <div className="relative self-stretch">
+                      <button
+                        type="button"
+                        ref={provinceAnchorRef}
+                        onClick={() => setProvinceOpen((value) => !value)}
+                        aria-expanded={provinceOpen}
+                        aria-required="true"
+                        aria-labelledby="profile-province-label"
+                        className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
+                      >
+                        <span
+                          className={`min-w-0 flex-1 truncate text-left font-manrope text-base font-normal ${
+                            provinceName
+                              ? "text-(--text-title)"
+                              : "text-(--text-description-60)"
+                          }`}
+                        >
+                          {provinceName || "Selecionar província"}
+                        </span>
+                        <ChevronDown
+                          width={14}
+                          height={14}
+                          aria-hidden="true"
+                          className={`shrink-0 text-(--icon-hover) transition-transform duration-200 ${provinceOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <FloatingMenu
+                        isOpen={provinceOpen}
+                        anchorRef={provinceAnchorRef}
+                        onClose={() => setProvinceOpen(false)}
+                      >
+                        <SearchableMenu
+                          isOpen={provinceOpen}
+                          options={provinces.map((item) => ({
+                            id: item.slug,
+                            label: item.nome,
+                          }))}
+                          value={provinceSlug}
+                          placeholder="Pesquisar província"
+                          emptyText="Sem províncias."
+                          onSelect={(slug) => {
+                            setProvinceSlug(slug);
+                            setMunicipality("");
+                            setProvinceOpen(false);
+                          }}
+                        />
+                      </FloatingMenu>
+                    </div>
+                  </div>
+                  <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start gap-2">
+                    <span id="profile-municipality-label" className={fieldLabel}>
+                      Município
+                      <span aria-hidden="true" className="text-danger-300"> *</span>
+                    </span>
+                    {hasMunicipalityData ? (
+                      <div className="relative self-stretch">
+                        <button
+                          type="button"
+                          ref={municipalityAnchorRef}
+                          onClick={() => setMunicipalityOpen((value) => !value)}
+                          aria-expanded={municipalityOpen}
+                          aria-required="true"
+                          aria-labelledby="profile-municipality-label"
+                          className={`flex w-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-neutrals-300/10 active:scale-95 ${fieldBox}`}
+                        >
+                          <span
+                            className={`min-w-0 flex-1 truncate text-left font-manrope text-base font-normal ${
+                              municipality
+                                ? "text-(--text-title)"
+                                : "text-(--text-description-60)"
+                            }`}
+                          >
+                            {municipality || "Selecionar município"}
+                          </span>
+                          <ChevronDown
+                            width={14}
+                            height={14}
+                            aria-hidden="true"
+                            className={`shrink-0 text-(--icon-hover) transition-transform duration-200 ${municipalityOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        <FloatingMenu
+                          isOpen={municipalityOpen}
+                          anchorRef={municipalityAnchorRef}
+                          onClose={() => setMunicipalityOpen(false)}
+                        >
+                          <SearchableMenu
+                            isOpen={municipalityOpen}
+                            options={municipalityOptions}
+                            value={selectedMunicipalityId}
+                            placeholder="Pesquisar município"
+                            emptyText={
+                              isLocationLoading
+                                ? "A carregar…"
+                                : "Sem municípios."
+                            }
+                            onSelect={(id) => {
+                              const option = municipalityOptions.find(
+                                (item) => item.id === id,
+                              );
+                              if (option) {
+                                setProvinceSlug(option.provinceSlug);
+                                setMunicipality(option.nome);
+                              }
+                              setMunicipalityOpen(false);
+                            }}
+                          />
+                        </FloatingMenu>
+                      </div>
+                    ) : (
+                      <input
+                        id="profile-municipality"
+                        type="text"
+                        value={municipality}
+                        onChange={(event) =>
+                          setMunicipality(event.target.value)
+                        }
+                        placeholder="Ex: Viana"
+                        aria-labelledby="profile-municipality-label"
+                        className={`w-full px-4 py-3 font-manrope text-base font-normal text-(--text-title) ${fieldBox}`}
+                      />
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {formError ? (
+          <p
+            role="alert"
+            className="shrink-0 self-stretch px-4 pt-3 font-manrope text-sm font-semibold text-danger-300 sm:px-6"
+          >
+            {formError}
+          </p>
+        ) : null}
+
+        <footer className="flex shrink-0 items-center justify-end gap-3 self-stretch border-t border-(--card-barras) p-4 sm:gap-6 sm:p-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-(--border-button) px-4 py-3 text-(--text-title) transition-colors hover:bg-neutrals-300/10 active:bg-neutrals-300/20 active:scale-95 lg:w-56 lg:flex-none"
+          >
+            <span className="font-manrope text-base font-bold leading-6">
+              Cancelar
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-primary-300 px-4 py-3 text-base-white transition-opacity hover:opacity-90 active:opacity-80 active:scale-95 disabled:cursor-wait disabled:opacity-60 lg:w-56 lg:flex-none"
+          >
+            <span className="text-center font-manrope text-base font-bold leading-6">
+              {saving ? "A guardar…" : "Salvar alterações"}
+            </span>
+          </button>
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+export default ProfileEdit;

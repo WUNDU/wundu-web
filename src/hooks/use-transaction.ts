@@ -71,9 +71,13 @@ const prependToList = (old: ListData | undefined, created: TransactionResponse):
 
 interface UseTransactionOptions {
   autoFetch?: boolean;
+  range?: NonPaginatedQueryOptions;
 }
 
-export function useTransaction({ autoFetch = true }: UseTransactionOptions = {}) {
+export function useTransaction({
+  autoFetch = true,
+  range,
+}: UseTransactionOptions = {}) {
   const queryClient = useQueryClient();
   const { isAuthenticated, isAuthLoading } = useUserStore(
     useShallow((s) => ({ isAuthenticated: s.isAuthenticated, isAuthLoading: s.isLoading })),
@@ -81,6 +85,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   const authReady = isAuthenticated && !isAuthLoading;
   const [rangeRequested, setRangeRequested] = useState(false);
   const [rangeOptions, setRangeOptions] = useState<NonPaginatedQueryOptions>({});
+  const activeRange = range ?? rangeOptions;
 
   const listQuery = useInfiniteQuery({
     queryKey: LIST_KEY,
@@ -96,9 +101,9 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
   });
 
   const rangeQuery = useQuery({
-    queryKey: rangeKey(rangeOptions),
-    queryFn: () => transactionService.getAllNotPaginated(rangeOptions),
-    enabled: rangeRequested && authReady,
+    queryKey: rangeKey(activeRange),
+    queryFn: () => transactionService.getAllNotPaginated(activeRange),
+    enabled: (rangeRequested || Boolean(range)) && authReady,
   });
 
   const pages = listQuery.data?.pages ?? [];
@@ -111,11 +116,22 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
     [queryClient],
   );
 
+  // After any write, every transaction-derived query must refresh: ranges
+  // (charts/sections), balances (dashboard cards/hero), goals (progress) and
+  // limits (consumption). Without this, the 5min staleTime + no focus refetch
+  // keeps those screens frozen until a manual reload.
+  const invalidateDerived = useCallback(() => {
+    invalidateRanges();
+    queryClient.invalidateQueries({ queryKey: ["transactions", "balance"] });
+    queryClient.invalidateQueries({ queryKey: ["goals"] });
+    queryClient.invalidateQueries({ queryKey: ["limits"] });
+  }, [queryClient, invalidateRanges]);
+
   const createMutation = useMutation({
     mutationFn: (payload: TransactionRequest) => transactionService.create(payload),
     onSuccess: (created) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => prependToList(old, created));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação registrada", "Transação registrada com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao salvar transação")),
@@ -131,7 +147,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
       queryClient.setQueryData<ListData>(LIST_KEY, (old) =>
         prependToList(old, created as unknown as TransactionResponse),
       );
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação adicionada", "O movimento foi registado com sucesso.");
     },
     onError: () => notify("error", "Erro ao adicionar", "Não foi possível concluir o registo."),
@@ -142,7 +158,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
       transactionService.complete(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação atualizada", "Transação atualizada com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao atualizar transação")),
@@ -153,7 +169,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
       transactionService.update(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação actualizada", "Alterações guardadas com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao actualizar transação")),
@@ -164,7 +180,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
       transactionService.defineCategory(id, payload),
     onSuccess: (updated, { id }) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => patchListById(old, id, updated));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Categoria definida", "Categoria definida com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao categorizar transação")),
@@ -174,7 +190,7 @@ export function useTransaction({ autoFetch = true }: UseTransactionOptions = {})
     mutationFn: (id: string) => transactionService.delete(id),
     onSuccess: (_void, id) => {
       queryClient.setQueryData<ListData>(LIST_KEY, (old) => removeFromList(old, id));
-      invalidateRanges();
+      invalidateDerived();
       notify("success", "Transação removida", "Transação removida com sucesso!");
     },
     onError: (error: any) => notify("error", "Erro", errorMessage(error, "Erro ao remover transação")),

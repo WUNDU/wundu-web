@@ -34,6 +34,8 @@
 - **Brand Line:** Instead of a simple 2px line, use a subtle gradient or integrated accent in headers/active states.
 - **Glass Shimmer:** Used on secondary cards to indicate they are secondary to the primary "High Impact" metrics.
 - **OCR Feedback:** Immediate visual feedback via toast stacks and loading states.
+- **Protected-route skeleton:** Reuse the new `Layout` shell; mirror the page header, metric row, and paired content cards with `--bg-filter` placeholders, quiet borders, and subtle blue-tinted elevation. Keep the same shell visible while auth is checked.
+- **API-backed dashboard state:** Use React Query hooks as the source of truth. Keep loading, error, empty, and success states explicit in each data section; never show mock figures as fallback for an API failure. Only label comparisons/trends when the source data supports them, and use the API profile photo URL with the local avatar as fallback.
 
 ## Signature
 **Planetary Orbit & Data Gravity.**

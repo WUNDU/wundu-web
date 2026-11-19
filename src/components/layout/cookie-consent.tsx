@@ -58,18 +58,18 @@ export function CookieConsent() {
   return (
     <>
       {showBanner && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50 transition-transform duration-200 animate-in slide-in-from-bottom-full">
+        <div className="fixed bottom-0 left-0 right-0 bg-(--bg-card) border-t border-(--card-barras) shadow-lg z-50 transition-transform duration-200 animate-in slide-in-from-bottom-full">
           <div className="container mx-auto px-6 py-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 text-lg mb-2">
+                <h3 className="font-manrope font-bold text-(--text-title) text-lg mb-2">
                   Nós valorizamos sua privacidade
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="font-manrope text-(--text-description) text-sm">
                   Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e
                   analisar o tráfego do site. A gravação de sessão (replay de ecrã) só é
                   activada se aceitar os cookies analíticos.{" "}
-                  <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800">
+                  <Link href="/legal" className="font-medium text-(--text-link) hover:underline">
                     Saiba mais sobre nossa política de cookies
                   </Link>
                   .
@@ -78,13 +78,13 @@ export function CookieConsent() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowPreferences(true)}
-                  className="px-6 py-3 border border-blue-600 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-colors whitespace-nowrap"
+                  className="h-11 px-5 border-[1.5px] border-(--border-button) text-(--text-link) rounded-xl hover:bg-(--card-bg-hover) transition-colors whitespace-nowrap font-manrope text-sm font-medium"
                 >
                   Personalizar
                 </button>
                 <button
                   onClick={acceptAllCookies}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors whitespace-nowrap"
+                  className="h-11 px-5 bg-(--bg-button) text-(--button-fg) rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap font-manrope text-sm font-medium"
                 >
                   Aceitar todos
                 </button>
@@ -95,17 +95,18 @@ export function CookieConsent() {
       )}
       {showPreferences && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-300">
-          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto mx-4">
+          <div className="bg-(--bg-card) border border-(--card-barras) rounded-2xl p-6 md:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto mx-4">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-gray-900 text-xl">Preferências de Cookies</h3>
+              <h3 className="font-manrope font-bold text-(--text-title) text-xl">Preferências de Cookies</h3>
               <button
                 onClick={() => setShowPreferences(false)}
-                className="text-gray-500 hover:text-gray-700 text-xl"
+                aria-label="Fechar preferências de cookies"
+                className="text-(--text-description) hover:text-(--text-title) text-xl leading-none px-1 transition-colors"
               >
                 ×
               </button>
             </div>
-            <p className="text-gray-600 mb-4">Selecione quais cookies você aceita:</p>
+            <p className="font-manrope text-(--text-description) mb-4">Selecione quais cookies você aceita:</p>
             <div className="space-y-4 mb-6">
               {[
                 { id: "essential-cookies", label: "Essenciais", desc: "Necessários para o funcionamento do site. Não podem ser desativados.", disabled: true },
@@ -113,12 +114,12 @@ export function CookieConsent() {
                 { id: "analytics-cookies", label: "Analíticos", desc: "Medição de acessos e eventos. A gravação de sessão (replay de ecrã) só é activada com este consentimento.", disabled: false },
                 { id: "marketing-cookies", label: "Marketing", desc: "Utilizados para exibir anúncios relevantes e compartilhar com parceiros.", disabled: false },
               ].map(({ id, label, desc, disabled }) => (
-                <div key={id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div key={id} className="flex items-center justify-between gap-3 p-4 border border-(--card-barras) rounded-xl bg-(--background)">
                   <div>
-                    <h4 className="font-semibold text-gray-900">{label}</h4>
-                    <p className="text-gray-500 text-sm">{desc}</p>
+                    <h4 className="font-manrope font-semibold text-(--text-title)">{label}</h4>
+                    <p className="font-manrope text-(--text-description) text-sm">{desc}</p>
                   </div>
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <input
                       type="checkbox"
                       id={id}
@@ -128,9 +129,9 @@ export function CookieConsent() {
                     />
                     <label
                       htmlFor={id}
-                      className={`cookie-toggle-label block w-14 h-7 rounded-full bg-gray-300 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+                      className={`cookie-toggle-label block w-14 h-7 rounded-full bg-(--card-barras) transition-colors ${disabled ? "cursor-not-allowed opacity-80" : "cursor-pointer"}`}
                     >
-                      <span className="cookie-toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform" />
+                      <span className="cookie-toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform shadow" />
                     </label>
                   </div>
                 </div>
@@ -139,7 +140,7 @@ export function CookieConsent() {
             <div className="flex justify-end">
               <button
                 onClick={savePreferences}
-                className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                className="h-11 px-5 bg-(--bg-button) text-(--button-fg) rounded-xl hover:opacity-90 transition-opacity font-manrope text-sm font-medium"
               >
                 Salvar preferências
               </button>
@@ -148,7 +149,7 @@ export function CookieConsent() {
         </div>
       )}
       <style jsx>{`
-        .cookie-toggle:checked + .cookie-toggle-label { background-color: #2563eb; }
+        .cookie-toggle:checked + .cookie-toggle-label { background-color: var(--button-bg); }
         .cookie-toggle:checked + .cookie-toggle-label .cookie-toggle-dot { transform: translateX(28px); }
       `}</style>
     </>

@@ -146,7 +146,6 @@ const StatsSection: FC = () => {
 
   const stats = useMemo(() => {
     // Prefer the full dataset (notPaginated) for accurate all-time totals.
-    // Fall back to the paginated list while the full fetch is in progress.
     const source = notPaginated ?? transactions;
     const totalSpent = source
       .filter((t) => isExpense(t.type))

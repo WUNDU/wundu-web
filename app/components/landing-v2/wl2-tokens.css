@@ -1,0 +1,126 @@
+/* Wundu Landing v2 — ponte de tokens para o globals.css da wundu-web.
+   Os nomes de variáveis usados pela landing (.wl2) apontam para as
+   variáveis já configuradas no globals.css sempre que o valor coincide;
+   só ficam literais onde o global não tem equivalente. O dark mode vem
+   do [data-theme="dark"] aplicado no <html> pelo ThemeApplier (automático). */
+
+.wl2 {
+  /* ---- tipo ---- */
+  --font-core: var(--font-manrope);
+  --text-2xs: 11px; --text-xs: 12px; --text-sm: 13px; --text-base: 14px;
+  --text-md: 15px; --text-lg: 16px; --text-xl: 18px; --text-2xl: 20px;
+  --text-3xl: 24px; --text-5xl: 34px;
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700;
+  --lh-snug: 1.3; --lh-normal: 1.45; --lh-relaxed: 1.6;
+  --ls-tight: -0.02em; --ls-snug: -0.01em; --ls-caps: 0.08em;
+
+  /* ---- brand (== globals) ---- */
+  --primary: var(--color-primary);
+  --primary-hover: var(--button-bg-hover);
+  --primary-active: var(--button-bg-pressed);
+  --primary-light: var(--button-bg-secondary-50);
+  --primary-light-hover: var(--button-bg-secondary-100);
+  --primary-light-active: var(--button-bg-secondary-hover);
+  --secondary: var(--color-secondary);
+  --neutral: var(--color-neutrals);
+  --neutral-light-active: var(--color-neutrals-200);
+
+  /* ---- dinheiro / categorias (== globals) ---- */
+  --money-in: var(--color-success);
+  --money-in-tint: var(--color-success-10);
+  --money-out: var(--color-danger-300);
+  --money-out-tint: #ffecec;
+  --money-neutral: var(--color-warning);
+  --money-neutral-tint: var(--color-warning-10);
+  --money-worth: var(--color-primary);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --info: var(--color-info);
+  --tone-gold: var(--color-secondary-600);
+  --cat-1: var(--color-success);
+  --cat-1-tint: var(--color-success-10);
+  --cat-2: var(--color-danger-300);
+  --cat-2-tint: #ffecec;
+  --cat-3: var(--color-orange);
+  --cat-3-tint: var(--color-orange-10);
+  --cat-4: var(--color-secondary);
+  --cat-4-tint: #fffbe6;
+  --cat-5: var(--color-purple);
+  --cat-5-tint: var(--color-purple-10);
+  --cat-6: var(--color-info);
+  --cat-6-tint: var(--color-info-10);
+  --cat-7: var(--color-primary);
+  --cat-7-tint: var(--button-bg-secondary-50);
+  --cat-8: var(--color-neutrals);
+  --cat-8-tint: #f0f2f4;
+
+  /* ---- superfícies / texto (== globals) ---- */
+  --surface-page: var(--background);
+  --surface-muted: var(--background-variant);
+  --surface-card: var(--bg-card);
+  --surface-hover: var(--card-bg-hover);
+  --surface-track: var(--color-neutrals-50);
+  --border-default: var(--color-gray);
+  --border-subtle: #e4e4e4;
+  --border-strong: var(--color-neutrals-200);
+  --text-primary: var(--text-title);
+  --text-secondary: var(--text-description);
+  --text-tertiary: #a1acbb;
+  --on-soft-brand: var(--button-bg);
+  --brand-line: var(--button-bg);
+
+  /* ---- elevação / movimento (sem equivalente no global) ---- */
+  --shadow-lg: 0 12px 32px rgba(4, 9, 22, 0.12);
+  --shadow-xl: 0 24px 60px rgba(4, 9, 22, 0.18);
+  --shadow-focus: 0 0 0 3px rgba(5, 61, 196, 0.18);
+  --dur-fast: 120ms;
+  --dur-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-control: background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+
+  /* ---- raios (== globals, excepto card 14px) ---- */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+  --radius-tile: var(--radius-xl);
+  --radius-control: var(--radius-xl);
+  --radius-badge: var(--radius-full);
+  --radius-card: 14px;
+}
+
+[data-theme="dark"] .wl2 {
+  --surface-page: var(--background);
+  --surface-muted: #040d1a;
+  --surface-card: var(--bg-card);
+  --surface-hover: #0f2340;
+  --surface-track: #16243a;
+  --border-subtle: #16273e;
+  --border-default: #223249;
+  --border-strong: #314168;
+  --text-primary: #f3f6fa;
+  --text-secondary: #8ea0bb;
+  --text-tertiary: #5d6e88;
+  --on-soft-brand: #93aae8;
+  --brand-line: #4b74d4;
+  --tone-gold: #e7c948;
+  --primary-light: #132445;
+  --primary-light-hover: #18294c;
+  --primary-light-active: #20386a;
+  --money-in-tint: #072732;
+  --money-out-tint: #1f1a2d;
+  --money-neutral-tint: #1e2628;
+  --cat-1-tint: #072732;
+  --cat-2-tint: #1f1a2d;
+  --cat-3-tint: #202127;
+  --cat-4-tint: #1f2a2f;
+  --cat-5-tint: #18223f;
+  --cat-6-tint: #08243e;
+  --cat-7-tint: #071a3a;
+  --cat-8-tint: #101f35;
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.6);
+}

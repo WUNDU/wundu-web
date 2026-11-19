@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { LogoType, Button, Input, LoadingSpinner } from "@/components/ui";
+import { DsButton, DsFieldLabel, DsIconTile, DsInput } from "@/components/auth/ds";
+import { AuthBrandPanel } from "@/components/auth/auth-brand-panel";
+import {
+  AuthFormShell,
+  AuthRoot,
+} from "@/components/auth/auth-form-shell";
 import { ROUTES } from "@/constants/routes";
 import { emailVerificationService } from "@/services/email-verification.service";
 import { userService } from "@/services/user.service";
@@ -20,10 +23,11 @@ import {
 import { getEmailErrorMessage, validateEmail } from "@/utils/validation";
 
 const RESEND_COOLDOWN = 300;
+const PREFILL_EMAIL_KEY = "wundu-prefill-email";
 
 export default function VerifyPendingPage() {
   const router = useRouter();
-  const { user, setUser } = useUserStore();
+  const { user, setUser, token, prevStep } = useUserStore();
   const queryEmail =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("email") ?? ""
@@ -126,7 +130,7 @@ export default function VerifyPendingPage() {
     } finally {
       setIsResending(false);
     }
-  }, [applyCooldown, cooldown, email, isResending]);
+  }, [applyCooldown, cooldown, email, isResending, router]);
 
   const handleChangeEmail = async () => {
     const normalizedEmail = newEmail.trim();
@@ -150,11 +154,37 @@ export default function VerifyPendingPage() {
     }
   };
 
+  const handleAlterEmail = () => {
+    if (!user) {
+      // Sem sessão (caso pós-signup): volta ao passo 1 do cadastro para
+      // corrigir o email, como no kit (changeEmail -> signup1).
+      prevStep();
+      router.push(ROUTES.REGISTER);
+      return;
+    }
+    setShowEmailChange((v) => !v);
+  };
+
   const handleAlreadyVerified = async () => {
+    if (!token) {
+      // Sem sessão (caso pós-signup): segue para o login com o email
+      // pré-preenchido, como no kit (toLoginFromCheck). O login bloqueia
+      // emails por verificar e devolve para cá até à activação.
+      try {
+        if (email.trim()) {
+          localStorage.setItem(PREFILL_EMAIL_KEY, email.trim());
+        }
+      } catch {}
+      router.push(ROUTES.LOGIN);
+      return;
+    }
     setIsChecking(true);
     try {
-      const fresh = await userService.getUser();
-      if (fresh.isActive) {
+      // O isActive do /users/me NÃO reflete a verificação (é sempre true em
+      // período de graça) — a fonte de verdade é o status de verificação.
+      const status = await emailVerificationService.getEmailVerificationStatus();
+      if (status.emailVerified) {
+        const fresh = await userService.getUser();
         setUser(fresh);
         clearPendingVerificationContext();
         wunduToast.success("Email verificado! Bem-vindo ao Wundu.");
@@ -169,194 +199,173 @@ export default function VerifyPendingPage() {
     }
   };
 
+  const steps = [
+    `Abre a caixa de entrada de ${email || "o teu email"}. Verifica também o spam.`,
+    "Abre o email da Wundu e toca em Activar conta. O link expira em 24 horas.",
+    "Volta aqui e entra com o teu email e palavra-passe.",
+  ];
+
+  const kitLinkButton: CSSProperties = {
+    border: 0,
+    background: "none",
+    padding: 0,
+    font: "inherit",
+    fontWeight: 600,
+    color: "var(--on-soft-brand)",
+    cursor: "pointer",
+  };
+
+  const kitText: CSSProperties = {
+    margin: 0,
+    fontSize: 15,
+    lineHeight: 1.55,
+    color: "var(--text-secondary)",
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-white md:bg-[#fafafa]">
-      <header className="flex h-16 shrink-0 items-center justify-start px-8 md:px-12">
-        <Link href={ROUTES.LANDINGPAGE} className="transition-opacity hover:opacity-80">
-          <div className="w-30">
-            <LogoType />
-          </div>
-        </Link>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-255">
-          <div className="flex w-full flex-col bg-white md:h-130 md:flex-row md:rounded-3xl md:border md:border-slate-200/50 md:shadow-[0_1px_2px_rgba(0,0,0,0.01),0_8px_16px_rgba(0,0,0,0.02)] overflow-hidden">
-
-            {/* Visual column */}
-            <div className="hidden flex-1 items-center justify-center border-r border-slate-100/80 bg-[#f9f9f9]/50 p-12 lg:flex">
-              <div className="flex flex-col items-center gap-6">
-                {/* Animated envelope */}
-                <div className="relative">
-                  <motion.div
-                    animate={{ scale: [1, 1.06, 1] }}
-                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                    className="flex h-28 w-28 items-center justify-center rounded-full bg-secondary/8 motion-reduce:animate-none"
-                  >
-                    <motion.div
-                      animate={{ scale: [1, 1.04, 1] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-                      className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary/12 motion-reduce:animate-none"
-                    >
-                      <svg
-                        className="h-10 w-10 text-secondary"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-                        />
-                      </svg>
-                    </motion.div>
-                  </motion.div>
-
-                  {/* Orbiting dot */}
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 motion-reduce:hidden"
-                  >
-                    <div className="absolute -top-1 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-primary" />
-                  </motion.div>
-                </div>
-
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-600">
-                    Verifica a tua caixa de entrada
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Content side */}
-            <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 md:px-14 lg:px-16">
-              <header className="mb-6">
-                <h1 className="text-2xl font-bold tracking-tighter text-slate-900 md:text-3xl">
-                  Verifica o teu email
-                </h1>
-                <p className="mt-2 text-sm font-medium text-slate-500">
-                  Enviámos um link de verificação para{" "}
-                  <span className="font-bold text-slate-800">
-                    {email || "o teu email"}
-                  </span>
-                  . Clica no link para activar a tua conta.
-                </p>
-              </header>
-
-              <div className="flex flex-col gap-4">
-                {/* Expiry note */}
-                <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-4 py-3">
-                  <svg
-                    className="h-4 w-4 shrink-0 text-slate-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <p className="text-xs font-medium text-slate-500">
-                    O link expira em 24 horas
-                  </p>
-                </div>
-
-                {/* Resend button */}
-                <Button
-                  variant="warning"
-                  fullWidth
-                  loading={isResending}
-                  disabled={cooldown > 0 || isResending}
-                  onClick={handleResend}
-                  className="h-11 rounded-xl text-sm font-extrabold shadow-sm transition-all active:scale-[0.98]"
-                >
-                  {cooldown > 0 ? (
-                    `Reenviar em ${formatCountdown(cooldown)}`
-                  ) : (
-                    "Reenviar email de verificação"
-                  )}
-                </Button>
-
-                {/* Change email section */}
-                {canChangeEmail && (
-                  <div className="mt-1 text-center">
-                    <button
-                      onClick={() => setShowEmailChange((v) => !v)}
-                      className="text-xs font-bold text-slate-600 transition-colors hover:text-slate-900"
-                    >
-                      Email errado?
-                    </button>
-
-                    <AnimatePresence>
-                      {showEmailChange && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.22, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="mt-3 flex flex-col gap-3">
-                            <Input
-                              id="new-email"
-                              label="Novo email"
-                              type="email"
-                              value={newEmail}
-                              onChange={(e) => setNewEmail(e.target.value)}
-                              placeholder="novo@email.com"
-                              disabled={isSavingEmail}
-                              className="h-11 border-slate-200 bg-slate-50/40 text-[14px] transition-all focus:border-slate-900 focus:bg-white"
-                            />
-                            <Button
-                              variant="primary"
-                              fullWidth
-                              disabled={isSavingEmail || !newEmail}
-                              onClick={handleChangeEmail}
-                              className="h-10 rounded-xl text-sm font-bold"
-                            >
-                              {isSavingEmail ? (
-                                <span className="flex items-center gap-2">
-                                  <LoadingSpinner size="sm" />
-                                  A guardar...
-                                </span>
-                              ) : (
-                                "Actualizar email"
-                              )}
-                            </Button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-              </div>
-
-              <footer className="mt-6 border-t border-slate-100 pt-5 text-center">
-                <p className="text-sm font-medium text-slate-500">
-                  Voltar para{" "}
-                  <Link
-                    href={ROUTES.LOGIN}
-                    className="font-bold text-slate-900 decoration-yellow-400 decoration-2 underline-offset-4 hover:underline"
-                  >
-                    entrar na conta
-                  </Link>
-                </p>
-              </footer>
-            </div>
-          </div>
-
-          <footer className="mt-8 px-8 text-center">
-            <p className="text-[10px] leading-relaxed text-slate-400 font-medium max-w-sm mx-auto">
-              Verifica a pasta de spam se não encontrares o email de verificação.
-            </p>
-          </footer>
+    <AuthRoot>
+      <AuthFormShell onBack={() => router.back()}>
+        <DsIconTile icon="mail" tone="brand" size="lg" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Confirma o teu email
+          </h1>
+          <p style={kitText}>
+            Enviámos um link de activação para{" "}
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {email || "o teu email"}
+            </strong>
+            . A conta só fica activa depois de abrires esse link. Até lá não é
+            possível entrar na Wundu.
+          </p>
         </div>
-      </main>
-    </div>
+
+        <ol
+          style={{
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            border: "1px solid var(--border-subtle)",
+            borderRadius: 14,
+            background: "var(--surface-card)",
+          }}
+        >
+          {steps.map((text, i) => (
+            <li
+              key={text}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                padding: "14px 16px",
+                borderTop: i ? "1px solid var(--border-subtle)" : "0",
+              }}
+            >
+              <span
+                style={{
+                  width: 28,
+                  height: 28,
+                  flex: "0 0 auto",
+                  borderRadius: 999,
+                  background: "var(--primary-light)",
+                  color: "var(--on-soft-brand)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                {i + 1}
+              </span>
+              <span
+                style={{
+                  fontSize: 14,
+                  lineHeight: 1.45,
+                  color: "var(--text-primary)",
+                }}
+              >
+                {text}
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <DsButton
+            variant="primary"
+            size="lg"
+            block
+            loading={isChecking}
+            onClick={handleAlreadyVerified}
+          >
+            Já confirmei, entrar
+          </DsButton>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              minHeight: 44,
+              fontSize: 14,
+              color: "var(--text-secondary)",
+            }}
+          >
+            {cooldown > 0 ? (
+              <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                Reenviar email em {formatCountdown(cooldown)}
+              </span>
+            ) : (
+              <>
+                Não recebeste?{" "}
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={isResending}
+                  style={{ ...kitLinkButton, opacity: isResending ? 0.6 : 1 }}
+                >
+                  {isResending ? "A reenviar..." : "Reenviar email"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <p style={{ ...kitText, textAlign: "center" }}>
+          Email errado?{" "}
+          <button type="button" onClick={handleAlterEmail} style={kitLinkButton}>
+            Alterar email
+          </button>
+        </p>
+
+        {canChangeEmail && showEmailChange && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <DsFieldLabel>Novo email</DsFieldLabel>
+              <DsInput
+                icon="mail"
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="novo@email.com"
+                disabled={isSavingEmail}
+              />
+            </div>
+            <DsButton
+              variant="primary"
+              size="lg"
+              block
+              loading={isSavingEmail}
+              disabled={isSavingEmail || !newEmail}
+              onClick={handleChangeEmail}
+            >
+              Actualizar email
+            </DsButton>
+          </div>
+        )}
+      </AuthFormShell>
+      <AuthBrandPanel />
+    </AuthRoot>
   );
 }

@@ -3,6 +3,7 @@ import { useUserStore } from "@/store/user-store";
 import { useRouter, usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { ROUTES } from "@/constants/routes";
+import { redirectUnverifiedToPending } from "@/utils/verification-gate";
 import { LoadingProvider } from "@/contexts/loading-context";
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, ArrowRight } from "lucide-react";
@@ -69,7 +70,7 @@ const MaintenanceOverlay: React.FC = () => {
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading, initializeAuth } = useUserStore();
+  const { isAuthenticated, isLoading, initializeAuth, user } = useUserStore();
   const router = useRouter();
   const pathname = usePathname();
   const [checked, setChecked] = useState(false);
@@ -92,15 +93,26 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   }, [initializeAuth]);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (isLoading || checked) return;
+    (async () => {
       if (isAuthenticated && !isVerifyPage) {
-        router.push(ROUTES.HOME);
+        // Sessão válida mas conta por verificar (o isActive do /users/me não
+        // reflete a verificação) fica na verificação em vez da home.
+        const diverted = await redirectUnverifiedToPending(user?.email, (url) =>
+          router.push(url)
+        );
+        if (!diverted) {
+          router.push(ROUTES.HOME);
+        }
       }
       setChecked(true);
-    }
-  }, [isAuthenticated, isLoading, router, isVerifyPage]);
+    })();
+  }, [isAuthenticated, isLoading, checked, router, isVerifyPage, user?.email]);
 
-  if (!checked || (isAuthenticated && !isVerifyPage)) {
+  // Sem o fallback abaixo, uma navegação falhada para /home (ex. cookie de
+  // sessão ausente com isAuthenticated em memória) deixava o ecrã branco
+  // permanente: o proxy devolve ao login e este null escondia o formulário.
+  if (!checked) {
     return null;
   }
 

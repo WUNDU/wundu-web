@@ -21,7 +21,8 @@ const navItems = [
   { name: "Objectivos", path: ROUTES.FINANCIAL, icon: GoalsIcon, exact: false, dataTutorial: "nav-goals" },
   { name: "Análises", path: ROUTES.CONTROL_PANEL, icon: ChartDesktopIcon, exact: false, dataTutorial: "nav-analytics" },
   { name: "Categorias", path: ROUTES.CATEGORIES, icon: Tag, exact: false, dataTutorial: "nav-categories" },
-  { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false, dataTutorial: "nav-chat" },
+  // Wundu AI desativada por uns instantes — botão comentado para fácil reactivação
+  // { name: "Wundu AI", path: ROUTES.CHAT_IA, icon: IAIcon, exact: false, dataTutorial: "nav-chat" },
 ];
 
 interface SidebarProps {
@@ -110,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onCloseMobile 
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
               >
-                <Image src={logotype} alt="Wundu" height={28} className="h-7 w-auto object-contain" priority />
+                <Image src={logotype} alt="Wundu" width={85} height={28} className="h-7 w-auto object-contain" priority />
               </motion.div>
             </AnimatePresence>
           ) : (

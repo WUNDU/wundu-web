@@ -54,6 +54,7 @@ interface ReportNotificationModalProps {
   onClose: () => void;
 }
 
+/** @deprecated Automatic report notification popups were discontinued. */
 export function ReportNotificationModal({ notification, onClose }: ReportNotificationModalProps) {
   const router = useRouter();
   const config = REPORT_CONFIG[notification.type as ReportType] ?? REPORT_CONFIG.WEEKLY_REPORT;

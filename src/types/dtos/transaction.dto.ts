@@ -22,6 +22,8 @@ export interface TransactionRequest {
 
 interface CategoryRequest {
   name: string;
+  flow?: "INCOME" | "EXPENSE";
+  createIfMissing?: boolean;
 }
 
 export interface TransactionUpdateRequest {
@@ -110,5 +112,5 @@ export interface TransactionPatchPayload {
   amount?: number;
   description?: string;
   transactionDate?: string;
-  category?: { name: string };
+  category?: { name: string; flow?: "INCOME" | "EXPENSE" };
 }

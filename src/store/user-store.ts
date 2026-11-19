@@ -34,6 +34,49 @@ function clearUserStores() {
   queryClient.removeQueries({ queryKey: ["sessions"] });
 }
 
+/**
+ * Subconjunto do `User` que pode viver no localStorage.
+ *
+ * Tudo o resto — telefone, data de nascimento, localização, estado civil,
+ * dependentes, situação laboral e rendimento previsto — é PII/dado financeiro
+ * e fica APENAS em memória até o `/users/me` devolver o perfil completo.
+ * O token de acesso nunca entra aqui (ver `partialize`).
+ */
+type CachedUser = Pick<
+  User,
+  | "id"
+  | "name"
+  | "email"
+  | "profilePhotoUrl"
+  | "planType"
+  | "role"
+  | "analyticsConsent"
+  | "createdAt"
+  | "isActive"
+>;
+
+/**
+ * Projecta o user em memória para o cache mínimo do localStorage.
+ *
+ * O cast para `User` é intencional: o objecto persistido é um subconjunto e
+ * os campos em falta são repostos por `checkAuthStatus()` pouco depois do
+ * refresh — todos os leitores no UI tratam esses campos como opcionais.
+ */
+function toCachedUser(user: User): User {
+  const cached: CachedUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    profilePhotoUrl: user.profilePhotoUrl ?? null,
+    planType: user.planType,
+    role: user.role,
+    analyticsConsent: user.analyticsConsent,
+    createdAt: user.createdAt,
+    isActive: user.isActive,
+  };
+  return cached as User;
+}
+
 interface AuthState {
   // Auth state
   token: string | null;
@@ -267,6 +310,15 @@ export const useUserStore = create<AuthState>()(
         set({ isLoading: true, error: null, errorCode: null, retryAfterSeconds: null });
         try {
           const response = await userService.login(email, password);
+          // O backend permite login no período de graça (emailVerified: false
+          // + verificationDeadline), mas a conta só entra depois de activada:
+          // sem verificação vai para a verificação em vez da home.
+          if (response.emailVerified === false) {
+            const errMsg = "Confirma o teu email para entrar.";
+            setPendingVerificationEmail(email);
+            set({ token: null, isAuthenticated: false, isLoading: false, error: errMsg, errorCode: "EMAIL_NOT_VERIFIED" });
+            return false;
+          }
           clearUserStores();
           // accessToken guardado apenas em memória — nunca em localStorage
           set({ token: response.accessToken, isAuthenticated: true, isLoading: false, currentStep: 1, data: {} });
@@ -285,7 +337,7 @@ export const useUserStore = create<AuthState>()(
             errMsg = "A sua conta foi desactivada. Contacte o suporte.";
             set({ error: errMsg, errorCode, isLoading: false });
           } else if (errorCode === "EMAIL_NOT_VERIFIED") {
-            errMsg = "Por favor, verifique o seu email antes de entrar.";
+            errMsg = "Confirma o teu email para entrar.";
             setPendingVerificationEmail(email);
             set({ error: errMsg, errorCode, isLoading: false });
           } else {
@@ -359,7 +411,7 @@ export const useUserStore = create<AuthState>()(
 
       logout: async () => {
         // Await cookie clearing so wundu_session is gone before the browser
-        // makes the next request — prevents middleware from redirecting /login back to /home
+        // makes the next request — prevents the proxy from redirecting /login back to /home
         await userService.logoutApi().catch(() => {});
         clearUserStores();
         set({ token: null, isAuthenticated: false, isLoading: false, error: null, user: null, currentStep: 1, data: {} });
@@ -411,10 +463,12 @@ export const useUserStore = create<AuthState>()(
       name: "wundu-user-cache",
       storage: createJSONStorage(() => localStorage),
       // O token NÃO é persistido — vive apenas em memória (segurança contra XSS).
-      // O user é persistido para exibição imediata enquanto o refresh silencioso decorre.
+      // Do user só se persiste o mínimo para a UI renderizar de imediato (ver
+      // toCachedUser): PII demográfico/financeiro fica só em memória até o
+      // /users/me devolver o perfil completo.
       // O estado de registo (currentStep, data) é intencionalmente efémero.
       partialize: (state) => ({
-        user: state.user,
+        user: state.user ? toCachedUser(state.user) : null,
       }),
       onRehydrateStorage: () => (state) => {
         // Sanitise any stale registration state left by older versions of the store

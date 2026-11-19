@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clearSessionCookies } from "@/server/auth-cookie";
 
 const BACKEND = process.env.BACKEND_API_BASE_URL ?? "";
 const COOKIE_NAME = "refresh_token";
-const COOKIE_PATH = "/";
 
 export async function POST(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -17,23 +17,9 @@ export async function POST(req: NextRequest) {
 
   const nextRes = NextResponse.json({}, { status: 200 });
 
-  // Clear the refresh_token cookie on the frontend
-  nextRes.cookies.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: COOKIE_PATH,
-    maxAge: 0,
-  });
-
-  // Clear session indicator
-  nextRes.cookies.set("wundu_session", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
+  // Clear refresh_token (path actual + legado) and the session indicator —
+  // última operação de cookies da resposta.
+  clearSessionCookies(nextRes, req);
 
   return nextRes;
 }

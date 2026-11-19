@@ -5,6 +5,10 @@ import type { ProfileUpdateRequest, UserRequest } from "@/types/dtos/user.dto";
 interface LoginResponse {
   accessToken: string;
   expiresIn: number;
+  emailVerified?: boolean;
+  verificationDeadline?: string;
+  secondsUntilDeadline?: number;
+  deadlineExpired?: boolean;
 }
 
 interface RefreshResponse {
@@ -102,7 +106,7 @@ class UserService {
   /**
    * Upload da foto de perfil. multipart/form-data — o axios remove o
    * Content-Type JSON por defeito quando o corpo é FormData (browser define o
-   * boundary). Formatos aceites pelo backend: JPEG/PNG, máx. 5 MB.
+   * boundary). Formatos aceites pelo backend: JPEG/PNG/WebP, máx. 20 MB.
    */
   async uploadPhoto(file: File): Promise<{ profilePhotoUrl: string; uploadedAt: string }> {
     const form = new FormData();

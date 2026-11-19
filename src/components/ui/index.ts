@@ -4,6 +4,7 @@ export { default as Select } from "./select";
 export { default as CategorySelect, type CategorySelectProps } from "./category-select";
 export { default as LoadingSpinner } from "./loading-spinner";
 export { default as LogoType } from "./logo-type";
+export { default as UserAvatar } from "./user-avatar";
 
 // Batch 1 — UI primitives
 export { Tab } from "./tab";

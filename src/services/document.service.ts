@@ -1,5 +1,6 @@
 import { apiClient } from "@/api/api";
 import type {
+  DocumentConfirmResponse,
   DocumentList,
   DocumentResult,
   DocumentStatus,
@@ -27,9 +28,7 @@ const normalizeCount = (
 
 class DocumentService {
   async upload(file: FormData): Promise<UploadResponse> {
-    const { data } = await apiClient.post<UploadResponse>("/documents/upload", file, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await apiClient.post<UploadResponse>("/documents/upload", file);
     return data;
   }
 
@@ -59,6 +58,21 @@ class DocumentService {
 
   async getResult(id: string): Promise<DocumentResult> {
     const { data } = await apiClient.get<DocumentResult>(`/documents/${id}/result`);
+    return data;
+  }
+
+  /**
+   * Confirma a leitura do documento. O backend usa os dados que extraiu
+   * (o corpo do pedido é ignorado) e cria a transação ligada ao comprovativo.
+   * Só depois desta chamada o documento passa a `PROCESSED` e o resultado
+   * estruturado fica disponível em `getResult`.
+   */
+  async confirm(id: string): Promise<DocumentConfirmResponse> {
+    // O corpo é ignorado pelo backend, mas tem de ser enviado (JSON válido).
+    const { data } = await apiClient.post<DocumentConfirmResponse>(
+      `/documents/${id}/confirm`,
+      {},
+    );
     return data;
   }
 
