@@ -37,25 +37,25 @@ function Achievements({ achievements = [] }: { achievements?: Achievement[] }) {
           Conclua uma meta para ver a sua conquista aqui.
         </p>
       ) : (
-        <ul className="flex content-start items-start justify-start gap-2 self-stretch flex-wrap">
+        <ul className="grid w-full grid-cols-1 content-start items-stretch justify-start gap-2 self-stretch sm:grid-cols-2">
           {achievements.map((achievement, index) => (
             <li
               key={`${achievement.title}-${index}`}
-              className="flex min-w-0 flex-1 flex-col items-start justify-start gap-1.5 rounded-xl border border-(--card-barras) bg-(--bg-card) px-6 py-4 md:min-w-80"
+              className="flex min-w-0 w-full flex-col items-start justify-start gap-1.5 rounded-xl border border-(--card-barras) bg-(--bg-card) px-4 py-4 sm:px-6"
             >
-              <article className="flex items-center justify-start gap-3 self-stretch">
-                <h3 className="min-w-0 flex-1 truncate font-manrope text-base font-bold text-(--text-title)">
+              <article className="flex min-w-0 items-start justify-start gap-3 self-stretch">
+                <h3 className="min-w-0 flex-1 break-words font-manrope text-base font-bold leading-6 text-(--text-title)">
                   {achievement.title}
                 </h3>
-                <span className="flex shrink-0 items-center justify-center rounded-full bg-success px-3 py-1 font-manrope text-xs font-bold text-base-white">
+                <span className="mt-0.5 flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-success px-3 py-1 font-manrope text-xs font-bold text-base-white">
                   Concluída
                 </span>
               </article>
-              <p className="flex items-center justify-start gap-1.5">
-                <span className="font-manrope text-sm font-medium leading-5 text-(--text-description-60)">
+              <p className="flex min-w-0 flex-wrap items-center justify-start gap-x-1.5 gap-y-0.5 self-stretch">
+                <span className="shrink-0 font-manrope text-sm font-medium leading-5 text-(--text-description-60)">
                   Valor poupado:
                 </span>
-                <span className="font-manrope text-sm font-normal leading-5 text-(--text-description)">
+                <span className="min-w-0 flex-1 break-words font-manrope text-sm font-normal leading-5 text-(--text-description)">
                   {formatAOA(achievement.saved)}
                 </span>
               </p>
