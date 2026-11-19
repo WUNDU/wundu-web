@@ -43,9 +43,10 @@ function page() {
     isLoading: isLoadingPage,
     isLoadingMore,
     isLastPage,
+    totalElements: serverTotalElements,
     error: transactionsError,
     refreshTransactions,
-    loadMore,
+    ensurePage,
     createTransaction,
     updateTransaction,
     removeTransaction,
@@ -61,6 +62,14 @@ function page() {
   const isList = view === "list";
   const remaining = MAX_SEARCH_LENGTH - query.length;
   const normalizedQuery = query.trim().toLowerCase();
+  const hasActiveFilters =
+    filters.type !== "all" ||
+    filters.category !== "" ||
+    filters.sortField !== DEFAULT_TRANSACTION_FILTERS.sortField ||
+    filters.sortOrder !== DEFAULT_TRANSACTION_FILTERS.sortOrder;
+  // Sem pesquisa nem filtros, a lista é a do servidor tal qual — por isso
+  // a paginação usa os totais do endpoint (totalElements) desde o início.
+  const isUnfilteredView = !normalizedQuery && !hasActiveFilters;
 
   // A listagem é paginada no servidor (`GET /transactions/me`, 20/pág.):
   // o useTransaction com autoFetch traz a 1ª página sozinho; páginas
@@ -95,21 +104,42 @@ function page() {
     setPage(1);
   }, [normalizedQuery, filters]);
 
-  // Paginação progressiva invisível: ao chegar à última página carregada,
-  // busca a próxima página no servidor sem nenhum botão extra no visual.
-  function handlePageChange(next: number) {
-    setPage(next);
-    if (next >= pageCount && !isLastPage && !isLoadingMore) void loadMore();
-  }
   const pageCount = Math.max(
     1,
     Math.ceil(filteredTransactions.length / PAGE_SIZE),
   );
-  const safePage = Math.min(page, pageCount);
+  // Total de páginas do servidor (10 itens/pág. na UI, endpoint com
+  // totalElements) — visível à primeira vista, sem carregar tudo.
+  const serverPageCount =
+    serverTotalElements > 0
+      ? Math.max(1, Math.ceil(serverTotalElements / PAGE_SIZE))
+      : pageCount;
+  const effectivePageCount = isUnfilteredView ? serverPageCount : pageCount;
+  const effectiveTotal = isUnfilteredView
+    ? Math.max(serverTotalElements, filteredTransactions.length)
+    : filteredTransactions.length;
+  const safePage = Math.min(page, effectivePageCount);
+
+  // Saltar para uma página ainda não carregada busca as páginas do servidor
+  // em falta (em sequência); a numeração total nunca mexe.
+  function handlePageChange(next: number) {
+    const target = Math.max(1, Math.min(next, effectivePageCount));
+    setPage(target);
+    if (!isUnfilteredView || isLastPage || isLoadingMore) return;
+    const SERVER_PAGE_SIZE = 20;
+    const serverIndex = Math.floor(((target - 1) * PAGE_SIZE) / SERVER_PAGE_SIZE);
+    void ensurePage(serverIndex);
+  }
   const pagedTransactions = filteredTransactions.slice(
     (safePage - 1) * PAGE_SIZE,
     safePage * PAGE_SIZE,
   );
+  // Vista sem filtros numa página ainda a carregar do servidor.
+  const awaitingServer =
+    isUnfilteredView &&
+    !isLastPage &&
+    pagedTransactions.length === 0 &&
+    filteredTransactions.length > 0;
 
   async function handleSaveTransaction(
     values: TransactionFormValues,
@@ -141,12 +171,8 @@ function page() {
     return removeTransaction(id);
   }
 
-  const isLoading = isLoadingPage && transactions.length === 0;
-  const hasActiveFilters =
-    filters.type !== "all" ||
-    filters.category !== "" ||
-    filters.sortField !== DEFAULT_TRANSACTION_FILTERS.sortField ||
-    filters.sortOrder !== DEFAULT_TRANSACTION_FILTERS.sortOrder;
+  const isLoading =
+    (isLoadingPage && transactions.length === 0) || awaitingServer;
 
   return (
     <>
@@ -415,11 +441,11 @@ function page() {
             ))}
           </main>
         )}
-        {filteredTransactions.length > 0 && (
+        {effectiveTotal > 0 && (
           <TransactionPagination
             page={safePage}
-            pageCount={pageCount}
-            total={filteredTransactions.length}
+            pageCount={effectivePageCount}
+            total={effectiveTotal}
             pageSize={PAGE_SIZE}
             onChange={handlePageChange}
           />

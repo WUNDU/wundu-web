@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { transactionService } from "@/services/transaction.service";
 import type {
@@ -289,6 +289,34 @@ export function useTransaction({
     return Promise.resolve();
   }, [listQuery.hasNextPage, listQuery.isFetchingNextPage, listQuery.fetchNextPage]);
 
+  // Garante que a página N do servidor está carregada, buscando as
+  // intermédias em sequência. Permite saltar direto para qualquer página
+  // (a UI mostra o total de páginas à primeira vista) sem descarregar tudo.
+  const fetchNextRef = useRef(listQuery.fetchNextPage);
+  fetchNextRef.current = listQuery.fetchNextPage;
+  const ensuringRef = useRef(false);
+  const ensurePage = useCallback(
+    async (pageIndex: number) => {
+      if (pageIndex < 0 || ensuringRef.current) return;
+      ensuringRef.current = true;
+      try {
+        for (;;) {
+          const data = queryClient.getQueryData<ListData>(LIST_KEY);
+          const pages = data?.pages ?? [];
+          if (pages.length > pageIndex) break;
+          const last = pages[pages.length - 1];
+          if (pages.length > 0 && last.last) break;
+          await fetchNextRef.current();
+          const fresh = queryClient.getQueryData<ListData>(LIST_KEY);
+          if (!fresh || fresh.pages.length === pages.length) break;
+        }
+      } finally {
+        ensuringRef.current = false;
+      }
+    },
+    [queryClient],
+  );
+
   const resetPagination = useCallback(
     () => queryClient.removeQueries({ queryKey: LIST_KEY }),
     [queryClient],
@@ -327,6 +355,7 @@ export function useTransaction({
     getAllNotPaginated,
     loadPage,
     loadMore,
+    ensurePage,
     resetPagination,
   };
 }
