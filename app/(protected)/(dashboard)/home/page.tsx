@@ -5,7 +5,7 @@ import CardViews, { type CardTrend } from "app/components/dashboard/CardViews";
 import BalanceHero from "app/components/dashboard/BalanceHero";
 import NegativeBalanceAlert from "app/components/dashboard/NegativeBalanceAlert";
 import MiniStatCard from "app/components/dashboard/MiniStatCard";
-// import AiNotify from "app/components/dashboard/AiNotify";
+// import AiNotify from "app/components/dashboard/AiNotify"; // desativado por enquanto
 import GoalsSection from "app/components/dashboard/GoalsSection";
 import TransactionSection from "app/components/dashboard/TransactionSection";
 import FlowCard from "app/components/dashboard/FlowCard";

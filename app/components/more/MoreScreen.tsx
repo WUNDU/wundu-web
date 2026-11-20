@@ -78,19 +78,18 @@ export default function MoreScreen() {
   );
 
   const sections: { label: string; items: MoreItem[] }[] = [
-    // Wundu IA desativada por uns instantes — botão comentado para fácil reactivação
-    // {
-    //   label: "GERAL",
-    //   items: [
-    //     {
-    //       key: "wundu-ia",
-    //       title: "Wundu IA",
-    //       description: "Pergunta sobre as tuas finanças",
-    //       icon: menuIcon("ai"),
-    //       href: "/home/ai",
-    //     },
-    //   ],
-    // },
+    {
+      label: "GERAL",
+      items: [
+        {
+          key: "wundu-ia",
+          title: "Wundu IA",
+          description: "Pergunta sobre as tuas finanças",
+          icon: menuIcon("ai"),
+          href: "/home/ai",
+        },
+      ],
+    },
     {
       label: "CONFIGURAÇÕES",
       items: [
